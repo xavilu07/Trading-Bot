@@ -25,6 +25,14 @@ EDGE_GROUP_FIELDS = (
     "blocking_reasons",
     "high_score_rejected",
 )
+SECONDARY_GROUP_FIELDS = (
+    "setup_type",
+    "liquidity_sweep",
+    "setup_type_liquidity_sweep",
+    "setup_type_market_structure",
+    "setup_type_warnings",
+    "setup_type_penalties",
+)
 
 
 def discover_paper_csvs(data_path: Path) -> list[Path]:
@@ -70,6 +78,7 @@ def build_performance_metrics(trades: list[dict[str, object]]) -> dict[str, obje
         "worst_warnings": _rank_tokens(trades, "avoidance_warnings", reverse=False),
         "worst_penalties": _rank_tokens(trades, "penalties", reverse=False),
         "edge_breakdown": build_edge_breakdown(trades),
+        "secondary_signal_breakdown": build_secondary_signal_breakdown(trades),
     }
 
 
@@ -85,13 +94,27 @@ def build_edge_breakdown(trades: list[dict[str, object]]) -> list[dict[str, obje
     return sorted(rows, key=lambda item: float(item["total_r"]))
 
 
+def build_secondary_signal_breakdown(trades: list[dict[str, object]]) -> list[dict[str, object]]:
+    groups: dict[tuple[str, str], list[dict[str, object]]] = defaultdict(list)
+    for trade in trades:
+        for field in SECONDARY_GROUP_FIELDS:
+            for value in _secondary_values(trade, field):
+                groups[(field, value)].append(trade)
+    rows = []
+    for (field, value), items in groups.items():
+        rows.append({"group_type": field, "group": value, **_group_metrics(items)})
+    return sorted(rows, key=lambda item: (str(item["group_type"]), str(item["group"])))
+
+
 def generate_performance_report(data_path: Path, reports_path: Path) -> dict[str, object]:
     reports_path.mkdir(parents=True, exist_ok=True)
     output_path = reports_path / "performance_report.html"
     trades = load_closed_trades(data_path)
     metrics = build_performance_metrics(trades)
     edge_csv_path = reports_path / "edge_breakdown.csv"
+    secondary_csv_path = reports_path / "secondary_signal_breakdown.csv"
     write_edge_breakdown_csv(edge_csv_path, metrics.get("edge_breakdown", []))
+    write_edge_breakdown_csv(secondary_csv_path, metrics.get("secondary_signal_breakdown", []))
     if len(trades) < 2:
         output_path.write_text(_simple_html("Datos insuficientes", metrics), encoding="utf-8")
         return {
@@ -99,6 +122,7 @@ def generate_performance_report(data_path: Path, reports_path: Path) -> dict[str
             "reason": "insufficient_closed_trades",
             "report_path": str(output_path),
             "edge_breakdown_path": str(edge_csv_path),
+            "secondary_signal_breakdown_path": str(secondary_csv_path),
             "metrics": metrics,
         }
     returns = _returns_by_date(trades)
@@ -110,6 +134,7 @@ def generate_performance_report(data_path: Path, reports_path: Path) -> dict[str
         "reason": "quantstats_report_generated" if quantstats_ok else "fallback_report_generated",
         "report_path": str(output_path),
         "edge_breakdown_path": str(edge_csv_path),
+        "secondary_signal_breakdown_path": str(secondary_csv_path),
         "metrics": metrics,
     }
 
@@ -127,7 +152,23 @@ def format_metrics(metrics: dict[str, object]) -> str:
         f"- Mejores setups: {_format_rank(metrics.get('best_setups', []))}\n"
         f"- Peores warnings: {_format_rank(metrics.get('worst_warnings', []))}\n"
         f"- Peores penalties: {_format_rank(metrics.get('worst_penalties', []))}\n\n"
+        f"{format_secondary_signal_analysis(metrics.get('secondary_signal_breakdown', []))}\n\n"
         f"{format_edge_breakdown(metrics.get('edge_breakdown', []))}"
+    )
+
+
+def format_secondary_signal_analysis(rows: object) -> str:
+    if not isinstance(rows, list):
+        rows = []
+    valid_rows = [row for row in rows if isinstance(row, dict)]
+    secondary_no_sweep = _find_breakdown(valid_rows, "setup_type_liquidity_sweep", "SECONDARY_SIGNAL|no")
+    secondary_with_sweep = _find_breakdown(valid_rows, "setup_type_liquidity_sweep", "SECONDARY_SIGNAL|yes")
+    main = _find_breakdown(valid_rows, "setup_type", "MAIN_SIGNAL")
+    return (
+        "🧪 Secondary Signal Analysis\n"
+        f"- SECONDARY sin sweep: {_format_secondary_metric_line(secondary_no_sweep)}\n"
+        f"- SECONDARY con sweep: {_format_secondary_metric_line(secondary_with_sweep)}\n"
+        f"- MAIN: {_format_secondary_metric_line(main)}"
     )
 
 
@@ -162,6 +203,7 @@ def main(argv: list[str] | None = None) -> int:
     print(format_metrics(result["metrics"]))
     print(f"Report: {result['report_path']}")
     print(f"Edge breakdown: {result['edge_breakdown_path']}")
+    print(f"Secondary signal breakdown: {result['secondary_signal_breakdown_path']}")
     if not result["ok"]:
         print(f"Info: {result['reason']}")
     return 0
@@ -266,6 +308,32 @@ def _edge_values(trade: dict[str, object], field: str) -> list[str]:
     return [value] if value else []
 
 
+def _secondary_values(trade: dict[str, object], field: str) -> list[str]:
+    setup_type = str(trade.get("setup_type", "") or "UNKNOWN").strip() or "UNKNOWN"
+    sweep = _liquidity_sweep_state(trade)
+    if field == "setup_type":
+        return [setup_type]
+    if field == "liquidity_sweep":
+        return [sweep]
+    if field == "setup_type_liquidity_sweep":
+        return [f"{setup_type}|{sweep}"]
+    if field == "setup_type_market_structure":
+        market_structure = str(trade.get("market_structure", "") or "UNKNOWN").strip() or "UNKNOWN"
+        return [f"{setup_type}|{market_structure}"]
+    if field == "setup_type_warnings":
+        return [f"{setup_type}|{warning}" for warning in _tokens(trade.get("avoidance_warnings") or trade.get("warnings"))]
+    if field == "setup_type_penalties":
+        return [f"{setup_type}|{penalty}" for penalty in _tokens(trade.get("penalties"))]
+    return []
+
+
+def _liquidity_sweep_state(trade: dict[str, object]) -> str:
+    raw = str(trade.get("liquidity_sweep", "") or "").strip().lower()
+    if not raw or raw in {"none", "no", "false", "0"}:
+        return "no" if raw else "none"
+    return "yes"
+
+
 def _score_bucket(score: float | None) -> str:
     if score is None:
         return "unknown"
@@ -278,6 +346,26 @@ def _score_bucket(score: float | None) -> str:
     if score < 90:
         return "80-90"
     return "90+"
+
+
+def _find_breakdown(rows: list[dict[str, object]], group_type: str, group: str) -> dict[str, object] | None:
+    for row in rows:
+        if row.get("group_type") == group_type and row.get("group") == group:
+            return row
+    return None
+
+
+def _format_secondary_metric_line(row: dict[str, object] | None) -> str:
+    if row is None:
+        return "trades 0 | WR 0.0% | Total R 0.0 | AvgR 0.0 | PF -"
+    profit_factor = row.get("profit_factor")
+    return (
+        f"trades {row.get('trades', 0)} | "
+        f"WR {row.get('winrate', 0.0)}% | "
+        f"Total R {row.get('total_r', 0.0)} | "
+        f"AvgR {row.get('avg_r', 0.0)} | "
+        f"PF {profit_factor if profit_factor is not None else 'inf'}"
+    )
 
 
 def _rank_by_total_r(trades: list[dict[str, object]], field: str, *, reverse: bool) -> list[dict[str, object]]:

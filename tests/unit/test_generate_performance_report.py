@@ -6,7 +6,9 @@ from pathlib import Path
 from scripts.generate_performance_report import (
     build_edge_breakdown,
     build_performance_metrics,
+    build_secondary_signal_breakdown,
     format_edge_breakdown,
+    format_secondary_signal_analysis,
     generate_performance_report,
     load_closed_trades,
 )
@@ -40,6 +42,8 @@ def test_performance_report_builds_metrics_from_closed_trades(tmp_path: Path) ->
                 "symbol": "BTCUSDT",
                 "direction": "long",
                 "setup_type": "MAIN_SIGNAL",
+                "liquidity_sweep": "bullish_sweep",
+                "market_structure": "bullish",
                 "score": "92",
                 "market_regime": "TRENDING",
                 "session": "LONDON",
@@ -55,6 +59,8 @@ def test_performance_report_builds_metrics_from_closed_trades(tmp_path: Path) ->
                 "symbol": "ETHUSDT",
                 "direction": "short",
                 "setup_type": "SECONDARY_SIGNAL",
+                "liquidity_sweep": "none",
+                "market_structure": "range",
                 "score": "55",
                 "market_regime": "RANGING",
                 "session": "NEW_YORK",
@@ -95,6 +101,10 @@ def test_performance_report_builds_metrics_from_closed_trades(tmp_path: Path) ->
     assert any(row["group_type"] == "score_bucket" and row["group"] == "<60" for row in edge)
     assert any(row["group_type"] == "blocking_reasons" and row["group"] == "directional_confluence_failed" for row in edge)
     assert any(row["group_type"] == "high_score_rejected" and row["group"] == "high_score_rejected" for row in edge)
+    secondary = metrics["secondary_signal_breakdown"]
+    assert any(row["group_type"] == "setup_type" and row["group"] == "MAIN_SIGNAL" for row in secondary)
+    assert any(row["group_type"] == "setup_type_liquidity_sweep" and row["group"] == "SECONDARY_SIGNAL|no" for row in secondary)
+    assert any(row["group_type"] == "setup_type_market_structure" and row["group"] == "SECONDARY_SIGNAL|range" for row in secondary)
 
 
 def test_performance_report_creates_reports_directory(tmp_path: Path) -> None:
@@ -114,6 +124,7 @@ def test_performance_report_creates_reports_directory(tmp_path: Path) -> None:
     assert reports_path.exists()
     assert (reports_path / "performance_report.html").exists()
     assert (reports_path / "edge_breakdown.csv").exists()
+    assert (reports_path / "secondary_signal_breakdown.csv").exists()
 
 
 def test_edge_breakdown_metrics_and_console_format() -> None:
@@ -134,3 +145,25 @@ def test_edge_breakdown_metrics_and_console_format() -> None:
     assert "✅ Mejores grupos" in text
     assert "⚠️ Peores grupos" in text
     assert "🧨 Principales fugas de R" in text
+
+
+def test_secondary_signal_analysis_breaks_down_sweep_and_main() -> None:
+    trades = [
+        {"setup_type": "SECONDARY_SIGNAL", "liquidity_sweep": "none", "result_r": 2.0, "status": "tp2_hit"},
+        {"setup_type": "SECONDARY_SIGNAL", "liquidity_sweep": "none", "result_r": -1.0, "status": "sl_hit"},
+        {"setup_type": "SECONDARY_SIGNAL", "liquidity_sweep": "bullish_sweep", "result_r": 1.0, "status": "tp2_hit"},
+        {"setup_type": "MAIN_SIGNAL", "liquidity_sweep": "bearish_sweep", "result_r": -1.0, "status": "sl_hit"},
+    ]
+
+    rows = build_secondary_signal_breakdown(trades)
+    text = format_secondary_signal_analysis(rows)
+    secondary_no_sweep = next(row for row in rows if row["group_type"] == "setup_type_liquidity_sweep" and row["group"] == "SECONDARY_SIGNAL|no")
+    secondary_with_sweep = next(row for row in rows if row["group_type"] == "setup_type_liquidity_sweep" and row["group"] == "SECONDARY_SIGNAL|yes")
+
+    assert secondary_no_sweep["trades"] == 2
+    assert secondary_no_sweep["total_r"] == 1.0
+    assert secondary_with_sweep["trades"] == 1
+    assert "🧪 Secondary Signal Analysis" in text
+    assert "SECONDARY sin sweep: trades 2" in text
+    assert "SECONDARY con sweep: trades 1" in text
+    assert "MAIN: trades 1" in text

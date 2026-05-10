@@ -30,7 +30,10 @@ LIVE_TRADE_FIELDS = [
     "session",
     "entry_context",
     "trade_location",
+    "liquidity_sweep",
+    "market_structure",
     "warnings",
+    "penalties",
     "reasons",
     "status",
     "result_r",
@@ -62,7 +65,10 @@ class LiveTradeCandidate:
     session: str
     entry_context: str
     trade_location: str
+    liquidity_sweep: str
+    market_structure: str
     warnings: list[str]
+    penalties: list[str]
     reasons: list[str]
     public_published: bool = False
 
@@ -97,6 +103,7 @@ class LiveTradingStore:
             {
                 "trade_id": f"live_{uuid4().hex[:12]}",
                 "warnings": json.dumps(candidate.warnings, ensure_ascii=False),
+                "penalties": json.dumps(candidate.penalties, ensure_ascii=False),
                 "reasons": json.dumps(candidate.reasons, ensure_ascii=False),
                 "status": "open",
                 "result_r": "0",
@@ -179,11 +186,25 @@ def now_utc_date_key() -> str:
 
 
 def live_signal_context(evaluation_or_decision) -> dict[str, object]:
+    reasons = list(getattr(evaluation_or_decision, "decision_trace", []))
     return {
         "score": float(getattr(evaluation_or_decision, "setup_score", getattr(evaluation_or_decision, "total_score", 0.0))),
-        "reasons": list(getattr(evaluation_or_decision, "decision_trace", [])),
+        "reasons": reasons,
         "setup_type": str(getattr(evaluation_or_decision, "setup_type", "")),
+        "penalties": _penalties_from_trace(reasons),
     }
+
+
+def _penalties_from_trace(trace: list[object]) -> list[str]:
+    for item in trace:
+        text = str(item)
+        if not text.startswith("penalties="):
+            continue
+        raw = text.split("=", 1)[1]
+        if raw == "none":
+            return []
+        return [part.strip() for part in raw.split(",") if part.strip()]
+    return []
 
 
 def build_live_candidate_from_decision(
@@ -203,6 +224,7 @@ def build_live_candidate_from_decision(
         risk_plan=risk_plan,
         setup_context=setup_context,
         reasons=[str(item) for item in context["reasons"]],
+        penalties=[str(item) for item in context["penalties"]],
         public_published=public_published,
     )
 
@@ -215,6 +237,7 @@ def build_live_candidate_from_signal(
     risk_plan: RiskPlan,
     setup_context: dict[str, object],
     reasons: list[str],
+    penalties: list[str] | None = None,
     public_published: bool = False,
 ) -> LiveTradeCandidate:
     return LiveTradeCandidate(
@@ -233,7 +256,10 @@ def build_live_candidate_from_signal(
         session=str(setup_context.get("session", "UNKNOWN")),
         entry_context=str(setup_context.get("entry_context", "UNKNOWN")),
         trade_location=str(setup_context.get("trade_location", "UNKNOWN")),
+        liquidity_sweep=str(setup_context.get("liquidity_sweep", "UNKNOWN")),
+        market_structure=str(setup_context.get("market_structure", "UNKNOWN")),
         warnings=list(setup_context.get("avoidance_warnings", [])),
+        penalties=list(penalties or setup_context.get("penalties", []) or []),
         reasons=reasons,
         public_published=public_published,
     )

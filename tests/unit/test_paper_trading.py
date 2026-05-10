@@ -136,6 +136,50 @@ def test_paper_candidate_supports_short_direction() -> None:
     assert candidate.take_profit_1 == 95.0
     assert candidate.take_profit_2 == 90.0
     assert candidate.risk_reward_tp2 == 2.0
+    assert candidate.setup_type == "MAIN_SIGNAL"
+    assert candidate.liquidity_sweep == "bearish_sweep"
+    assert candidate.market_structure == "bearish"
+
+
+def test_paper_secondary_without_sweep_persists_analysis_fields(tmp_path) -> None:
+    store = PaperTradingStore(tmp_path)
+    snapshot = build_snapshot(
+        scan_run_id="run_test",
+        symbol="OPUSDT",
+        timeframe="1h",
+        trend="bullish",
+        structure="range",
+        sweep="none",
+        score=80.0,
+        distance=1.0,
+    )
+    candidate = build_paper_candidate_from_signal(
+        symbol="OPUSDT",
+        direction="long",
+        setup_type="SECONDARY_SIGNAL",
+        score=80.0,
+        risk_plan=build_risk_plan("long"),
+        opened_at="2026-01-01T00:00:00+00:00",
+        entry_reasons=["penalties=distance_to_liquidity_penalty:10"],
+        conditions_passed=["secondary_setup"],
+        conditions_failed=["distance_to_liquidity_penalty"],
+        penalties=["distance_to_liquidity_penalty:10"],
+        source_key="OPUSDT|long|secondary",
+        snapshot=snapshot,
+        higher_trend="bullish",
+        entry_or_rejection_reason="paper_tradeable",
+        expires_after_candles=24,
+        setup_context=SETUP_CONTEXT,
+    )
+    assert candidate is not None
+
+    assert store.upsert_candidate(candidate) is True
+    trade = store.list_trades()[0]
+
+    assert trade["setup_type"] == "SECONDARY_SIGNAL"
+    assert trade["liquidity_sweep"] == "none"
+    assert trade["market_structure"] == "range"
+    assert "distance_to_liquidity_penalty:10" in trade["penalties"]
 
 
 def test_paper_candidate_accepts_signal_decision_without_changing_candidate() -> None:

@@ -42,12 +42,15 @@ PAPER_TRADE_FIELDS = [
     "trend_1h",
     "trend_4h",
     "break_of_structure",
+    "liquidity_sweep",
+    "market_structure",
     "nearest_distance_to_liquidity_atr",
     "directional_distance_to_liquidity_atr",
     "entry_or_rejection_reason",
     "entry_reasons",
     "conditions_passed",
     "conditions_failed",
+    "penalties",
     "opened_hour_utc",
     "opened_weekday",
     "market_regime",
@@ -85,12 +88,15 @@ class PaperTradeCandidate:
     trend_1h: str
     trend_4h: str
     break_of_structure: str
+    liquidity_sweep: str
+    market_structure: str
     nearest_distance_to_liquidity_atr: float
     directional_distance_to_liquidity_atr: float
     entry_or_rejection_reason: str
     entry_reasons: list[str]
     conditions_passed: list[str]
     conditions_failed: list[str]
+    penalties: list[str]
     market_regime: str
     session: str
     entry_context: str
@@ -142,6 +148,7 @@ class PaperTradingStore:
                 "entry_reasons": json.dumps(candidate.entry_reasons, ensure_ascii=False),
                 "conditions_passed": json.dumps(candidate.conditions_passed, ensure_ascii=False),
                 "conditions_failed": json.dumps(candidate.conditions_failed, ensure_ascii=False),
+                "penalties": json.dumps(candidate.penalties, ensure_ascii=False),
                 "avoidance_warnings": json.dumps(candidate.avoidance_warnings, ensure_ascii=False),
                 "opened_hour_utc": str(opened.hour),
                 "opened_weekday": opened.strftime("%A"),
@@ -239,7 +246,20 @@ def paper_signal_context(evaluation_or_decision) -> dict[str, object]:
         "conditions_failed": list(getattr(evaluation_or_decision, "failed_filters", [])),
         "direction": str(getattr(evaluation_or_decision, "decision", getattr(evaluation_or_decision, "direction", "no_trade"))),
         "setup_type": str(getattr(evaluation_or_decision, "setup_type", "")),
+        "penalties": _penalties_from_trace(list(getattr(evaluation_or_decision, "decision_trace", []))),
     }
+
+
+def _penalties_from_trace(trace: list[object]) -> list[str]:
+    for item in trace:
+        text = str(item)
+        if not text.startswith("penalties="):
+            continue
+        raw = text.split("=", 1)[1]
+        if raw == "none":
+            return []
+        return [part.strip() for part in raw.split(",") if part.strip()]
+    return []
 
 
 def build_paper_candidate_from_decision(
@@ -268,6 +288,7 @@ def build_paper_candidate_from_decision(
         entry_reasons=[str(item) for item in context["entry_reasons"]],
         conditions_passed=[str(item) for item in context["conditions_passed"]],
         conditions_failed=[str(item) for item in context["conditions_failed"]],
+        penalties=[str(item) for item in context["penalties"]],
         source_key=source_key,
         snapshot=snapshot,
         higher_trend=higher_trend,
@@ -288,6 +309,7 @@ def build_paper_candidate_from_signal(
     entry_reasons: list[str],
     conditions_passed: list[str],
     conditions_failed: list[str],
+    penalties: list[str] | None = None,
     source_key: str,
     snapshot: MarketSnapshot,
     higher_trend: str,
@@ -332,12 +354,15 @@ def build_paper_candidate_from_signal(
         trend_1h=snapshot.trend,
         trend_4h=higher_trend,
         break_of_structure=str(metadata.get("break_of_structure", "none")),
+        liquidity_sweep=snapshot.liquidity_sweep,
+        market_structure=snapshot.market_structure,
         nearest_distance_to_liquidity_atr=float(metadata.get("nearest_distance_to_liquidity_atr", snapshot.distance_to_liquidity_atr)),
         directional_distance_to_liquidity_atr=snapshot.distance_to_liquidity_atr,
         entry_or_rejection_reason=entry_or_rejection_reason,
         entry_reasons=entry_reasons,
         conditions_passed=conditions_passed,
         conditions_failed=conditions_failed,
+        penalties=list(penalties or []),
         market_regime=str(setup_context.get("market_regime", "UNKNOWN")),
         session=str(setup_context.get("session", "UNKNOWN")),
         entry_context=str(setup_context.get("entry_context", "UNKNOWN")),

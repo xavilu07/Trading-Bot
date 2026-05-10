@@ -705,6 +705,13 @@ def run_market_scan(
                 atr_min_threshold=settings.paper_trading_atr_min_threshold,
                 max_spread_atr=settings.paper_trading_max_spread_atr,
             ).to_dict()
+            setup_context.update(
+                {
+                    "liquidity_sweep": analysis.entry_snapshot.liquidity_sweep,
+                    "market_structure": analysis.entry_snapshot.market_structure,
+                    "penalties": _penalties_from_trace(evaluation),
+                }
+            )
             publish_filter_reason = None
             if status == SignalStatus.VALID.value and should_publish_decision:
                 publish_filter_reason = publish_filter_rejection_reason(
@@ -884,6 +891,13 @@ def run_market_scan(
                             atr_min_threshold=settings.paper_trading_atr_min_threshold,
                             max_spread_atr=settings.paper_trading_max_spread_atr,
                         ).to_dict()
+                        candidate_setup_context.update(
+                            {
+                                "liquidity_sweep": analysis.entry_snapshot.liquidity_sweep,
+                                "market_structure": analysis.entry_snapshot.market_structure,
+                                "penalties": _penalties_from_trace(evaluation),
+                            }
+                        )
                         if candidate_risk_plan is not None:
                             paper_candidate = build_paper_candidate_from_decision(
                                 symbol=symbol,

@@ -62,7 +62,36 @@ def test_live_trade_created_when_real_signal_is_published(tmp_path) -> None:
     assert trades[0]["setup_type"] == "MAIN_SIGNAL"
     assert trades[0]["risk_reward"] == "2.0"
     assert trades[0]["public_published"] == "false"
+    assert trades[0]["liquidity_sweep"] == "UNKNOWN"
+    assert trades[0]["market_structure"] == "UNKNOWN"
     assert "primary_sweep_setup" in trades[0]["reasons"]
+
+
+def test_live_trade_persists_secondary_analysis_fields(tmp_path) -> None:
+    store = LiveTradingStore(tmp_path)
+    context = {
+        **SETUP_CONTEXT,
+        "liquidity_sweep": "none",
+        "market_structure": "range",
+        "penalties": ["distance_to_liquidity_penalty:10"],
+    }
+    candidate = build_live_candidate_from_signal(
+        signal=build_signal("long"),
+        setup_type="SECONDARY_SIGNAL",
+        score=82.0,
+        risk_plan=build_risk_plan("long"),
+        setup_context=context,
+        reasons=["secondary_setup"],
+        penalties=["distance_to_liquidity_penalty:10"],
+    )
+
+    assert store.upsert_candidate(candidate) is True
+    trade = store.list_trades()[0]
+
+    assert trade["setup_type"] == "SECONDARY_SIGNAL"
+    assert trade["liquidity_sweep"] == "none"
+    assert trade["market_structure"] == "range"
+    assert "distance_to_liquidity_penalty:10" in trade["penalties"]
 
 
 def test_live_candidate_accepts_signal_decision_without_changing_candidate() -> None:
