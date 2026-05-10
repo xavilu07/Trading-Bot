@@ -21,8 +21,10 @@ from trading_signals.application.use_cases.paper_trading import (
 )
 from trading_signals.application.use_cases.live_trading import (
     build_live_candidate_from_decision,
+    format_public_live_trade_event_for_telegram,
     format_live_trade_event_for_telegram,
 )
+from trading_signals.notifications.telegram import send_public_signal
 from trading_signals.application.use_cases.modular_paper import build_modular_signal_row
 from trading_signals.application.use_cases.experimental_paper import build_experimental_signal_row
 from trading_signals.application.use_cases.shadow_paper import build_shadow_signal_row
@@ -556,6 +558,9 @@ def run_market_scan(
                     )
                     if message:
                         notifier.publish(message, dry_run=dry_run)
+                    public_message = format_public_live_trade_event_for_telegram(event)
+                    if public_message:
+                        send_public_signal(notifier, public_message, dry_run=dry_run)
             scan_repo.save_snapshot(analysis.entry_snapshot)
             scan_repo.save_snapshot(analysis.higher_snapshot)
             evaluation = strategy.evaluate(analysis, evaluation_id=f"eval_{uuid4().hex[:12]}", created_at=_now_iso())
@@ -744,6 +749,7 @@ def run_market_scan(
                     signal_type=lifecycle.signal_type,
                 )
                 if any(item.status == "sent" for item in deliveries):
+                    public_published = any(item.channel == "telegram_public" and item.status == "sent" for item in deliveries)
                     signal.status = SignalStatus.PUBLISHED.value
                     signal.published_at = _now_iso()
                     signal.updated_at = signal.published_at
@@ -755,6 +761,7 @@ def run_market_scan(
                             evaluation_or_decision=signal_decision,
                             risk_plan=risk_plan,
                             setup_context=setup_context,
+                            public_published=public_published,
                         )
                         live_trading_store.upsert_candidate(live_candidate)
                     scan_run.signals_emitted += 1

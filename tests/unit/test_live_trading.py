@@ -5,6 +5,7 @@ from trading_signals.application.use_cases.live_trading import (
     build_live_candidate_from_decision,
     build_live_candidate_from_signal,
     format_live_daily_summary_for_telegram,
+    format_public_live_trade_event_for_telegram,
     format_live_trade_event_for_telegram,
 )
 from trading_signals.domain.entities.signal_decision import SignalDecision
@@ -36,7 +37,7 @@ def build_signal(direction: str = "long") -> TradeSignal:
     )
 
 
-def create_live_trade(store: LiveTradingStore, direction: str = "long") -> None:
+def create_live_trade(store: LiveTradingStore, direction: str = "long", public_published: bool = False) -> None:
     candidate = build_live_candidate_from_signal(
         signal=build_signal(direction),
         setup_type="MAIN_SIGNAL",
@@ -44,6 +45,7 @@ def create_live_trade(store: LiveTradingStore, direction: str = "long") -> None:
         risk_plan=build_risk_plan(direction),
         setup_context=SETUP_CONTEXT,
         reasons=["primary_sweep_setup", "quality_score"],
+        public_published=public_published,
     )
     assert store.upsert_candidate(candidate) is True
 
@@ -59,6 +61,7 @@ def test_live_trade_created_when_real_signal_is_published(tmp_path) -> None:
     assert trades[0]["signal_type"] == "NEW"
     assert trades[0]["setup_type"] == "MAIN_SIGNAL"
     assert trades[0]["risk_reward"] == "2.0"
+    assert trades[0]["public_published"] == "false"
     assert "primary_sweep_setup" in trades[0]["reasons"]
 
 
@@ -139,6 +142,125 @@ def test_live_trade_closes_by_tp(tmp_path) -> None:
     assert store.list_trades()[0]["status"] == "tp_hit"
     assert store.list_trades()[0]["result_r"] == "2.0000"
     assert "✅ TP alcanzado" in format_live_trade_event_for_telegram(events[0])
+
+
+def test_public_tp_update_only_for_public_trade(tmp_path) -> None:
+    store = LiveTradingStore(tmp_path)
+    create_live_trade(store, public_published=True)
+    snapshot = build_snapshot(scan_run_id="run_test", symbol="BTCUSDT", timeframe="1h", trend="bullish", structure="bullish", sweep="none", score=80.0, distance=1.0)
+    snapshot.high = 111.0
+    snapshot.low = 99.0
+    snapshot.close = 110.0
+
+    events = store.update_open_trades_for_snapshot(
+        snapshot,
+        updated_at="2026-01-01T01:00:00+00:00",
+        breakeven_enabled=True,
+        breakeven_trigger_r=1.0,
+        partial_tp_enabled=True,
+        partial_tp_trigger_r=1.5,
+    )
+
+    message = format_public_live_trade_event_for_telegram(events[0])
+
+    assert "✅ TP1 ALCANZADO" in message
+    assert "🟢 BTC/USDT" in message
+    assert "🎯 TP1: 110.0" in message
+
+
+def test_public_sl_update_only_for_public_trade(tmp_path) -> None:
+    store = LiveTradingStore(tmp_path)
+    create_live_trade(store, public_published=True)
+    snapshot = build_snapshot(scan_run_id="run_test", symbol="BTCUSDT", timeframe="1h", trend="bullish", structure="bullish", sweep="none", score=80.0, distance=1.0)
+    snapshot.high = 101.0
+    snapshot.low = 94.0
+    snapshot.close = 95.0
+
+    events = store.update_open_trades_for_snapshot(
+        snapshot,
+        updated_at="2026-01-01T01:00:00+00:00",
+        breakeven_enabled=True,
+        breakeven_trigger_r=1.0,
+        partial_tp_enabled=True,
+        partial_tp_trigger_r=1.5,
+    )
+
+    message = format_public_live_trade_event_for_telegram(events[0])
+
+    assert "🛑 STOP LOSS TOCADO" in message
+    assert "Operación cerrada por SL." in message
+
+
+def test_public_breakeven_update_only_for_public_trade(tmp_path) -> None:
+    store = LiveTradingStore(tmp_path)
+    create_live_trade(store, public_published=True)
+    snapshot = build_snapshot(scan_run_id="run_test", symbol="BTCUSDT", timeframe="1h", trend="bullish", structure="bullish", sweep="none", score=80.0, distance=1.0)
+    snapshot.high = 106.0
+    snapshot.low = 100.0
+    snapshot.close = 105.0
+
+    events = store.update_open_trades_for_snapshot(
+        snapshot,
+        updated_at="2026-01-01T01:00:00+00:00",
+        breakeven_enabled=True,
+        breakeven_trigger_r=1.0,
+        partial_tp_enabled=False,
+        partial_tp_trigger_r=1.5,
+    )
+
+    message = format_public_live_trade_event_for_telegram(events[0])
+
+    assert "🛡️ BREAK EVEN" in message
+    assert "SL recomendado a precio de entrada." in message
+
+
+def test_dev_only_trade_does_not_format_public_update(tmp_path) -> None:
+    store = LiveTradingStore(tmp_path)
+    create_live_trade(store, public_published=False)
+    snapshot = build_snapshot(scan_run_id="run_test", symbol="BTCUSDT", timeframe="1h", trend="bullish", structure="bullish", sweep="none", score=80.0, distance=1.0)
+    snapshot.high = 111.0
+    snapshot.low = 99.0
+    snapshot.close = 110.0
+
+    events = store.update_open_trades_for_snapshot(
+        snapshot,
+        updated_at="2026-01-01T01:00:00+00:00",
+        breakeven_enabled=True,
+        breakeven_trigger_r=1.0,
+        partial_tp_enabled=True,
+        partial_tp_trigger_r=1.5,
+    )
+
+    assert format_public_live_trade_event_for_telegram(events[0]) == ""
+
+
+def test_public_update_event_is_not_duplicated(tmp_path) -> None:
+    store = LiveTradingStore(tmp_path)
+    create_live_trade(store, public_published=True)
+    snapshot = build_snapshot(scan_run_id="run_test", symbol="BTCUSDT", timeframe="1h", trend="bullish", structure="bullish", sweep="none", score=80.0, distance=1.0)
+    snapshot.high = 106.0
+    snapshot.low = 100.0
+    snapshot.close = 105.0
+
+    first = store.update_open_trades_for_snapshot(
+        snapshot,
+        updated_at="2026-01-01T01:00:00+00:00",
+        breakeven_enabled=True,
+        breakeven_trigger_r=1.0,
+        partial_tp_enabled=False,
+        partial_tp_trigger_r=1.5,
+    )
+    second = store.update_open_trades_for_snapshot(
+        snapshot,
+        updated_at="2026-01-01T02:00:00+00:00",
+        breakeven_enabled=True,
+        breakeven_trigger_r=1.0,
+        partial_tp_enabled=False,
+        partial_tp_trigger_r=1.5,
+    )
+
+    assert len([format_public_live_trade_event_for_telegram(event) for event in first if format_public_live_trade_event_for_telegram(event)]) == 1
+    assert second == []
 
 
 def test_live_trade_closes_by_sl(tmp_path) -> None:

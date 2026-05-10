@@ -39,6 +39,8 @@ LIVE_TRADE_FIELDS = [
     "breakeven_alert_sent_at",
     "partial_tp_suggested",
     "partial_tp_alert_sent_at",
+    "public_published",
+    "public_update_events_sent",
     "updated_at",
 ]
 
@@ -62,6 +64,7 @@ class LiveTradeCandidate:
     trade_location: str
     warnings: list[str]
     reasons: list[str]
+    public_published: bool = False
 
 
 class LiveTradingStore:
@@ -102,6 +105,8 @@ class LiveTradingStore:
                 "breakeven_alert_sent_at": "",
                 "partial_tp_suggested": "false",
                 "partial_tp_alert_sent_at": "",
+                "public_published": str(candidate.public_published).lower(),
+                "public_update_events_sent": "[]",
                 "updated_at": candidate.created_at,
             }
         )
@@ -188,6 +193,7 @@ def build_live_candidate_from_decision(
     evaluation_or_decision,
     risk_plan: RiskPlan,
     setup_context: dict[str, object],
+    public_published: bool = False,
 ) -> LiveTradeCandidate:
     context = live_signal_context(evaluation_or_decision)
     return build_live_candidate_from_signal(
@@ -197,6 +203,7 @@ def build_live_candidate_from_decision(
         risk_plan=risk_plan,
         setup_context=setup_context,
         reasons=[str(item) for item in context["reasons"]],
+        public_published=public_published,
     )
 
 
@@ -208,6 +215,7 @@ def build_live_candidate_from_signal(
     risk_plan: RiskPlan,
     setup_context: dict[str, object],
     reasons: list[str],
+    public_published: bool = False,
 ) -> LiveTradeCandidate:
     return LiveTradeCandidate(
         dedupe_key=signal.dedupe_key,
@@ -227,6 +235,7 @@ def build_live_candidate_from_signal(
         trade_location=str(setup_context.get("trade_location", "UNKNOWN")),
         warnings=list(setup_context.get("avoidance_warnings", [])),
         reasons=reasons,
+        public_published=public_published,
     )
 
 
@@ -300,6 +309,63 @@ def format_live_trade_event_for_telegram(event: dict[str, object], *, partial_pe
             f"- Sugerencia: cerrar {partial_percentage}%"
         )
     return ""
+
+
+def is_public_live_trade_event(event: dict[str, object]) -> bool:
+    trade = event.get("trade", {})
+    if not isinstance(trade, dict):
+        return False
+    return str(trade.get("public_published", "false")).lower() == "true"
+
+
+def format_public_live_trade_event_for_telegram(event: dict[str, object]) -> str:
+    if not is_public_live_trade_event(event):
+        return ""
+    trade = event.get("trade", {})
+    if not isinstance(trade, dict):
+        trade = {}
+    direction = str(trade.get("direction", "")).lower()
+    emoji = "🟢" if direction == "long" else "🔴"
+    symbol = _public_symbol(str(trade.get("symbol", "-")))
+    event_type = str(event.get("event_type"))
+    if event_type == "tp_hit":
+        return (
+            "✅ TP1 ALCANZADO\n\n"
+            f"{emoji} {symbol}\n"
+            f"📍 Entry: {trade.get('entry', '-')}\n"
+            f"🎯 TP1: {trade.get('take_profit', '-')}\n\n"
+            "🔥 Recomendado:\n"
+            "Cerrar parcial y proteger operación.\n\n"
+            "🛡️ Gestiona tu capital con responsabilidad."
+        )
+    if event_type == "sl_hit":
+        return (
+            "🛑 STOP LOSS TOCADO\n\n"
+            f"{emoji} {symbol}\n"
+            "Operación cerrada por SL.\n\n"
+            "Gestionar riesgo es parte del sistema."
+        )
+    if event_type == "breakeven":
+        return (
+            "🛡️ BREAK EVEN\n\n"
+            f"{emoji} {symbol}\n"
+            "SL recomendado a precio de entrada.\n\n"
+            "La operación queda protegida."
+        )
+    if event_type == "partial_tp":
+        return (
+            "💰 CIERRE PARCIAL RECOMENDADO\n\n"
+            f"{emoji} {symbol}\n"
+            "Cerrar parcial y proteger operación.\n\n"
+            "🛡️ Gestiona tu capital con responsabilidad."
+        )
+    return ""
+
+
+def _public_symbol(symbol: str) -> str:
+    if symbol.endswith("USDT") and len(symbol) > 4:
+        return f"{symbol[:-4]}/USDT"
+    return symbol
 
 
 def format_live_daily_summary_for_telegram(summary: dict[str, object]) -> str:
