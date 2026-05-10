@@ -61,6 +61,7 @@ class Settings:
     telegram_chat_ids: list[str] = field(default_factory=lambda: _csv_env("TELEGRAM_CHAT_IDS", ""))
     telegram_public_chat_id: str = field(default_factory=lambda: os.getenv("TELEGRAM_PUBLIC_CHAT_ID", ""))
     telegram_dev_chat_id: str = field(default_factory=lambda: os.getenv("TELEGRAM_DEV_CHAT_ID", ""))
+    telegram_dev_chat_ids: list[str] = field(default_factory=lambda: _csv_env("TELEGRAM_DEV_CHAT_ID", ""))
     telegram_users_file: Path = field(
         default_factory=lambda: Path(os.getenv("TELEGRAM_USERS_FILE", "./telegram_users.json"))
     )

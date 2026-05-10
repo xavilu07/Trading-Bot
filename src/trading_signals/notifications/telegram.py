@@ -6,9 +6,10 @@ def telegram_status(notifier) -> dict[str, object]:
     recipients = list(getattr(notifier, "chat_ids", []) or [])
     public_chat_id = str(getattr(notifier, "public_chat_id", "") or "").strip()
     dev_chat_id = str(getattr(notifier, "dev_chat_id", "") or "").strip()
-    configured_destinations = len(recipients) + int(bool(public_chat_id)) + int(bool(dev_chat_id))
+    dev_chat_ids = list(getattr(notifier, "dev_chat_ids", []) or [])
+    configured_destinations = len(recipients) + int(bool(public_chat_id)) + len(dev_chat_ids or ([dev_chat_id] if dev_chat_id else []))
     ok = token_configured and bool(recipients)
-    if token_configured and (public_chat_id or dev_chat_id):
+    if token_configured and (public_chat_id or dev_chat_id or dev_chat_ids):
         ok = True
     return {
         "ok": ok,
@@ -18,7 +19,7 @@ def telegram_status(notifier) -> dict[str, object]:
             "token_configured": token_configured,
             "configured_recipients": configured_destinations,
             "public_chat_configured": bool(public_chat_id),
-            "dev_chat_configured": bool(dev_chat_id),
+            "dev_chat_configured": bool(dev_chat_id or dev_chat_ids),
         },
     }
 

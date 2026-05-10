@@ -8,6 +8,17 @@ from pathlib import Path
 from trading_signals.application.ports.notification_port import NotificationPort
 
 
+def _dedupe(values: list[str]) -> list[str]:
+    seen: set[str] = set()
+    result: list[str] = []
+    for value in values:
+        item = str(value).strip()
+        if item and item not in seen:
+            seen.add(item)
+            result.append(item)
+    return result
+
+
 class TelegramNotifier(NotificationPort):
     def __init__(
         self,
@@ -18,6 +29,7 @@ class TelegramNotifier(NotificationPort):
         *,
         public_chat_id: str = "",
         dev_chat_id: str = "",
+        dev_chat_ids: list[str] | None = None,
     ) -> None:
         self.bot_token = bot_token
         self.chat_ids = chat_ids
@@ -25,6 +37,7 @@ class TelegramNotifier(NotificationPort):
         self.state_file = state_file
         self.public_chat_id = public_chat_id.strip()
         self.dev_chat_id = dev_chat_id.strip()
+        self.dev_chat_ids = _dedupe([*(dev_chat_ids or []), *self.dev_chat_id.split(",")])
 
     def _load_user_ids(self) -> list[str]:
         if not self.users_file.exists():
@@ -50,8 +63,10 @@ class TelegramNotifier(NotificationPort):
         return self._all_recipients()
 
     def _dev_recipients(self) -> list[str]:
+        if self.dev_chat_ids:
+            return self.dev_chat_ids
         if self.dev_chat_id:
-            return [self.dev_chat_id]
+            return _dedupe(self.dev_chat_id.split(","))
         return self._all_recipients()
 
     def _publish_to_recipients(self, message: str, recipients: list[str], dry_run: bool = False) -> list[dict[str, object]]:

@@ -15,6 +15,16 @@ def test_telegram_diagnostic_summary_settings_are_configurable(monkeypatch) -> N
     assert settings.telegram_diagnostic_summary_every_cycles == 3
     assert settings.telegram_public_chat_id == "public-chat"
     assert settings.telegram_dev_chat_id == "dev-chat"
+    assert settings.telegram_dev_chat_ids == ["dev-chat"]
+
+
+def test_telegram_dev_chat_id_supports_multiple_ids(monkeypatch) -> None:
+    monkeypatch.setenv("TELEGRAM_DEV_CHAT_ID", "7437028098,1979812925")
+
+    settings = Settings()
+
+    assert settings.telegram_dev_chat_id == "7437028098,1979812925"
+    assert settings.telegram_dev_chat_ids == ["7437028098", "1979812925"]
 
 
 def test_publish_signal_decisions_both_enables_long_and_short(monkeypatch) -> None:

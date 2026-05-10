@@ -28,6 +28,7 @@ def main(argv: list[str] | None = None) -> int:
         settings.telegram_state_file,
         public_chat_id=settings.telegram_public_chat_id,
         dev_chat_id=settings.telegram_dev_chat_id,
+        dev_chat_ids=settings.telegram_dev_chat_ids,
     )
     results = send_paper_performance_summary(notifier, data_path, dry_run=args.dry_run)
     print(json.dumps(results, ensure_ascii=False, indent=2))

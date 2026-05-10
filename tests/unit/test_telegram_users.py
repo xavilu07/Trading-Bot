@@ -103,6 +103,35 @@ def test_public_and_dev_routing_use_dedicated_chat_ids(tmp_path: Path) -> None:
     ]
 
 
+def test_dev_routing_supports_multiple_chat_ids(tmp_path: Path) -> None:
+    users_file = tmp_path / "telegram_users.json"
+    notifier = StubTelegramNotifier(users_file, {"result": []})
+    notifier.dev_chat_id = "7437028098,1979812925"
+    notifier.dev_chat_ids = ["7437028098", "1979812925"]
+
+    result = notifier.send_dev_message("DEV SUMMARY")
+
+    assert [item["recipient"] for item in result] == ["7437028098", "1979812925"]
+    assert notifier.sent_messages == [
+        ("7437028098", "DEV SUMMARY"),
+        ("1979812925", "DEV SUMMARY"),
+    ]
+
+
+def test_dev_routing_deduplicates_single_and_multiple_ids(tmp_path: Path) -> None:
+    users_file = tmp_path / "telegram_users.json"
+    notifier = TelegramNotifier(
+        "token",
+        ["fallback"],
+        users_file,
+        users_file.parent / "telegram_state.json",
+        dev_chat_id="7437028098",
+        dev_chat_ids=["7437028098", "1979812925"],
+    )
+
+    assert notifier._dev_recipients() == ["7437028098", "1979812925"]
+
+
 def test_process_updates_deduplicates_and_replies_to_normal_messages(tmp_path: Path) -> None:
     users_file = tmp_path / "telegram_users.json"
     notifier = StubTelegramNotifier(
