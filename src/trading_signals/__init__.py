@@ -1,0 +1,2 @@
+"""Trading signals package."""
+

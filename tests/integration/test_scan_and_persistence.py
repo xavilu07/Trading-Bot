@@ -1,0 +1,258 @@
+from pathlib import Path
+
+from trading_signals.app.settings import Settings
+from trading_signals.application.use_cases.run_market_scan import run_market_scan
+from trading_signals.infrastructure.metrics.noop_metrics import NoopMetrics
+from trading_signals.infrastructure.notifications.telegram_notifier import TelegramNotifier
+from trading_signals.infrastructure.persistence.file_store import FileStore
+from trading_signals.infrastructure.persistence.repositories import FileScanRunRepository, FileSignalRepository
+from trading_signals.application.use_cases.paper_trading import PaperTradingStore
+from trading_signals.application.use_cases.live_trading import LiveTradingStore
+from tests.fixtures.market_data import FakeMarketDataClient, generate_trend_dataset
+
+
+class ValidatingFakeMarketDataClient(FakeMarketDataClient):
+    provider_name = "fake"
+
+    def __init__(self, datasets, unsupported: set[str] | None = None) -> None:
+        super().__init__(datasets)
+        self.unsupported = unsupported or set()
+
+    def normalize_symbol(self, symbol: str) -> str:
+        return symbol.strip().upper()
+
+    def validate_symbol(self, symbol: str) -> bool:
+        return self.normalize_symbol(symbol) not in self.unsupported
+
+    def get_ohlcv(self, symbol: str, timeframe: str, limit: int = 300):
+        return self.fetch_ohlcv(symbol, timeframe, limit=limit)
+
+
+def test_scan_persists_entities_and_signals(tmp_path: Path) -> None:
+    settings = Settings(data_storage_path=tmp_path, telegram_chat_ids=["dry"])
+    dataset = generate_trend_dataset(direction="up")
+    market_data = FakeMarketDataClient({
+        ("BTCUSDT", "1h"): dataset,
+        ("BTCUSDT", "4h"): dataset,
+    })
+    store = FileStore(tmp_path)
+    result = run_market_scan(
+        settings=settings,
+        market_data=market_data,
+        scan_repo=FileScanRunRepository(store),
+        signal_repo=FileSignalRepository(store),
+        notifier=TelegramNotifier("", ["dry"], tmp_path / "telegram_users.json", tmp_path / "telegram_state.json"),
+        diagnostics_store=FileStore(tmp_path / "diagnostics"),
+        metrics=NoopMetrics(),
+        symbols=["BTCUSDT"],
+        dry_run=True,
+    )
+    assert result["scan_run"]["symbols_processed"] == 1
+    assert (tmp_path / "trade_signals").exists()
+    files = list((tmp_path / "trade_signals").glob("**/*.json"))
+    assert files
+
+
+def test_scan_run_config_uses_effective_symbols(tmp_path: Path) -> None:
+    settings = Settings(data_storage_path=tmp_path, telegram_chat_ids=["dry"])
+    dataset = generate_trend_dataset(direction="down")
+    market_data = FakeMarketDataClient({
+        ("BTCUSDT", "1h"): dataset,
+        ("BTCUSDT", "4h"): dataset,
+        ("ETHUSDT", "1h"): dataset,
+        ("ETHUSDT", "4h"): dataset,
+    })
+    store = FileStore(tmp_path)
+
+    result = run_market_scan(
+        settings=settings,
+        market_data=market_data,
+        scan_repo=FileScanRunRepository(store),
+        signal_repo=FileSignalRepository(store),
+        notifier=TelegramNotifier("", ["dry"], tmp_path / "telegram_users.json", tmp_path / "telegram_state.json"),
+        diagnostics_store=FileStore(tmp_path / "diagnostics"),
+        metrics=NoopMetrics(),
+        symbols=[" btcusdt ", "ethusdt"],
+        dry_run=True,
+    )
+
+    assert result["scan_run"]["symbols_total"] == 2
+    assert result["scan_run"]["symbols_processed"] == 2
+    assert result["scan_run"]["config"]["symbols"] == ["BTCUSDT", "ETHUSDT"]
+
+
+def test_scan_skips_unsupported_and_insufficient_history_symbols(tmp_path: Path) -> None:
+    settings = Settings(data_storage_path=tmp_path, telegram_chat_ids=["dry"])
+    full_dataset = generate_trend_dataset(direction="down")
+    short_dataset = generate_trend_dataset(rows=100, direction="down")
+    market_data = ValidatingFakeMarketDataClient(
+        {
+            ("BTCUSDT", "1h"): full_dataset,
+            ("BTCUSDT", "4h"): full_dataset,
+            ("SHORTUSDT", "1h"): short_dataset,
+            ("SHORTUSDT", "4h"): short_dataset,
+        },
+        unsupported={"MISSINGUSDT"},
+    )
+    store = FileStore(tmp_path)
+
+    result = run_market_scan(
+        settings=settings,
+        market_data=market_data,
+        scan_repo=FileScanRunRepository(store),
+        signal_repo=FileSignalRepository(store),
+        notifier=TelegramNotifier("", ["dry"], tmp_path / "telegram_users.json", tmp_path / "telegram_state.json"),
+        diagnostics_store=FileStore(tmp_path / "diagnostics"),
+        metrics=NoopMetrics(),
+        symbols=["BTCUSDT", "MISSINGUSDT", "SHORTUSDT"],
+        dry_run=True,
+    )
+
+    validation = result["universe_validation"]
+    assert result["scan_run"]["symbols_total"] == 3
+    assert result["scan_run"]["symbols_processed"] == 1
+    assert result["scan_run"]["errors_count"] == 0
+    assert validation["valid_symbols"] == ["BTCUSDT"]
+    assert validation["skipped_reasons"] == {"unsupported_symbol": 1, "insufficient_history": 1}
+    assert {item["symbol"] for item in validation["skipped_symbols"]} == {"MISSINGUSDT", "SHORTUSDT"}
+
+
+def test_scan_creates_paper_trade_for_real_signal(tmp_path: Path) -> None:
+    settings = Settings(data_storage_path=tmp_path, telegram_chat_ids=["dry"], publish_signal_decisions=["long"])
+    dataset = generate_trend_dataset(direction="up")
+    market_data = FakeMarketDataClient({
+        ("BTCUSDT", "1h"): dataset,
+        ("BTCUSDT", "4h"): dataset,
+    })
+    store = FileStore(tmp_path)
+    paper_store = PaperTradingStore(tmp_path)
+
+    result = run_market_scan(
+        settings=settings,
+        market_data=market_data,
+        scan_repo=FileScanRunRepository(store),
+        signal_repo=FileSignalRepository(store),
+        notifier=TelegramNotifier("", ["dry"], tmp_path / "telegram_users.json", tmp_path / "telegram_state.json"),
+        diagnostics_store=FileStore(tmp_path / "diagnostics"),
+        metrics=NoopMetrics(),
+        paper_trading_store=paper_store,
+        symbols=["BTCUSDT"],
+        dry_run=True,
+    )
+
+    assert result["results"][0]["signal"]["decision"] == "long"
+    assert result["results"][0]["paper_trade_created"] is True
+    trades = paper_store.list_trades()
+    assert len(trades) == 1
+    assert trades[0]["symbol"] == "BTCUSDT"
+    assert trades[0]["status"] == "open"
+
+
+def test_scan_creates_live_trade_for_real_published_signal(tmp_path: Path) -> None:
+    settings = Settings(
+        data_storage_path=tmp_path,
+        telegram_chat_ids=["dry"],
+        publish_signal_decisions=["long"],
+        live_trade_tracking_enabled=True,
+    )
+    dataset = generate_trend_dataset(direction="up")
+    market_data = FakeMarketDataClient({
+        ("BTCUSDT", "1h"): dataset,
+        ("BTCUSDT", "4h"): dataset,
+    })
+    store = FileStore(tmp_path)
+    live_store = LiveTradingStore(tmp_path)
+
+    result = run_market_scan(
+        settings=settings,
+        market_data=market_data,
+        scan_repo=FileScanRunRepository(store),
+        signal_repo=FileSignalRepository(store),
+        notifier=TelegramNotifier("", ["dry"], tmp_path / "telegram_users.json", tmp_path / "telegram_state.json"),
+        diagnostics_store=FileStore(tmp_path / "diagnostics"),
+        metrics=NoopMetrics(),
+        live_trading_store=live_store,
+        symbols=["BTCUSDT"],
+        dry_run=True,
+    )
+
+    assert result["results"][0]["signal"]["status"] == "published"
+    trades = live_store.list_trades()
+    assert len(trades) == 1
+    assert trades[0]["symbol"] == "BTCUSDT"
+    assert trades[0]["status"] == "open"
+    assert trades[0]["signal_type"] == "NEW"
+
+
+def test_duplicate_signal_is_not_published_twice(tmp_path: Path) -> None:
+    settings = Settings(data_storage_path=tmp_path, telegram_chat_ids=["dry"], publish_signal_decisions=["long"])
+    dataset = generate_trend_dataset(direction="up")
+    market_data = FakeMarketDataClient({
+        ("BTCUSDT", "1h"): dataset,
+        ("BTCUSDT", "4h"): dataset,
+    })
+    store = FileStore(tmp_path)
+    scan_repo = FileScanRunRepository(store)
+    signal_repo = FileSignalRepository(store)
+    notifier = TelegramNotifier("", ["dry"], tmp_path / "telegram_users.json", tmp_path / "telegram_state.json")
+    metrics = NoopMetrics()
+
+    first = run_market_scan(
+        settings=settings,
+        market_data=market_data,
+        scan_repo=scan_repo,
+        signal_repo=signal_repo,
+        notifier=notifier,
+        diagnostics_store=FileStore(tmp_path / "diagnostics"),
+        metrics=metrics,
+        symbols=["BTCUSDT"],
+        dry_run=True,
+    )
+    second = run_market_scan(
+        settings=settings,
+        market_data=market_data,
+        scan_repo=scan_repo,
+        signal_repo=signal_repo,
+        notifier=notifier,
+        diagnostics_store=FileStore(tmp_path / "diagnostics"),
+        metrics=metrics,
+        symbols=["BTCUSDT"],
+        dry_run=True,
+    )
+
+    first_signal = first["results"][0]["signal"]
+    second_eval = second["results"][0]["evaluation"]
+    assert first_signal["published_at"] is not None
+    assert "duplicate_signal_suppressed" in second_eval["rejection_reasons"]
+
+
+def test_no_trade_diagnostics_csv_is_written(tmp_path: Path) -> None:
+    settings = Settings(data_storage_path=tmp_path, telegram_chat_ids=["dry"], diagnostics_path=tmp_path / "diagnostics")
+    downtrend = generate_trend_dataset(direction="down")
+    market_data = FakeMarketDataClient({
+        ("BTCUSDT", "1h"): downtrend,
+        ("BTCUSDT", "4h"): downtrend,
+    })
+    store = FileStore(tmp_path)
+    diagnostics_store = FileStore(tmp_path / "diagnostics")
+
+    result = run_market_scan(
+        settings=settings,
+        market_data=market_data,
+        scan_repo=FileScanRunRepository(store),
+        signal_repo=FileSignalRepository(store),
+        notifier=TelegramNotifier("", ["dry"], tmp_path / "telegram_users.json", tmp_path / "telegram_state.json"),
+        diagnostics_store=diagnostics_store,
+        metrics=NoopMetrics(),
+        symbols=["BTCUSDT"],
+        dry_run=True,
+    )
+
+    assert result["results"][0]["signal"]["decision"] == "no_trade"
+    csv_files = list((tmp_path / "diagnostics" / "no_trade_diagnostics").glob("*.csv"))
+    assert csv_files
+    content = csv_files[0].read_text(encoding="utf-8")
+    assert "timestamp,scan_run_id,symbol,decision,setup_score" in content
+    assert "BTCUSDT" in content
+    rejection_reason = result["results"][0]["evaluation"]["rejection_reasons"][0]
+    assert rejection_reason in content

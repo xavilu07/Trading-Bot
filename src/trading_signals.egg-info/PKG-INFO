@@ -1,0 +1,33 @@
+Metadata-Version: 2.4
+Name: trading-signals
+Version: 0.1.0
+Summary: Signal engine for crypto trading with file-based persistence
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: fastapi<1,>=0.115
+Requires-Dist: uvicorn<1,>=0.30
+Provides-Extra: dev
+Requires-Dist: httpx<1,>=0.28; extra == "dev"
+Requires-Dist: pytest<9,>=8.3; extra == "dev"
+
+# Trading Signals
+
+Motor de señales para criptomonedas con:
+
+- estrategia base `liquidity_sweep_mtf_v1`,
+- persistencia por archivos,
+- CLI,
+- API interna,
+- tests,
+- y workflow `specsmd`.
+
+## Comandos
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e .[dev]
+python -m trading_signals.app.cli scan --dry-run
+uvicorn trading_signals.interfaces.api.main:app --reload
+pytest
+```

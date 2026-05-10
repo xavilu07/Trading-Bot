@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Trading Signals Frontend</title>
+    <style>
+      body { font-family: sans-serif; background: #111827; color: #f3f4f6; margin: 0; padding: 32px; }
+      pre { background: #1f2937; padding: 16px; border-radius: 12px; overflow: auto; }
+    </style>
+  </head>
+  <body>
+    <h1>Trading Signals Frontend</h1>
+    <p>Frontend mínimo preparado para reverse proxy. Consulta la API a través de <code>/api</code>.</p>
+    <pre id="output">Cargando...</pre>
+    <script>
+      fetch('/api/health')
+        .then((response) => response.json())
+        .then((data) => {
+          document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+        })
+        .catch((error) => {
+          document.getElementById('output').textContent = String(error);
+        });
+    </script>
+  </body>
+</html>
