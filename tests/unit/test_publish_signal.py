@@ -441,7 +441,7 @@ def test_public_signal_message_uses_short_emoji_and_optional_tps() -> None:
     assert "🎯 TP3: 80.0" in message
 
 
-def test_publish_signal_routes_public_short_message_and_dev_detail() -> None:
+def test_publish_signal_routes_long_to_public_and_dev() -> None:
     entry = build_snapshot(
         scan_run_id="run_test",
         symbol="AVAXUSDT",
@@ -524,3 +524,87 @@ def test_publish_signal_routes_public_short_message_and_dev_detail() -> None:
     assert "🟢 AVAXUSDT" in notifier.public_messages[0]
     assert "📉 Contexto" not in notifier.public_messages[0]
     assert "📉 Contexto" in notifier.dev_messages[0]
+
+
+def test_publish_signal_routes_short_to_dev_only(caplog) -> None:
+    entry = build_snapshot(
+        scan_run_id="run_test",
+        symbol="XRPUSDT",
+        timeframe="1h",
+        trend="bearish",
+        structure="bearish",
+        sweep="bearish",
+        score=88.0,
+        distance=1.0,
+    )
+    higher = build_snapshot(
+        scan_run_id="run_test",
+        symbol="XRPUSDT",
+        timeframe="4h",
+        trend="bearish",
+        structure="bearish",
+        sweep="none",
+        score=70.0,
+        distance=1.0,
+    )
+    evaluation = StrategyEvaluation(
+        id="eval_test",
+        scan_run_id="run_test",
+        strategy_id="liquidity_sweep_mtf",
+        strategy_version="v1",
+        symbol="XRPUSDT",
+        entry_timeframe="1h",
+        higher_timeframe="4h",
+        entry_snapshot_id=entry.id,
+        higher_snapshot_id=higher.id,
+        decision="short",
+        decision_trace=[],
+        rejection_reasons=[],
+        passed_filters=["timeframe_alignment", "primary_sweep_setup", "quality_score"],
+        failed_filters=[],
+        setup_score=88.0,
+        confidence=0.88,
+        created_at=entry.created_at,
+    )
+    risk_plan = RiskPlan(
+        id="risk_test",
+        evaluation_id="eval_test",
+        entry=100.0,
+        stop_loss=105.0,
+        take_profit=90.0,
+        risk_reward=2.0,
+        risk_amount=10.0,
+        position_size=2.0,
+        sl_method="test",
+        tp_method="test",
+        created_at=entry.created_at,
+    )
+    signal = TradeSignal(
+        id="sig_test",
+        scan_run_id="run_test",
+        evaluation_id="eval_test",
+        risk_plan_id="risk_test",
+        strategy_id="liquidity_sweep_mtf",
+        strategy_version="v1",
+        symbol="XRPUSDT",
+        decision="short",
+        status="valid",
+        dedupe_key="dedupe",
+        entry_timeframe="1h",
+        higher_timeframe="4h",
+        entry_snapshot_id=entry.id,
+        higher_snapshot_id=higher.id,
+        created_at=entry.created_at,
+    )
+    repo = RecordingSignalRepo()
+    notifier = RoutingNotifier()
+
+    with caplog.at_level("INFO", logger="trading_signals"):
+        deliveries = publish_signal(repo, notifier, signal, entry, higher, evaluation, risk_plan)
+
+    assert len(deliveries) == 1
+    assert deliveries[0].channel == "telegram_dev"
+    assert notifier.public_messages == []
+    assert len(notifier.dev_messages) == 1
+    assert "🚨 Señal XRPUSDT SHORT" in notifier.dev_messages[0]
+    assert "SHORT signal routed to DEV/paper only" in caplog.text

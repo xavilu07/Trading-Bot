@@ -99,6 +99,45 @@ def test_paper_store_creates_trade_once(tmp_path) -> None:
     assert "low_volume" in trades[0]["avoidance_warnings"]
 
 
+def test_paper_candidate_supports_short_direction() -> None:
+    snapshot = build_snapshot(
+        scan_run_id="run_test",
+        symbol="XRPUSDT",
+        timeframe="1h",
+        trend="bearish",
+        structure="bearish",
+        sweep="bearish_sweep",
+        score=80.0,
+        distance=1.0,
+    )
+
+    candidate = build_paper_candidate_from_signal(
+        symbol="XRPUSDT",
+        direction="short",
+        setup_type="MAIN_SIGNAL",
+        score=80.0,
+        risk_plan=build_risk_plan("short"),
+        opened_at="2026-01-01T00:00:00+00:00",
+        entry_reasons=["primary_sweep_setup"],
+        conditions_passed=["quality_score"],
+        conditions_failed=[],
+        source_key="XRPUSDT|short|test",
+        snapshot=snapshot,
+        higher_trend="bearish",
+        entry_or_rejection_reason="paper_tradeable",
+        expires_after_candles=24,
+        setup_context=SETUP_CONTEXT,
+    )
+
+    assert candidate is not None
+    assert candidate.direction == "short"
+    assert candidate.entry_price == 100.0
+    assert candidate.stop_loss == 105.0
+    assert candidate.take_profit_1 == 95.0
+    assert candidate.take_profit_2 == 90.0
+    assert candidate.risk_reward_tp2 == 2.0
+
+
 def test_paper_candidate_accepts_signal_decision_without_changing_candidate() -> None:
     snapshot = build_snapshot(
         scan_run_id="run_test",

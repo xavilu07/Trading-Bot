@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from datetime import UTC, datetime
 from uuid import uuid4
 
@@ -249,10 +250,12 @@ def format_public_signal_message(symbol: str, decision: str, entry_snapshot, hig
 def publish_signal(signal_repo, notifier, signal, entry_snapshot, higher_snapshot, evaluation, risk_plan, dry_run: bool = False, signal_type: str = "NEW") -> list[SignalDelivery]:
     public_message = format_public_signal_message(signal.symbol, signal.decision, entry_snapshot, higher_snapshot, evaluation, risk_plan)
     dev_message = format_telegram_message(signal.symbol, signal.decision, entry_snapshot, higher_snapshot, evaluation, risk_plan, signal_type=signal_type)
-    routed_results = [
-        ("telegram_public", public_message, send_public_signal(notifier, public_message, dry_run=dry_run)),
-        ("telegram_dev", dev_message, send_dev_signal_detail(notifier, dev_message, dry_run=dry_run)),
-    ]
+    routed_results = []
+    if signal.decision == "short":
+        logging.getLogger("trading_signals").info("SHORT signal routed to DEV/paper only")
+    else:
+        routed_results.append(("telegram_public", public_message, send_public_signal(notifier, public_message, dry_run=dry_run)))
+    routed_results.append(("telegram_dev", dev_message, send_dev_signal_detail(notifier, dev_message, dry_run=dry_run)))
     deliveries: list[SignalDelivery] = []
     attempted_at = datetime.now(tz=UTC).isoformat()
     for channel, message, results in routed_results:
