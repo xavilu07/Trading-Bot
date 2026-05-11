@@ -754,6 +754,7 @@ def run_market_scan(
                     risk_plan,
                     dry_run=dry_run,
                     signal_type=lifecycle.signal_type,
+                    setup_context=setup_context,
                 )
                 if any(item.status == "sent" for item in deliveries):
                     public_published = any(item.channel == "telegram_public" and item.status == "sent" for item in deliveries)

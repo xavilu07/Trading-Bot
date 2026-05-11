@@ -5,6 +5,7 @@ from trading_signals.application.use_cases.publish_signal import (
     format_telegram_message,
     publish_filter_rejection_reason,
     publish_signal,
+    public_routing_rejection_reason,
 )
 from trading_signals.app.settings import Settings
 from trading_signals.domain.entities.risk_plan import RiskPlan
@@ -526,7 +527,7 @@ def test_publish_signal_routes_long_to_public_and_dev() -> None:
     assert "📉 Contexto" in notifier.dev_messages[0]
 
 
-def test_publish_signal_routes_short_to_dev_only(caplog) -> None:
+def test_publish_signal_routes_short_ranging_to_dev_only_due_to_negative_edge(caplog) -> None:
     entry = build_snapshot(
         scan_run_id="run_test",
         symbol="XRPUSDT",
@@ -600,11 +601,213 @@ def test_publish_signal_routes_short_to_dev_only(caplog) -> None:
     notifier = RoutingNotifier()
 
     with caplog.at_level("INFO", logger="trading_signals"):
-        deliveries = publish_signal(repo, notifier, signal, entry, higher, evaluation, risk_plan)
+        deliveries = publish_signal(
+            repo,
+            notifier,
+            signal,
+            entry,
+            higher,
+            evaluation,
+            risk_plan,
+            setup_context={"market_regime": "RANGING", "setup_type": "MAIN_SIGNAL"},
+        )
 
     assert len(deliveries) == 1
     assert deliveries[0].channel == "telegram_dev"
     assert notifier.public_messages == []
     assert len(notifier.dev_messages) == 1
     assert "🚨 Señal XRPUSDT SHORT" in notifier.dev_messages[0]
-    assert "SHORT signal routed to DEV/paper only" in caplog.text
+    assert "signal routed to DEV/paper only due to negative historical edge" in caplog.text
+
+
+def test_publish_signal_routes_secondary_short_to_dev_only(caplog) -> None:
+    entry = build_snapshot(
+        scan_run_id="run_test",
+        symbol="OPUSDT",
+        timeframe="1h",
+        trend="bearish",
+        structure="bearish",
+        sweep="none",
+        score=88.0,
+        distance=1.0,
+    )
+    higher = build_snapshot(
+        scan_run_id="run_test",
+        symbol="OPUSDT",
+        timeframe="4h",
+        trend="bearish",
+        structure="bearish",
+        sweep="none",
+        score=70.0,
+        distance=1.0,
+    )
+    evaluation = StrategyEvaluation(
+        id="eval_test",
+        scan_run_id="run_test",
+        strategy_id="liquidity_sweep_mtf",
+        strategy_version="v1",
+        symbol="OPUSDT",
+        entry_timeframe="1h",
+        higher_timeframe="4h",
+        entry_snapshot_id=entry.id,
+        higher_snapshot_id=higher.id,
+        decision="short",
+        decision_trace=[],
+        rejection_reasons=[],
+        passed_filters=["secondary_setup", "secondary_trend_alignment", "quality_score"],
+        failed_filters=[],
+        setup_score=88.0,
+        confidence=0.88,
+        created_at=entry.created_at,
+    )
+    risk_plan = RiskPlan(
+        id="risk_test",
+        evaluation_id="eval_test",
+        entry=100.0,
+        stop_loss=105.0,
+        take_profit=90.0,
+        risk_reward=2.0,
+        risk_amount=10.0,
+        position_size=2.0,
+        sl_method="test",
+        tp_method="test",
+        created_at=entry.created_at,
+    )
+    signal = TradeSignal(
+        id="sig_test",
+        scan_run_id="run_test",
+        evaluation_id="eval_test",
+        risk_plan_id="risk_test",
+        strategy_id="liquidity_sweep_mtf",
+        strategy_version="v1",
+        symbol="OPUSDT",
+        decision="short",
+        status="valid",
+        dedupe_key="dedupe",
+        entry_timeframe="1h",
+        higher_timeframe="4h",
+        entry_snapshot_id=entry.id,
+        higher_snapshot_id=higher.id,
+        created_at=entry.created_at,
+    )
+    repo = RecordingSignalRepo()
+    notifier = RoutingNotifier()
+
+    with caplog.at_level("INFO", logger="trading_signals"):
+        deliveries = publish_signal(
+            repo,
+            notifier,
+            signal,
+            entry,
+            higher,
+            evaluation,
+            risk_plan,
+            setup_context={"market_regime": "TRENDING", "setup_type": "SECONDARY_SIGNAL"},
+        )
+
+    assert {delivery.channel for delivery in deliveries} == {"telegram_dev"}
+    assert notifier.public_messages == []
+    assert len(notifier.dev_messages) == 1
+    assert "signal routed to DEV/paper only due to negative historical edge" in caplog.text
+
+
+def test_publish_signal_routes_secondary_choppy_range_to_dev_only() -> None:
+    entry = build_snapshot(
+        scan_run_id="run_test",
+        symbol="ADAUSDT",
+        timeframe="1h",
+        trend="bullish",
+        structure="range",
+        sweep="none",
+        score=88.0,
+        distance=1.0,
+    )
+    higher = build_snapshot(
+        scan_run_id="run_test",
+        symbol="ADAUSDT",
+        timeframe="4h",
+        trend="bullish",
+        structure="bullish",
+        sweep="none",
+        score=70.0,
+        distance=1.0,
+    )
+    evaluation = StrategyEvaluation(
+        id="eval_test",
+        scan_run_id="run_test",
+        strategy_id="liquidity_sweep_mtf",
+        strategy_version="v1",
+        symbol="ADAUSDT",
+        entry_timeframe="1h",
+        higher_timeframe="4h",
+        entry_snapshot_id=entry.id,
+        higher_snapshot_id=higher.id,
+        decision="long",
+        decision_trace=[],
+        rejection_reasons=[],
+        passed_filters=["secondary_setup", "secondary_trend_alignment", "quality_score"],
+        failed_filters=[],
+        setup_score=88.0,
+        confidence=0.88,
+        created_at=entry.created_at,
+    )
+    risk_plan = RiskPlan(
+        id="risk_test",
+        evaluation_id="eval_test",
+        entry=100.0,
+        stop_loss=95.0,
+        take_profit=110.0,
+        risk_reward=2.0,
+        risk_amount=10.0,
+        position_size=2.0,
+        sl_method="test",
+        tp_method="test",
+        created_at=entry.created_at,
+    )
+    signal = TradeSignal(
+        id="sig_test",
+        scan_run_id="run_test",
+        evaluation_id="eval_test",
+        risk_plan_id="risk_test",
+        strategy_id="liquidity_sweep_mtf",
+        strategy_version="v1",
+        symbol="ADAUSDT",
+        decision="long",
+        status="valid",
+        dedupe_key="dedupe",
+        entry_timeframe="1h",
+        higher_timeframe="4h",
+        entry_snapshot_id=entry.id,
+        higher_snapshot_id=higher.id,
+        created_at=entry.created_at,
+    )
+    repo = RecordingSignalRepo()
+    notifier = RoutingNotifier()
+
+    deliveries = publish_signal(
+        repo,
+        notifier,
+        signal,
+        entry,
+        higher,
+        evaluation,
+        risk_plan,
+        setup_context={"market_regime": "RANGING", "setup_type": "SECONDARY_SIGNAL", "entry_context": "CHOPPY_RANGE"},
+    )
+
+    assert {delivery.channel for delivery in deliveries} == {"telegram_dev"}
+    assert notifier.public_messages == []
+    assert len(notifier.dev_messages) == 1
+
+
+def test_public_routing_allows_long_breakout_main_signal() -> None:
+    signal = type("Signal", (), {"decision": "long"})()
+    evaluation = type("Evaluation", (), {"setup_type": "MAIN_SIGNAL", "passed_filters": []})()
+
+    reason = public_routing_rejection_reason(
+        signal,
+        evaluation,
+        {"market_regime": "TRENDING", "setup_type": "MAIN_SIGNAL", "entry_context": "BREAKOUT"},
+    )
+
+    assert reason is None

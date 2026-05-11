@@ -12,6 +12,7 @@ HARMFUL_PUBLISH_FILTERS = {
     "distance_to_liquidity_penalty",
     "directional_confluence_failed",
 }
+NEGATIVE_EDGE_PUBLIC_ROUTE_REASON = "negative_historical_edge"
 
 
 def signal_message_context(evaluation_or_decision) -> dict[str, object]:
@@ -22,6 +23,30 @@ def signal_message_context(evaluation_or_decision) -> dict[str, object]:
         "rejection_reasons": list(getattr(evaluation_or_decision, "rejection_reasons", [])),
         "setup_type": str(getattr(evaluation_or_decision, "setup_type", "")),
     }
+
+
+def public_routing_rejection_reason(signal, evaluation_or_decision, setup_context: dict[str, object] | None = None) -> str | None:
+    context = setup_context or {}
+    direction = str(getattr(signal, "decision", "")).strip().lower()
+    setup_type = str(
+        context.get("setup_type")
+        or getattr(evaluation_or_decision, "setup_type", "")
+        or _infer_setup_type(evaluation_or_decision)
+    ).strip().upper()
+    market_regime = str(context.get("market_regime", "") or "").strip().upper()
+    entry_context = str(context.get("entry_context", "") or "").strip().upper()
+    if direction == "short" and market_regime == "RANGING":
+        return NEGATIVE_EDGE_PUBLIC_ROUTE_REASON
+    if setup_type == "SECONDARY_SIGNAL" and direction == "short":
+        return NEGATIVE_EDGE_PUBLIC_ROUTE_REASON
+    if setup_type == "SECONDARY_SIGNAL" and entry_context == "CHOPPY_RANGE":
+        return NEGATIVE_EDGE_PUBLIC_ROUTE_REASON
+    return None
+
+
+def _infer_setup_type(evaluation_or_decision) -> str:
+    passed_filters = list(getattr(evaluation_or_decision, "passed_filters", []))
+    return "SECONDARY_SIGNAL" if "secondary_setup" in passed_filters else "MAIN_SIGNAL"
 
 
 def score_stars(score: float) -> str:
@@ -187,7 +212,7 @@ def format_telegram_message(symbol: str, decision: str, entry_snapshot, higher_s
         )
     setup_type = str(context["setup_type"])
     if not setup_type:
-        setup_type = "SECONDARY_SIGNAL" if "secondary_setup" in passed_filters else "MAIN_SIGNAL"
+        setup_type = _infer_setup_type(evaluation)
     setup_label = "⚠️ setup sin sweep\n" if setup_type == "SECONDARY_SIGNAL" or "secondary_setup" in passed_filters else ""
     direction = decision.upper()
     reason = summarize_reason(passed_filters)
@@ -247,12 +272,34 @@ def format_public_signal_message(symbol: str, decision: str, entry_snapshot, hig
     return message
 
 
-def publish_signal(signal_repo, notifier, signal, entry_snapshot, higher_snapshot, evaluation, risk_plan, dry_run: bool = False, signal_type: str = "NEW") -> list[SignalDelivery]:
+def publish_signal(
+    signal_repo,
+    notifier,
+    signal,
+    entry_snapshot,
+    higher_snapshot,
+    evaluation,
+    risk_plan,
+    dry_run: bool = False,
+    signal_type: str = "NEW",
+    setup_context: dict[str, object] | None = None,
+) -> list[SignalDelivery]:
     public_message = format_public_signal_message(signal.symbol, signal.decision, entry_snapshot, higher_snapshot, evaluation, risk_plan)
     dev_message = format_telegram_message(signal.symbol, signal.decision, entry_snapshot, higher_snapshot, evaluation, risk_plan, signal_type=signal_type)
     routed_results = []
-    if signal.decision == "short":
-        logging.getLogger("trading_signals").info("SHORT signal routed to DEV/paper only")
+    route_rejection_reason = public_routing_rejection_reason(signal, evaluation, setup_context)
+    if route_rejection_reason is not None:
+        logging.getLogger("trading_signals").info(
+            "signal routed to DEV/paper only due to negative historical edge",
+            extra={
+                "symbol": signal.symbol,
+                "direction": signal.decision,
+                "setup_type": (setup_context or {}).get("setup_type") or getattr(evaluation, "setup_type", ""),
+                "market_regime": (setup_context or {}).get("market_regime", ""),
+                "entry_context": (setup_context or {}).get("entry_context", ""),
+                "reason": route_rejection_reason,
+            },
+        )
     else:
         routed_results.append(("telegram_public", public_message, send_public_signal(notifier, public_message, dry_run=dry_run)))
     routed_results.append(("telegram_dev", dev_message, send_dev_signal_detail(notifier, dev_message, dry_run=dry_run)))
