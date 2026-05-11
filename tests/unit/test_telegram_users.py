@@ -132,6 +132,107 @@ def test_dev_routing_deduplicates_single_and_multiple_ids(tmp_path: Path) -> Non
     assert notifier._dev_recipients() == ["7437028098", "1979812925"]
 
 
+def test_private_chat_allowed_with_explicit_allowlist(tmp_path: Path) -> None:
+    users_file = tmp_path / "telegram_users.json"
+    notifier = TelegramNotifier(
+        "token",
+        ["fallback"],
+        users_file,
+        users_file.parent / "telegram_state.json",
+        allowed_private_chat_ids=["7437028098", "1979812925"],
+    )
+
+    assert notifier.is_private_chat_allowed("7437028098") is True
+    assert notifier.is_private_chat_allowed("999") is False
+
+
+def test_private_chat_allowed_falls_back_to_dev_chat_ids(tmp_path: Path) -> None:
+    users_file = tmp_path / "telegram_users.json"
+    notifier = TelegramNotifier(
+        "token",
+        ["fallback"],
+        users_file,
+        users_file.parent / "telegram_state.json",
+        dev_chat_id="7437028098,1979812925",
+    )
+
+    assert notifier.is_private_chat_allowed("1979812925") is True
+    assert notifier.is_private_chat_allowed("999") is False
+
+
+def test_unauthorized_private_start_is_not_registered_and_gets_blocked_once(tmp_path: Path, caplog) -> None:
+    users_file = tmp_path / "telegram_users.json"
+    notifier = StubTelegramNotifier(
+        users_file,
+        {
+            "result": [
+                {
+                    "update_id": 200,
+                    "message": {
+                        "text": "/start",
+                        "chat": {"id": 999},
+                    },
+                }
+            ]
+        },
+    )
+    notifier.allowed_private_chat_ids = ["12345"]
+
+    with caplog.at_level("INFO", logger="trading_signals"):
+        first = notifier.process_updates("Bienvenido", "Respuesta automática")
+        second = notifier.process_updates("Bienvenido", "Respuesta automática")
+
+    assert first == [
+        {
+            "recipient": "999",
+            "status": "unauthorized_private_chat_ignored",
+            "provider_message_id": "msg-1",
+            "error_message": "unauthorized_private_chat",
+            "update_id": 200,
+        }
+    ]
+    assert second == []
+    assert notifier.sent_messages == [("999", "⛔ Acceso no autorizado.")]
+    assert not users_file.exists()
+    assert "unauthorized_private_chat_ignored" in caplog.text
+
+
+def test_authorized_private_start_registers_user(tmp_path: Path) -> None:
+    users_file = tmp_path / "telegram_users.json"
+    notifier = StubTelegramNotifier(
+        users_file,
+        {
+            "result": [
+                {
+                    "update_id": 201,
+                    "message": {
+                        "text": "/start",
+                        "chat": {"id": 12345},
+                    },
+                }
+            ]
+        },
+    )
+    notifier.allowed_private_chat_ids = ["12345"]
+
+    result = notifier.process_updates("Bienvenido", "Respuesta automática")
+
+    assert result[0]["status"] == "welcome_sent"
+    assert json.loads(users_file.read_text(encoding="utf-8")) == ["12345"]
+
+
+def test_public_channel_routing_is_not_blocked_by_private_allowlist(tmp_path: Path) -> None:
+    users_file = tmp_path / "telegram_users.json"
+    notifier = StubTelegramNotifier(users_file, {"result": []})
+    notifier.public_chat_id = "public-chat"
+    notifier.allowed_private_chat_ids = ["dev-chat"]
+
+    result = notifier.send_public_signal("PUBLIC SIGNAL")
+
+    assert result[0]["recipient"] == "public-chat"
+    assert notifier.sent_messages == [("public-chat", "PUBLIC SIGNAL")]
+
+
 def test_process_updates_deduplicates_and_replies_to_normal_messages(tmp_path: Path) -> None:
     users_file = tmp_path / "telegram_users.json"
     notifier = StubTelegramNotifier(

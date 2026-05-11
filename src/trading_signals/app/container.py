@@ -32,6 +32,7 @@ def build_container() -> dict[str, object]:
             public_chat_id=settings.telegram_public_chat_id,
             dev_chat_id=settings.telegram_dev_chat_id,
             dev_chat_ids=settings.telegram_dev_chat_ids,
+            allowed_private_chat_ids=settings.telegram_allowed_private_chat_ids,
         ),
         "diagnostics_store": FileStore(settings.diagnostics_path),
         "paper_trading_store": PaperTradingStore(settings.data_storage_path),

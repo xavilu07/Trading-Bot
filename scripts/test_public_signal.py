@@ -46,6 +46,7 @@ def main(argv: list[str] | None = None) -> int:
         public_chat_id=settings.telegram_public_chat_id,
         dev_chat_id=settings.telegram_dev_chat_id,
         dev_chat_ids=settings.telegram_dev_chat_ids,
+        allowed_private_chat_ids=settings.telegram_allowed_private_chat_ids,
     )
     risk_plan = SimpleNamespace(
         entry=68420,

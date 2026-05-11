@@ -9,6 +9,18 @@ APP_DIR="/root/bot"
 SCREEN_NAME="trading-bot"
 SCHEDULER_PATTERN="python -m trading_signals.app.cli scheduler"
 
+python_scheduler_processes() {
+  ps -eo pid=,args= \
+    | awk '
+      /(^|\/)python[0-9.]* .* -m trading_signals[.]app[.]cli scheduler/ &&
+      $0 !~ /SCREEN/ &&
+      $0 !~ /bash -lc/ &&
+      $0 !~ /grep/ {
+        print
+      }
+    '
+}
+
 echo "== Trading bot deploy/restart =="
 cd "$APP_DIR"
 
@@ -63,7 +75,8 @@ screen -dmS "$SCREEN_NAME" bash -lc '
 
 sleep 3
 
-PROCESS_COUNT="$(pgrep -fc "$SCHEDULER_PATTERN" || true)"
+PROCESS_LIST="$(python_scheduler_processes || true)"
+PROCESS_COUNT="$(printf "%s\n" "$PROCESS_LIST" | sed '/^[[:space:]]*$/d' | wc -l | tr -d ' ')"
 SCREEN_ACTIVE="NO"
 if screen -list | grep -q "[.]${SCREEN_NAME}[[:space:]]"; then
   SCREEN_ACTIVE="YES"
@@ -78,9 +91,9 @@ echo "Scheduler processes: $PROCESS_COUNT"
 if [[ "$PROCESS_COUNT" != "1" ]]; then
   echo "ERROR: expected exactly 1 scheduler process, found $PROCESS_COUNT"
   echo "Matching processes:"
-  pgrep -af "$SCHEDULER_PATTERN" || true
+  printf "%s\n" "$PROCESS_LIST"
   exit 1
 fi
 
 echo "OK: scheduler restarted successfully"
-pgrep -af "$SCHEDULER_PATTERN"
+printf "%s\n" "$PROCESS_LIST"

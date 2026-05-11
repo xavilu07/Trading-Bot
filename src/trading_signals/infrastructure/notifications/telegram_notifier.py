@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -30,6 +31,7 @@ class TelegramNotifier(NotificationPort):
         public_chat_id: str = "",
         dev_chat_id: str = "",
         dev_chat_ids: list[str] | None = None,
+        allowed_private_chat_ids: list[str] | None = None,
     ) -> None:
         self.bot_token = bot_token
         self.chat_ids = chat_ids
@@ -38,6 +40,7 @@ class TelegramNotifier(NotificationPort):
         self.public_chat_id = public_chat_id.strip()
         self.dev_chat_id = dev_chat_id.strip()
         self.dev_chat_ids = _dedupe([*(dev_chat_ids or []), *self.dev_chat_id.split(",")])
+        self.allowed_private_chat_ids = _dedupe(allowed_private_chat_ids or self.dev_chat_ids)
 
     def _load_user_ids(self) -> list[str]:
         if not self.users_file.exists():
@@ -68,6 +71,39 @@ class TelegramNotifier(NotificationPort):
         if self.dev_chat_id:
             return _dedupe(self.dev_chat_id.split(","))
         return self._all_recipients()
+
+    def is_private_chat_allowed(self, chat_id: str) -> bool:
+        if not self.allowed_private_chat_ids:
+            return True
+        return str(chat_id).strip() in set(self.allowed_private_chat_ids)
+
+    def _unauthorized_private_chat_result(self, chat_id: str, update_id: int | None = None, dry_run: bool = False) -> dict[str, object]:
+        logging.getLogger("trading_signals").info(
+            "unauthorized_private_chat_ignored",
+            extra={"chat_id": chat_id, "update_id": update_id},
+        )
+        if dry_run:
+            result = {
+                "recipient": chat_id,
+                "status": "unauthorized_private_chat_ignored",
+                "provider_message_id": "dry_run",
+                "error_message": "unauthorized_private_chat",
+            }
+        else:
+            try:
+                result = self._send_message(chat_id, "⛔ Acceso no autorizado.")
+                result["status"] = "unauthorized_private_chat_ignored"
+                result["error_message"] = "unauthorized_private_chat"
+            except Exception as exc:  # pragma: no cover - network path
+                result = {
+                    "recipient": chat_id,
+                    "status": "unauthorized_private_chat_ignored",
+                    "provider_message_id": None,
+                    "error_message": str(exc),
+                }
+        if update_id is not None:
+            result["update_id"] = update_id
+        return result
 
     def _publish_to_recipients(self, message: str, recipients: list[str], dry_run: bool = False) -> list[dict[str, object]]:
         if dry_run:
@@ -168,6 +204,9 @@ class TelegramNotifier(NotificationPort):
             chat_id = str(message.get("chat", {}).get("id", "")).strip()
             if not chat_id:
                 continue
+            if not self.is_private_chat_allowed(chat_id):
+                results.append(self._unauthorized_private_chat_result(chat_id, dry_run=dry_run))
+                continue
             if chat_id in known_users:
                 results.append(
                     {
@@ -235,6 +274,12 @@ class TelegramNotifier(NotificationPort):
             text = str(message.get("text", "")).strip()
 
             if not chat_id or not text:
+                self._save_last_update_id(update_id)
+                last_update_id = update_id
+                continue
+
+            if not self.is_private_chat_allowed(chat_id):
+                results.append(self._unauthorized_private_chat_result(chat_id, update_id=update_id, dry_run=dry_run))
                 self._save_last_update_id(update_id)
                 last_update_id = update_id
                 continue
