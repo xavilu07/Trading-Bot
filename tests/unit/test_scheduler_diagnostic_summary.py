@@ -230,6 +230,16 @@ def test_scheduler_diagnostic_summary_telegram_format() -> None:
                 }
             ],
         },
+        "historical_edge": {
+            "historical_edge_score": 74,
+            "historical_confidence": "MEDIUM",
+            "matched_patterns_count": 12,
+            "matched_winrate": 66.67,
+            "matched_avg_r": 0.8,
+            "matched_profit_factor": 2.1,
+            "positive_edge_reasons": ["avgR positivo (0.8)", "profit factor fuerte (2.1)"],
+            "negative_edge_reasons": ["warnings repetidos: low_volume"],
+        },
     }
 
     message = format_scheduler_diagnostic_summary_for_telegram(summary)
@@ -271,6 +281,15 @@ def test_scheduler_diagnostic_summary_telegram_format() -> None:
     assert "- LONG | BREAKOUT | TRENDING | Winrate 68% | AvgR +1.2 | Casos: 12" in message
     assert "⚠️ Patrones negativos" in message
     assert "- SHORT | against_htf | near_resistance | Winrate 22% | AvgR -0.6 | Casos: 9" in message
+    assert "🧠 Historical Edge" in message
+    assert "- Score: 74/100" in message
+    assert "- Confidence: MEDIUM" in message
+    assert "- Matches: 12" in message
+    assert "- WR histórico: 66.67%" in message
+    assert "- AvgR: 0.8" in message
+    assert "- PF: 2.1" in message
+    assert "- Riesgos: warnings repetidos: low_volume" in message
+    assert "- Fortalezas: avgR positivo (0.8), profit factor fuerte (2.1)" in message
     assert "- Símbolo: XRPUSDT" in message
     assert "0 señales enviadas" in message
 
