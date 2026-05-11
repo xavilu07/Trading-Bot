@@ -55,6 +55,7 @@ def build_scheduler_diagnostic_summary(results_window: list[dict[str, object]]) 
     pattern_memory_items: list[dict[str, object]] = []
     pattern_memory_insights = None
     historical_edge_items: list[dict[str, object]] = []
+    adaptive_threshold_items: list[dict[str, object]] = []
 
     for result in results_window:
         scan_run = result.get("scan_run", {})
@@ -84,6 +85,8 @@ def build_scheduler_diagnostic_summary(results_window: list[dict[str, object]]) 
                 pattern_memory_insights = pattern_memory.get("insights")
             if isinstance(pattern_memory, dict) and isinstance(pattern_memory.get("historical_edge"), dict):
                 historical_edge_items.append(pattern_memory["historical_edge"])
+            if isinstance(pattern_memory, dict) and isinstance(pattern_memory.get("adaptive_thresholds"), dict):
+                adaptive_threshold_items.append(pattern_memory["adaptive_thresholds"])
             if item.get("paper_candidate_detected") is True:
                 paper_candidates_detected += 1
             if item.get("paper_trade_created") is True:
@@ -174,6 +177,7 @@ def build_scheduler_diagnostic_summary(results_window: list[dict[str, object]]) 
         "pattern_memory": _aggregate_pattern_memory(pattern_memory_items),
         "pattern_memory_insights": pattern_memory_insights,
         "historical_edge": _aggregate_historical_edge(historical_edge_items),
+        "adaptive_thresholds": _aggregate_adaptive_thresholds(adaptive_threshold_items),
     }
 
 
@@ -233,6 +237,7 @@ def format_scheduler_diagnostic_summary_for_telegram(summary: dict[str, object])
     pattern_memory_text = _format_pattern_memory(summary.get("pattern_memory"))
     pattern_memory_insights_text = _format_pattern_memory_insights(summary.get("pattern_memory_insights"))
     historical_edge_text = _format_historical_edge(summary.get("historical_edge"))
+    adaptive_thresholds_text = _format_adaptive_thresholds(summary.get("adaptive_thresholds"))
 
     return (
         "📊 Resumen del bot - últimos 5 ciclos\n\n"
@@ -264,9 +269,25 @@ def format_scheduler_diagnostic_summary_for_telegram(summary: dict[str, object])
         f"{pattern_memory_text}"
         f"{pattern_memory_insights_text}"
         f"{historical_edge_text}"
+        f"{adaptive_thresholds_text}"
         "📊 Conclusión\n"
         f"{_build_scheduler_conclusion(summary, bottleneck_text)}"
     )
+
+
+def _aggregate_adaptive_thresholds(items: list[dict[str, object]]) -> dict[str, object] | None:
+    if not items:
+        return None
+    strongest = max(items, key=lambda item: abs(int(float(item.get("threshold_delta", 0)))))
+    return {
+        "base_threshold": strongest.get("base_threshold", 45),
+        "adaptive_threshold": strongest.get("adaptive_threshold", 45),
+        "threshold_delta": strongest.get("threshold_delta", 0),
+        "adaptive_confidence": strongest.get("adaptive_confidence", "LOW"),
+        "adaptive_bias": strongest.get("adaptive_bias", "NEUTRAL"),
+        "adaptive_reasoning": strongest.get("adaptive_reasoning", []),
+        "edge_adjustment": strongest.get("edge_adjustment", 0.0),
+    }
 
 
 def _aggregate_historical_edge(items: list[dict[str, object]]) -> dict[str, object] | None:
@@ -322,6 +343,28 @@ def _format_pattern_memory(item: object) -> str:
         f"- Confianza: {item.get('confidence_level', 'LOW')}\n"
         f"- Warnings repetidos: {warnings_text}\n"
         f"- Penalties repetidas: {penalties_text}\n\n"
+    )
+
+
+def _format_adaptive_thresholds(item: object) -> str:
+    if not isinstance(item, dict):
+        return ""
+    delta = int(float(item.get("threshold_delta", 0)))
+    delta_text = f"+{delta}" if delta > 0 else str(delta)
+    reasons = item.get("adaptive_reasoning", [])
+    if isinstance(reasons, list) and reasons:
+        reason_lines = "\n".join(f"  - {reason}" for reason in reasons[:5])
+    else:
+        reason_lines = "  - sin ajustes adaptativos relevantes"
+    return (
+        "🧠 Adaptive Thresholds\n"
+        f"- Base Threshold: {item.get('base_threshold', 45)}\n"
+        f"- Adaptive Threshold: {item.get('adaptive_threshold', 45)}\n"
+        f"- Delta: {delta_text}\n"
+        f"- Confidence: {item.get('adaptive_confidence', 'LOW')}\n"
+        f"- Bias: {item.get('adaptive_bias', 'NEUTRAL')}\n"
+        "- Razones:\n"
+        f"{reason_lines}\n\n"
     )
 
 

@@ -41,6 +41,7 @@ from trading_signals.domain.services.risk_service import calculate_risk_plan
 from trading_signals.domain.strategies.liquidity_sweep_mtf_v1 import LiquiditySweepMTFV1
 from trading_signals.domain.value_objects.enums import SignalDecision, SignalStatus
 from trading_signals.infrastructure.logging.logger import log_json
+from trading_signals.memory.adaptive_thresholds import calculate_adaptive_thresholds
 from trading_signals.memory.insights import build_pattern_memory_insights
 from trading_signals.memory.edge_score import calculate_historical_edge_score
 from trading_signals.memory.pattern_memory import build_pattern_record, evaluate_pattern_memory
@@ -975,8 +976,19 @@ def run_market_scan(
                     r_result=None,
                 )
                 pattern_memory = evaluate_pattern_memory(pattern_record, pattern_history[-500:])
-                pattern_memory["historical_edge"] = calculate_historical_edge_score(pattern_record, pattern_history[-1000:])
+                historical_edge = calculate_historical_edge_score(pattern_record, pattern_history[-1000:])
+                adaptive_thresholds = calculate_adaptive_thresholds({**pattern_record, **historical_edge})
+                pattern_memory["historical_edge"] = historical_edge
+                pattern_memory["adaptive_thresholds"] = adaptive_thresholds
                 pattern_memory["insights"] = build_pattern_memory_insights(pattern_history)
+                log_json(
+                    logger,
+                    "adaptive_threshold_shadow_analysis",
+                    symbol=symbol,
+                    direction=pattern_record.get("direction"),
+                    setup_type=pattern_record.get("setup_type"),
+                    **adaptive_thresholds,
+                )
                 pattern_memory_store.append(pattern_record)
             results.append(
                 {

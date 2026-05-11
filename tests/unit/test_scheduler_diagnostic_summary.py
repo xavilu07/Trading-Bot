@@ -240,6 +240,14 @@ def test_scheduler_diagnostic_summary_telegram_format() -> None:
             "positive_edge_reasons": ["avgR positivo (0.8)", "profit factor fuerte (2.1)"],
             "negative_edge_reasons": ["warnings repetidos: low_volume"],
         },
+        "adaptive_thresholds": {
+            "base_threshold": 45,
+            "adaptive_threshold": 38,
+            "threshold_delta": -7,
+            "adaptive_confidence": "MEDIUM",
+            "adaptive_bias": "BULLISH",
+            "adaptive_reasoning": ["PF > 1.5 reduce threshold (-6)", "BREAKOUT reduce threshold (-4)"],
+        },
     }
 
     message = format_scheduler_diagnostic_summary_for_telegram(summary)
@@ -290,6 +298,13 @@ def test_scheduler_diagnostic_summary_telegram_format() -> None:
     assert "- PF: 2.1" in message
     assert "- Riesgos: warnings repetidos: low_volume" in message
     assert "- Fortalezas: avgR positivo (0.8), profit factor fuerte (2.1)" in message
+    assert "🧠 Adaptive Thresholds" in message
+    assert "- Base Threshold: 45" in message
+    assert "- Adaptive Threshold: 38" in message
+    assert "- Delta: -7" in message
+    assert "- Confidence: MEDIUM" in message
+    assert "- Bias: BULLISH" in message
+    assert "  - PF > 1.5 reduce threshold (-6)" in message
     assert "- Símbolo: XRPUSDT" in message
     assert "0 señales enviadas" in message
 
