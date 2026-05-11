@@ -10,27 +10,41 @@ SCREEN_NAME="trading-bot"
 SCHEDULER_PATTERN="python -m trading_signals.app.cli scheduler"
 
 python_scheduler_processes() {
-  ps -eo pid=,args= \
+  ps -eo pid,args \
     | awk '
-      /(^|\/)python[0-9.]* .* -m trading_signals[.]app[.]cli scheduler/ &&
-      $0 !~ /SCREEN/ &&
-      $0 !~ /bash -lc/ &&
-      $0 !~ /grep/ {
-        print
+      NR == 1 { next }
+      {
+        pid = $1
+        $1 = ""
+        sub(/^[[:space:]]+/, "", $0)
+        args = $0
+
+        is_python = args ~ /(^|\/)python([0-9]+([.][0-9]+)?)?([[:space:]]|$)/
+        is_scheduler = args ~ /(^|[[:space:]])-m[[:space:]]+trading_signals[.]app[.]cli[[:space:]]+scheduler([[:space:]]|$)/
+        is_wrapper = args ~ /(^|[[:space:]])(SCREEN|bash|sh|zsh|grep)([[:space:]]|$)/
+
+        if (is_python && is_scheduler && !is_wrapper) {
+          print pid " " args
+        }
       }
     '
 }
 
-echo "== Trading bot deploy/restart =="
+echo "========================================"
+echo " Trading bot deploy/restart"
+echo "========================================"
 cd "$APP_DIR"
 
-echo "== Updating repository =="
+echo
+echo "[1/7] Updating repository"
 git pull
 
-echo "== Activating virtualenv =="
+echo
+echo "[2/7] Activating virtualenv"
 source .venv/bin/activate
 
-echo "== Loading environment =="
+echo
+echo "[3/7] Loading environment"
 if [[ ! -f ".env" ]]; then
   echo "ERROR: .env not found in $APP_DIR"
   exit 1
@@ -39,10 +53,12 @@ set -a
 source .env
 set +a
 
-echo "== Installing package =="
+echo
+echo "[4/7] Installing package"
 pip install -e .
 
-echo "== Stopping existing screen session if present =="
+echo
+echo "[5/7] Stopping existing screen session if present"
 if command -v screen >/dev/null 2>&1; then
   if screen -list | grep -q "[.]${SCREEN_NAME}[[:space:]]"; then
     screen -S "$SCREEN_NAME" -X quit || true
@@ -53,7 +69,8 @@ else
   exit 1
 fi
 
-echo "== Killing duplicated scheduler processes =="
+echo
+echo "[6/7] Killing duplicated scheduler processes"
 pkill -f "$SCHEDULER_PATTERN" || true
 sleep 2
 if pgrep -f "$SCHEDULER_PATTERN" >/dev/null 2>&1; then
@@ -63,7 +80,8 @@ fi
 
 mkdir -p logs
 
-echo "== Starting scheduler in screen: $SCREEN_NAME =="
+echo
+echo "[7/7] Starting scheduler in screen: $SCREEN_NAME"
 screen -dmS "$SCREEN_NAME" bash -lc '
   cd /root/bot
   source .venv/bin/activate
@@ -82,7 +100,12 @@ if screen -list | grep -q "[.]${SCREEN_NAME}[[:space:]]"; then
   SCREEN_ACTIVE="YES"
 fi
 
-echo "== Final status =="
+SCHEDULER_PID="$(printf "%s\n" "$PROCESS_LIST" | awk 'NF { print $1; exit }')"
+
+echo
+echo "========================================"
+echo " Final status"
+echo "========================================"
 echo "App dir: $APP_DIR"
 echo "Screen session: $SCREEN_NAME"
 echo "Screen active: $SCREEN_ACTIVE"
@@ -95,5 +118,18 @@ if [[ "$PROCESS_COUNT" != "1" ]]; then
   exit 1
 fi
 
-echo "OK: scheduler restarted successfully"
+echo "Scheduler PID: $SCHEDULER_PID"
+echo "Scheduler status: OK"
+echo
+echo "Active screen sessions:"
+screen -list || true
+echo
+echo "Scheduler process:"
 printf "%s\n" "$PROCESS_LIST"
+echo
+echo "Last 3 scheduler logs:"
+if [[ -f "logs/scheduler.log" ]]; then
+  tail -n 3 logs/scheduler.log
+else
+  echo "logs/scheduler.log not found yet"
+fi
