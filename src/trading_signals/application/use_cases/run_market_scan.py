@@ -45,6 +45,7 @@ from trading_signals.memory.adaptive_thresholds import calculate_adaptive_thresh
 from trading_signals.memory.edge_confirmation import calculate_edge_confirmation
 from trading_signals.memory.insights import build_pattern_memory_insights
 from trading_signals.memory.edge_score import calculate_historical_edge_score
+from trading_signals.memory.meta_decision_engine import evaluate_meta_decision
 from trading_signals.memory.pattern_memory import build_pattern_record, evaluate_pattern_memory
 from trading_signals.memory.trade_quality import classify_trade_quality
 from trading_signals.notifications.telegram import telegram_status
@@ -995,10 +996,20 @@ def run_market_scan(
                         "edge_confirmation": edge_confirmation,
                     }
                 )
+                meta_decision = evaluate_meta_decision(
+                    {
+                        **pattern_record,
+                        "historical_edge": historical_edge,
+                        "adaptive_thresholds": adaptive_thresholds,
+                        "edge_confirmation": edge_confirmation,
+                        "trade_quality": trade_quality,
+                    }
+                )
                 pattern_memory["historical_edge"] = historical_edge
                 pattern_memory["adaptive_thresholds"] = adaptive_thresholds
                 pattern_memory["edge_confirmation"] = edge_confirmation
                 pattern_memory["trade_quality"] = trade_quality
+                pattern_memory["meta_decision"] = meta_decision
                 pattern_memory["insights"] = build_pattern_memory_insights(pattern_history)
                 log_json(
                     logger,
@@ -1023,6 +1034,14 @@ def run_market_scan(
                     direction=pattern_record.get("direction"),
                     setup_type=pattern_record.get("setup_type"),
                     **trade_quality,
+                )
+                log_json(
+                    logger,
+                    "meta_decision_shadow_analysis",
+                    symbol=symbol,
+                    direction=pattern_record.get("direction"),
+                    setup_type=pattern_record.get("setup_type"),
+                    **meta_decision,
                 )
                 pattern_memory_store.append(pattern_record)
             results.append(

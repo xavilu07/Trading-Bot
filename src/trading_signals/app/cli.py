@@ -58,6 +58,7 @@ def build_scheduler_diagnostic_summary(results_window: list[dict[str, object]]) 
     adaptive_threshold_items: list[dict[str, object]] = []
     edge_confirmation_items: list[dict[str, object]] = []
     trade_quality_items: list[dict[str, object]] = []
+    meta_decision_items: list[dict[str, object]] = []
 
     for result in results_window:
         scan_run = result.get("scan_run", {})
@@ -93,6 +94,8 @@ def build_scheduler_diagnostic_summary(results_window: list[dict[str, object]]) 
                 edge_confirmation_items.append(pattern_memory["edge_confirmation"])
             if isinstance(pattern_memory, dict) and isinstance(pattern_memory.get("trade_quality"), dict):
                 trade_quality_items.append(pattern_memory["trade_quality"])
+            if isinstance(pattern_memory, dict) and isinstance(pattern_memory.get("meta_decision"), dict):
+                meta_decision_items.append(pattern_memory["meta_decision"])
             if item.get("paper_candidate_detected") is True:
                 paper_candidates_detected += 1
             if item.get("paper_trade_created") is True:
@@ -186,6 +189,7 @@ def build_scheduler_diagnostic_summary(results_window: list[dict[str, object]]) 
         "adaptive_thresholds": _aggregate_adaptive_thresholds(adaptive_threshold_items),
         "edge_confirmation": _aggregate_edge_confirmation(edge_confirmation_items),
         "trade_quality": _aggregate_trade_quality(trade_quality_items),
+        "meta_decision": _aggregate_meta_decision(meta_decision_items),
     }
 
 
@@ -248,6 +252,7 @@ def format_scheduler_diagnostic_summary_for_telegram(summary: dict[str, object])
     adaptive_thresholds_text = _format_adaptive_thresholds(summary.get("adaptive_thresholds"))
     edge_confirmation_text = _format_edge_confirmation(summary.get("edge_confirmation"))
     trade_quality_text = _format_trade_quality(summary.get("trade_quality"))
+    meta_decision_text = _format_meta_decision(summary.get("meta_decision"))
 
     return (
         "📊 Resumen del bot - últimos 5 ciclos\n\n"
@@ -282,9 +287,26 @@ def format_scheduler_diagnostic_summary_for_telegram(summary: dict[str, object])
         f"{adaptive_thresholds_text}"
         f"{edge_confirmation_text}"
         f"{trade_quality_text}"
+        f"{meta_decision_text}"
         "📊 Conclusión\n"
         f"{_build_scheduler_conclusion(summary, bottleneck_text)}"
     )
+
+
+def _aggregate_meta_decision(items: list[dict[str, object]]) -> dict[str, object] | None:
+    if not items:
+        return None
+    selected = max(items, key=lambda item: abs(float(item.get("meta_decision_score", 50.0)) - 50.0))
+    return {
+        "meta_decision_score": selected.get("meta_decision_score", 50.0),
+        "meta_decision": selected.get("meta_decision", "NEUTRAL"),
+        "meta_confidence": selected.get("meta_confidence", "LOW"),
+        "capital_preservation_mode": selected.get("capital_preservation_mode", False),
+        "aggressive_mode": selected.get("aggressive_mode", False),
+        "meta_reasons": selected.get("meta_reasons", []),
+        "meta_risks": selected.get("meta_risks", []),
+        "system_alignment": selected.get("system_alignment", {}),
+    }
 
 
 def _aggregate_trade_quality(items: list[dict[str, object]]) -> dict[str, object] | None:
@@ -392,6 +414,27 @@ def _format_pattern_memory(item: object) -> str:
         f"- Confianza: {item.get('confidence_level', 'LOW')}\n"
         f"- Warnings repetidos: {warnings_text}\n"
         f"- Penalties repetidas: {penalties_text}\n\n"
+    )
+
+
+def _format_meta_decision(item: object) -> str:
+    if not isinstance(item, dict):
+        return ""
+    reasons = item.get("meta_reasons", [])
+    risks = item.get("meta_risks", [])
+    reason_text = ", ".join(str(reason) for reason in reasons[:4]) if isinstance(reasons, list) and reasons else "sin razones concluyentes"
+    risk_text = ", ".join(str(risk) for risk in risks[:4]) if isinstance(risks, list) and risks else "sin riesgos destacados"
+    aggressive = "YES" if item.get("aggressive_mode") else "NO"
+    preservation = "YES" if item.get("capital_preservation_mode") else "NO"
+    return (
+        "🧠 Meta Decision Engine\n"
+        f"- Score: {item.get('meta_decision_score', 50.0)}/100\n"
+        f"- Decision: {item.get('meta_decision', 'NEUTRAL')}\n"
+        f"- Confidence: {item.get('meta_confidence', 'LOW')}\n"
+        f"- Aggressive mode: {aggressive}\n"
+        f"- Preservation mode: {preservation}\n"
+        f"- Main reasons: {reason_text}\n"
+        f"- Risks: {risk_text}\n\n"
     )
 
 

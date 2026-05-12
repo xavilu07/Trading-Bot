@@ -267,6 +267,16 @@ def test_scheduler_diagnostic_summary_telegram_format() -> None:
             "quality_risks": ["low matches históricos (8)"],
             "historical_quality_alignment": {"matched_patterns_count": 8},
         },
+        "meta_decision": {
+            "meta_decision_score": 91.0,
+            "meta_decision": "STRONG_SEND",
+            "meta_confidence": "HIGH",
+            "capital_preservation_mode": False,
+            "aggressive_mode": True,
+            "meta_reasons": ["historical edge HIGH", "trade quality A", "RR válido (2.0)"],
+            "meta_risks": ["low confidence contexts"],
+            "system_alignment": {"historical_edge_score": 82},
+        },
     }
 
     message = format_scheduler_diagnostic_summary_for_telegram(summary)
@@ -338,6 +348,14 @@ def test_scheduler_diagnostic_summary_telegram_format() -> None:
     assert "- Bias: POSITIVE" in message
     assert "- Main reasons: HIGH_VOLATILITY, BREAKOUT, RR válido (2.0)" in message
     assert "- Risks: low matches históricos (8)" in message
+    assert "🧠 Meta Decision Engine" in message
+    assert "- Score: 91.0/100" in message
+    assert "- Decision: STRONG_SEND" in message
+    assert "- Confidence: HIGH" in message
+    assert "- Aggressive mode: YES" in message
+    assert "- Preservation mode: NO" in message
+    assert "- Main reasons: historical edge HIGH, trade quality A, RR válido (2.0)" in message
+    assert "- Risks: low confidence contexts" in message
     assert "- Símbolo: XRPUSDT" in message
     assert "0 señales enviadas" in message
 
