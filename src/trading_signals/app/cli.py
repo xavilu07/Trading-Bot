@@ -57,6 +57,7 @@ def build_scheduler_diagnostic_summary(results_window: list[dict[str, object]]) 
     historical_edge_items: list[dict[str, object]] = []
     adaptive_threshold_items: list[dict[str, object]] = []
     edge_confirmation_items: list[dict[str, object]] = []
+    trade_quality_items: list[dict[str, object]] = []
 
     for result in results_window:
         scan_run = result.get("scan_run", {})
@@ -90,6 +91,8 @@ def build_scheduler_diagnostic_summary(results_window: list[dict[str, object]]) 
                 adaptive_threshold_items.append(pattern_memory["adaptive_thresholds"])
             if isinstance(pattern_memory, dict) and isinstance(pattern_memory.get("edge_confirmation"), dict):
                 edge_confirmation_items.append(pattern_memory["edge_confirmation"])
+            if isinstance(pattern_memory, dict) and isinstance(pattern_memory.get("trade_quality"), dict):
+                trade_quality_items.append(pattern_memory["trade_quality"])
             if item.get("paper_candidate_detected") is True:
                 paper_candidates_detected += 1
             if item.get("paper_trade_created") is True:
@@ -182,6 +185,7 @@ def build_scheduler_diagnostic_summary(results_window: list[dict[str, object]]) 
         "historical_edge": _aggregate_historical_edge(historical_edge_items),
         "adaptive_thresholds": _aggregate_adaptive_thresholds(adaptive_threshold_items),
         "edge_confirmation": _aggregate_edge_confirmation(edge_confirmation_items),
+        "trade_quality": _aggregate_trade_quality(trade_quality_items),
     }
 
 
@@ -243,6 +247,7 @@ def format_scheduler_diagnostic_summary_for_telegram(summary: dict[str, object])
     historical_edge_text = _format_historical_edge(summary.get("historical_edge"))
     adaptive_thresholds_text = _format_adaptive_thresholds(summary.get("adaptive_thresholds"))
     edge_confirmation_text = _format_edge_confirmation(summary.get("edge_confirmation"))
+    trade_quality_text = _format_trade_quality(summary.get("trade_quality"))
 
     return (
         "📊 Resumen del bot - últimos 5 ciclos\n\n"
@@ -276,9 +281,25 @@ def format_scheduler_diagnostic_summary_for_telegram(summary: dict[str, object])
         f"{historical_edge_text}"
         f"{adaptive_thresholds_text}"
         f"{edge_confirmation_text}"
+        f"{trade_quality_text}"
         "📊 Conclusión\n"
         f"{_build_scheduler_conclusion(summary, bottleneck_text)}"
     )
+
+
+def _aggregate_trade_quality(items: list[dict[str, object]]) -> dict[str, object] | None:
+    if not items:
+        return None
+    selected = max(items, key=lambda item: abs(float(item.get("trade_quality_score", 50.0)) - 50.0))
+    return {
+        "trade_quality_score": selected.get("trade_quality_score", 50.0),
+        "trade_quality_grade": selected.get("trade_quality_grade", "C"),
+        "quality_confidence": selected.get("quality_confidence", "LOW"),
+        "quality_bias": selected.get("quality_bias", "NEUTRAL"),
+        "quality_reasons": selected.get("quality_reasons", []),
+        "quality_risks": selected.get("quality_risks", []),
+        "historical_quality_alignment": selected.get("historical_quality_alignment", {}),
+    }
 
 
 def _aggregate_edge_confirmation(items: list[dict[str, object]]) -> dict[str, object] | None:
@@ -371,6 +392,24 @@ def _format_pattern_memory(item: object) -> str:
         f"- Confianza: {item.get('confidence_level', 'LOW')}\n"
         f"- Warnings repetidos: {warnings_text}\n"
         f"- Penalties repetidas: {penalties_text}\n\n"
+    )
+
+
+def _format_trade_quality(item: object) -> str:
+    if not isinstance(item, dict):
+        return ""
+    reasons = item.get("quality_reasons", [])
+    risks = item.get("quality_risks", [])
+    reason_text = ", ".join(str(reason) for reason in reasons[:4]) if isinstance(reasons, list) and reasons else "sin razones concluyentes"
+    risk_text = ", ".join(str(risk) for risk in risks[:4]) if isinstance(risks, list) and risks else "sin riesgos destacados"
+    return (
+        "🏆 Trade Quality\n"
+        f"- Score: {item.get('trade_quality_score', 50.0)}/100\n"
+        f"- Grade: {item.get('trade_quality_grade', 'C')}\n"
+        f"- Confidence: {item.get('quality_confidence', 'LOW')}\n"
+        f"- Bias: {item.get('quality_bias', 'NEUTRAL')}\n"
+        f"- Main reasons: {reason_text}\n"
+        f"- Risks: {risk_text}\n\n"
     )
 
 

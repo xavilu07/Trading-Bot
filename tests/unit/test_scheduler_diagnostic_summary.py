@@ -258,6 +258,15 @@ def test_scheduler_diagnostic_summary_telegram_format() -> None:
             "risk_reasons": ["pocos matches históricos (8)"],
             "historical_alignment": {"matched_patterns_count": 8},
         },
+        "trade_quality": {
+            "trade_quality_score": 86.0,
+            "trade_quality_grade": "A",
+            "quality_confidence": "HIGH",
+            "quality_bias": "POSITIVE",
+            "quality_reasons": ["HIGH_VOLATILITY", "BREAKOUT", "RR válido (2.0)"],
+            "quality_risks": ["low matches históricos (8)"],
+            "historical_quality_alignment": {"matched_patterns_count": 8},
+        },
     }
 
     message = format_scheduler_diagnostic_summary_for_telegram(summary)
@@ -322,6 +331,13 @@ def test_scheduler_diagnostic_summary_telegram_format() -> None:
     assert "- Boost/Penalty: +26.5 / -3.0" in message
     assert "  - + historical edge HIGH" in message
     assert "  - - pocos matches históricos (8)" in message
+    assert "🏆 Trade Quality" in message
+    assert "- Score: 86.0/100" in message
+    assert "- Grade: A" in message
+    assert "- Confidence: HIGH" in message
+    assert "- Bias: POSITIVE" in message
+    assert "- Main reasons: HIGH_VOLATILITY, BREAKOUT, RR válido (2.0)" in message
+    assert "- Risks: low matches históricos (8)" in message
     assert "- Símbolo: XRPUSDT" in message
     assert "0 señales enviadas" in message
 
