@@ -89,3 +89,11 @@ def test_market_data_provider_defaults_to_binance(monkeypatch) -> None:
 
     assert settings.market_data_provider == "binance"
     assert settings.binance_base_url == "https://api.binance.com/api/v3"
+
+
+def test_scheduler_heartbeat_file_is_configurable(monkeypatch) -> None:
+    monkeypatch.setenv("SCHEDULER_HEARTBEAT_FILE", "./tmp/heartbeat.json")
+
+    settings = Settings()
+
+    assert str(settings.scheduler_heartbeat_file) == "tmp/heartbeat.json"

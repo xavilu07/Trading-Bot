@@ -81,6 +81,9 @@ class Settings:
     scheduler_diagnostic_state_file: Path = field(
         default_factory=lambda: Path(os.getenv("SCHEDULER_DIAGNOSTIC_STATE_FILE", "./data/scheduler_diagnostic_window.json"))
     )
+    scheduler_heartbeat_file: Path = field(
+        default_factory=lambda: Path(os.getenv("SCHEDULER_HEARTBEAT_FILE", "./data/runtime/scheduler_heartbeat.json"))
+    )
     paper_trading_enabled: bool = field(default_factory=lambda: _bool_env("PAPER_TRADING_ENABLED", "true"))
     paper_trading_strong_candidate_min_score: float = float(os.getenv("PAPER_TRADING_STRONG_CANDIDATE_MIN_SCORE", "35"))
     paper_trading_timeout_candles: int = int(os.getenv("PAPER_TRADING_TIMEOUT_CANDLES", "24"))

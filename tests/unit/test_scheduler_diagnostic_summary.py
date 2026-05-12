@@ -3,8 +3,11 @@ from __future__ import annotations
 from trading_signals.app.cli import (
     build_scheduler_diagnostic_summary,
     format_scheduler_diagnostic_summary_for_telegram,
+    load_scheduler_heartbeat,
     load_scheduler_results_window,
+    save_scheduler_heartbeat,
     save_scheduler_results_window,
+    scheduler_heartbeat_cycle_number,
 )
 
 
@@ -394,3 +397,31 @@ def test_scheduler_results_window_persists_between_restarts(tmp_path) -> None:
     save_scheduler_results_window(state_file, window)
 
     assert load_scheduler_results_window(state_file) == window
+
+
+def test_scheduler_heartbeat_persists_between_restarts(tmp_path) -> None:
+    heartbeat_file = tmp_path / "runtime" / "scheduler_heartbeat.json"
+    heartbeat = {
+        "last_cycle_started_at": "2026-05-12T10:00:00+00:00",
+        "last_cycle_finished_at": "2026-05-12T10:00:03+00:00",
+        "last_cycle_duration_seconds": 3.0,
+        "cycle_number": 7,
+        "status": "ok",
+        "last_error": None,
+    }
+
+    save_scheduler_heartbeat(heartbeat_file, heartbeat)
+
+    assert load_scheduler_heartbeat(heartbeat_file) == heartbeat
+
+
+def test_scheduler_heartbeat_returns_empty_dict_for_corrupt_file(tmp_path) -> None:
+    heartbeat_file = tmp_path / "scheduler_heartbeat.json"
+    heartbeat_file.write_text("{invalid", encoding="utf-8")
+
+    assert load_scheduler_heartbeat(heartbeat_file) == {}
+
+
+def test_scheduler_heartbeat_cycle_number_handles_invalid_values() -> None:
+    assert scheduler_heartbeat_cycle_number({"cycle_number": "12"}) == 12
+    assert scheduler_heartbeat_cycle_number({"cycle_number": "invalid"}) == 0

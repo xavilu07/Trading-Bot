@@ -37,6 +37,47 @@ def save_scheduler_results_window(path: Path, results_window: list[dict[str, obj
     temp.replace(path)
 
 
+def load_scheduler_heartbeat(path: Path) -> dict[str, object]:
+    if not path.exists():
+        return {}
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {}
+    return raw if isinstance(raw, dict) else {}
+
+
+def save_scheduler_heartbeat(path: Path, heartbeat: dict[str, object]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temp = path.with_suffix(".json.tmp")
+    temp.write_text(json.dumps(heartbeat, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
+    temp.replace(path)
+
+
+def try_save_scheduler_heartbeat(logger, path: Path, heartbeat: dict[str, object]) -> None:
+    try:
+        save_scheduler_heartbeat(path, heartbeat)
+    except Exception as exc:  # pragma: no cover - defensive logging path
+        log_json(
+            logger,
+            "scheduler_heartbeat_write_error",
+            error_type=type(exc).__name__,
+            error_message=str(exc),
+            heartbeat_file=str(path),
+        )
+
+
+def scheduler_heartbeat_cycle_number(heartbeat: dict[str, object]) -> int:
+    try:
+        return int(heartbeat.get("cycle_number", 0) or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def _duration_seconds(started_at: datetime, finished_at: datetime) -> float:
+    return round((finished_at - started_at).total_seconds(), 3)
+
+
 def build_scheduler_diagnostic_summary(results_window: list[dict[str, object]]) -> dict[str, object]:
     total_symbols = 0
     signals_sent = 0
@@ -769,6 +810,8 @@ def main(argv: list[str] | None = None) -> int:
         summary_every_cycles = max(1, settings.telegram_diagnostic_summary_every_cycles)
         logger = container["logger"]
         results_window = load_scheduler_results_window(settings.scheduler_diagnostic_state_file)
+        heartbeat = load_scheduler_heartbeat(settings.scheduler_heartbeat_file)
+        cycle_number = scheduler_heartbeat_cycle_number(heartbeat)
         log_json(
             logger,
             "scheduler_diagnostic_counter_state",
@@ -779,48 +822,98 @@ def main(argv: list[str] | None = None) -> int:
             state_file=str(settings.scheduler_diagnostic_state_file),
         )
         while True:
-            result = run_market_scan(
-                settings=container["settings"],
-                market_data=container["market_data"],
-                scan_repo=container["scan_repo"],
-                signal_repo=container["signal_repo"],
-                notifier=container["notifier"],
-                diagnostics_store=container["diagnostics_store"],
-                metrics=container["metrics"],
-                paper_trading_store=container["paper_trading_store"],
-                experimental_signal_store=container["experimental_signal_store"],
-                shadow_signal_store=container["shadow_signal_store"],
-                modular_signal_store=container["modular_signal_store"],
-                live_trading_store=container["live_trading_store"],
-                pattern_memory_store=container["pattern_memory_store"],
-                symbols=symbols,
-                dry_run=args.dry_run,
-            )
-            print(json.dumps(result["scan_run"], ensure_ascii=False))
-            results_window.append(result)
-            save_scheduler_results_window(settings.scheduler_diagnostic_state_file, results_window)
-            log_json(
-                logger,
-                "scheduler_diagnostic_counter_state",
-                current_cycles=len(results_window),
-                summary_every_cycles=summary_every_cycles,
-                telegram_diagnostic_summary_enabled=settings.telegram_diagnostic_summary_enabled,
-                interval_seconds=interval,
-                state_file=str(settings.scheduler_diagnostic_state_file),
-            )
-            if len(results_window) == summary_every_cycles:
-                summary = build_scheduler_diagnostic_summary(results_window)
-                log_json(logger, "scheduler_diagnostic_summary", **summary)
-                if settings.telegram_diagnostic_summary_enabled:
-                    container["notifier"].publish(
-                        format_scheduler_diagnostic_summary_for_telegram(summary),
-                        dry_run=args.dry_run,
-                    )
-                results_window.clear()
+            cycle_number += 1
+            cycle_started_at = datetime.now(tz=UTC)
+            try:
+                try_save_scheduler_heartbeat(
+                    logger,
+                    settings.scheduler_heartbeat_file,
+                    {
+                        **heartbeat,
+                        "last_cycle_started_at": cycle_started_at.isoformat(),
+                        "last_cycle_finished_at": heartbeat.get("last_cycle_finished_at"),
+                        "last_cycle_duration_seconds": heartbeat.get("last_cycle_duration_seconds"),
+                        "cycle_number": cycle_number,
+                        "status": str(heartbeat.get("status") or "ok"),
+                        "last_error": heartbeat.get("last_error"),
+                    },
+                )
+                result = run_market_scan(
+                    settings=container["settings"],
+                    market_data=container["market_data"],
+                    scan_repo=container["scan_repo"],
+                    signal_repo=container["signal_repo"],
+                    notifier=container["notifier"],
+                    diagnostics_store=container["diagnostics_store"],
+                    metrics=container["metrics"],
+                    paper_trading_store=container["paper_trading_store"],
+                    experimental_signal_store=container["experimental_signal_store"],
+                    shadow_signal_store=container["shadow_signal_store"],
+                    modular_signal_store=container["modular_signal_store"],
+                    live_trading_store=container["live_trading_store"],
+                    pattern_memory_store=container["pattern_memory_store"],
+                    symbols=symbols,
+                    dry_run=args.dry_run,
+                )
+                print(json.dumps(result["scan_run"], ensure_ascii=False))
+                results_window.append(result)
                 save_scheduler_results_window(settings.scheduler_diagnostic_state_file, results_window)
-            maybe_send_paper_daily_summary(container, dry_run=args.dry_run)
-            maybe_send_live_daily_summary(container, dry_run=args.dry_run)
-            time.sleep(interval)
+                log_json(
+                    logger,
+                    "scheduler_diagnostic_counter_state",
+                    current_cycles=len(results_window),
+                    summary_every_cycles=summary_every_cycles,
+                    telegram_diagnostic_summary_enabled=settings.telegram_diagnostic_summary_enabled,
+                    interval_seconds=interval,
+                    state_file=str(settings.scheduler_diagnostic_state_file),
+                )
+                if len(results_window) == summary_every_cycles:
+                    summary = build_scheduler_diagnostic_summary(results_window)
+                    log_json(logger, "scheduler_diagnostic_summary", **summary)
+                    if settings.telegram_diagnostic_summary_enabled:
+                        container["notifier"].publish(
+                            format_scheduler_diagnostic_summary_for_telegram(summary),
+                            dry_run=args.dry_run,
+                        )
+                    results_window.clear()
+                    save_scheduler_results_window(settings.scheduler_diagnostic_state_file, results_window)
+                maybe_send_paper_daily_summary(container, dry_run=args.dry_run)
+                maybe_send_live_daily_summary(container, dry_run=args.dry_run)
+                cycle_finished_at = datetime.now(tz=UTC)
+                heartbeat = {
+                    "last_cycle_started_at": cycle_started_at.isoformat(),
+                    "last_cycle_finished_at": cycle_finished_at.isoformat(),
+                    "last_cycle_duration_seconds": _duration_seconds(cycle_started_at, cycle_finished_at),
+                    "cycle_number": cycle_number,
+                    "status": "ok",
+                    "last_error": None,
+                }
+                try_save_scheduler_heartbeat(logger, settings.scheduler_heartbeat_file, heartbeat)
+                time.sleep(interval)
+            except Exception as exc:  # pragma: no cover - defensive loop
+                cycle_finished_at = datetime.now(tz=UTC)
+                heartbeat = {
+                    "last_cycle_started_at": cycle_started_at.isoformat(),
+                    "last_cycle_finished_at": heartbeat.get("last_cycle_finished_at"),
+                    "last_cycle_duration_seconds": _duration_seconds(cycle_started_at, cycle_finished_at),
+                    "cycle_number": cycle_number,
+                    "status": "error",
+                    "last_error": {
+                        "type": type(exc).__name__,
+                        "message": str(exc),
+                        "occurred_at": cycle_finished_at.isoformat(),
+                    },
+                }
+                try_save_scheduler_heartbeat(logger, settings.scheduler_heartbeat_file, heartbeat)
+                log_json(
+                    logger,
+                    "scheduler_cycle_error",
+                    cycle_number=cycle_number,
+                    error_type=type(exc).__name__,
+                    error_message=str(exc),
+                    backoff_seconds=30,
+                )
+                time.sleep(30)
     if args.command == "telegram-start":
         result = container["notifier"].sync_start_users(
             welcome_message=(
