@@ -56,6 +56,7 @@ def build_scheduler_diagnostic_summary(results_window: list[dict[str, object]]) 
     pattern_memory_insights = None
     historical_edge_items: list[dict[str, object]] = []
     adaptive_threshold_items: list[dict[str, object]] = []
+    edge_confirmation_items: list[dict[str, object]] = []
 
     for result in results_window:
         scan_run = result.get("scan_run", {})
@@ -87,6 +88,8 @@ def build_scheduler_diagnostic_summary(results_window: list[dict[str, object]]) 
                 historical_edge_items.append(pattern_memory["historical_edge"])
             if isinstance(pattern_memory, dict) and isinstance(pattern_memory.get("adaptive_thresholds"), dict):
                 adaptive_threshold_items.append(pattern_memory["adaptive_thresholds"])
+            if isinstance(pattern_memory, dict) and isinstance(pattern_memory.get("edge_confirmation"), dict):
+                edge_confirmation_items.append(pattern_memory["edge_confirmation"])
             if item.get("paper_candidate_detected") is True:
                 paper_candidates_detected += 1
             if item.get("paper_trade_created") is True:
@@ -178,6 +181,7 @@ def build_scheduler_diagnostic_summary(results_window: list[dict[str, object]]) 
         "pattern_memory_insights": pattern_memory_insights,
         "historical_edge": _aggregate_historical_edge(historical_edge_items),
         "adaptive_thresholds": _aggregate_adaptive_thresholds(adaptive_threshold_items),
+        "edge_confirmation": _aggregate_edge_confirmation(edge_confirmation_items),
     }
 
 
@@ -238,6 +242,7 @@ def format_scheduler_diagnostic_summary_for_telegram(summary: dict[str, object])
     pattern_memory_insights_text = _format_pattern_memory_insights(summary.get("pattern_memory_insights"))
     historical_edge_text = _format_historical_edge(summary.get("historical_edge"))
     adaptive_thresholds_text = _format_adaptive_thresholds(summary.get("adaptive_thresholds"))
+    edge_confirmation_text = _format_edge_confirmation(summary.get("edge_confirmation"))
 
     return (
         "📊 Resumen del bot - últimos 5 ciclos\n\n"
@@ -270,9 +275,32 @@ def format_scheduler_diagnostic_summary_for_telegram(summary: dict[str, object])
         f"{pattern_memory_insights_text}"
         f"{historical_edge_text}"
         f"{adaptive_thresholds_text}"
+        f"{edge_confirmation_text}"
         "📊 Conclusión\n"
         f"{_build_scheduler_conclusion(summary, bottleneck_text)}"
     )
+
+
+def _aggregate_edge_confirmation(items: list[dict[str, object]]) -> dict[str, object] | None:
+    if not items:
+        return None
+    def key(item: dict[str, object]) -> tuple[int, float]:
+        alignment = item.get("historical_alignment", {})
+        matches = int(alignment.get("matched_patterns_count", 0)) if isinstance(alignment, dict) else 0
+        score = float(item.get("edge_confirmation_score", 50.0))
+        return matches, abs(score - 50.0)
+
+    selected = max(items, key=key)
+    return {
+        "edge_confirmation_score": selected.get("edge_confirmation_score", 50.0),
+        "edge_confirmation_level": selected.get("edge_confirmation_level", "MEDIUM"),
+        "edge_bias": selected.get("edge_bias", "NEUTRAL"),
+        "confidence_boost": selected.get("confidence_boost", 0.0),
+        "confidence_penalty": selected.get("confidence_penalty", 0.0),
+        "confirmation_reasons": selected.get("confirmation_reasons", []),
+        "risk_reasons": selected.get("risk_reasons", []),
+        "historical_alignment": selected.get("historical_alignment", {}),
+    }
 
 
 def _aggregate_adaptive_thresholds(items: list[dict[str, object]]) -> dict[str, object] | None:
@@ -343,6 +371,28 @@ def _format_pattern_memory(item: object) -> str:
         f"- Confianza: {item.get('confidence_level', 'LOW')}\n"
         f"- Warnings repetidos: {warnings_text}\n"
         f"- Penalties repetidas: {penalties_text}\n\n"
+    )
+
+
+def _format_edge_confirmation(item: object) -> str:
+    if not isinstance(item, dict):
+        return ""
+    positives = item.get("confirmation_reasons", [])
+    negatives = item.get("risk_reasons", [])
+    main_reasons = []
+    if isinstance(positives, list):
+        main_reasons.extend(f"+ {reason}" for reason in positives[:3])
+    if isinstance(negatives, list):
+        main_reasons.extend(f"- {reason}" for reason in negatives[:3])
+    reason_text = "\n".join(f"  - {reason}" for reason in main_reasons[:5]) if main_reasons else "  - sin razones concluyentes"
+    return (
+        "🧠 Edge Confirmation\n"
+        f"- Score: {item.get('edge_confirmation_score', 50.0)}/100\n"
+        f"- Level: {item.get('edge_confirmation_level', 'MEDIUM')}\n"
+        f"- Bias: {item.get('edge_bias', 'NEUTRAL')}\n"
+        f"- Boost/Penalty: +{item.get('confidence_boost', 0.0)} / -{item.get('confidence_penalty', 0.0)}\n"
+        "- Main reasons:\n"
+        f"{reason_text}\n\n"
     )
 
 

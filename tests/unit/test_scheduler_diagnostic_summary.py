@@ -248,6 +248,16 @@ def test_scheduler_diagnostic_summary_telegram_format() -> None:
             "adaptive_bias": "BULLISH",
             "adaptive_reasoning": ["PF > 1.5 reduce threshold (-6)", "BREAKOUT reduce threshold (-4)"],
         },
+        "edge_confirmation": {
+            "edge_confirmation_score": 78.5,
+            "edge_confirmation_level": "HIGH",
+            "edge_bias": "POSITIVE",
+            "confidence_boost": 26.5,
+            "confidence_penalty": 3.0,
+            "confirmation_reasons": ["historical edge HIGH", "PF > 1.2 (2.1)", "BREAKOUT rentable"],
+            "risk_reasons": ["pocos matches históricos (8)"],
+            "historical_alignment": {"matched_patterns_count": 8},
+        },
     }
 
     message = format_scheduler_diagnostic_summary_for_telegram(summary)
@@ -305,6 +315,13 @@ def test_scheduler_diagnostic_summary_telegram_format() -> None:
     assert "- Confidence: MEDIUM" in message
     assert "- Bias: BULLISH" in message
     assert "  - PF > 1.5 reduce threshold (-6)" in message
+    assert "🧠 Edge Confirmation" in message
+    assert "- Score: 78.5/100" in message
+    assert "- Level: HIGH" in message
+    assert "- Bias: POSITIVE" in message
+    assert "- Boost/Penalty: +26.5 / -3.0" in message
+    assert "  - + historical edge HIGH" in message
+    assert "  - - pocos matches históricos (8)" in message
     assert "- Símbolo: XRPUSDT" in message
     assert "0 señales enviadas" in message
 
