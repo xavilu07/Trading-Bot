@@ -47,6 +47,7 @@ from trading_signals.memory.insights import build_pattern_memory_insights
 from trading_signals.memory.edge_score import calculate_historical_edge_score
 from trading_signals.memory.meta_decision_engine import evaluate_meta_decision
 from trading_signals.memory.pattern_memory import build_pattern_record, evaluate_pattern_memory
+from trading_signals.memory.signal_activity_log import append_signal_log
 from trading_signals.memory.trade_quality import classify_trade_quality
 from trading_signals.notifications.telegram import telegram_status
 from trading_signals.strategy.decision_engine import (
@@ -410,6 +411,94 @@ def _risk_reward_values(risk_plan) -> tuple[float | None, float | None]:
     if risk <= 0:
         return None, None
     return 1.0, abs(risk_plan.take_profit - risk_plan.entry) / risk
+
+
+def _signal_activity_status(*, signal: TradeSignal, paper_trade_created: bool, experimental_signal_saved: bool) -> str:
+    if signal.status == SignalStatus.PUBLISHED.value:
+        return "sent"
+    if paper_trade_created:
+        return "paper"
+    if experimental_signal_saved:
+        return "experimental"
+    if signal.decision == SignalDecision.NO_TRADE.value:
+        return "no_trade"
+    return "rejected"
+
+
+def _signal_activity_entry(
+    *,
+    timestamp: str,
+    symbol: str,
+    analysis,
+    evaluation,
+    risk_plan,
+    signal: TradeSignal,
+    signal_decision,
+    selected_engine: str,
+    setup_context: dict[str, object],
+    module_diagnostics: dict[str, dict[str, object]],
+    paper_trade_created: bool,
+    experimental_signal_saved: bool,
+    publish_filter_reason: str | None,
+    paper_rejection: dict[str, object] | None,
+) -> dict[str, object]:
+    entry = analysis.entry_snapshot
+    strategy_gate = module_diagnostics.get("strategy_gate", {})
+    strategy_details = strategy_gate.get("details", {}) if isinstance(strategy_gate.get("details"), dict) else {}
+    direction = evaluation.decision if evaluation.decision != SignalDecision.NO_TRADE.value else _candidate_direction(analysis)
+    rr_tp1, rr_tp2 = _risk_reward_values(risk_plan)
+    rejection_reasons = list(dict.fromkeys(
+        [
+            *list(evaluation.rejection_reasons),
+            *list(getattr(signal_decision, "rejection_reasons", [])),
+            *([publish_filter_reason] if publish_filter_reason else []),
+            *([str(paper_rejection.get("rejection_reason"))] if paper_rejection else []),
+        ]
+    ))
+    return {
+        "timestamp": timestamp,
+        "symbol": symbol,
+        "direction": direction,
+        "score": float(evaluation.setup_score),
+        "status": _signal_activity_status(
+            signal=signal,
+            paper_trade_created=paper_trade_created,
+            experimental_signal_saved=experimental_signal_saved,
+        ),
+        "setup_type": _signal_setup_type(evaluation) if evaluation.decision != SignalDecision.NO_TRADE.value else (_candidate_setup_type(analysis, evaluation) or "NO_SIGNAL"),
+        "reasons": strategy_details.get("reason_final") or "|".join(evaluation.rejection_reasons) or signal_decision.decision,
+        "rejection_reasons": rejection_reasons,
+        "conditions_failed": list(evaluation.failed_filters),
+        "avoidance_warnings": setup_context.get("avoidance_warnings", []),
+        "failed_conditions": strategy_details.get("failed_conditions", []),
+        "penalties": _penalties_from_trace(evaluation),
+        "rr": rr_tp2 if rr_tp2 is not None else getattr(risk_plan, "risk_reward", None),
+        "entry_price": getattr(risk_plan, "entry", None),
+        "stop_loss": getattr(risk_plan, "stop_loss", None),
+        "take_profit": getattr(risk_plan, "take_profit", None),
+        "trend_entry": entry.trend,
+        "trend_higher": analysis.higher_snapshot.trend,
+        "market_structure": entry.market_structure,
+        "liquidity_sweep": entry.liquidity_sweep,
+        "market_regime": setup_context.get("market_regime"),
+        "entry_context": setup_context.get("entry_context"),
+        "source_engine": getattr(signal_decision, "source_engine", selected_engine),
+        "raw_summary": {
+            "signal_id": signal.id,
+            "evaluation_id": evaluation.id,
+            "signal_status": signal.status,
+            "signal_decision": signal_decision.decision,
+            "selected_engine": selected_engine,
+            "strategy_gate_reason": strategy_gate.get("reason"),
+            "strategy_gate_ok": strategy_gate.get("ok"),
+            "strategy_gate_score": strategy_gate.get("score"),
+            "suggested_direction": strategy_details.get("suggested_direction"),
+            "setup_detected": strategy_details.get("setup_detected"),
+            "paper_trade_created": paper_trade_created,
+            "experimental_signal_saved": experimental_signal_saved,
+            "publish_filter_reason": publish_filter_reason,
+        },
+    }
 
 
 def _log_signal_decision(logger, event: str, decision) -> None:
@@ -941,6 +1030,24 @@ def run_market_scan(
                                 rejection_reason=reason,
                                 setup_context=candidate_setup_context,
                             )
+            append_signal_log(
+                _signal_activity_entry(
+                    timestamp=_now_iso(),
+                    symbol=symbol,
+                    analysis=analysis,
+                    evaluation=evaluation,
+                    risk_plan=risk_plan,
+                    signal=signal,
+                    signal_decision=signal_decision,
+                    selected_engine=selected_decision.selected_engine,
+                    setup_context=setup_context,
+                    module_diagnostics=module_diagnostics,
+                    paper_trade_created=paper_trade_created,
+                    experimental_signal_saved=experimental_signal_saved,
+                    publish_filter_reason=publish_filter_reason,
+                    paper_rejection=paper_rejection,
+                )
+            )
             pattern_memory = None
             if pattern_memory_store is not None:
                 pattern_history = pattern_memory_store.list_records(limit=1000)
