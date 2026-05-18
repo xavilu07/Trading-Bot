@@ -19,6 +19,11 @@ from trading_signals.application.use_cases.paper_trading import (
     paper_level_label,
     paper_market_is_tradeable,
 )
+from trading_signals.application.use_cases.performance_intelligence import (
+    build_performance_intelligence,
+    log_performance_intelligence,
+)
+from trading_signals.application.use_cases.performance_gate import evaluate_performance_gate
 from trading_signals.application.use_cases.live_trading import (
     build_live_candidate_from_decision,
     format_public_live_trade_event_for_telegram,
@@ -41,14 +46,8 @@ from trading_signals.domain.services.risk_service import calculate_risk_plan
 from trading_signals.domain.strategies.liquidity_sweep_mtf_v1 import LiquiditySweepMTFV1
 from trading_signals.domain.value_objects.enums import SignalDecision, SignalStatus
 from trading_signals.infrastructure.logging.logger import log_json
-from trading_signals.memory.adaptive_thresholds import calculate_adaptive_thresholds
-from trading_signals.memory.edge_confirmation import calculate_edge_confirmation
-from trading_signals.memory.insights import build_pattern_memory_insights
-from trading_signals.memory.edge_score import calculate_historical_edge_score
-from trading_signals.memory.meta_decision_engine import evaluate_meta_decision
-from trading_signals.memory.pattern_memory import build_pattern_record, evaluate_pattern_memory
+from trading_signals.memory.pattern_memory import build_pattern_record
 from trading_signals.memory.signal_activity_log import append_signal_log
-from trading_signals.memory.trade_quality import classify_trade_quality
 from trading_signals.notifications.telegram import telegram_status
 from trading_signals.strategy.decision_engine import (
     build_signal_decision_from_modules,
@@ -1049,6 +1048,7 @@ def run_market_scan(
                 )
             )
             pattern_memory = None
+            performance_gate = None
             if pattern_memory_store is not None:
                 pattern_history = pattern_memory_store.list_records(limit=1000)
                 pattern_risk_plan = risk_plan
@@ -1085,70 +1085,31 @@ def run_market_scan(
                     outcome="open" if signal.status == SignalStatus.PUBLISHED.value or paper_trade_created else None,
                     r_result=None,
                 )
-                pattern_memory = evaluate_pattern_memory(pattern_record, pattern_history[-500:])
-                historical_edge = calculate_historical_edge_score(pattern_record, pattern_history[-1000:])
-                adaptive_thresholds = calculate_adaptive_thresholds({**pattern_record, **historical_edge})
-                edge_confirmation = calculate_edge_confirmation(
-                    {
-                        **pattern_record,
-                        "historical_edge": historical_edge,
-                        "adaptive_thresholds": adaptive_thresholds,
-                    }
+                pattern_memory = build_performance_intelligence(
+                    pattern_record=pattern_record,
+                    pattern_history=pattern_history,
                 )
-                trade_quality = classify_trade_quality(
-                    {
-                        **pattern_record,
-                        "historical_edge": historical_edge,
-                        "adaptive_thresholds": adaptive_thresholds,
-                        "edge_confirmation": edge_confirmation,
-                    }
-                )
-                meta_decision = evaluate_meta_decision(
-                    {
-                        **pattern_record,
-                        "historical_edge": historical_edge,
-                        "adaptive_thresholds": adaptive_thresholds,
-                        "edge_confirmation": edge_confirmation,
-                        "trade_quality": trade_quality,
-                    }
-                )
-                pattern_memory["historical_edge"] = historical_edge
-                pattern_memory["adaptive_thresholds"] = adaptive_thresholds
-                pattern_memory["edge_confirmation"] = edge_confirmation
-                pattern_memory["trade_quality"] = trade_quality
-                pattern_memory["meta_decision"] = meta_decision
-                pattern_memory["insights"] = build_pattern_memory_insights(pattern_history)
-                log_json(
+                performance_gate = evaluate_performance_gate(pattern_memory)
+                pattern_memory["performance_gate"] = performance_gate
+                log_performance_intelligence(
                     logger,
-                    "adaptive_threshold_shadow_analysis",
                     symbol=symbol,
-                    direction=pattern_record.get("direction"),
-                    setup_type=pattern_record.get("setup_type"),
-                    **adaptive_thresholds,
+                    pattern_record=pattern_record,
+                    performance_intelligence=pattern_memory,
                 )
                 log_json(
                     logger,
-                    "edge_confirmation_shadow_analysis",
+                    "performance_gate_soft",
                     symbol=symbol,
                     direction=pattern_record.get("direction"),
                     setup_type=pattern_record.get("setup_type"),
-                    **edge_confirmation,
-                )
-                log_json(
-                    logger,
-                    "trade_quality_shadow_analysis",
-                    symbol=symbol,
-                    direction=pattern_record.get("direction"),
-                    setup_type=pattern_record.get("setup_type"),
-                    **trade_quality,
-                )
-                log_json(
-                    logger,
-                    "meta_decision_shadow_analysis",
-                    symbol=symbol,
-                    direction=pattern_record.get("direction"),
-                    setup_type=pattern_record.get("setup_type"),
-                    **meta_decision,
+                    action=performance_gate["action"],
+                    would_block=performance_gate["would_block"],
+                    would_prioritize=performance_gate["would_prioritize"],
+                    confidence=performance_gate["confidence"],
+                    reasons=performance_gate["reasons"],
+                    risks=performance_gate["risks"],
+                    scores=performance_gate["scores"],
                 )
                 pattern_memory_store.append(pattern_record)
             results.append(
@@ -1175,6 +1136,7 @@ def run_market_scan(
                     "setup_context": setup_context,
                     "high_score_rejected": high_score_rejected,
                     "pattern_memory": pattern_memory,
+                    "performance_gate": performance_gate,
                 }
             )
             _log_symbol_diagnostics(
