@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from trading_signals.analysis.market_regime import detect_session
+from trading_signals.analysis.market_regime import detect_session, detect_trade_location
 from trading_signals.app.settings import Settings
 from trading_signals.application.dto.analysis_result import AnalysisResult
 from trading_signals.domain.entities.strategy_evaluation import StrategyEvaluation
@@ -100,6 +100,32 @@ class LiquiditySweepMTFV1:
         if nearest_distance > self.settings.max_distance_to_liquidity_atr:
             failed.append("nearest_liquidity_extreme")
 
+        trade_location = str(entry.metadata.get("trade_location", detect_trade_location(entry)))
+        rr_value = entry.metadata.get("risk_reward")
+        if rr_value is None:
+            rr_value = entry.metadata.get("risk_reward_tp1", entry.metadata.get("rr"))
+        rr_valid = False
+        if rr_value is not None:
+            try:
+                rr_valid = float(rr_value) >= self.settings.min_rr
+            except (TypeError, ValueError):
+                rr_valid = False
+        long_counter_htf_checks = [
+            entry.liquidity_sweep == "bullish_sweep",
+            break_of_structure == "bullish_bos",
+            volume_ratio > 1.2,
+            entry.body_ratio > 0.5,
+            trade_location in {"discount_zone", "near_support"},
+            directional_distance_check == "passed",
+            rr_valid,
+        ]
+        long_counter_htf_checks_count = sum(long_counter_htf_checks)
+        long_counter_htf_allowed = (
+            entry.trend == "bullish"
+            and higher.trend == "bearish"
+            and long_counter_htf_checks_count >= 3
+        )
+
         secondary_trend_aligned = entry.trend == higher.trend and entry.trend in {"bullish", "bearish"}
         secondary_volume_favorable = volume_ratio >= 1.2
         secondary_rsi_aligned = (
@@ -169,7 +195,7 @@ class LiquiditySweepMTFV1:
                 entry.trend == "bullish"
                 and entry.liquidity_sweep == "bullish_sweep"
                 and entry.market_structure in {"bullish", "range"}
-                and higher.trend != "bearish"
+                and (higher.trend != "bearish" or long_counter_htf_allowed)
                 and "distance_to_liquidity_extreme" not in failed
                 and (entry.market_structure == "bullish" or range_long_allowed)
                 and (session != "ASIA" or score >= 85)
@@ -232,16 +258,27 @@ class LiquiditySweepMTFV1:
                     "secondary_nearest_liquidity",
                 ])
             else:
-                if entry.trend == "bullish" and higher.trend == "bearish":
+                fallback_direction = SignalDecision.NO_TRADE.value
+                if entry.liquidity_sweep == "bullish_sweep" or secondary_direction == SignalDecision.LONG.value:
+                    fallback_direction = SignalDecision.LONG.value
+                elif entry.liquidity_sweep == "bearish_sweep" or secondary_direction == SignalDecision.SHORT.value:
+                    fallback_direction = SignalDecision.SHORT.value
+
+                if entry.trend == "bullish" and higher.trend == "bearish" and not long_counter_htf_allowed:
                     failed.append("higher_timeframe_contradicts_long")
+                elif (
+                    fallback_direction == SignalDecision.LONG.value
+                    and long_counter_htf_allowed
+                    and score >= 80
+                    and "distance_to_liquidity_extreme" not in failed
+                    and session != "ASIA"
+                ):
+                    decision = SignalDecision.LONG.value
+                    passed.append("directional_confluence_soft_allowed")
+                    passed.append("long_counter_htf_reversal")
                 elif entry.trend == "bearish" and higher.trend == "bullish":
                     failed.append("higher_timeframe_contradicts_short")
                 else:
-                    fallback_direction = SignalDecision.NO_TRADE.value
-                    if entry.liquidity_sweep == "bullish_sweep" or secondary_direction == SignalDecision.LONG.value:
-                        fallback_direction = SignalDecision.LONG.value
-                    elif entry.liquidity_sweep == "bearish_sweep" or secondary_direction == SignalDecision.SHORT.value:
-                        fallback_direction = SignalDecision.SHORT.value
                     htf_contradicts_fallback = (
                         (fallback_direction == SignalDecision.LONG.value and higher.trend == "bearish")
                         or (fallback_direction == SignalDecision.SHORT.value and higher.trend == "bullish")
@@ -268,6 +305,8 @@ class LiquiditySweepMTFV1:
                 f"range_quality_checks={sum(range_quality_checks)}",
                 f"range_quality_allowed={range_quality_allowed}",
                 f"asia_session_threshold_adjustment={10 if session == 'ASIA' else 0}",
+                f"long_counter_htf_allowed={str(long_counter_htf_allowed).lower()}",
+                f"long_counter_htf_checks={long_counter_htf_checks_count}",
                 f"rsi={rsi}",
                 f"secondary_confluence_bonus={secondary_confluence_bonus:g}",
                 f"directional_distance_check={directional_distance_check}",

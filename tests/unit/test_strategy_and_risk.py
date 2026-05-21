@@ -137,7 +137,8 @@ def test_higher_timeframe_clear_contradiction_blocks_direction(tmp_path) -> None
         structure="bullish",
         sweep="bullish_sweep",
         score=90.0,
-        distance=1.0,
+        distance=3.0,
+        volume_ratio=1.0,
     )
     higher = build_snapshot(
         scan_run_id="run_test",
@@ -156,6 +157,74 @@ def test_higher_timeframe_clear_contradiction_blocks_direction(tmp_path) -> None
     assert evaluation.decision == "no_trade"
     assert "timeframe_alignment_penalty" in evaluation.failed_filters
     assert "higher_timeframe_contradicts_long" in evaluation.failed_filters
+    assert "long_counter_htf_allowed=false" in evaluation.decision_trace
+    assert "long_counter_htf_checks=2" in evaluation.decision_trace
+
+
+def test_long_counter_htf_bearish_passes_with_three_reversal_checks(tmp_path) -> None:
+    settings = build_settings(tmp_path)
+    entry = build_snapshot(
+        scan_run_id="run_test",
+        symbol="BTCUSDT",
+        timeframe="1h",
+        trend="bullish",
+        structure="bullish",
+        sweep="bullish_sweep",
+        score=90.0,
+        distance=1.0,
+        volume_ratio=1.3,
+    )
+    higher = build_snapshot(
+        scan_run_id="run_test",
+        symbol="BTCUSDT",
+        timeframe="4h",
+        trend="bearish",
+        structure="bearish",
+        sweep="none",
+        score=60.0,
+        distance=1.0,
+    )
+    analysis = AnalysisResult("BTCUSDT", "1h", "4h", entry, higher)
+
+    evaluation = LiquiditySweepMTFV1(settings).evaluate(analysis, "eval_test", entry.created_at)
+
+    assert evaluation.decision == "long"
+    assert "primary_sweep_setup" in evaluation.passed_filters
+    assert "directional_confluence" in evaluation.passed_filters
+    assert "higher_timeframe_contradicts_long" not in evaluation.failed_filters
+    assert "long_counter_htf_allowed=true" in evaluation.decision_trace
+
+
+def test_short_contradiction_behavior_is_unchanged(tmp_path) -> None:
+    settings = build_settings(tmp_path)
+    entry = build_snapshot(
+        scan_run_id="run_test",
+        symbol="BTCUSDT",
+        timeframe="1h",
+        trend="bearish",
+        structure="bearish",
+        sweep="bearish_sweep",
+        score=90.0,
+        distance=1.0,
+        volume_ratio=1.3,
+    )
+    higher = build_snapshot(
+        scan_run_id="run_test",
+        symbol="BTCUSDT",
+        timeframe="4h",
+        trend="bullish",
+        structure="bullish",
+        sweep="none",
+        score=60.0,
+        distance=1.0,
+    )
+    analysis = AnalysisResult("BTCUSDT", "1h", "4h", entry, higher)
+
+    evaluation = LiquiditySweepMTFV1(settings).evaluate(analysis, "eval_test", entry.created_at)
+
+    assert evaluation.decision == "no_trade"
+    assert "higher_timeframe_contradicts_short" in evaluation.failed_filters
+    assert "primary_sweep_setup" not in evaluation.passed_filters
 
 
 def test_secondary_setup_can_generate_long_without_sweep(tmp_path) -> None:
