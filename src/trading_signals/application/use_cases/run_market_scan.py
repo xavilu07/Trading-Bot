@@ -7,6 +7,11 @@ from datetime import UTC, datetime
 from uuid import uuid4
 
 from trading_signals.app.settings import Settings
+from trading_signals.agents.coordinator import coordinate_votes
+from trading_signals.agents.historical_agent import vote_historical
+from trading_signals.agents.risk_agent import vote_risk
+from trading_signals.agents.skeptic_agent import vote_skeptic
+from trading_signals.agents.technical_agent import vote_technical
 from trading_signals.analysis.liquidity import analyze_liquidity
 from trading_signals.analysis.market_regime import analyze_market_regime
 from trading_signals.analysis.momentum import analyze_momentum
@@ -251,6 +256,23 @@ def _candidate_setup_type(analysis, evaluation) -> str | None:
     if bos in {"bullish_bos", "bearish_bos"} and has_secondary_context and score_near_secondary:
         return "SECONDARY_SIGNAL"
     return None
+
+
+def _multi_agent_shadow_decision(
+    *,
+    setup_context: dict[str, object],
+    evaluation,
+    analysis,
+    risk_plan,
+    performance_gate: dict[str, object] | None,
+) -> dict[str, object]:
+    votes = [
+        vote_technical(setup_context=setup_context, evaluation=evaluation, analysis=analysis),
+        vote_risk(risk_plan=risk_plan, setup_context=setup_context),
+        vote_historical(performance_gate=performance_gate),
+        vote_skeptic(evaluation=evaluation, setup_context=setup_context, performance_gate=performance_gate),
+    ]
+    return coordinate_votes(votes)
 
 
 def _signal_setup_type(evaluation) -> str:
@@ -1049,6 +1071,7 @@ def run_market_scan(
             )
             pattern_memory = None
             performance_gate = None
+            multi_agent_shadow_decision = None
             if pattern_memory_store is not None:
                 pattern_history = pattern_memory_store.list_records(limit=1000)
                 pattern_risk_plan = risk_plan
@@ -1111,6 +1134,26 @@ def run_market_scan(
                     risks=performance_gate["risks"],
                     scores=performance_gate["scores"],
                 )
+                multi_agent_shadow_decision = _multi_agent_shadow_decision(
+                    setup_context=setup_context,
+                    evaluation=evaluation,
+                    analysis=analysis,
+                    risk_plan=pattern_risk_plan,
+                    performance_gate=performance_gate,
+                )
+                pattern_memory["multi_agent_shadow_decision"] = multi_agent_shadow_decision
+                log_json(
+                    logger,
+                    "multi_agent_shadow_decision",
+                    symbol=symbol,
+                    direction=pattern_record.get("direction"),
+                    setup_type=pattern_record.get("setup_type"),
+                    consensus_action=multi_agent_shadow_decision["consensus_action"],
+                    agreement_score=multi_agent_shadow_decision["agreement_score"],
+                    average_score=multi_agent_shadow_decision.get("average_score"),
+                    disagreements=multi_agent_shadow_decision["disagreements"],
+                    votes=multi_agent_shadow_decision["votes"],
+                )
                 pattern_memory_store.append(pattern_record)
             results.append(
                 {
@@ -1137,6 +1180,7 @@ def run_market_scan(
                     "high_score_rejected": high_score_rejected,
                     "pattern_memory": pattern_memory,
                     "performance_gate": performance_gate,
+                    "multi_agent_shadow_decision": multi_agent_shadow_decision,
                 }
             )
             _log_symbol_diagnostics(
