@@ -61,13 +61,14 @@ def build_snapshot(
     rsi: float = 40.0,
     volume_ratio: float = 2.0,
     break_of_structure: str = "none",
+    timestamp: str = "2026-01-01T08:00:00+00:00",
 ) -> MarketSnapshot:
     return MarketSnapshot(
         id=f"snap_{symbol}_{timeframe}",
         scan_run_id=scan_run_id,
         symbol=symbol,
         timeframe=timeframe,
-        timestamp="2026-01-01T00:00:00+00:00",
+        timestamp=timestamp,
         open=100.0,
         high=102.0,
         low=98.0,
@@ -82,7 +83,7 @@ def build_snapshot(
         body_ratio=0.7,
         distance_to_liquidity_atr=distance,
         setup_score=score,
-        created_at="2026-01-01T00:00:00+00:00",
+        created_at=timestamp,
         metadata={
             "rsi": rsi,
             "break_of_structure": break_of_structure,
@@ -509,3 +510,106 @@ def test_directional_confluence_soft_allows_high_score_without_strong_htf_contra
     assert "secondary_setup_requirements_failed:20" in ",".join(evaluation.decision_trace)
     assert "directional_confluence_soft_allowed" in evaluation.passed_filters
     assert "directional_confluence_failed" not in evaluation.failed_filters
+
+
+def test_asia_blocks_secondary_signal_even_when_other_requirements_pass(tmp_path) -> None:
+    settings = build_settings(tmp_path)
+    entry = build_snapshot(
+        scan_run_id="run_test",
+        symbol="XRPUSDT",
+        timeframe="1h",
+        trend="bullish",
+        structure="bullish",
+        sweep="none",
+        score=100.0,
+        distance=1.0,
+        rsi=58.0,
+        volume_ratio=1.8,
+        break_of_structure="bullish_bos",
+        timestamp="2026-01-01T02:00:00+00:00",
+    )
+    higher = build_snapshot(
+        scan_run_id="run_test",
+        symbol="XRPUSDT",
+        timeframe="4h",
+        trend="bullish",
+        structure="bullish",
+        sweep="none",
+        score=60.0,
+        distance=1.0,
+        timestamp="2026-01-01T02:00:00+00:00",
+    )
+    analysis = AnalysisResult("XRPUSDT", "1h", "4h", entry, higher)
+
+    evaluation = LiquiditySweepMTFV1(settings).evaluate(analysis, "eval_test", entry.created_at)
+
+    assert evaluation.decision == "no_trade"
+    assert "asia_secondary_setup_blocked" in evaluation.failed_filters
+    assert "secondary_setup" not in evaluation.passed_filters
+    assert "session=ASIA" in evaluation.decision_trace
+
+
+def test_asia_requires_main_signal_score_85(tmp_path) -> None:
+    settings = build_settings(tmp_path)
+    entry = build_snapshot(
+        scan_run_id="run_test",
+        symbol="BTCUSDT",
+        timeframe="1h",
+        trend="bullish",
+        structure="bullish",
+        sweep="bullish_sweep",
+        score=84.0,
+        distance=1.0,
+        timestamp="2026-01-01T02:00:00+00:00",
+    )
+    higher = build_snapshot(
+        scan_run_id="run_test",
+        symbol="BTCUSDT",
+        timeframe="4h",
+        trend="bullish",
+        structure="bullish",
+        sweep="none",
+        score=60.0,
+        distance=1.0,
+        timestamp="2026-01-01T02:00:00+00:00",
+    )
+    analysis = AnalysisResult("BTCUSDT", "1h", "4h", entry, higher)
+
+    evaluation = LiquiditySweepMTFV1(settings).evaluate(analysis, "eval_test", entry.created_at)
+
+    assert evaluation.decision == "no_trade"
+    assert "primary_sweep_setup" not in evaluation.passed_filters
+    assert "asia_session_threshold_adjustment=10" in evaluation.decision_trace
+
+
+def test_asia_allows_main_signal_score_85_or_more(tmp_path) -> None:
+    settings = build_settings(tmp_path)
+    entry = build_snapshot(
+        scan_run_id="run_test",
+        symbol="BTCUSDT",
+        timeframe="1h",
+        trend="bullish",
+        structure="bullish",
+        sweep="bullish_sweep",
+        score=90.0,
+        distance=1.0,
+        timestamp="2026-01-01T02:00:00+00:00",
+    )
+    higher = build_snapshot(
+        scan_run_id="run_test",
+        symbol="BTCUSDT",
+        timeframe="4h",
+        trend="bullish",
+        structure="bullish",
+        sweep="none",
+        score=60.0,
+        distance=1.0,
+        timestamp="2026-01-01T02:00:00+00:00",
+    )
+    analysis = AnalysisResult("BTCUSDT", "1h", "4h", entry, higher)
+
+    evaluation = LiquiditySweepMTFV1(settings).evaluate(analysis, "eval_test", entry.created_at)
+
+    assert evaluation.decision == "long"
+    assert "primary_sweep_setup" in evaluation.passed_filters
+    assert "session=ASIA" in evaluation.decision_trace

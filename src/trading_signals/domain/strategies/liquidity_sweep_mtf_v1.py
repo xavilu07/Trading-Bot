@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from trading_signals.analysis.market_regime import detect_session
 from trading_signals.app.settings import Settings
 from trading_signals.application.dto.analysis_result import AnalysisResult
 from trading_signals.domain.entities.strategy_evaluation import StrategyEvaluation
@@ -25,6 +26,9 @@ class LiquiditySweepMTFV1:
         break_of_structure = str(entry.metadata.get("break_of_structure", "none"))
         nearest_distance = float(entry.metadata.get("nearest_distance_to_liquidity_atr", entry.distance_to_liquidity_atr))
         secondary_score_threshold = self.settings.setup_score_threshold + 15
+        session = detect_session(entry.timestamp)
+        effective_setup_score_threshold = self.settings.setup_score_threshold + (10 if session == "ASIA" else 0)
+        effective_secondary_score_threshold = secondary_score_threshold + (10 if session == "ASIA" else 0)
         soft_distance_limit = self.settings.max_distance_to_liquidity_atr * 2
         directional_distance_check = "passed"
         nearest_liquidity_check = "passed" if nearest_distance <= self.settings.max_distance_to_liquidity_atr else "extreme"
@@ -39,9 +43,10 @@ class LiquiditySweepMTFV1:
             f"market_structure={entry.market_structure}",
             f"liquidity_sweep={entry.liquidity_sweep}",
             f"break_of_structure={break_of_structure}",
+            f"session={session}",
             f"base_setup_score={entry.setup_score}",
-            f"min_setup_score_required={self.settings.setup_score_threshold}",
-            f"secondary_setup_score_required={secondary_score_threshold}",
+            f"min_setup_score_required={effective_setup_score_threshold}",
+            f"secondary_setup_score_required={effective_secondary_score_threshold}",
         ]
 
         def hard_check(condition: bool, passed_name: str, failed_name: str) -> None:
@@ -125,14 +130,16 @@ class LiquiditySweepMTFV1:
         if secondary_confluence_bonus:
             score += secondary_confluence_bonus
             penalties.append(f"secondary_confluence_bonus:+{secondary_confluence_bonus:g}")
-        secondary_requirements_met = secondary_core_requirements_met and score >= secondary_score_threshold
+        secondary_requirements_met = secondary_core_requirements_met and session != "ASIA" and score >= effective_secondary_score_threshold
         if entry.liquidity_sweep == "none" and not secondary_requirements_met:
             failed.append("secondary_setup_requirements_failed")
             penalties.append("secondary_setup_requirements_failed:20")
             score -= 20
+            if session == "ASIA":
+                failed.append("asia_secondary_setup_blocked")
 
         score = round(max(0.0, min(score, 100.0)), 2)
-        if score >= self.settings.setup_score_threshold:
+        if score >= effective_setup_score_threshold:
             passed.append("quality_score")
         else:
             failed.append("quality_score_failed")
@@ -165,6 +172,7 @@ class LiquiditySweepMTFV1:
                 and higher.trend != "bearish"
                 and "distance_to_liquidity_extreme" not in failed
                 and (entry.market_structure == "bullish" or range_long_allowed)
+                and (session != "ASIA" or score >= 85)
             ):
                 decision = SignalDecision.LONG.value
                 passed.append("primary_sweep_setup")
@@ -176,11 +184,14 @@ class LiquiditySweepMTFV1:
                 and higher.trend != "bullish"
                 and "distance_to_liquidity_extreme" not in failed
                 and (entry.market_structure == "bearish" or range_short_allowed)
+                and (session != "ASIA" or score >= 85)
             ):
                 decision = SignalDecision.SHORT.value
                 passed.append("primary_sweep_setup")
                 passed.append("directional_confluence")
             elif (
+                session != "ASIA"
+                and
                 entry.trend == higher.trend == "bullish"
                 and entry.liquidity_sweep == "none"
                 and break_of_structure == "bullish_bos"
@@ -188,7 +199,7 @@ class LiquiditySweepMTFV1:
                 and secondary_rsi_aligned
                 and secondary_nearest_liquidity_valid
                 and secondary_has_structure
-                and score >= secondary_score_threshold
+                and score >= effective_secondary_score_threshold
             ):
                 decision = SignalDecision.LONG.value
                 passed.extend([
@@ -200,6 +211,8 @@ class LiquiditySweepMTFV1:
                     "secondary_nearest_liquidity",
                 ])
             elif (
+                session != "ASIA"
+                and
                 entry.trend == higher.trend == "bearish"
                 and entry.liquidity_sweep == "none"
                 and break_of_structure == "bearish_bos"
@@ -207,7 +220,7 @@ class LiquiditySweepMTFV1:
                 and secondary_rsi_aligned
                 and secondary_nearest_liquidity_valid
                 and secondary_has_structure
-                and score >= secondary_score_threshold
+                and score >= effective_secondary_score_threshold
             ):
                 decision = SignalDecision.SHORT.value
                 passed.extend([
@@ -238,6 +251,7 @@ class LiquiditySweepMTFV1:
                         and score >= 80
                         and not htf_contradicts_fallback
                         and "distance_to_liquidity_extreme" not in failed
+                        and session != "ASIA"
                     ):
                         decision = fallback_direction
                         passed.append("directional_confluence_soft_allowed")
@@ -253,6 +267,7 @@ class LiquiditySweepMTFV1:
                 f"atr_ratio={atr_ratio}",
                 f"range_quality_checks={sum(range_quality_checks)}",
                 f"range_quality_allowed={range_quality_allowed}",
+                f"asia_session_threshold_adjustment={10 if session == 'ASIA' else 0}",
                 f"rsi={rsi}",
                 f"secondary_confluence_bonus={secondary_confluence_bonus:g}",
                 f"directional_distance_check={directional_distance_check}",
