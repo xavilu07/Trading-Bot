@@ -63,10 +63,19 @@ class LiquiditySweepMTFV1:
         hard_check(entry.body_ratio >= self.settings.min_body_ratio, "candle_confirmation", "body_ratio_below_threshold")
 
         penalize(entry.trend == higher.trend, "timeframe_alignment", "timeframe_alignment_penalty", 10)
+        atr_ratio = entry.atr / entry.close if entry.close else 0.0
+        range_quality_checks = [
+            volume_ratio > 1.2,
+            entry.body_ratio > 0.5,
+            atr_ratio > self.settings.atr_min_threshold,
+        ]
+        range_quality_allowed = entry.market_structure == "range" and entry.setup_score >= 75 and sum(range_quality_checks) >= 2
         if entry.market_structure == "range":
             failed.append("market_structure_range_penalty")
             penalties.append("market_structure_range_penalty:10")
             score -= 10
+            if range_quality_allowed:
+                passed.append("market_structure_range_allowed")
         else:
             passed.append("market_structure")
 
@@ -94,6 +103,15 @@ class LiquiditySweepMTFV1:
         )
         secondary_nearest_liquidity_valid = nearest_distance <= self.settings.max_distance_to_liquidity_atr
         secondary_has_structure = entry.market_structure != "range" or break_of_structure in {"bullish_bos", "bearish_bos"}
+        secondary_core_requirements_met = (
+            entry.liquidity_sweep == "none"
+            and secondary_trend_aligned
+            and break_of_structure in {"bullish_bos", "bearish_bos"}
+            and secondary_volume_favorable
+            and secondary_rsi_aligned
+            and secondary_nearest_liquidity_valid
+            and secondary_has_structure
+        )
         secondary_confluence_bonus = 0.0
         if entry.liquidity_sweep == "none" and secondary_trend_aligned:
             if break_of_structure in {"bullish_bos", "bearish_bos"}:
@@ -107,6 +125,11 @@ class LiquiditySweepMTFV1:
         if secondary_confluence_bonus:
             score += secondary_confluence_bonus
             penalties.append(f"secondary_confluence_bonus:+{secondary_confluence_bonus:g}")
+        secondary_requirements_met = secondary_core_requirements_met and score >= secondary_score_threshold
+        if entry.liquidity_sweep == "none" and not secondary_requirements_met:
+            failed.append("secondary_setup_requirements_failed")
+            penalties.append("secondary_setup_requirements_failed:20")
+            score -= 20
 
         score = round(max(0.0, min(score, 100.0)), 2)
         if score >= self.settings.setup_score_threshold:
@@ -128,14 +151,12 @@ class LiquiditySweepMTFV1:
             range_long_allowed = (
                 entry.market_structure == "range"
                 and entry.liquidity_sweep == "bullish_sweep"
-                and volume_ratio >= 1.2
-                and rsi <= 45
+                and range_quality_allowed
             )
             range_short_allowed = (
                 entry.market_structure == "range"
                 and entry.liquidity_sweep == "bearish_sweep"
-                and volume_ratio >= 1.2
-                and rsi >= 55
+                and range_quality_allowed
             )
             if (
                 entry.trend == "bullish"
@@ -203,15 +224,35 @@ class LiquiditySweepMTFV1:
                 elif entry.trend == "bearish" and higher.trend == "bullish":
                     failed.append("higher_timeframe_contradicts_short")
                 else:
-                    if entry.liquidity_sweep == "none":
-                        failed.append("secondary_setup_requirements_failed")
-                    failed.append("directional_confluence_failed")
+                    fallback_direction = SignalDecision.NO_TRADE.value
+                    if entry.liquidity_sweep == "bullish_sweep" or secondary_direction == SignalDecision.LONG.value:
+                        fallback_direction = SignalDecision.LONG.value
+                    elif entry.liquidity_sweep == "bearish_sweep" or secondary_direction == SignalDecision.SHORT.value:
+                        fallback_direction = SignalDecision.SHORT.value
+                    htf_contradicts_fallback = (
+                        (fallback_direction == SignalDecision.LONG.value and higher.trend == "bearish")
+                        or (fallback_direction == SignalDecision.SHORT.value and higher.trend == "bullish")
+                    )
+                    if (
+                        fallback_direction != SignalDecision.NO_TRADE.value
+                        and score >= 80
+                        and not htf_contradicts_fallback
+                        and "distance_to_liquidity_extreme" not in failed
+                    ):
+                        decision = fallback_direction
+                        passed.append("directional_confluence_soft_allowed")
+                    else:
+                        failed.append("directional_confluence_failed")
 
         trace.extend(
             [
                 f"final_setup_score={score}",
                 f"penalties={','.join(penalties) if penalties else 'none'}",
                 f"volume_ratio={volume_ratio}",
+                f"body_ratio={entry.body_ratio}",
+                f"atr_ratio={atr_ratio}",
+                f"range_quality_checks={sum(range_quality_checks)}",
+                f"range_quality_allowed={range_quality_allowed}",
                 f"rsi={rsi}",
                 f"secondary_confluence_bonus={secondary_confluence_bonus:g}",
                 f"directional_distance_check={directional_distance_check}",
