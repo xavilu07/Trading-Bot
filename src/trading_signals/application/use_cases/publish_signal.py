@@ -42,6 +42,12 @@ def public_routing_rejection_reason(signal, evaluation_or_decision, setup_contex
     penalties |= _trace_penalty_tokens(getattr(evaluation_or_decision, "decision_trace", []))
     if "against_htf" in warnings:
         return "public_block_against_htf"
+    if market_regime == "RANGING":
+        return "public_block_market_regime_ranging"
+    if market_regime and market_regime != "TRENDING":
+        return "public_block_market_regime_not_trending"
+    if entry_context == "CHOPPY_RANGE":
+        return "public_block_choppy_range"
     if (
         entry_context == "BREAKOUT"
         and {"market_structure_range_penalty", "timeframe_alignment_penalty"}.issubset(penalties)

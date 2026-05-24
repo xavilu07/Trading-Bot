@@ -934,6 +934,42 @@ def test_public_routing_allows_long_breakout_main_signal() -> None:
     assert reason is None
 
 
+def test_public_routing_blocks_ranging_market_regime() -> None:
+    signal = type("Signal", (), {"decision": "long"})()
+    evaluation = type("Evaluation", (), {"setup_type": "MAIN_SIGNAL", "passed_filters": []})()
+
+    reason = public_routing_rejection_reason(
+        signal,
+        evaluation,
+        {
+            "market_regime": "RANGING",
+            "setup_type": "MAIN_SIGNAL",
+            "entry_context": "PULLBACK",
+            "trade_location": "mid_range",
+        },
+    )
+
+    assert reason == "public_block_market_regime_ranging"
+
+
+def test_public_routing_blocks_choppy_range_even_when_trending() -> None:
+    signal = type("Signal", (), {"decision": "long"})()
+    evaluation = type("Evaluation", (), {"setup_type": "MAIN_SIGNAL", "passed_filters": []})()
+
+    reason = public_routing_rejection_reason(
+        signal,
+        evaluation,
+        {
+            "market_regime": "TRENDING",
+            "setup_type": "MAIN_SIGNAL",
+            "entry_context": "CHOPPY_RANGE",
+            "trade_location": "mid_range",
+        },
+    )
+
+    assert reason == "public_block_choppy_range"
+
+
 def test_public_routing_blocks_against_htf_warning() -> None:
     signal = type("Signal", (), {"decision": "long"})()
     evaluation = type("Evaluation", (), {"setup_type": "MAIN_SIGNAL", "passed_filters": []})()
@@ -974,7 +1010,7 @@ def test_public_routing_blocks_breakout_in_bad_contexts() -> None:
         signal,
         evaluation,
         {"market_regime": "RANGING", "entry_context": "BREAKOUT", "trade_location": "mid_range"},
-    ) == "public_block_breakout_ranging"
+    ) == "public_block_market_regime_ranging"
     assert public_routing_rejection_reason(
         signal,
         evaluation,

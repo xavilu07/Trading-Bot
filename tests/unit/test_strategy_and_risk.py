@@ -497,6 +497,7 @@ def test_range_setup_allowed_by_score_and_two_quality_checks(tmp_path) -> None:
         distance=1.0,
         rsi=50.0,
         volume_ratio=1.3,
+        metadata_overrides={"market_regime": "RANGING"},
     )
     higher = build_snapshot(
         scan_run_id="run_test",
@@ -516,6 +517,106 @@ def test_range_setup_allowed_by_score_and_two_quality_checks(tmp_path) -> None:
     assert "market_structure_range_penalty" in evaluation.failed_filters
     assert "market_structure_range_allowed" in evaluation.passed_filters
     assert "range_quality_allowed=True" in evaluation.decision_trace
+
+
+def test_strategy_trace_marks_ranging_regime_blocked(tmp_path) -> None:
+    settings = build_settings(tmp_path, relaxed_strategy_gates_enabled=True)
+    entry = build_snapshot(
+        scan_run_id="run_test",
+        symbol="ADAUSDT",
+        timeframe="1h",
+        trend="bearish",
+        structure="range",
+        sweep="bearish_sweep",
+        score=85.0,
+        distance=1.0,
+        rsi=50.0,
+        volume_ratio=1.3,
+        metadata_overrides={"market_regime": "RANGING"},
+    )
+    higher = build_snapshot(
+        scan_run_id="run_test",
+        symbol="ADAUSDT",
+        timeframe="4h",
+        trend="bearish",
+        structure="bearish",
+        sweep="none",
+        score=60.0,
+        distance=1.0,
+    )
+    analysis = AnalysisResult("ADAUSDT", "1h", "4h", entry, higher)
+
+    evaluation = LiquiditySweepMTFV1(settings).evaluate(analysis, "eval_test", entry.created_at)
+
+    assert "market_regime=RANGING" in evaluation.decision_trace
+    assert "market_regime_blocked=true" in evaluation.decision_trace
+    assert "regime_allowed=false" in evaluation.decision_trace
+
+
+def test_strategy_trace_marks_trending_regime_allowed(tmp_path) -> None:
+    settings = build_settings(tmp_path)
+    entry = build_snapshot(
+        scan_run_id="run_test",
+        symbol="BTCUSDT",
+        timeframe="1h",
+        trend="bullish",
+        structure="bullish",
+        sweep="bullish_sweep",
+        score=85.0,
+        distance=1.0,
+        metadata_overrides={"market_regime": "TRENDING", "entry_context": "BREAKOUT"},
+    )
+    higher = build_snapshot(
+        scan_run_id="run_test",
+        symbol="BTCUSDT",
+        timeframe="4h",
+        trend="bullish",
+        structure="bullish",
+        sweep="none",
+        score=60.0,
+        distance=1.0,
+    )
+    analysis = AnalysisResult("BTCUSDT", "1h", "4h", entry, higher)
+
+    evaluation = LiquiditySweepMTFV1(settings).evaluate(analysis, "eval_test", entry.created_at)
+
+    assert evaluation.decision == "long"
+    assert "market_regime=TRENDING" in evaluation.decision_trace
+    assert "market_regime_blocked=false" in evaluation.decision_trace
+    assert "regime_allowed=true" in evaluation.decision_trace
+
+
+def test_strategy_trace_blocks_choppy_range_even_when_trending(tmp_path) -> None:
+    settings = build_settings(tmp_path)
+    entry = build_snapshot(
+        scan_run_id="run_test",
+        symbol="BTCUSDT",
+        timeframe="1h",
+        trend="bullish",
+        structure="bullish",
+        sweep="bullish_sweep",
+        score=85.0,
+        distance=1.0,
+        metadata_overrides={"market_regime": "TRENDING", "entry_context": "CHOPPY_RANGE"},
+    )
+    higher = build_snapshot(
+        scan_run_id="run_test",
+        symbol="BTCUSDT",
+        timeframe="4h",
+        trend="bullish",
+        structure="bullish",
+        sweep="none",
+        score=60.0,
+        distance=1.0,
+    )
+    analysis = AnalysisResult("BTCUSDT", "1h", "4h", entry, higher)
+
+    evaluation = LiquiditySweepMTFV1(settings).evaluate(analysis, "eval_test", entry.created_at)
+
+    assert "market_regime=TRENDING" in evaluation.decision_trace
+    assert "entry_context=CHOPPY_RANGE" in evaluation.decision_trace
+    assert "market_regime_blocked=true" in evaluation.decision_trace
+    assert "regime_allowed=false" in evaluation.decision_trace
 
 
 def test_range_setup_with_low_score_stays_blocked(tmp_path) -> None:

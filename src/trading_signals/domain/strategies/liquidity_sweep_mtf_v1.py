@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from trading_signals.analysis.market_regime import detect_entry_context, detect_session, detect_trade_location
+from trading_signals.analysis.market_regime import detect_entry_context, detect_market_regime, detect_session, detect_trade_location
 from trading_signals.app.settings import Settings
 from trading_signals.application.dto.analysis_result import AnalysisResult
 from trading_signals.domain.entities.strategy_evaluation import StrategyEvaluation
@@ -27,6 +27,7 @@ class LiquiditySweepMTFV1:
         nearest_distance = float(entry.metadata.get("nearest_distance_to_liquidity_atr", entry.distance_to_liquidity_atr))
         secondary_score_threshold = self.settings.setup_score_threshold + 15
         session = detect_session(entry.timestamp)
+        market_regime = str(entry.metadata.get("market_regime") or detect_market_regime(entry, atr_min_threshold=self.settings.atr_min_threshold))
         effective_setup_score_threshold = self.settings.setup_score_threshold + (10 if session == "ASIA" else 0)
         effective_secondary_score_threshold = secondary_score_threshold + (10 if session == "ASIA" else 0)
         soft_distance_limit = self.settings.max_distance_to_liquidity_atr * 2
@@ -105,6 +106,8 @@ class LiquiditySweepMTFV1:
 
         trade_location = str(entry.metadata.get("trade_location", detect_trade_location(entry)))
         entry_context = str(entry.metadata.get("entry_context", detect_entry_context(entry)))
+        regime_allowed = market_regime == "TRENDING" and entry_context != "CHOPPY_RANGE"
+        market_regime_blocked = not regime_allowed
         candidate_direction = _candidate_direction(entry, break_of_structure)
         pullback_bad_location = (
             (candidate_direction == SignalDecision.LONG.value and entry_context == "PULLBACK" and trade_location == "near_resistance")
@@ -329,6 +332,9 @@ class LiquiditySweepMTFV1:
                 f"range_quality_checks={sum(range_quality_checks)}",
                 f"range_quality_candidate={range_quality_candidate}",
                 f"range_quality_allowed={range_quality_allowed}",
+                f"market_regime={market_regime}",
+                f"market_regime_blocked={str(market_regime_blocked).lower()}",
+                f"regime_allowed={str(regime_allowed).lower()}",
                 f"asia_session_threshold_adjustment={10 if session == 'ASIA' else 0}",
                 f"long_counter_htf_allowed={str(long_counter_htf_allowed).lower()}",
                 f"long_counter_htf_checks={long_counter_htf_checks_count}",
