@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from trading_signals.analysis.market_regime import detect_session, detect_trade_location
+from trading_signals.analysis.market_regime import detect_entry_context, detect_session, detect_trade_location
 from trading_signals.app.settings import Settings
 from trading_signals.application.dto.analysis_result import AnalysisResult
 from trading_signals.domain.entities.strategy_evaluation import StrategyEvaluation
@@ -104,6 +104,17 @@ class LiquiditySweepMTFV1:
             failed.append("nearest_liquidity_extreme")
 
         trade_location = str(entry.metadata.get("trade_location", detect_trade_location(entry)))
+        entry_context = str(entry.metadata.get("entry_context", detect_entry_context(entry)))
+        candidate_direction = _candidate_direction(entry, break_of_structure)
+        pullback_bad_location = (
+            (candidate_direction == SignalDecision.LONG.value and entry_context == "PULLBACK" and trade_location == "near_resistance")
+            or (candidate_direction == SignalDecision.SHORT.value and entry_context == "PULLBACK" and trade_location == "near_support")
+        )
+        late_entry_detected, late_entry_reason = _detect_late_entry(entry, candidate_direction, break_of_structure)
+        if pullback_bad_location:
+            failed.append("pullback_bad_location")
+        if late_entry_detected:
+            failed.append("late_entry_filter")
         rr_value = entry.metadata.get("risk_reward")
         if rr_value is None:
             rr_value = entry.metadata.get("risk_reward_tp1", entry.metadata.get("rr"))
@@ -183,6 +194,8 @@ class LiquiditySweepMTFV1:
                 "volatility_failed",
                 "body_ratio_below_threshold",
                 "quality_score_failed",
+                "pullback_bad_location",
+                "late_entry_filter",
             }
         )
         if not relaxed_gates_enabled and "secondary_setup_requirements_failed" in failed:
@@ -316,6 +329,11 @@ class LiquiditySweepMTFV1:
                 f"asia_session_threshold_adjustment={10 if session == 'ASIA' else 0}",
                 f"long_counter_htf_allowed={str(long_counter_htf_allowed).lower()}",
                 f"long_counter_htf_checks={long_counter_htf_checks_count}",
+                f"entry_context={entry_context}",
+                f"trade_location={trade_location}",
+                f"pullback_bad_location={str(pullback_bad_location).lower()}",
+                f"late_entry_detected={str(late_entry_detected).lower()}",
+                f"late_entry_reason={late_entry_reason}",
                 f"rsi={rsi}",
                 f"secondary_confluence_bonus={secondary_confluence_bonus:g}",
                 f"directional_distance_check={directional_distance_check}",
@@ -344,3 +362,86 @@ class LiquiditySweepMTFV1:
             confidence=round(confidence, 2),
             created_at=created_at,
         )
+
+
+def _candidate_direction(entry, break_of_structure: str) -> str:
+    if entry.liquidity_sweep == "bullish_sweep" or break_of_structure == "bullish_bos":
+        return SignalDecision.LONG.value
+    if entry.liquidity_sweep == "bearish_sweep" or break_of_structure == "bearish_bos":
+        return SignalDecision.SHORT.value
+    if entry.trend == "bullish":
+        return SignalDecision.LONG.value
+    if entry.trend == "bearish":
+        return SignalDecision.SHORT.value
+    return SignalDecision.NO_TRADE.value
+
+
+def _detect_late_entry(entry, direction: str, break_of_structure: str) -> tuple[bool, str]:
+    reasons: list[str] = []
+    atr = float(entry.atr or 0.0)
+    if atr > 0 and break_of_structure in {"bullish_bos", "bearish_bos"}:
+        threshold = _float_metadata(entry, "late_entry_bos_distance_atr_threshold", 1.5)
+        if break_of_structure == "bullish_bos":
+            reference = _float_metadata(entry, "recent_close_high_before_bos", float(entry.open))
+            distance_atr = (float(entry.close) - reference) / atr
+        else:
+            reference = _float_metadata(entry, "recent_close_low_before_bos", float(entry.open))
+            distance_atr = (reference - float(entry.close)) / atr
+        if distance_atr > threshold:
+            reasons.append(f"bos_distance_atr>{threshold:g}")
+
+    impulse_progress = _impulse_progress(entry, direction)
+    if impulse_progress is not None and impulse_progress > 0.6:
+        reasons.append("impulse_progress>0.6")
+
+    if _body_ratio_decreasing(entry):
+        reasons.append("body_ratio_decreasing")
+
+    return bool(reasons), "|".join(reasons) if reasons else "none"
+
+
+def _impulse_progress(entry, direction: str) -> float | None:
+    explicit = entry.metadata.get("impulse_progress")
+    if explicit is not None:
+        return _safe_float(explicit)
+    start = entry.metadata.get("impulse_start_price")
+    end = entry.metadata.get("impulse_end_price") or entry.metadata.get("impulse_target_price")
+    if start is None or end is None:
+        return None
+    start_value = _safe_float(start)
+    end_value = _safe_float(end)
+    if start_value is None or end_value is None or start_value == end_value:
+        return None
+    if direction == SignalDecision.LONG.value:
+        return (float(entry.close) - start_value) / abs(end_value - start_value)
+    if direction == SignalDecision.SHORT.value:
+        return (start_value - float(entry.close)) / abs(end_value - start_value)
+    return None
+
+
+def _body_ratio_decreasing(entry) -> bool:
+    explicit = entry.metadata.get("body_ratio_decreasing")
+    if explicit is not None:
+        return str(explicit).strip().lower() in {"1", "true", "yes", "on"}
+    previous = entry.metadata.get("previous_body_ratio")
+    previous_value = _safe_float(previous)
+    if previous_value is not None:
+        return previous_value > float(entry.body_ratio)
+    recent = entry.metadata.get("recent_body_ratios")
+    if isinstance(recent, list) and len(recent) >= 3:
+        values = [_safe_float(item) for item in recent[-3:]]
+        if all(value is not None for value in values):
+            return bool(values[0] > values[1] > values[2])
+    return False
+
+
+def _float_metadata(entry, key: str, default: float) -> float:
+    value = _safe_float(entry.metadata.get(key))
+    return default if value is None else value
+
+
+def _safe_float(value: object) -> float | None:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None

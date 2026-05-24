@@ -60,9 +60,18 @@ def build_snapshot(
     nearest_distance: float | None = None,
     rsi: float = 40.0,
     volume_ratio: float = 2.0,
+    body_ratio: float = 0.7,
     break_of_structure: str = "none",
+    metadata_overrides: dict[str, object] | None = None,
     timestamp: str = "2026-01-01T08:00:00+00:00",
 ) -> MarketSnapshot:
+    metadata = {
+        "rsi": rsi,
+        "break_of_structure": break_of_structure,
+        "volume_ratio_vs_average_20": volume_ratio,
+        "nearest_distance_to_liquidity_atr": nearest_distance if nearest_distance is not None else distance,
+    }
+    metadata.update(metadata_overrides or {})
     return MarketSnapshot(
         id=f"snap_{symbol}_{timeframe}",
         scan_run_id=scan_run_id,
@@ -80,16 +89,11 @@ def build_snapshot(
         liquidity_low=95.0,
         liquidity_sweep=sweep,
         atr=1.0,
-        body_ratio=0.7,
+        body_ratio=body_ratio,
         distance_to_liquidity_atr=distance,
         setup_score=score,
         created_at=timestamp,
-        metadata={
-            "rsi": rsi,
-            "break_of_structure": break_of_structure,
-            "volume_ratio_vs_average_20": volume_ratio,
-            "nearest_distance_to_liquidity_atr": nearest_distance if nearest_distance is not None else distance,
-        },
+        metadata=metadata,
     )
 
 
@@ -751,3 +755,141 @@ def test_asia_allows_main_signal_score_85_or_more(tmp_path) -> None:
     assert evaluation.decision == "long"
     assert "primary_sweep_setup" in evaluation.passed_filters
     assert "session=ASIA" in evaluation.decision_trace
+
+
+def test_pullback_long_near_resistance_is_blocked(tmp_path) -> None:
+    settings = build_settings(tmp_path)
+    entry = build_snapshot(
+        scan_run_id="run_test",
+        symbol="BTCUSDT",
+        timeframe="1h",
+        trend="bullish",
+        structure="bullish",
+        sweep="bullish_sweep",
+        score=90.0,
+        distance=1.0,
+        metadata_overrides={"entry_context": "PULLBACK", "trade_location": "near_resistance"},
+    )
+    higher = build_snapshot(
+        scan_run_id="run_test",
+        symbol="BTCUSDT",
+        timeframe="4h",
+        trend="bullish",
+        structure="bullish",
+        sweep="none",
+        score=60.0,
+        distance=1.0,
+    )
+    analysis = AnalysisResult("BTCUSDT", "1h", "4h", entry, higher)
+
+    evaluation = LiquiditySweepMTFV1(settings).evaluate(analysis, "eval_test", entry.created_at)
+
+    assert evaluation.decision == "no_trade"
+    assert "pullback_bad_location" in evaluation.failed_filters
+    assert "pullback_bad_location=true" in evaluation.decision_trace
+    assert "primary_sweep_setup" not in evaluation.passed_filters
+
+
+def test_pullback_short_near_support_is_blocked(tmp_path) -> None:
+    settings = build_settings(tmp_path)
+    entry = build_snapshot(
+        scan_run_id="run_test",
+        symbol="ETHUSDT",
+        timeframe="1h",
+        trend="bearish",
+        structure="bearish",
+        sweep="bearish_sweep",
+        score=90.0,
+        distance=1.0,
+        metadata_overrides={"entry_context": "PULLBACK", "trade_location": "near_support"},
+    )
+    higher = build_snapshot(
+        scan_run_id="run_test",
+        symbol="ETHUSDT",
+        timeframe="4h",
+        trend="bearish",
+        structure="bearish",
+        sweep="none",
+        score=60.0,
+        distance=1.0,
+    )
+    analysis = AnalysisResult("ETHUSDT", "1h", "4h", entry, higher)
+
+    evaluation = LiquiditySweepMTFV1(settings).evaluate(analysis, "eval_test", entry.created_at)
+
+    assert evaluation.decision == "no_trade"
+    assert "pullback_bad_location" in evaluation.failed_filters
+    assert "pullback_bad_location=true" in evaluation.decision_trace
+    assert "primary_sweep_setup" not in evaluation.passed_filters
+
+
+def test_early_pullback_valid_location_still_passes(tmp_path) -> None:
+    settings = build_settings(tmp_path)
+    entry = build_snapshot(
+        scan_run_id="run_test",
+        symbol="BTCUSDT",
+        timeframe="1h",
+        trend="bullish",
+        structure="bullish",
+        sweep="bullish_sweep",
+        score=90.0,
+        distance=1.0,
+        metadata_overrides={"entry_context": "PULLBACK", "trade_location": "near_support"},
+    )
+    higher = build_snapshot(
+        scan_run_id="run_test",
+        symbol="BTCUSDT",
+        timeframe="4h",
+        trend="bullish",
+        structure="bullish",
+        sweep="none",
+        score=60.0,
+        distance=1.0,
+    )
+    analysis = AnalysisResult("BTCUSDT", "1h", "4h", entry, higher)
+
+    evaluation = LiquiditySweepMTFV1(settings).evaluate(analysis, "eval_test", entry.created_at)
+
+    assert evaluation.decision == "long"
+    assert "primary_sweep_setup" in evaluation.passed_filters
+    assert "pullback_bad_location=false" in evaluation.decision_trace
+    assert "late_entry_detected=false" in evaluation.decision_trace
+
+
+def test_late_entry_filter_blocks_signal(tmp_path) -> None:
+    settings = build_settings(tmp_path)
+    entry = build_snapshot(
+        scan_run_id="run_test",
+        symbol="BTCUSDT",
+        timeframe="1h",
+        trend="bullish",
+        structure="bullish",
+        sweep="bullish_sweep",
+        score=90.0,
+        distance=1.0,
+        break_of_structure="bullish_bos",
+        metadata_overrides={
+            "entry_context": "BREAKOUT",
+            "trade_location": "near_support",
+            "recent_close_high_before_bos": 98.0,
+            "impulse_progress": 0.7,
+        },
+    )
+    higher = build_snapshot(
+        scan_run_id="run_test",
+        symbol="BTCUSDT",
+        timeframe="4h",
+        trend="bullish",
+        structure="bullish",
+        sweep="none",
+        score=60.0,
+        distance=1.0,
+    )
+    analysis = AnalysisResult("BTCUSDT", "1h", "4h", entry, higher)
+
+    evaluation = LiquiditySweepMTFV1(settings).evaluate(analysis, "eval_test", entry.created_at)
+
+    assert evaluation.decision == "no_trade"
+    assert "late_entry_filter" in evaluation.failed_filters
+    assert "late_entry_detected=true" in evaluation.decision_trace
+    assert "late_entry_reason=bos_distance_atr>1.5|impulse_progress>0.6" in evaluation.decision_trace
