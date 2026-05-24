@@ -922,7 +922,66 @@ def test_public_routing_allows_long_breakout_main_signal() -> None:
     reason = public_routing_rejection_reason(
         signal,
         evaluation,
-        {"market_regime": "TRENDING", "setup_type": "MAIN_SIGNAL", "entry_context": "BREAKOUT"},
+        {
+            "market_regime": "TRENDING",
+            "setup_type": "MAIN_SIGNAL",
+            "entry_context": "BREAKOUT",
+            "trade_location": "mid_range",
+            "trend_higher": "bullish",
+        },
     )
 
     assert reason is None
+
+
+def test_public_routing_blocks_against_htf_warning() -> None:
+    signal = type("Signal", (), {"decision": "long"})()
+    evaluation = type("Evaluation", (), {"setup_type": "MAIN_SIGNAL", "passed_filters": []})()
+
+    reason = public_routing_rejection_reason(
+        signal,
+        evaluation,
+        {"market_regime": "TRENDING", "setup_type": "MAIN_SIGNAL", "avoidance_warnings": ["against_htf"]},
+    )
+
+    assert reason == "public_block_against_htf"
+
+
+def test_public_routing_blocks_breakout_with_range_and_timeframe_penalties() -> None:
+    signal = type("Signal", (), {"decision": "long"})()
+    evaluation = type("Evaluation", (), {"setup_type": "MAIN_SIGNAL", "passed_filters": [], "decision_trace": []})()
+
+    reason = public_routing_rejection_reason(
+        signal,
+        evaluation,
+        {
+            "market_regime": "TRENDING",
+            "setup_type": "MAIN_SIGNAL",
+            "entry_context": "BREAKOUT",
+            "trade_location": "mid_range",
+            "penalties": ["market_structure_range_penalty:10", "timeframe_alignment_penalty:10"],
+        },
+    )
+
+    assert reason == "public_block_bad_breakout_context"
+
+
+def test_public_routing_blocks_breakout_in_bad_contexts() -> None:
+    signal = type("Signal", (), {"decision": "short"})()
+    evaluation = type("Evaluation", (), {"setup_type": "MAIN_SIGNAL", "passed_filters": []})()
+
+    assert public_routing_rejection_reason(
+        signal,
+        evaluation,
+        {"market_regime": "RANGING", "entry_context": "BREAKOUT", "trade_location": "mid_range"},
+    ) == "public_block_breakout_ranging"
+    assert public_routing_rejection_reason(
+        signal,
+        evaluation,
+        {"market_regime": "TRENDING", "entry_context": "BREAKOUT", "trade_location": "near_support"},
+    ) == "public_block_breakout_bad_location"
+    assert public_routing_rejection_reason(
+        signal,
+        evaluation,
+        {"market_regime": "TRENDING", "entry_context": "BREAKOUT", "trade_location": "mid_range", "trend_higher": "bullish"},
+    ) == "public_block_breakout_against_htf"

@@ -365,7 +365,7 @@ def test_secondary_setup_uses_nearest_liquidity_when_directional_distance_is_ext
     evaluation = LiquiditySweepMTFV1(settings).evaluate(analysis, "eval_test", entry.created_at)
 
     assert evaluation.decision == "long"
-    assert evaluation.setup_score == 80.0
+    assert evaluation.setup_score == 60.0
     assert "secondary_setup" in evaluation.passed_filters
     assert "secondary_nearest_liquidity" in evaluation.passed_filters
     assert "distance_to_liquidity_extreme" in evaluation.failed_filters
@@ -373,7 +373,9 @@ def test_secondary_setup_uses_nearest_liquidity_when_directional_distance_is_ext
     assert "directional_distance_check=extreme" in evaluation.decision_trace
     assert "nearest_liquidity_check=passed" in evaluation.decision_trace
     assert "liquidity_rule_applied=nearest_secondary_continuation" in evaluation.decision_trace
-    assert "secondary_confluence_bonus=35" in evaluation.decision_trace
+    assert "secondary_confluence_bonus_raw=35" in evaluation.decision_trace
+    assert "secondary_bonus_capped=true" in evaluation.decision_trace
+    assert "secondary_confluence_bonus=15" in evaluation.decision_trace
 
 
 def test_secondary_setup_blocks_when_nearest_liquidity_is_extreme(tmp_path) -> None:

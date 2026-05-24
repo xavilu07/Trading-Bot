@@ -83,6 +83,8 @@ def test_recent_public_signals_detects_public_signal_and_result(tmp_path: Path) 
     assert result["summary"]["wins"] == 1
     assert result["summary"]["total_r"] == 2.0
     assert result["rows"][0]["public_published"] is True
+    assert result["rows"][0]["would_meta_filter_block"] == "unknown"
+    assert result["rows"][0]["would_kill_switch_block"] == "false"
 
 
 def test_loss_with_meta_reject_marks_would_meta_filter_block(tmp_path: Path) -> None:
@@ -130,8 +132,85 @@ def test_loss_with_meta_reject_marks_would_meta_filter_block(tmp_path: Path) -> 
     row = result["rows"][0]
     assert row["result_r"] == -1.0
     assert row["meta_decision"] == "REJECT"
-    assert row["would_meta_filter_block"] is True
+    assert row["would_meta_filter_block"] == "true"
     assert row["audit_recommendation"] == "loss_avoidable_by_meta_filter:meta_decision_reject"
+
+
+def test_kill_switch_is_evaluated_retrospectively_after_prior_loss(tmp_path: Path) -> None:
+    data_path = tmp_path / "data"
+    write_jsonl(
+        data_path / "bot_activity" / "signals_log.jsonl",
+        [
+            {
+                "timestamp": "2026-05-24T08:00:00+00:00",
+                "symbol": "BEFOREUSDT",
+                "direction": "long",
+                "status": "sent",
+                "raw_summary": {"signal_id": "sig_before"},
+                "meta_decision": {"meta_decision": "SEND"},
+            },
+            {
+                "timestamp": "2026-05-24T10:00:00+00:00",
+                "symbol": "AFTERUSDT",
+                "direction": "long",
+                "status": "sent",
+                "raw_summary": {"signal_id": "sig_after"},
+                "meta_decision": {"meta_decision": "SEND"},
+            },
+        ],
+    )
+    write_csv(
+        data_path / "paper_trading" / "trades.csv",
+        [
+            {
+                "signal_id": "old_loss",
+                "symbol": "OLDUSDT",
+                "direction": "long",
+                "status": "sl_hit",
+                "result_r": "-1",
+                "created_at": "2026-05-24T08:30:00+00:00",
+                "closed_at": "2026-05-24T09:00:00+00:00",
+            }
+        ],
+    )
+
+    result = analyze_recent_public_signals(
+        data_path=data_path,
+        logs_path=tmp_path / "logs",
+        reports_path=tmp_path / "reports",
+        now=datetime(2026, 5, 24, 12, tzinfo=timezone.utc),
+    )
+
+    rows_by_symbol = {row["symbol"]: row for row in result["rows"]}
+    assert rows_by_symbol["BEFOREUSDT"]["would_kill_switch_block"] == "false"
+    assert rows_by_symbol["AFTERUSDT"]["would_kill_switch_block"] == "true"
+
+
+def test_meta_filter_is_unknown_without_historical_meta_data(tmp_path: Path) -> None:
+    data_path = tmp_path / "data"
+    write_jsonl(
+        data_path / "bot_activity" / "signals_log.jsonl",
+        [
+            {
+                "timestamp": "2026-05-24T10:00:00+00:00",
+                "symbol": "BTCUSDT",
+                "direction": "long",
+                "status": "sent",
+                "raw_summary": {"signal_id": "sig_unknown"},
+            }
+        ],
+    )
+
+    result = analyze_recent_public_signals(
+        data_path=data_path,
+        logs_path=tmp_path / "logs",
+        reports_path=tmp_path / "reports",
+        now=datetime(2026, 5, 24, 12, tzinfo=timezone.utc),
+    )
+
+    row = result["rows"][0]
+    assert row["would_meta_filter_block"] == "unknown"
+    assert result["summary"]["meta_filter_unknown"] == 1
 
 
 def test_recent_public_signals_audit_generates_csv(tmp_path: Path) -> None:

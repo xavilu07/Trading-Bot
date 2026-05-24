@@ -35,6 +35,24 @@ def public_routing_rejection_reason(signal, evaluation_or_decision, setup_contex
     ).strip().upper()
     market_regime = str(context.get("market_regime", "") or "").strip().upper()
     entry_context = str(context.get("entry_context", "") or "").strip().upper()
+    trade_location = str(context.get("trade_location", "") or "").strip()
+    trend_higher = str(context.get("trend_higher") or context.get("trend_4h") or "").strip().lower()
+    warnings = _normalized_items(context.get("avoidance_warnings", [])) | _normalized_items(context.get("warnings", []))
+    penalties = _normalized_items(context.get("penalties", []))
+    penalties |= _trace_penalty_tokens(getattr(evaluation_or_decision, "decision_trace", []))
+    if "against_htf" in warnings:
+        return "public_block_against_htf"
+    if (
+        entry_context == "BREAKOUT"
+        and {"market_structure_range_penalty", "timeframe_alignment_penalty"}.issubset(penalties)
+    ):
+        return "public_block_bad_breakout_context"
+    if entry_context == "BREAKOUT" and market_regime == "RANGING":
+        return "public_block_breakout_ranging"
+    if entry_context == "BREAKOUT" and trade_location in {"near_support", "near_resistance"}:
+        return "public_block_breakout_bad_location"
+    if entry_context == "BREAKOUT" and _htf_contradicts(direction, trend_higher):
+        return "public_block_breakout_against_htf"
     if direction == "short" and market_regime == "RANGING":
         return NEGATIVE_EDGE_PUBLIC_ROUTE_REASON
     if setup_type == "SECONDARY_SIGNAL" and direction == "short":
@@ -42,6 +60,45 @@ def public_routing_rejection_reason(signal, evaluation_or_decision, setup_contex
     if setup_type == "SECONDARY_SIGNAL" and entry_context == "CHOPPY_RANGE":
         return NEGATIVE_EDGE_PUBLIC_ROUTE_REASON
     return None
+
+
+def _htf_contradicts(direction: str, trend_higher: str) -> bool:
+    return (direction == "long" and trend_higher == "bearish") or (direction == "short" and trend_higher == "bullish")
+
+
+def _normalized_items(values) -> set[str]:
+    items: set[str] = set()
+    if values is None:
+        return items
+    if isinstance(values, str):
+        values = [values]
+    for value in values:
+        text = str(value).strip()
+        if not text:
+            continue
+        for part in text.replace("|", ",").split(","):
+            item = part.strip()
+            if not item:
+                continue
+            items.add(item)
+            if ":" in item:
+                items.add(item.split(":", 1)[0].strip())
+            if "=" in item:
+                right_side = item.split("=", 1)[1].strip()
+                items.add(right_side)
+                if ":" in right_side:
+                    items.add(right_side.split(":", 1)[0].strip())
+    return items
+
+
+def _trace_penalty_tokens(trace_values) -> set[str]:
+    tokens: set[str] = set()
+    for item in trace_values or []:
+        text = str(item)
+        if not text.startswith("penalties="):
+            continue
+        tokens |= _normalized_items(text.split("=", 1)[1])
+    return tokens
 
 
 def _infer_setup_type(evaluation_or_decision) -> str:

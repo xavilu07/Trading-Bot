@@ -41,6 +41,7 @@ from trading_signals.application.use_cases.shadow_paper import build_shadow_sign
 from trading_signals.application.use_cases.publish_signal import publish_signal
 from trading_signals.application.use_cases.publish_signal import publish_filter_rejection_reason
 from trading_signals.application.use_cases.publish_signal import meta_decision_public_filter_reason
+from trading_signals.application.use_cases.publish_signal import public_routing_rejection_reason
 from trading_signals.application.use_cases.setup_context import build_setup_context
 from trading_signals.application.use_cases.signal_lifecycle import classify_signal_lifecycle
 from trading_signals.data.market_data import market_data_status
@@ -827,8 +828,18 @@ def run_market_scan(
                     "liquidity_sweep": analysis.entry_snapshot.liquidity_sweep,
                     "market_structure": analysis.entry_snapshot.market_structure,
                     "penalties": _penalties_from_trace(evaluation),
+                    "trend_entry": analysis.entry_snapshot.trend,
+                    "trend_higher": analysis.higher_snapshot.trend,
                 }
             )
+            public_route_reason = public_routing_rejection_reason(signal, signal_decision, setup_context)
+            evaluation.decision_trace.extend(
+                [
+                    f"public_block_against_htf={str(public_route_reason == 'public_block_against_htf').lower()}",
+                    f"public_block_bad_breakout_context={str(public_route_reason == 'public_block_bad_breakout_context').lower()}",
+                ]
+            )
+            scan_repo.save_evaluation(evaluation)
             kill_switch_status = evaluate_kill_switch(
                 settings.data_storage_path,
                 enabled=settings.kill_switch_enabled,

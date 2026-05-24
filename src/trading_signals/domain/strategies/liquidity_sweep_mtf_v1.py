@@ -160,15 +160,18 @@ class LiquiditySweepMTFV1:
             and secondary_has_structure
         )
         secondary_confluence_bonus = 0.0
+        secondary_confluence_bonus_raw = 0.0
         if entry.liquidity_sweep == "none" and secondary_trend_aligned:
             if break_of_structure in {"bullish_bos", "bearish_bos"}:
-                secondary_confluence_bonus += 10
+                secondary_confluence_bonus_raw += 10
             if secondary_nearest_liquidity_valid:
-                secondary_confluence_bonus += 15
+                secondary_confluence_bonus_raw += 15
             if secondary_volume_favorable:
-                secondary_confluence_bonus += 5
+                secondary_confluence_bonus_raw += 5
             if secondary_rsi_aligned:
-                secondary_confluence_bonus += 5
+                secondary_confluence_bonus_raw += 5
+        secondary_bonus_capped = secondary_confluence_bonus_raw > 15
+        secondary_confluence_bonus = min(secondary_confluence_bonus_raw, 15.0)
         if secondary_confluence_bonus:
             score += secondary_confluence_bonus
             penalties.append(f"secondary_confluence_bonus:+{secondary_confluence_bonus:g}")
@@ -335,6 +338,8 @@ class LiquiditySweepMTFV1:
                 f"late_entry_detected={str(late_entry_detected).lower()}",
                 f"late_entry_reason={late_entry_reason}",
                 f"rsi={rsi}",
+                f"secondary_confluence_bonus_raw={secondary_confluence_bonus_raw:g}",
+                f"secondary_bonus_capped={str(secondary_bonus_capped).lower()}",
                 f"secondary_confluence_bonus={secondary_confluence_bonus:g}",
                 f"directional_distance_check={directional_distance_check}",
                 f"nearest_liquidity_check={nearest_liquidity_check}",
