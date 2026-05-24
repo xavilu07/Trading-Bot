@@ -1,3 +1,4 @@
+from datetime import UTC, datetime
 from pathlib import Path
 
 from trading_signals.app.settings import Settings
@@ -356,3 +357,56 @@ def test_meta_decision_filter_blocks_public_but_keeps_dev_and_live_tracking(tmp_
     assert str(trades[0]["public_published"]).lower() == "false"
     assert "meta_decision_filter_blocked" in caplog.text
     assert "meta_decision_reject" in caplog.text
+
+
+def test_kill_switch_blocks_public_but_keeps_dev_and_live_tracking(tmp_path: Path, caplog) -> None:
+    closed_at = datetime.now(tz=UTC).replace(microsecond=0).isoformat()
+    paper_file = tmp_path / "paper_trading" / "trades.csv"
+    paper_file.parent.mkdir(parents=True)
+    paper_file.write_text(
+        "status,result_r,closed_at\n"
+        f"sl_hit,-2.5,{closed_at}\n",
+        encoding="utf-8",
+    )
+    settings = Settings(
+        data_storage_path=tmp_path,
+        telegram_chat_ids=["dry"],
+        publish_signal_decisions=["long"],
+        live_trade_tracking_enabled=True,
+        kill_switch_enabled=True,
+        max_daily_loss_r=2.0,
+        max_consecutive_losses=10,
+        max_weekly_drawdown_r=10.0,
+        kill_switch_cooldown_hours=0,
+    )
+    dataset = generate_trend_dataset(direction="up")
+    market_data = FakeMarketDataClient({
+        ("BTCUSDT", "1h"): dataset,
+        ("BTCUSDT", "4h"): dataset,
+    })
+    store = FileStore(tmp_path)
+    live_store = LiveTradingStore(tmp_path)
+
+    with caplog.at_level("INFO", logger="trading_signals"):
+        result = run_market_scan(
+            settings=settings,
+            market_data=market_data,
+            scan_repo=FileScanRunRepository(store),
+            signal_repo=FileSignalRepository(store),
+            notifier=TelegramNotifier("", ["dry"], tmp_path / "telegram_users.json", tmp_path / "telegram_state.json"),
+            diagnostics_store=FileStore(tmp_path / "diagnostics"),
+            metrics=NoopMetrics(),
+            live_trading_store=live_store,
+            symbols=["BTCUSDT"],
+            dry_run=True,
+        )
+
+    item = result["results"][0]
+    assert item["signal"]["decision"] == "long"
+    assert {delivery["channel"] for delivery in item["deliveries"]} == {"telegram_dev"}
+    assert item["kill_switch"]["kill_switch_active"] is True
+    trades = live_store.list_trades()
+    assert len(trades) == 1
+    assert str(trades[0]["public_published"]).lower() == "false"
+    assert "kill_switch_blocked_public_signal" in caplog.text
+    assert "daily_loss_limit" in caplog.text

@@ -55,6 +55,7 @@ from trading_signals.infrastructure.logging.logger import log_json
 from trading_signals.memory.pattern_memory import build_pattern_record
 from trading_signals.memory.signal_activity_log import append_signal_log
 from trading_signals.notifications.telegram import telegram_status
+from trading_signals.risk.kill_switch import evaluate_kill_switch
 from trading_signals.strategy.decision_engine import (
     build_signal_decision_from_modules,
     build_signal_decision_from_strategy_evaluation,
@@ -828,6 +829,14 @@ def run_market_scan(
                     "penalties": _penalties_from_trace(evaluation),
                 }
             )
+            kill_switch_status = evaluate_kill_switch(
+                settings.data_storage_path,
+                enabled=settings.kill_switch_enabled,
+                max_daily_loss_r=settings.max_daily_loss_r,
+                max_consecutive_losses=settings.max_consecutive_losses,
+                max_weekly_drawdown_r=settings.max_weekly_drawdown_r,
+                cooldown_hours=settings.kill_switch_cooldown_hours,
+            )
             pattern_memory = None
             performance_gate = None
             pattern_record = None
@@ -899,8 +908,25 @@ def run_market_scan(
                     )
             should_publish_after_filters = should_publish_decision and publish_filter_reason is None
             public_meta_filter_reason = None
+            public_block_reason = None
             if status == SignalStatus.VALID.value and should_publish_after_filters:
-                public_meta_filter_reason = meta_decision_public_filter_reason(settings, pattern_memory)
+                if bool(kill_switch_status.get("kill_switch_active")):
+                    kill_reason = str(kill_switch_status.get("kill_switch_reason") or "kill_switch_active")
+                    public_block_reason = f"kill_switch:{kill_reason}"
+                    log_json(
+                        logger,
+                        "kill_switch_blocked_public_signal",
+                        symbol=symbol,
+                        direction=evaluation.decision,
+                        reason=kill_reason,
+                        daily_realized_r=kill_switch_status.get("daily_realized_r"),
+                        weekly_realized_r=kill_switch_status.get("weekly_realized_r"),
+                        consecutive_losses=kill_switch_status.get("consecutive_losses"),
+                        cooldown_until=kill_switch_status.get("cooldown_until"),
+                    )
+                else:
+                    public_meta_filter_reason = meta_decision_public_filter_reason(settings, pattern_memory)
+                    public_block_reason = public_meta_filter_reason
                 if public_meta_filter_reason is not None:
                     log_json(
                         logger,
@@ -934,7 +960,7 @@ def run_market_scan(
                     dry_run=dry_run,
                     signal_type=lifecycle.signal_type,
                     setup_context=setup_context,
-                    public_block_reason=public_meta_filter_reason,
+                    public_block_reason=public_block_reason,
                 )
                 if any(item.status == "sent" for item in deliveries):
                     public_published = any(item.channel == "telegram_public" and item.status == "sent" for item in deliveries)
@@ -1207,6 +1233,7 @@ def run_market_scan(
                     "pattern_memory": pattern_memory,
                     "performance_gate": performance_gate,
                     "multi_agent_shadow_decision": multi_agent_shadow_decision,
+                    "kill_switch": kill_switch_status,
                 }
             )
             _log_symbol_diagnostics(

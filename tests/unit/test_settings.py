@@ -90,6 +90,22 @@ def test_meta_decision_filter_defaults_to_false_and_is_configurable(monkeypatch)
     assert Settings().meta_decision_filter_enabled is True
 
 
+def test_kill_switch_settings_are_configurable(monkeypatch) -> None:
+    monkeypatch.setenv("KILL_SWITCH_ENABLED", "true")
+    monkeypatch.setenv("MAX_DAILY_LOSS_R", "3.5")
+    monkeypatch.setenv("MAX_CONSECUTIVE_LOSSES", "4")
+    monkeypatch.setenv("MAX_WEEKLY_DRAWDOWN_R", "7.5")
+    monkeypatch.setenv("KILL_SWITCH_COOLDOWN_HOURS", "24")
+
+    settings = Settings()
+
+    assert settings.kill_switch_enabled is True
+    assert settings.max_daily_loss_r == 3.5
+    assert settings.max_consecutive_losses == 4
+    assert settings.max_weekly_drawdown_r == 7.5
+    assert settings.kill_switch_cooldown_hours == 24
+
+
 def test_market_data_provider_defaults_to_binance(monkeypatch) -> None:
     monkeypatch.delenv("MARKET_DATA_PROVIDER", raising=False)
 

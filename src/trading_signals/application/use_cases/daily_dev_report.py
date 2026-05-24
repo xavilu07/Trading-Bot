@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Iterable
 
 from trading_signals.memory.insights import build_pattern_memory_insights
+from trading_signals.risk.kill_switch import evaluate_kill_switch
 
 
 CLOSED_STATUSES = {"tp2_hit", "tp_hit", "sl_hit", "expired", "breakeven"}
@@ -21,6 +22,11 @@ def build_daily_dev_report(
     report_date: date | None = None,
     now: datetime | None = None,
     scheduler_expected_interval_seconds: int = 900,
+    kill_switch_enabled: bool = False,
+    max_daily_loss_r: float = 2.0,
+    max_consecutive_losses: int = 2,
+    max_weekly_drawdown_r: float = 4.0,
+    kill_switch_cooldown_hours: int = 12,
 ) -> dict[str, object]:
     now_dt = now or datetime.now(timezone.utc)
     day = report_date or now_dt.date()
@@ -33,6 +39,15 @@ def build_daily_dev_report(
     last_cycle_minutes = _minutes_since_mtime(scheduler_log, now_dt)
     scheduler_ok = last_cycle_minutes is not None and last_cycle_minutes <= max(5, scheduler_expected_interval_seconds / 60 * 3)
     performance = _stats(closed_today)
+    kill_switch = evaluate_kill_switch(
+        data_path,
+        enabled=kill_switch_enabled,
+        max_daily_loss_r=max_daily_loss_r,
+        max_consecutive_losses=max_consecutive_losses,
+        max_weekly_drawdown_r=max_weekly_drawdown_r,
+        cooldown_hours=kill_switch_cooldown_hours,
+        now=now_dt,
+    )
     return {
         "date": day.isoformat(),
         "status": {
@@ -42,6 +57,7 @@ def build_daily_dev_report(
             "open_live_trades": len(open_live),
             "paper_trades_closed_today": len(closed_today),
         },
+        "kill_switch": kill_switch,
         "performance_today": performance,
         "breakdown": {
             "direction": _group_stats(closed_today, "direction"),
@@ -60,6 +76,7 @@ def format_daily_dev_report(report: dict[str, object]) -> str:
     setup_stats = _dict(breakdown.get("setup_type"))
     leaks = _dict(report.get("leaks"))
     memory = _dict(report.get("pattern_memory"))
+    kill_switch = _dict(report.get("kill_switch"))
     return (
         "📊 Daily Bot Report\n"
         f"Fecha: {report.get('date', '-')}\n\n"
@@ -69,6 +86,13 @@ def format_daily_dev_report(report: dict[str, object]) -> str:
         f"- Pattern Memory records: {status.get('pattern_memory_records', 0)}\n"
         f"- Open live trades: {status.get('open_live_trades', 0)}\n"
         f"- Paper trades cerrados hoy: {status.get('paper_trades_closed_today', 0)}\n\n"
+        "🛑 Kill Switch\n"
+        f"- Active: {_yes_no(kill_switch.get('kill_switch_active'))}\n"
+        f"- Reason: {kill_switch.get('kill_switch_reason') or 'none'}\n"
+        f"- Daily R: {kill_switch.get('daily_realized_r', 0)}\n"
+        f"- Weekly R: {kill_switch.get('weekly_realized_r', 0)}\n"
+        f"- Consecutive losses: {kill_switch.get('consecutive_losses', 0)}\n"
+        f"- Cooldown until: {kill_switch.get('cooldown_until') or 'none'}\n\n"
         "📈 Performance hoy\n"
         f"- Trades cerrados: {performance.get('trades', 0)}\n"
         f"- Winrate: {performance.get('winrate', 0)}%\n"
@@ -90,7 +114,16 @@ def format_daily_dev_report(report: dict[str, object]) -> str:
 
 def send_daily_dev_report(notifier, data_path: Path, *, logs_path: Path = Path("logs"), dry_run: bool = False, settings=None) -> list[dict[str, object]]:
     interval = int(getattr(settings, "scan_interval_seconds", 900)) if settings is not None else 900
-    report = build_daily_dev_report(data_path, logs_path=logs_path, scheduler_expected_interval_seconds=interval)
+    report = build_daily_dev_report(
+        data_path,
+        logs_path=logs_path,
+        scheduler_expected_interval_seconds=interval,
+        kill_switch_enabled=bool(getattr(settings, "kill_switch_enabled", False)) if settings is not None else False,
+        max_daily_loss_r=float(getattr(settings, "max_daily_loss_r", 2.0)) if settings is not None else 2.0,
+        max_consecutive_losses=int(getattr(settings, "max_consecutive_losses", 2)) if settings is not None else 2,
+        max_weekly_drawdown_r=float(getattr(settings, "max_weekly_drawdown_r", 4.0)) if settings is not None else 4.0,
+        kill_switch_cooldown_hours=int(getattr(settings, "kill_switch_cooldown_hours", 12)) if settings is not None else 12,
+    )
     message = format_daily_dev_report(report)
     if dry_run:
         print(message)
@@ -266,4 +299,3 @@ def _yes_no(value: object) -> str:
 
 def _dict(value: object) -> dict[str, object]:
     return value if isinstance(value, dict) else {}
-

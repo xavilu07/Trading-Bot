@@ -123,6 +123,7 @@ def test_daily_dev_report_builds_today_metrics_and_breakdowns(tmp_path: Path) ->
     assert report["breakdown"]["direction"]["long"]["total_r"] == 2.0
     assert report["breakdown"]["setup_type"]["MAIN_SIGNAL"]["total_r"] == -1.0
     assert report["pattern_memory"]["insights_ready"] is True
+    assert report["kill_switch"]["daily_realized_r"] == 1.0
 
 
 def test_daily_dev_report_message_contains_main_sections(tmp_path: Path) -> None:
@@ -138,6 +139,8 @@ def test_daily_dev_report_message_contains_main_sections(tmp_path: Path) -> None
     assert "📊 Daily Bot Report" in message
     assert "Fecha: 2026-05-11" in message
     assert "⚙️ Estado" in message
+    assert "🛑 Kill Switch" in message
+    assert "- Active: NO" in message
     assert "📈 Performance hoy" in message
     assert "🧪 Breakdown rápido" in message
     assert "⚠️ Fugas principales" in message
@@ -154,4 +157,3 @@ def test_send_daily_dev_report_dry_run_prints_without_notifier_send(tmp_path: Pa
 
     assert results == [{"recipient": "dry_run", "status": "printed", "provider_message_id": "dry_run"}]
     assert "📊 Daily Bot Report" in captured.out
-
