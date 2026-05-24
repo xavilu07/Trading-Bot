@@ -40,6 +40,7 @@ from trading_signals.application.use_cases.experimental_paper import build_exper
 from trading_signals.application.use_cases.shadow_paper import build_shadow_signal_row
 from trading_signals.application.use_cases.publish_signal import publish_signal
 from trading_signals.application.use_cases.publish_signal import publish_filter_rejection_reason
+from trading_signals.application.use_cases.publish_signal import meta_decision_public_filter_reason
 from trading_signals.application.use_cases.setup_context import build_setup_context
 from trading_signals.application.use_cases.signal_lifecycle import classify_signal_lifecycle
 from trading_signals.data.market_data import market_data_status
@@ -827,6 +828,56 @@ def run_market_scan(
                     "penalties": _penalties_from_trace(evaluation),
                 }
             )
+            pattern_memory = None
+            performance_gate = None
+            pattern_record = None
+            pattern_risk_plan = None
+            if pattern_memory_store is not None:
+                pattern_history = pattern_memory_store.list_records(limit=1000)
+                pattern_risk_plan = risk_plan
+                pattern_record = build_pattern_record(
+                    timestamp=_now_iso(),
+                    symbol=symbol,
+                    direction=evaluation.decision if evaluation.decision != SignalDecision.NO_TRADE.value else _candidate_direction(analysis),
+                    setup_type=_signal_setup_type(evaluation) if evaluation.decision != SignalDecision.NO_TRADE.value else (_candidate_setup_type(analysis, evaluation) or "NO_SIGNAL"),
+                    score=float(evaluation.setup_score),
+                    setup_context=setup_context,
+                    htf_trend=analysis.higher_snapshot.trend,
+                    ltf_trend=analysis.entry_snapshot.trend,
+                    timeframe_alignment=analysis.entry_snapshot.trend == analysis.higher_snapshot.trend,
+                    penalties=_penalties_from_trace(evaluation),
+                    blocking_reasons=list(evaluation.rejection_reasons),
+                    risk_plan=pattern_risk_plan,
+                    final_status="pending",
+                    outcome=None,
+                    r_result=None,
+                )
+                pattern_memory = build_performance_intelligence(
+                    pattern_record=pattern_record,
+                    pattern_history=pattern_history,
+                )
+                performance_gate = evaluate_performance_gate(pattern_memory)
+                pattern_memory["performance_gate"] = performance_gate
+                log_performance_intelligence(
+                    logger,
+                    symbol=symbol,
+                    pattern_record=pattern_record,
+                    performance_intelligence=pattern_memory,
+                )
+                log_json(
+                    logger,
+                    "performance_gate_soft",
+                    symbol=symbol,
+                    direction=pattern_record.get("direction"),
+                    setup_type=pattern_record.get("setup_type"),
+                    action=performance_gate["action"],
+                    would_block=performance_gate["would_block"],
+                    would_prioritize=performance_gate["would_prioritize"],
+                    confidence=performance_gate["confidence"],
+                    reasons=performance_gate["reasons"],
+                    risks=performance_gate["risks"],
+                    scores=performance_gate["scores"],
+                )
             publish_filter_reason = None
             if status == SignalStatus.VALID.value and should_publish_decision:
                 publish_filter_reason = publish_filter_rejection_reason(
@@ -847,6 +898,19 @@ def run_market_scan(
                         setup_context=setup_context,
                     )
             should_publish_after_filters = should_publish_decision and publish_filter_reason is None
+            public_meta_filter_reason = None
+            if status == SignalStatus.VALID.value and should_publish_after_filters:
+                public_meta_filter_reason = meta_decision_public_filter_reason(settings, pattern_memory)
+                if public_meta_filter_reason is not None:
+                    log_json(
+                        logger,
+                        "meta_decision_filter_blocked",
+                        symbol=symbol,
+                        direction=evaluation.decision,
+                        reason=public_meta_filter_reason,
+                        meta_decision=(pattern_memory or {}).get("meta_decision") if isinstance(pattern_memory, dict) else None,
+                        trade_quality=(pattern_memory or {}).get("trade_quality") if isinstance(pattern_memory, dict) else None,
+                    )
             if status == SignalStatus.VALID.value and should_publish_after_filters and not is_duplicate:
                 lifecycle = classify_signal_lifecycle(
                     signal_repo=signal_repo,
@@ -870,6 +934,7 @@ def run_market_scan(
                     dry_run=dry_run,
                     signal_type=lifecycle.signal_type,
                     setup_context=setup_context,
+                    public_block_reason=public_meta_filter_reason,
                 )
                 if any(item.status == "sent" for item in deliveries):
                     public_published = any(item.channel == "telegram_public" and item.status == "sent" for item in deliveries)
@@ -1069,12 +1134,8 @@ def run_market_scan(
                     paper_rejection=paper_rejection,
                 )
             )
-            pattern_memory = None
-            performance_gate = None
             multi_agent_shadow_decision = None
             if pattern_memory_store is not None:
-                pattern_history = pattern_memory_store.list_records(limit=1000)
-                pattern_risk_plan = risk_plan
                 if pattern_risk_plan is None and candidate_rejected is not None:
                     pattern_direction = str(candidate_rejected.get("direction", _candidate_direction(analysis)))
                     pattern_risk_plan = calculate_risk_plan(
@@ -1087,53 +1148,17 @@ def run_market_scan(
                         account_balance_reference=settings.account_balance_reference,
                         created_at=_now_iso(),
                     )
-                pattern_record = build_pattern_record(
-                    timestamp=_now_iso(),
-                    symbol=symbol,
-                    direction=evaluation.decision if evaluation.decision != SignalDecision.NO_TRADE.value else _candidate_direction(analysis),
-                    setup_type=_signal_setup_type(evaluation) if evaluation.decision != SignalDecision.NO_TRADE.value else (_candidate_setup_type(analysis, evaluation) or "NO_SIGNAL"),
-                    score=float(evaluation.setup_score),
-                    setup_context=setup_context,
-                    htf_trend=analysis.higher_snapshot.trend,
-                    ltf_trend=analysis.entry_snapshot.trend,
-                    timeframe_alignment=analysis.entry_snapshot.trend == analysis.higher_snapshot.trend,
-                    penalties=_penalties_from_trace(evaluation),
-                    blocking_reasons=list(evaluation.rejection_reasons),
-                    risk_plan=pattern_risk_plan,
-                    final_status=_pattern_final_status(
+                if pattern_record is not None:
+                    pattern_record["entry"] = getattr(pattern_risk_plan, "entry", None)
+                    pattern_record["stop_loss"] = getattr(pattern_risk_plan, "stop_loss", None)
+                    pattern_record["take_profit"] = getattr(pattern_risk_plan, "take_profit", None)
+                    pattern_record["rr"] = getattr(pattern_risk_plan, "risk_reward", None)
+                    pattern_record["final_status"] = _pattern_final_status(
                         signal=signal,
                         high_score_rejected=high_score_rejected,
                         paper_trade_created=paper_trade_created,
-                    ),
-                    outcome="open" if signal.status == SignalStatus.PUBLISHED.value or paper_trade_created else None,
-                    r_result=None,
-                )
-                pattern_memory = build_performance_intelligence(
-                    pattern_record=pattern_record,
-                    pattern_history=pattern_history,
-                )
-                performance_gate = evaluate_performance_gate(pattern_memory)
-                pattern_memory["performance_gate"] = performance_gate
-                log_performance_intelligence(
-                    logger,
-                    symbol=symbol,
-                    pattern_record=pattern_record,
-                    performance_intelligence=pattern_memory,
-                )
-                log_json(
-                    logger,
-                    "performance_gate_soft",
-                    symbol=symbol,
-                    direction=pattern_record.get("direction"),
-                    setup_type=pattern_record.get("setup_type"),
-                    action=performance_gate["action"],
-                    would_block=performance_gate["would_block"],
-                    would_prioritize=performance_gate["would_prioritize"],
-                    confidence=performance_gate["confidence"],
-                    reasons=performance_gate["reasons"],
-                    risks=performance_gate["risks"],
-                    scores=performance_gate["scores"],
-                )
+                    )
+                    pattern_record["outcome"] = "open" if signal.status == SignalStatus.PUBLISHED.value or paper_trade_created else None
                 multi_agent_shadow_decision = _multi_agent_shadow_decision(
                     setup_context=setup_context,
                     evaluation=evaluation,
@@ -1154,7 +1179,8 @@ def run_market_scan(
                     disagreements=multi_agent_shadow_decision["disagreements"],
                     votes=multi_agent_shadow_decision["votes"],
                 )
-                pattern_memory_store.append(pattern_record)
+                if pattern_record is not None:
+                    pattern_memory_store.append(pattern_record)
             results.append(
                 {
                     "symbol": symbol,

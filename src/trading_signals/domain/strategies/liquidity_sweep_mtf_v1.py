@@ -32,6 +32,7 @@ class LiquiditySweepMTFV1:
         soft_distance_limit = self.settings.max_distance_to_liquidity_atr * 2
         directional_distance_check = "passed"
         nearest_liquidity_check = "passed" if nearest_distance <= self.settings.max_distance_to_liquidity_atr else "extreme"
+        relaxed_gates_enabled = bool(getattr(self.settings, "relaxed_strategy_gates_enabled", False))
         secondary_direction = "none"
         if break_of_structure == "bullish_bos":
             secondary_direction = SignalDecision.LONG.value
@@ -44,6 +45,7 @@ class LiquiditySweepMTFV1:
             f"liquidity_sweep={entry.liquidity_sweep}",
             f"break_of_structure={break_of_structure}",
             f"session={session}",
+            f"relaxed_strategy_gates_enabled={str(relaxed_gates_enabled).lower()}",
             f"base_setup_score={entry.setup_score}",
             f"min_setup_score_required={effective_setup_score_threshold}",
             f"secondary_setup_score_required={effective_secondary_score_threshold}",
@@ -74,7 +76,8 @@ class LiquiditySweepMTFV1:
             entry.body_ratio > 0.5,
             atr_ratio > self.settings.atr_min_threshold,
         ]
-        range_quality_allowed = entry.market_structure == "range" and entry.setup_score >= 75 and sum(range_quality_checks) >= 2
+        range_quality_candidate = entry.market_structure == "range" and entry.setup_score >= 75 and sum(range_quality_checks) >= 2
+        range_quality_allowed = relaxed_gates_enabled and range_quality_candidate
         if entry.market_structure == "range":
             failed.append("market_structure_range_penalty")
             penalties.append("market_structure_range_penalty:10")
@@ -121,6 +124,8 @@ class LiquiditySweepMTFV1:
         ]
         long_counter_htf_checks_count = sum(long_counter_htf_checks)
         long_counter_htf_allowed = (
+            relaxed_gates_enabled
+            and
             entry.trend == "bullish"
             and higher.trend == "bearish"
             and long_counter_htf_checks_count >= 3
@@ -180,6 +185,8 @@ class LiquiditySweepMTFV1:
                 "quality_score_failed",
             }
         )
+        if not relaxed_gates_enabled and "secondary_setup_requirements_failed" in failed:
+            has_hard_failures = True
         if not has_hard_failures:
             range_long_allowed = (
                 entry.market_structure == "range"
@@ -289,6 +296,7 @@ class LiquiditySweepMTFV1:
                         and not htf_contradicts_fallback
                         and "distance_to_liquidity_extreme" not in failed
                         and session != "ASIA"
+                        and relaxed_gates_enabled
                     ):
                         decision = fallback_direction
                         passed.append("directional_confluence_soft_allowed")
@@ -303,6 +311,7 @@ class LiquiditySweepMTFV1:
                 f"body_ratio={entry.body_ratio}",
                 f"atr_ratio={atr_ratio}",
                 f"range_quality_checks={sum(range_quality_checks)}",
+                f"range_quality_candidate={range_quality_candidate}",
                 f"range_quality_allowed={range_quality_allowed}",
                 f"asia_session_threshold_adjustment={10 if session == 'ASIA' else 0}",
                 f"long_counter_htf_allowed={str(long_counter_htf_allowed).lower()}",

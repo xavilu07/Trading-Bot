@@ -7,8 +7,8 @@ from trading_signals.domain.strategies.liquidity_sweep_mtf_v1 import LiquiditySw
 from tests.fixtures.market_data import FakeMarketDataClient, generate_trend_dataset
 
 
-def build_settings(tmp_path) -> Settings:
-    return Settings(data_storage_path=tmp_path)
+def build_settings(tmp_path, **overrides) -> Settings:
+    return Settings(data_storage_path=tmp_path, **overrides)
 
 
 def test_strategy_returns_long_for_bullish_fixture(tmp_path) -> None:
@@ -94,7 +94,7 @@ def build_snapshot(
 
 
 def test_range_can_produce_long_when_sweep_volume_and_rsi_are_favorable(tmp_path) -> None:
-    settings = build_settings(tmp_path)
+    settings = build_settings(tmp_path, relaxed_strategy_gates_enabled=True)
     entry = build_snapshot(
         scan_run_id="run_test",
         symbol="DOGEUSDT",
@@ -162,7 +162,7 @@ def test_higher_timeframe_clear_contradiction_blocks_direction(tmp_path) -> None
 
 
 def test_long_counter_htf_bearish_passes_with_three_reversal_checks(tmp_path) -> None:
-    settings = build_settings(tmp_path)
+    settings = build_settings(tmp_path, relaxed_strategy_gates_enabled=True)
     entry = build_snapshot(
         scan_run_id="run_test",
         symbol="BTCUSDT",
@@ -479,7 +479,7 @@ def test_secondary_setup_blocks_range_without_bos(tmp_path) -> None:
 
 
 def test_range_setup_allowed_by_score_and_two_quality_checks(tmp_path) -> None:
-    settings = build_settings(tmp_path)
+    settings = build_settings(tmp_path, relaxed_strategy_gates_enabled=True)
     entry = build_snapshot(
         scan_run_id="run_test",
         symbol="ADAUSDT",
@@ -546,7 +546,7 @@ def test_range_setup_with_low_score_stays_blocked(tmp_path) -> None:
 
 
 def test_directional_confluence_soft_allows_high_score_without_strong_htf_contradiction(tmp_path) -> None:
-    settings = build_settings(tmp_path)
+    settings = build_settings(tmp_path, relaxed_strategy_gates_enabled=True)
     entry = build_snapshot(
         scan_run_id="run_test",
         symbol="AVAXUSDT",
@@ -579,6 +579,75 @@ def test_directional_confluence_soft_allows_high_score_without_strong_htf_contra
     assert "secondary_setup_requirements_failed:20" in ",".join(evaluation.decision_trace)
     assert "directional_confluence_soft_allowed" in evaluation.passed_filters
     assert "directional_confluence_failed" not in evaluation.failed_filters
+
+
+def test_relaxed_flag_false_blocks_secondary_requirements_failed_as_hard_filter(tmp_path) -> None:
+    settings = build_settings(tmp_path)
+    entry = build_snapshot(
+        scan_run_id="run_test",
+        symbol="AVAXUSDT",
+        timeframe="1h",
+        trend="bullish",
+        structure="bullish",
+        sweep="none",
+        score=100.0,
+        distance=1.0,
+        rsi=58.0,
+        volume_ratio=1.0,
+        break_of_structure="bullish_bos",
+    )
+    higher = build_snapshot(
+        scan_run_id="run_test",
+        symbol="AVAXUSDT",
+        timeframe="4h",
+        trend="bullish",
+        structure="bullish",
+        sweep="none",
+        score=60.0,
+        distance=1.0,
+    )
+    analysis = AnalysisResult("AVAXUSDT", "1h", "4h", entry, higher)
+
+    evaluation = LiquiditySweepMTFV1(settings).evaluate(analysis, "eval_test", entry.created_at)
+
+    assert evaluation.decision == "no_trade"
+    assert "secondary_setup_requirements_failed" in evaluation.failed_filters
+    assert "directional_confluence_soft_allowed" not in evaluation.passed_filters
+    assert "relaxed_strategy_gates_enabled=false" in evaluation.decision_trace
+
+
+def test_relaxed_flag_false_blocks_range_quality_allowed(tmp_path) -> None:
+    settings = build_settings(tmp_path)
+    entry = build_snapshot(
+        scan_run_id="run_test",
+        symbol="ADAUSDT",
+        timeframe="1h",
+        trend="bearish",
+        structure="range",
+        sweep="bearish_sweep",
+        score=85.0,
+        distance=1.0,
+        rsi=50.0,
+        volume_ratio=1.3,
+    )
+    higher = build_snapshot(
+        scan_run_id="run_test",
+        symbol="ADAUSDT",
+        timeframe="4h",
+        trend="bearish",
+        structure="bearish",
+        sweep="none",
+        score=60.0,
+        distance=1.0,
+    )
+    analysis = AnalysisResult("ADAUSDT", "1h", "4h", entry, higher)
+
+    evaluation = LiquiditySweepMTFV1(settings).evaluate(analysis, "eval_test", entry.created_at)
+
+    assert evaluation.decision == "no_trade"
+    assert "market_structure_range_allowed" not in evaluation.passed_filters
+    assert "range_quality_candidate=True" in evaluation.decision_trace
+    assert "range_quality_allowed=False" in evaluation.decision_trace
 
 
 def test_asia_blocks_secondary_signal_even_when_other_requirements_pass(tmp_path) -> None:

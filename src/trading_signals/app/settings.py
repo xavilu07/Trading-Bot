@@ -57,6 +57,8 @@ class Settings:
         default_factory=lambda: _bool_env("PUBLISH_REQUIRE_NO_HARMFUL_FILTERS", "false")
     )
     use_modular_decision_engine: bool = field(default_factory=lambda: _bool_env("USE_MODULAR_DECISION_ENGINE", "false"))
+    relaxed_strategy_gates_enabled: bool = field(default_factory=lambda: _bool_env("RELAXED_STRATEGY_GATES_ENABLED", "false"))
+    meta_decision_filter_enabled: bool = field(default_factory=lambda: _bool_env("META_DECISION_FILTER_ENABLED", "false"))
     telegram_bot_token: str = os.getenv("TELEGRAM_BOT_TOKEN", "")
     telegram_chat_ids: list[str] = field(default_factory=lambda: _csv_env("TELEGRAM_CHAT_IDS", ""))
     telegram_public_chat_id: str = field(default_factory=lambda: os.getenv("TELEGRAM_PUBLIC_CHAT_ID", ""))

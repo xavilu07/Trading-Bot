@@ -138,6 +138,26 @@ def publish_filter_rejection_reason(
     return None
 
 
+def meta_decision_public_filter_reason(settings, pattern_memory: dict[str, object] | None) -> str | None:
+    if not getattr(settings, "meta_decision_filter_enabled", False):
+        return None
+    if not isinstance(pattern_memory, dict):
+        return None
+    meta_decision = pattern_memory.get("meta_decision")
+    if not isinstance(meta_decision, dict):
+        meta_decision = {}
+    trade_quality = pattern_memory.get("trade_quality")
+    if not isinstance(trade_quality, dict):
+        trade_quality = {}
+    if str(meta_decision.get("meta_decision", "")).upper() == "REJECT":
+        return "meta_decision_reject"
+    if bool(meta_decision.get("capital_preservation_mode")):
+        return "capital_preservation_mode"
+    if str(trade_quality.get("trade_quality_grade", "")).upper() == "TRASH":
+        return "trade_quality_trash"
+    return None
+
+
 def _publish_filter_tokens(*, setup_context: dict[str, object], evaluation_or_decision) -> set[str]:
     tokens: set[str] = set()
     _extend_tokens(tokens, setup_context.get("avoidance_warnings", []))
@@ -283,12 +303,22 @@ def publish_signal(
     dry_run: bool = False,
     signal_type: str = "NEW",
     setup_context: dict[str, object] | None = None,
+    public_block_reason: str | None = None,
 ) -> list[SignalDelivery]:
     public_message = format_public_signal_message(signal.symbol, signal.decision, entry_snapshot, higher_snapshot, evaluation, risk_plan)
     dev_message = format_telegram_message(signal.symbol, signal.decision, entry_snapshot, higher_snapshot, evaluation, risk_plan, signal_type=signal_type)
     routed_results = []
     route_rejection_reason = public_routing_rejection_reason(signal, evaluation, setup_context)
-    if route_rejection_reason is not None:
+    if public_block_reason is not None:
+        logging.getLogger("trading_signals").info(
+            "signal routed to DEV/paper only due to public filter",
+            extra={
+                "symbol": signal.symbol,
+                "direction": signal.decision,
+                "reason": public_block_reason,
+            },
+        )
+    elif route_rejection_reason is not None:
         logging.getLogger("trading_signals").info(
             "signal routed to DEV/paper only due to negative historical edge",
             extra={

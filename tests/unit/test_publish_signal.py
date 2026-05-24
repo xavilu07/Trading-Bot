@@ -3,6 +3,7 @@ from __future__ import annotations
 from trading_signals.application.use_cases.publish_signal import (
     format_public_signal_message,
     format_telegram_message,
+    meta_decision_public_filter_reason,
     publish_filter_rejection_reason,
     publish_signal,
     public_routing_rejection_reason,
@@ -235,6 +236,29 @@ def test_publish_filter_rejects_harmful_filter_when_required() -> None:
     )
 
     assert reason == "publish_filter_harmful_filter:distance_to_liquidity_penalty"
+
+
+def test_meta_decision_filter_flag_false_does_not_block() -> None:
+    reason = meta_decision_public_filter_reason(
+        Settings(meta_decision_filter_enabled=False),
+        {"meta_decision": {"meta_decision": "REJECT", "capital_preservation_mode": True}},
+    )
+
+    assert reason is None
+
+
+def test_meta_decision_filter_blocks_reject_trash_and_preservation() -> None:
+    settings = Settings(meta_decision_filter_enabled=True)
+
+    assert meta_decision_public_filter_reason(settings, {"meta_decision": {"meta_decision": "REJECT"}}) == "meta_decision_reject"
+    assert (
+        meta_decision_public_filter_reason(settings, {"meta_decision": {"capital_preservation_mode": True}})
+        == "capital_preservation_mode"
+    )
+    assert (
+        meta_decision_public_filter_reason(settings, {"trade_quality": {"trade_quality_grade": "TRASH"}})
+        == "trade_quality_trash"
+    )
 
 
 def test_signal_message_accepts_signal_decision_without_changing_payload() -> None:
@@ -618,6 +642,97 @@ def test_publish_signal_routes_short_ranging_to_dev_only_due_to_negative_edge(ca
     assert len(notifier.dev_messages) == 1
     assert "🚨 Señal XRPUSDT SHORT" in notifier.dev_messages[0]
     assert "signal routed to DEV/paper only due to negative historical edge" in caplog.text
+
+
+def test_publish_signal_with_public_block_reason_still_sends_dev_only(caplog) -> None:
+    entry = build_snapshot(
+        scan_run_id="run_test",
+        symbol="BTCUSDT",
+        timeframe="1h",
+        trend="bullish",
+        structure="bullish",
+        sweep="bullish",
+        score=88.0,
+        distance=1.0,
+    )
+    higher = build_snapshot(
+        scan_run_id="run_test",
+        symbol="BTCUSDT",
+        timeframe="4h",
+        trend="bullish",
+        structure="bullish",
+        sweep="none",
+        score=70.0,
+        distance=1.0,
+    )
+    evaluation = StrategyEvaluation(
+        id="eval_test",
+        scan_run_id="run_test",
+        strategy_id="liquidity_sweep_mtf",
+        strategy_version="v1",
+        symbol="BTCUSDT",
+        entry_timeframe="1h",
+        higher_timeframe="4h",
+        entry_snapshot_id=entry.id,
+        higher_snapshot_id=higher.id,
+        decision="long",
+        decision_trace=[],
+        rejection_reasons=[],
+        passed_filters=["timeframe_alignment", "primary_sweep_setup", "quality_score"],
+        failed_filters=[],
+        setup_score=88.0,
+        confidence=0.88,
+        created_at=entry.created_at,
+    )
+    risk_plan = RiskPlan(
+        id="risk_test",
+        evaluation_id="eval_test",
+        entry=100.0,
+        stop_loss=95.0,
+        take_profit=110.0,
+        risk_reward=2.0,
+        risk_amount=10.0,
+        position_size=2.0,
+        sl_method="test",
+        tp_method="test",
+        created_at=entry.created_at,
+    )
+    signal = TradeSignal(
+        id="sig_test",
+        scan_run_id="run_test",
+        evaluation_id="eval_test",
+        risk_plan_id="risk_test",
+        strategy_id="liquidity_sweep_mtf",
+        strategy_version="v1",
+        symbol="BTCUSDT",
+        decision="long",
+        status="valid",
+        dedupe_key="dedupe",
+        entry_timeframe="1h",
+        higher_timeframe="4h",
+        entry_snapshot_id=entry.id,
+        higher_snapshot_id=higher.id,
+        created_at=entry.created_at,
+    )
+    repo = RecordingSignalRepo()
+    notifier = RoutingNotifier()
+
+    with caplog.at_level("INFO", logger="trading_signals"):
+        deliveries = publish_signal(
+            repo,
+            notifier,
+            signal,
+            entry,
+            higher,
+            evaluation,
+            risk_plan,
+            public_block_reason="meta_decision_reject",
+        )
+
+    assert {delivery.channel for delivery in deliveries} == {"telegram_dev"}
+    assert notifier.public_messages == []
+    assert len(notifier.dev_messages) == 1
+    assert "signal routed to DEV/paper only due to public filter" in caplog.text
 
 
 def test_publish_signal_routes_secondary_short_to_dev_only(caplog) -> None:

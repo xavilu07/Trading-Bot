@@ -8,6 +8,7 @@ from trading_signals.infrastructure.persistence.file_store import FileStore
 from trading_signals.infrastructure.persistence.repositories import FileScanRunRepository, FileSignalRepository
 from trading_signals.application.use_cases.paper_trading import PaperTradingStore
 from trading_signals.application.use_cases.live_trading import LiveTradingStore
+from trading_signals.memory.pattern_store import PatternMemoryStore
 from tests.fixtures.market_data import FakeMarketDataClient, generate_trend_dataset
 
 
@@ -256,3 +257,102 @@ def test_no_trade_diagnostics_csv_is_written(tmp_path: Path) -> None:
     assert "BTCUSDT" in content
     rejection_reason = result["results"][0]["evaluation"]["rejection_reasons"][0]
     assert rejection_reason in content
+
+
+def test_scan_adds_multi_agent_shadow_decision_without_changing_real_decision(tmp_path: Path) -> None:
+    settings = Settings(data_storage_path=tmp_path, telegram_chat_ids=["dry"], publish_signal_decisions=["long"])
+    dataset = generate_trend_dataset(direction="up")
+    market_data = FakeMarketDataClient({
+        ("BTCUSDT", "1h"): dataset,
+        ("BTCUSDT", "4h"): dataset,
+    })
+    store = FileStore(tmp_path)
+
+    result = run_market_scan(
+        settings=settings,
+        market_data=market_data,
+        scan_repo=FileScanRunRepository(store),
+        signal_repo=FileSignalRepository(store),
+        notifier=TelegramNotifier("", ["dry"], tmp_path / "telegram_users.json", tmp_path / "telegram_state.json"),
+        diagnostics_store=FileStore(tmp_path / "diagnostics"),
+        metrics=NoopMetrics(),
+        pattern_memory_store=PatternMemoryStore(tmp_path),
+        symbols=["BTCUSDT"],
+        dry_run=True,
+    )
+
+    item = result["results"][0]
+    shadow_decision = item["multi_agent_shadow_decision"]
+    assert item["signal"]["decision"] == "long"
+    assert shadow_decision["mode"] == "SHADOW"
+    assert shadow_decision["consensus_action"] in {"ALLOW", "CAUTION", "WOULD_BLOCK", "PRIORITIZE"}
+    assert len(shadow_decision["votes"]) == 4
+    assert item["pattern_memory"]["multi_agent_shadow_decision"] == shadow_decision
+
+
+def test_meta_decision_filter_blocks_public_but_keeps_dev_and_live_tracking(tmp_path: Path, monkeypatch, caplog) -> None:
+    def fake_performance_intelligence(*, pattern_record, pattern_history):
+        return {
+            "similar_count": 20,
+            "meta_decision": {
+                "meta_decision": "REJECT",
+                "capital_preservation_mode": False,
+                "meta_confidence": "HIGH",
+                "meta_decision_score": 20,
+            },
+            "trade_quality": {
+                "trade_quality_grade": "B",
+                "quality_confidence": "HIGH",
+                "trade_quality_score": 70,
+            },
+            "historical_edge": {
+                "historical_edge_score": 30,
+                "historical_confidence": "HIGH",
+                "matched_patterns_count": 20,
+                "matched_profit_factor": 0.8,
+                "matched_avg_r": -0.2,
+            },
+        }
+
+    monkeypatch.setattr(
+        "trading_signals.application.use_cases.run_market_scan.build_performance_intelligence",
+        fake_performance_intelligence,
+    )
+    settings = Settings(
+        data_storage_path=tmp_path,
+        telegram_chat_ids=["dry"],
+        publish_signal_decisions=["long"],
+        live_trade_tracking_enabled=True,
+        meta_decision_filter_enabled=True,
+    )
+    dataset = generate_trend_dataset(direction="up")
+    market_data = FakeMarketDataClient({
+        ("BTCUSDT", "1h"): dataset,
+        ("BTCUSDT", "4h"): dataset,
+    })
+    store = FileStore(tmp_path)
+    live_store = LiveTradingStore(tmp_path)
+
+    with caplog.at_level("INFO", logger="trading_signals"):
+        result = run_market_scan(
+            settings=settings,
+            market_data=market_data,
+            scan_repo=FileScanRunRepository(store),
+            signal_repo=FileSignalRepository(store),
+            notifier=TelegramNotifier("", ["dry"], tmp_path / "telegram_users.json", tmp_path / "telegram_state.json"),
+            diagnostics_store=FileStore(tmp_path / "diagnostics"),
+            metrics=NoopMetrics(),
+            live_trading_store=live_store,
+            pattern_memory_store=PatternMemoryStore(tmp_path),
+            symbols=["BTCUSDT"],
+            dry_run=True,
+        )
+
+    item = result["results"][0]
+    assert item["signal"]["decision"] == "long"
+    assert {delivery["channel"] for delivery in item["deliveries"]} == {"telegram_dev"}
+    trades = live_store.list_trades()
+    assert len(trades) == 1
+    assert str(trades[0]["public_published"]).lower() == "false"
+    assert "meta_decision_filter_blocked" in caplog.text
+    assert "meta_decision_reject" in caplog.text

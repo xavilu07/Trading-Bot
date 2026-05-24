@@ -82,6 +82,14 @@ def test_modular_decision_engine_flag_is_configurable(monkeypatch) -> None:
     assert settings.use_modular_decision_engine is True
 
 
+def test_meta_decision_filter_defaults_to_false_and_is_configurable(monkeypatch) -> None:
+    monkeypatch.delenv("META_DECISION_FILTER_ENABLED", raising=False)
+    assert Settings().meta_decision_filter_enabled is False
+
+    monkeypatch.setenv("META_DECISION_FILTER_ENABLED", "true")
+    assert Settings().meta_decision_filter_enabled is True
+
+
 def test_market_data_provider_defaults_to_binance(monkeypatch) -> None:
     monkeypatch.delenv("MARKET_DATA_PROVIDER", raising=False)
 
