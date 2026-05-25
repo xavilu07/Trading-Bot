@@ -59,6 +59,7 @@ class Settings:
     use_modular_decision_engine: bool = field(default_factory=lambda: _bool_env("USE_MODULAR_DECISION_ENGINE", "false"))
     relaxed_strategy_gates_enabled: bool = field(default_factory=lambda: _bool_env("RELAXED_STRATEGY_GATES_ENABLED", "false"))
     meta_decision_filter_enabled: bool = field(default_factory=lambda: _bool_env("META_DECISION_FILTER_ENABLED", "false"))
+    edge_activation_mode: bool = field(default_factory=lambda: _bool_env("EDGE_ACTIVATION_MODE", "true"))
     kill_switch_enabled: bool = field(default_factory=lambda: _bool_env("KILL_SWITCH_ENABLED", "false"))
     max_daily_loss_r: float = field(default_factory=lambda: float(os.getenv("MAX_DAILY_LOSS_R", "2.0")))
     max_consecutive_losses: int = field(default_factory=lambda: int(os.getenv("MAX_CONSECUTIVE_LOSSES", "2")))

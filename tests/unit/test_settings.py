@@ -90,6 +90,14 @@ def test_meta_decision_filter_defaults_to_false_and_is_configurable(monkeypatch)
     assert Settings().meta_decision_filter_enabled is True
 
 
+def test_edge_activation_mode_defaults_to_true_and_is_configurable(monkeypatch) -> None:
+    monkeypatch.delenv("EDGE_ACTIVATION_MODE", raising=False)
+    assert Settings().edge_activation_mode is True
+
+    monkeypatch.setenv("EDGE_ACTIVATION_MODE", "false")
+    assert Settings().edge_activation_mode is False
+
+
 def test_kill_switch_settings_are_configurable(monkeypatch) -> None:
     monkeypatch.setenv("KILL_SWITCH_ENABLED", "true")
     monkeypatch.setenv("MAX_DAILY_LOSS_R", "3.5")

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from typing import Any
 
 
@@ -74,12 +75,29 @@ def evaluate_public_safety_policy(
     if any(item.startswith("secondary_confluence_bonus") for item in penalties):
         warnings_out.append("secondary_confluence_bonus")
 
+    edge_activation_mode = _edge_activation_enabled(context)
+    edge_activation_reasons = _edge_activation_reasons(
+        context=context,
+        direction=direction,
+        setup_type=setup_type,
+        market_regime=market_regime,
+        entry_context=entry_context,
+        trade_location=trade_location,
+        block_reasons=block_reasons,
+    )
+    edge_activation_allowed = not edge_activation_mode or not edge_activation_reasons
+    if edge_activation_mode:
+        block_reasons.extend(edge_activation_reasons)
+
     block_reasons = _dedupe(block_reasons)
     return {
         "public_allowed": not block_reasons,
         "block_reasons": block_reasons,
         "warnings": _dedupe(warnings_out),
         "policy_version": POLICY_VERSION,
+        "edge_activation_mode": edge_activation_mode,
+        "edge_activation_allowed": edge_activation_allowed,
+        "edge_activation_reasons": _dedupe(edge_activation_reasons),
     }
 
 
@@ -162,6 +180,46 @@ def _has_high_historical_edge(context: dict[str, Any]) -> bool:
         if str(data.get("historical_confidence") or data.get("confidence_level") or "").upper() == "HIGH":
             return True
     return False
+
+
+def _edge_activation_enabled(context: dict[str, Any]) -> bool:
+    if "edge_activation_mode" in context:
+        return _truthy(context.get("edge_activation_mode"))
+    return _truthy(os.getenv("EDGE_ACTIVATION_MODE", "true"))
+
+
+def _edge_activation_reasons(
+    *,
+    context: dict[str, Any],
+    direction: str,
+    setup_type: str,
+    market_regime: str,
+    entry_context: str,
+    trade_location: str,
+    block_reasons: list[str],
+) -> list[str]:
+    reasons: list[str] = []
+    if market_regime != "TRENDING":
+        reasons.append("edge_activation_requires_trending")
+    if str(context.get("session", "") or "").strip().upper() != "OVERLAP":
+        reasons.append("edge_activation_requires_overlap_session")
+    if direction != "long":
+        reasons.append("edge_activation_requires_long")
+    if entry_context == "CHOPPY_RANGE":
+        reasons.append("edge_activation_choppy_range")
+    if trade_location == "premium_zone":
+        reasons.append("edge_activation_premium_zone")
+    if setup_type == "SECONDARY_SIGNAL":
+        reasons.append("edge_activation_secondary_signal")
+    if "trade_quality_trash" in block_reasons:
+        reasons.append("edge_activation_trade_quality_trash")
+    if "meta_decision_reject" in block_reasons:
+        reasons.append("edge_activation_meta_decision_reject")
+    if "capital_preservation_mode" in block_reasons:
+        reasons.append("edge_activation_capital_preservation_mode")
+    if "kill_switch_active" in block_reasons:
+        reasons.append("edge_activation_kill_switch_active")
+    return _dedupe(reasons)
 
 
 def _infer_setup_type(evaluation_or_decision) -> str:

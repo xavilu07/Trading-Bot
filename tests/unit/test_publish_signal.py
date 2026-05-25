@@ -539,7 +539,22 @@ def test_publish_signal_routes_long_to_public_and_dev() -> None:
     repo = RecordingSignalRepo()
     notifier = RoutingNotifier()
 
-    deliveries = publish_signal(repo, notifier, signal, entry, higher, evaluation, risk_plan)
+    deliveries = publish_signal(
+        repo,
+        notifier,
+        signal,
+        entry,
+        higher,
+        evaluation,
+        risk_plan,
+        setup_context={
+            "market_regime": "TRENDING",
+            "session": "OVERLAP",
+            "entry_context": "BREAKOUT",
+            "trade_location": "mid_range",
+            "setup_type": "MAIN_SIGNAL",
+        },
+    )
 
     assert len(deliveries) == 2
     assert {delivery.channel for delivery in deliveries} == {"telegram_public", "telegram_dev"}
@@ -549,6 +564,105 @@ def test_publish_signal_routes_long_to_public_and_dev() -> None:
     assert "🟢 AVAXUSDT" in notifier.public_messages[0]
     assert "📉 Contexto" not in notifier.public_messages[0]
     assert "📉 Contexto" in notifier.dev_messages[0]
+
+
+def test_publish_signal_edge_activation_blocks_public_but_keeps_dev(caplog) -> None:
+    entry = build_snapshot(
+        scan_run_id="run_test",
+        symbol="AVAXUSDT",
+        timeframe="1h",
+        trend="bullish",
+        structure="bullish",
+        sweep="bullish",
+        score=88.0,
+        distance=1.0,
+    )
+    higher = build_snapshot(
+        scan_run_id="run_test",
+        symbol="AVAXUSDT",
+        timeframe="4h",
+        trend="bullish",
+        structure="bullish",
+        sweep="none",
+        score=70.0,
+        distance=1.0,
+    )
+    evaluation = StrategyEvaluation(
+        id="eval_test",
+        scan_run_id="run_test",
+        strategy_id="liquidity_sweep_mtf",
+        strategy_version="v1",
+        symbol="AVAXUSDT",
+        entry_timeframe="1h",
+        higher_timeframe="4h",
+        entry_snapshot_id=entry.id,
+        higher_snapshot_id=higher.id,
+        decision="long",
+        decision_trace=[],
+        rejection_reasons=[],
+        passed_filters=["timeframe_alignment", "primary_sweep_setup", "quality_score"],
+        failed_filters=[],
+        setup_score=88.0,
+        confidence=0.88,
+        created_at=entry.created_at,
+    )
+    risk_plan = RiskPlan(
+        id="risk_test",
+        evaluation_id="eval_test",
+        entry=100.0,
+        stop_loss=95.0,
+        take_profit=110.0,
+        risk_reward=2.0,
+        risk_amount=10.0,
+        position_size=2.0,
+        sl_method="test",
+        tp_method="test",
+        created_at=entry.created_at,
+    )
+    signal = TradeSignal(
+        id="sig_test",
+        scan_run_id="run_test",
+        evaluation_id="eval_test",
+        risk_plan_id="risk_test",
+        strategy_id="liquidity_sweep_mtf",
+        strategy_version="v1",
+        symbol="AVAXUSDT",
+        decision="long",
+        status="valid",
+        dedupe_key="dedupe",
+        entry_timeframe="1h",
+        higher_timeframe="4h",
+        entry_snapshot_id=entry.id,
+        higher_snapshot_id=higher.id,
+        created_at=entry.created_at,
+    )
+    repo = RecordingSignalRepo()
+    notifier = RoutingNotifier()
+
+    with caplog.at_level("INFO", logger="trading_signals"):
+        deliveries = publish_signal(
+            repo,
+            notifier,
+            signal,
+            entry,
+            higher,
+            evaluation,
+            risk_plan,
+            setup_context={
+                "market_regime": "TRENDING",
+                "session": "LONDON",
+                "entry_context": "BREAKOUT",
+                "trade_location": "mid_range",
+                "setup_type": "MAIN_SIGNAL",
+            },
+        )
+
+    assert {delivery.channel for delivery in deliveries} == {"telegram_dev"}
+    assert notifier.public_messages == []
+    assert len(notifier.dev_messages) == 1
+    assert "public_safety_policy_blocked" in caplog.text
+    assert "edge_activation_blocked" in caplog.text
+    assert "edge_activation_requires_overlap_session" in caplog.records[0].edge_activation_reasons
 
 
 def test_publish_signal_routes_short_ranging_to_dev_only_due_to_negative_edge(caplog) -> None:
@@ -633,7 +747,7 @@ def test_publish_signal_routes_short_ranging_to_dev_only_due_to_negative_edge(ca
             higher,
             evaluation,
             risk_plan,
-            setup_context={"market_regime": "RANGING", "setup_type": "MAIN_SIGNAL"},
+            setup_context={"market_regime": "RANGING", "session": "OVERLAP", "setup_type": "MAIN_SIGNAL"},
         )
 
     assert len(deliveries) == 1
@@ -820,7 +934,7 @@ def test_publish_signal_routes_secondary_short_to_dev_only(caplog) -> None:
             higher,
             evaluation,
             risk_plan,
-            setup_context={"market_regime": "TRENDING", "setup_type": "SECONDARY_SIGNAL"},
+            setup_context={"market_regime": "TRENDING", "session": "OVERLAP", "setup_type": "SECONDARY_SIGNAL"},
         )
 
     assert {delivery.channel for delivery in deliveries} == {"telegram_dev"}
@@ -912,7 +1026,12 @@ def test_publish_signal_routes_secondary_choppy_range_to_dev_only() -> None:
         higher,
         evaluation,
         risk_plan,
-        setup_context={"market_regime": "RANGING", "setup_type": "SECONDARY_SIGNAL", "entry_context": "CHOPPY_RANGE"},
+        setup_context={
+            "market_regime": "RANGING",
+            "session": "OVERLAP",
+            "setup_type": "SECONDARY_SIGNAL",
+            "entry_context": "CHOPPY_RANGE",
+        },
     )
 
     assert {delivery.channel for delivery in deliveries} == {"telegram_dev"}
@@ -929,6 +1048,7 @@ def test_public_routing_allows_long_breakout_main_signal() -> None:
         evaluation,
         {
             "market_regime": "TRENDING",
+            "session": "OVERLAP",
             "setup_type": "MAIN_SIGNAL",
             "entry_context": "BREAKOUT",
             "trade_location": "mid_range",

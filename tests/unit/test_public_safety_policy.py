@@ -14,6 +14,7 @@ def evaluation(setup_type: str = "MAIN_SIGNAL"):
 def base_context(**overrides):
     context = {
         "market_regime": "TRENDING",
+        "session": "OVERLAP",
         "entry_context": "BREAKOUT",
         "trade_location": "mid_range",
         "setup_type": "MAIN_SIGNAL",
@@ -49,6 +50,9 @@ def test_policy_version_present_and_clean_signal_allowed() -> None:
         "block_reasons": [],
         "warnings": [],
         "policy_version": "v1",
+        "edge_activation_mode": True,
+        "edge_activation_allowed": True,
+        "edge_activation_reasons": [],
     }
 
 
@@ -71,7 +75,7 @@ def test_policy_allows_short_with_high_historical_edge() -> None:
     result = evaluate_public_safety_policy(
         signal=signal("short"),
         evaluation_or_decision=evaluation(),
-        setup_context=base_context(historical_edge={"historical_confidence": "HIGH"}),
+        setup_context=base_context(edge_activation_mode=False, historical_edge={"historical_confidence": "HIGH"}),
     )
 
     assert result["public_allowed"] is True
@@ -98,3 +102,63 @@ def test_policy_collects_multiple_block_reasons() -> None:
     assert "short_without_high_historical_edge" in result["block_reasons"]
     assert "against_htf" in result["block_reasons"]
     assert "low_volume" in result["block_reasons"]
+
+
+def test_edge_activation_only_allows_trending_overlap_long() -> None:
+    result = evaluate_public_safety_policy(
+        signal=signal("long"),
+        evaluation_or_decision=evaluation(),
+        setup_context=base_context(market_regime="TRENDING", session="OVERLAP"),
+    )
+
+    assert result["public_allowed"] is True
+    assert result["edge_activation_mode"] is True
+    assert result["edge_activation_allowed"] is True
+    assert result["edge_activation_reasons"] == []
+
+
+def test_edge_activation_blocks_everything_outside_allowed_context() -> None:
+    result = evaluate_public_safety_policy(
+        signal=signal("short"),
+        evaluation_or_decision=evaluation("SECONDARY_SIGNAL"),
+        setup_context=base_context(
+            market_regime="RANGING",
+            session="ASIA",
+            direction="short",
+            entry_context="CHOPPY_RANGE",
+            trade_location="premium_zone",
+            setup_type="SECONDARY_SIGNAL",
+            trade_quality={"trade_quality_grade": "TRASH"},
+            meta_decision={"meta_decision": "REJECT", "capital_preservation_mode": True},
+            kill_switch_active=True,
+        ),
+    )
+
+    assert result["public_allowed"] is False
+    assert result["edge_activation_allowed"] is False
+    assert "edge_activation_requires_trending" in result["edge_activation_reasons"]
+    assert "edge_activation_requires_overlap_session" in result["edge_activation_reasons"]
+    assert "edge_activation_requires_long" in result["edge_activation_reasons"]
+    assert "edge_activation_choppy_range" in result["edge_activation_reasons"]
+    assert "edge_activation_premium_zone" in result["edge_activation_reasons"]
+    assert "edge_activation_secondary_signal" in result["edge_activation_reasons"]
+    assert "edge_activation_trade_quality_trash" in result["edge_activation_reasons"]
+    assert "edge_activation_meta_decision_reject" in result["edge_activation_reasons"]
+    assert "edge_activation_capital_preservation_mode" in result["edge_activation_reasons"]
+    assert "edge_activation_kill_switch_active" in result["edge_activation_reasons"]
+
+
+def test_edge_activation_can_be_disabled_for_legacy_public_policy() -> None:
+    result = evaluate_public_safety_policy(
+        signal=signal("short"),
+        evaluation_or_decision=evaluation(),
+        setup_context=base_context(
+            edge_activation_mode=False,
+            session="ASIA",
+            historical_edge={"historical_confidence": "HIGH"},
+        ),
+    )
+
+    assert result["public_allowed"] is True
+    assert result["edge_activation_mode"] is False
+    assert result["edge_activation_allowed"] is True

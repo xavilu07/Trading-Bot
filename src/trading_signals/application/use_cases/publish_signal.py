@@ -367,7 +367,8 @@ def publish_signal(
         public_block_reason=public_block_reason,
     )
     if not bool(policy.get("public_allowed")):
-        logging.getLogger("trading_signals").info(
+        logger = logging.getLogger("trading_signals")
+        logger.info(
             "public_safety_policy_blocked",
             extra={
                 "event": "public_safety_policy_blocked",
@@ -376,8 +377,22 @@ def publish_signal(
                 "block_reasons": policy.get("block_reasons", []),
                 "warnings": policy.get("warnings", []),
                 "policy_version": policy.get("policy_version", ""),
+                "edge_activation_mode": policy.get("edge_activation_mode", False),
+                "edge_activation_allowed": policy.get("edge_activation_allowed", True),
+                "edge_activation_reasons": policy.get("edge_activation_reasons", []),
             },
         )
+        if bool(policy.get("edge_activation_mode")) and not bool(policy.get("edge_activation_allowed")):
+            logger.info(
+                "edge_activation_blocked",
+                extra={
+                    "event": "edge_activation_blocked",
+                    "symbol": signal.symbol,
+                    "direction": signal.decision,
+                    "edge_activation_reasons": policy.get("edge_activation_reasons", []),
+                    "policy_version": policy.get("policy_version", ""),
+                },
+            )
     else:
         routed_results.append(("telegram_public", public_message, send_public_signal(notifier, public_message, dry_run=dry_run)))
     routed_results.append(("telegram_dev", dev_message, send_dev_signal_detail(notifier, dev_message, dry_run=dry_run)))
