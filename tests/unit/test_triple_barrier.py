@@ -104,6 +104,23 @@ def test_generate_triple_barrier_labels_writes_csv(tmp_path: Path) -> None:
                 "bars": [
                     {"timestamp": "2026-05-24T11:00:00+00:00", "high": 111, "low": 99, "close": 110},
                 ],
+            },
+            {
+                "signal_id": "sig_short",
+                "timestamp": "2026-05-24T10:00:00+00:00",
+                "symbol": "ETHUSDT",
+                "direction": "short",
+                "entry_price": 100,
+                "stop_loss": 105,
+                "take_profit": 90,
+                "setup_type": "MAIN_SIGNAL",
+                "market_regime": "TRENDING",
+                "session": "OVERLAP",
+                "entry_context": "BREAKOUT",
+                "trade_location": "mid_range",
+                "bars": [
+                    {"timestamp": "2026-05-24T11:00:00+00:00", "high": 101, "low": 89, "close": 90},
+                ],
             }
         ],
     )
@@ -121,3 +138,4 @@ def test_generate_triple_barrier_labels_writes_csv(tmp_path: Path) -> None:
     assert output_path.exists()
     assert rows[0]["label"] == TP_HIT
     assert rows[0]["signal_id"] == "sig_1"
+    assert any(row["signal_id"] == "sig_short" and row["direction"] == "short" for row in rows)

@@ -53,6 +53,7 @@ def test_policy_version_present_and_clean_signal_allowed() -> None:
         "edge_activation_mode": True,
         "edge_activation_allowed": True,
         "edge_activation_reasons": [],
+        "short_shadow_mode": True,
     }
 
 
@@ -75,10 +76,29 @@ def test_policy_allows_short_with_high_historical_edge() -> None:
     result = evaluate_public_safety_policy(
         signal=signal("short"),
         evaluation_or_decision=evaluation(),
-        setup_context=base_context(edge_activation_mode=False, historical_edge={"historical_confidence": "HIGH"}),
+        setup_context=base_context(
+            edge_activation_mode=False,
+            short_shadow_mode=False,
+            historical_edge={"historical_confidence": "HIGH"},
+        ),
     )
 
     assert result["public_allowed"] is True
+
+
+def test_policy_blocks_short_when_shadow_mode_enabled_even_with_high_edge() -> None:
+    result = evaluate_public_safety_policy(
+        signal=signal("short"),
+        evaluation_or_decision=evaluation(),
+        setup_context=base_context(
+            edge_activation_mode=False,
+            historical_edge={"historical_confidence": "HIGH"},
+        ),
+    )
+
+    assert result["public_allowed"] is False
+    assert result["short_shadow_mode"] is True
+    assert "short_shadow_mode" in result["block_reasons"]
 
 
 def test_policy_collects_multiple_block_reasons() -> None:
@@ -154,6 +174,7 @@ def test_edge_activation_can_be_disabled_for_legacy_public_policy() -> None:
         evaluation_or_decision=evaluation(),
         setup_context=base_context(
             edge_activation_mode=False,
+            short_shadow_mode=False,
             session="ASIA",
             historical_edge={"historical_confidence": "HIGH"},
         ),

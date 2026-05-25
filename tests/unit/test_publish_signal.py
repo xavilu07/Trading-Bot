@@ -756,6 +756,8 @@ def test_publish_signal_routes_short_ranging_to_dev_only_due_to_negative_edge(ca
     assert len(notifier.dev_messages) == 1
     assert "🚨 Señal XRPUSDT SHORT" in notifier.dev_messages[0]
     assert "public_safety_policy_blocked" in caplog.text
+    assert "short_shadow_signal" in caplog.text
+    assert "short_shadow_mode" in caplog.records[0].block_reasons
     assert "market_regime_ranging" in caplog.records[0].block_reasons
     assert "short_without_high_historical_edge" in caplog.records[0].block_reasons
 
@@ -941,7 +943,9 @@ def test_publish_signal_routes_secondary_short_to_dev_only(caplog) -> None:
     assert notifier.public_messages == []
     assert len(notifier.dev_messages) == 1
     assert "public_safety_policy_blocked" in caplog.text
+    assert "short_shadow_signal" in caplog.text
     assert "setup_type_secondary_signal" in caplog.records[0].block_reasons
+    assert "short_shadow_mode" in caplog.records[0].block_reasons
     assert "short_without_high_historical_edge" in caplog.records[0].block_reasons
 
 

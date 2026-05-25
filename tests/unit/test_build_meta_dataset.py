@@ -95,6 +95,7 @@ def test_meta_dataset_handles_unknown_label_without_breaking(tmp_path: Path) -> 
     result = build_meta_dataset(data_path=tmp_path / "data", logs_path=tmp_path / "logs", reports_path=reports)
 
     assert result["rows"][0]["label"] == ""
+    assert result["rows"][0]["direction"] == "short"
     assert result["summary"]["unknown_labels"] == 1
     assert "Unknown: 1" in format_summary(result["summary"])
 

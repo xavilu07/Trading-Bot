@@ -55,6 +55,9 @@ def evaluate_public_safety_policy(
         block_reasons.append("breakout_against_htf")
     if setup_type == "SECONDARY_SIGNAL":
         block_reasons.append("setup_type_secondary_signal")
+    short_shadow_mode = _short_shadow_enabled(context)
+    if short_shadow_mode and direction == "short":
+        block_reasons.append("short_shadow_mode")
     if direction == "short" and not _has_high_historical_edge(context):
         block_reasons.append("short_without_high_historical_edge")
     if "against_htf" in warnings:
@@ -98,6 +101,7 @@ def evaluate_public_safety_policy(
         "edge_activation_mode": edge_activation_mode,
         "edge_activation_allowed": edge_activation_allowed,
         "edge_activation_reasons": _dedupe(edge_activation_reasons),
+        "short_shadow_mode": short_shadow_mode,
     }
 
 
@@ -186,6 +190,12 @@ def _edge_activation_enabled(context: dict[str, Any]) -> bool:
     if "edge_activation_mode" in context:
         return _truthy(context.get("edge_activation_mode"))
     return _truthy(os.getenv("EDGE_ACTIVATION_MODE", "true"))
+
+
+def _short_shadow_enabled(context: dict[str, Any]) -> bool:
+    if "short_shadow_mode" in context:
+        return _truthy(context.get("short_shadow_mode"))
+    return _truthy(os.getenv("SHORT_SHADOW_MODE", "true"))
 
 
 def _edge_activation_reasons(

@@ -98,6 +98,14 @@ def test_edge_activation_mode_defaults_to_true_and_is_configurable(monkeypatch) 
     assert Settings().edge_activation_mode is False
 
 
+def test_short_shadow_mode_defaults_to_true_and_is_configurable(monkeypatch) -> None:
+    monkeypatch.delenv("SHORT_SHADOW_MODE", raising=False)
+    assert Settings().short_shadow_mode is True
+
+    monkeypatch.setenv("SHORT_SHADOW_MODE", "false")
+    assert Settings().short_shadow_mode is False
+
+
 def test_kill_switch_settings_are_configurable(monkeypatch) -> None:
     monkeypatch.setenv("KILL_SWITCH_ENABLED", "true")
     monkeypatch.setenv("MAX_DAILY_LOSS_R", "3.5")

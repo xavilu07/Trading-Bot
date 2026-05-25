@@ -43,6 +43,7 @@ def _legacy_public_block_reason(reasons: list[str]) -> str | None:
         "market_regime_not_trending": "public_block_market_regime_not_trending",
         "entry_context_choppy_range": "public_block_choppy_range",
         "trade_location_premium_zone": "public_block_trade_location_premium_zone",
+        "short_shadow_mode": "short_shadow_mode",
         "setup_type_secondary_signal": NEGATIVE_EDGE_PUBLIC_ROUTE_REASON,
         "short_without_high_historical_edge": NEGATIVE_EDGE_PUBLIC_ROUTE_REASON,
         "low_volume": "public_block_low_volume",
@@ -391,6 +392,17 @@ def publish_signal(
                     "direction": signal.decision,
                     "edge_activation_reasons": policy.get("edge_activation_reasons", []),
                     "policy_version": policy.get("policy_version", ""),
+                },
+            )
+        if bool(policy.get("short_shadow_mode")) and signal.decision == "short":
+            logger.info(
+                "short_shadow_signal",
+                extra={
+                    "event": "short_shadow_signal",
+                    "symbol": signal.symbol,
+                    "direction": signal.decision,
+                    "public_allowed": False,
+                    "block_reasons": policy.get("block_reasons", []),
                 },
             )
     else:

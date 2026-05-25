@@ -97,4 +97,4 @@ def test_generate_outcome_intelligence_writes_csv(tmp_path: Path) -> None:
     rows = list(csv.DictReader(output.open("r", encoding="utf-8")))
     assert len(rows) == 2
     assert rows[0]["outcome_type"] == "CLEAN_WIN"
-
+    assert rows[1]["direction"] == "short"
