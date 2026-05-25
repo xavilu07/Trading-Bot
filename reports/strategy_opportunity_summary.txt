@@ -1,0 +1,6 @@
+🧭 Strategy Opportunity Map
+- Promising contexts: none
+- Dangerous contexts: session=NEW_YORK avgR=-0.7917 n=12; market_regime=RANGING avgR=-0.6424 n=14; direction=short avgR=-0.5699 n=15; has_against_htf=False avgR=-0.4025 n=18; setup_type=SECONDARY_SIGNAL avgR=-0.3846 n=13
+- Avoid public candidates: trade_location=premium_zone avgR=-1.0 n=7; entry_context=CHOPPY_RANGE avgR=-1.0 n=5; market_regime+entry_context=RANGING|CHOPPY_RANGE avgR=-1.0 n=5; market_regime+entry_context=HIGH_VOLATILITY|BREAKOUT avgR=-1.0 n=5; direction+market_regime=short|TRENDING avgR=-1.0 n=4
+- Needs more data: 82
+- Next recommended action: priorizar_revision_de_contextos_peligrosos_y_mantenerlos_fuera_del_publico

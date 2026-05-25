@@ -641,7 +641,9 @@ def test_publish_signal_routes_short_ranging_to_dev_only_due_to_negative_edge(ca
     assert notifier.public_messages == []
     assert len(notifier.dev_messages) == 1
     assert "🚨 Señal XRPUSDT SHORT" in notifier.dev_messages[0]
-    assert "signal routed to DEV/paper only due to negative historical edge" in caplog.text
+    assert "public_safety_policy_blocked" in caplog.text
+    assert "market_regime_ranging" in caplog.records[0].block_reasons
+    assert "short_without_high_historical_edge" in caplog.records[0].block_reasons
 
 
 def test_publish_signal_with_public_block_reason_still_sends_dev_only(caplog) -> None:
@@ -732,7 +734,8 @@ def test_publish_signal_with_public_block_reason_still_sends_dev_only(caplog) ->
     assert {delivery.channel for delivery in deliveries} == {"telegram_dev"}
     assert notifier.public_messages == []
     assert len(notifier.dev_messages) == 1
-    assert "signal routed to DEV/paper only due to public filter" in caplog.text
+    assert "public_safety_policy_blocked" in caplog.text
+    assert "meta_decision_reject" in caplog.records[0].block_reasons
 
 
 def test_publish_signal_routes_secondary_short_to_dev_only(caplog) -> None:
@@ -823,7 +826,9 @@ def test_publish_signal_routes_secondary_short_to_dev_only(caplog) -> None:
     assert {delivery.channel for delivery in deliveries} == {"telegram_dev"}
     assert notifier.public_messages == []
     assert len(notifier.dev_messages) == 1
-    assert "signal routed to DEV/paper only due to negative historical edge" in caplog.text
+    assert "public_safety_policy_blocked" in caplog.text
+    assert "setup_type_secondary_signal" in caplog.records[0].block_reasons
+    assert "short_without_high_historical_edge" in caplog.records[0].block_reasons
 
 
 def test_publish_signal_routes_secondary_choppy_range_to_dev_only() -> None:

@@ -4,6 +4,7 @@ import logging
 from datetime import UTC, datetime
 from uuid import uuid4
 
+from trading_signals.application.policies.public_safety_policy import evaluate_public_safety_policy
 from trading_signals.domain.entities.signal_delivery import SignalDelivery
 from trading_signals.notifications.telegram import send_dev_signal_detail, send_public_signal
 
@@ -26,46 +27,34 @@ def signal_message_context(evaluation_or_decision) -> dict[str, object]:
 
 
 def public_routing_rejection_reason(signal, evaluation_or_decision, setup_context: dict[str, object] | None = None) -> str | None:
-    context = setup_context or {}
-    direction = str(getattr(signal, "decision", "")).strip().lower()
-    setup_type = str(
-        context.get("setup_type")
-        or getattr(evaluation_or_decision, "setup_type", "")
-        or _infer_setup_type(evaluation_or_decision)
-    ).strip().upper()
-    market_regime = str(context.get("market_regime", "") or "").strip().upper()
-    entry_context = str(context.get("entry_context", "") or "").strip().upper()
-    trade_location = str(context.get("trade_location", "") or "").strip()
-    trend_higher = str(context.get("trend_higher") or context.get("trend_4h") or "").strip().lower()
-    warnings = _normalized_items(context.get("avoidance_warnings", [])) | _normalized_items(context.get("warnings", []))
-    penalties = _normalized_items(context.get("penalties", []))
-    penalties |= _trace_penalty_tokens(getattr(evaluation_or_decision, "decision_trace", []))
-    if "against_htf" in warnings:
-        return "public_block_against_htf"
-    if market_regime == "RANGING":
-        return "public_block_market_regime_ranging"
-    if market_regime and market_regime != "TRENDING":
-        return "public_block_market_regime_not_trending"
-    if entry_context == "CHOPPY_RANGE":
-        return "public_block_choppy_range"
-    if (
-        entry_context == "BREAKOUT"
-        and {"market_structure_range_penalty", "timeframe_alignment_penalty"}.issubset(penalties)
-    ):
-        return "public_block_bad_breakout_context"
-    if entry_context == "BREAKOUT" and market_regime == "RANGING":
-        return "public_block_breakout_ranging"
-    if entry_context == "BREAKOUT" and trade_location in {"near_support", "near_resistance"}:
-        return "public_block_breakout_bad_location"
-    if entry_context == "BREAKOUT" and _htf_contradicts(direction, trend_higher):
-        return "public_block_breakout_against_htf"
-    if direction == "short" and market_regime == "RANGING":
-        return NEGATIVE_EDGE_PUBLIC_ROUTE_REASON
-    if setup_type == "SECONDARY_SIGNAL" and direction == "short":
-        return NEGATIVE_EDGE_PUBLIC_ROUTE_REASON
-    if setup_type == "SECONDARY_SIGNAL" and entry_context == "CHOPPY_RANGE":
-        return NEGATIVE_EDGE_PUBLIC_ROUTE_REASON
-    return None
+    policy = evaluate_public_safety_policy(
+        signal=signal,
+        evaluation_or_decision=evaluation_or_decision,
+        setup_context=setup_context,
+    )
+    reasons = list(policy.get("block_reasons", []))
+    return _legacy_public_block_reason(reasons)
+
+
+def _legacy_public_block_reason(reasons: list[str]) -> str | None:
+    mapping = {
+        "against_htf": "public_block_against_htf",
+        "market_regime_ranging": "public_block_market_regime_ranging",
+        "market_regime_not_trending": "public_block_market_regime_not_trending",
+        "entry_context_choppy_range": "public_block_choppy_range",
+        "trade_location_premium_zone": "public_block_trade_location_premium_zone",
+        "setup_type_secondary_signal": NEGATIVE_EDGE_PUBLIC_ROUTE_REASON,
+        "short_without_high_historical_edge": NEGATIVE_EDGE_PUBLIC_ROUTE_REASON,
+        "low_volume": "public_block_low_volume",
+        "dirty_sideways_market": "public_block_dirty_sideways_market",
+        "bad_breakout_context": "public_block_bad_breakout_context",
+        "breakout_bad_location": "public_block_breakout_bad_location",
+        "breakout_against_htf": "public_block_breakout_against_htf",
+    }
+    for reason in reasons:
+        if reason in mapping:
+            return mapping[reason]
+    return reasons[0] if reasons else None
 
 
 def _htf_contradicts(direction: str, trend_higher: str) -> bool:
@@ -371,26 +360,22 @@ def publish_signal(
     public_message = format_public_signal_message(signal.symbol, signal.decision, entry_snapshot, higher_snapshot, evaluation, risk_plan)
     dev_message = format_telegram_message(signal.symbol, signal.decision, entry_snapshot, higher_snapshot, evaluation, risk_plan, signal_type=signal_type)
     routed_results = []
-    route_rejection_reason = public_routing_rejection_reason(signal, evaluation, setup_context)
-    if public_block_reason is not None:
+    policy = evaluate_public_safety_policy(
+        signal=signal,
+        evaluation_or_decision=evaluation,
+        setup_context=setup_context,
+        public_block_reason=public_block_reason,
+    )
+    if not bool(policy.get("public_allowed")):
         logging.getLogger("trading_signals").info(
-            "signal routed to DEV/paper only due to public filter",
+            "public_safety_policy_blocked",
             extra={
+                "event": "public_safety_policy_blocked",
                 "symbol": signal.symbol,
                 "direction": signal.decision,
-                "reason": public_block_reason,
-            },
-        )
-    elif route_rejection_reason is not None:
-        logging.getLogger("trading_signals").info(
-            "signal routed to DEV/paper only due to negative historical edge",
-            extra={
-                "symbol": signal.symbol,
-                "direction": signal.decision,
-                "setup_type": (setup_context or {}).get("setup_type") or getattr(evaluation, "setup_type", ""),
-                "market_regime": (setup_context or {}).get("market_regime", ""),
-                "entry_context": (setup_context or {}).get("entry_context", ""),
-                "reason": route_rejection_reason,
+                "block_reasons": policy.get("block_reasons", []),
+                "warnings": policy.get("warnings", []),
+                "policy_version": policy.get("policy_version", ""),
             },
         )
     else:
