@@ -66,6 +66,37 @@ class Settings:
     max_consecutive_losses: int = field(default_factory=lambda: int(os.getenv("MAX_CONSECUTIVE_LOSSES", "2")))
     max_weekly_drawdown_r: float = field(default_factory=lambda: float(os.getenv("MAX_WEEKLY_DRAWDOWN_R", "4.0")))
     kill_switch_cooldown_hours: int = field(default_factory=lambda: int(os.getenv("KILL_SWITCH_COOLDOWN_HOURS", "12")))
+    protection_engine_mode: str = field(default_factory=lambda: os.getenv("PROTECTION_ENGINE_MODE", "shadow_only"))
+    protection_symbol_loss_cooldown_hours: float = field(
+        default_factory=lambda: float(os.getenv("PROTECTION_SYMBOL_LOSS_COOLDOWN_HOURS", "6"))
+    )
+    protection_symbol_rejection_threshold: int = field(
+        default_factory=lambda: int(os.getenv("PROTECTION_SYMBOL_REJECTION_THRESHOLD", "3"))
+    )
+    protection_symbol_rejection_lookback_hours: float = field(
+        default_factory=lambda: float(os.getenv("PROTECTION_SYMBOL_REJECTION_LOOKBACK_HOURS", "12"))
+    )
+    protection_symbol_rejection_cooldown_hours: float = field(
+        default_factory=lambda: float(os.getenv("PROTECTION_SYMBOL_REJECTION_COOLDOWN_HOURS", "6"))
+    )
+    protection_max_drawdown_guard_r: float = field(
+        default_factory=lambda: float(os.getenv("PROTECTION_MAX_DRAWDOWN_GUARD_R", "4.0"))
+    )
+    protection_max_drawdown_lookback_days: float = field(
+        default_factory=lambda: float(os.getenv("PROTECTION_MAX_DRAWDOWN_LOOKBACK_DAYS", "7"))
+    )
+    protection_low_profit_min_trades: int = field(
+        default_factory=lambda: int(os.getenv("PROTECTION_LOW_PROFIT_MIN_TRADES", "5"))
+    )
+    protection_low_profit_min_avg_r: float = field(
+        default_factory=lambda: float(os.getenv("PROTECTION_LOW_PROFIT_MIN_AVG_R", "-0.2"))
+    )
+    protection_low_profit_lookback_days: float = field(
+        default_factory=lambda: float(os.getenv("PROTECTION_LOW_PROFIT_LOOKBACK_DAYS", "14"))
+    )
+    protection_toxic_context_shadow_enabled: bool = field(
+        default_factory=lambda: _bool_env("PROTECTION_TOXIC_CONTEXT_SHADOW_ENABLED", "true")
+    )
     telegram_bot_token: str = os.getenv("TELEGRAM_BOT_TOKEN", "")
     telegram_chat_ids: list[str] = field(default_factory=lambda: _csv_env("TELEGRAM_CHAT_IDS", ""))
     telegram_public_chat_id: str = field(default_factory=lambda: os.getenv("TELEGRAM_PUBLIC_CHAT_ID", ""))
@@ -87,6 +118,8 @@ class Settings:
     telegram_diagnostic_summary_every_cycles: int = field(
         default_factory=lambda: int(os.getenv("TELEGRAM_DIAGNOSTIC_SUMMARY_EVERY_CYCLES", "5"))
     )
+    bot_health_telegram_enabled: bool = field(default_factory=lambda: _bool_env("BOT_HEALTH_TELEGRAM_ENABLED", "true"))
+    bot_health_min_score: float = field(default_factory=lambda: float(os.getenv("BOT_HEALTH_MIN_SCORE", "70")))
     scheduler_diagnostic_state_file: Path = field(
         default_factory=lambda: Path(os.getenv("SCHEDULER_DIAGNOSTIC_STATE_FILE", "./data/scheduler_diagnostic_window.json"))
     )

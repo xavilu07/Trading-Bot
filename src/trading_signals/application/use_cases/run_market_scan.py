@@ -57,6 +57,7 @@ from trading_signals.memory.pattern_memory import build_pattern_record
 from trading_signals.memory.signal_activity_log import append_signal_log
 from trading_signals.notifications.telegram import telegram_status
 from trading_signals.risk.kill_switch import evaluate_kill_switch
+from trading_signals.risk.protection_engine import ProtectionEngineConfig, evaluate_protection_engine
 from trading_signals.strategy.decision_engine import (
     build_signal_decision_from_modules,
     build_signal_decision_from_strategy_evaluation,
@@ -88,6 +89,7 @@ def effective_config(settings: Settings, symbols: list[str] | None = None) -> di
         "min_rr": settings.min_rr,
         "scan_interval_seconds": settings.scan_interval_seconds,
         "publish_signal_decisions": settings.publish_signal_decisions,
+        "protection_engine_mode": settings.protection_engine_mode,
     }
 
 
@@ -435,6 +437,44 @@ def _risk_reward_values(risk_plan) -> tuple[float | None, float | None]:
     if risk <= 0:
         return None, None
     return 1.0, abs(risk_plan.take_profit - risk_plan.entry) / risk
+
+
+def _protection_engine_config(settings: Settings) -> ProtectionEngineConfig:
+    return ProtectionEngineConfig(
+        mode=settings.protection_engine_mode,
+        symbol_loss_cooldown_hours=settings.protection_symbol_loss_cooldown_hours,
+        symbol_rejection_threshold=settings.protection_symbol_rejection_threshold,
+        symbol_rejection_lookback_hours=settings.protection_symbol_rejection_lookback_hours,
+        symbol_rejection_cooldown_hours=settings.protection_symbol_rejection_cooldown_hours,
+        max_drawdown_guard_r=settings.protection_max_drawdown_guard_r,
+        max_drawdown_lookback_days=settings.protection_max_drawdown_lookback_days,
+        low_profit_min_trades=settings.protection_low_profit_min_trades,
+        low_profit_min_avg_r=settings.protection_low_profit_min_avg_r,
+        low_profit_lookback_days=settings.protection_low_profit_lookback_days,
+        toxic_context_shadow_enabled=settings.protection_toxic_context_shadow_enabled,
+    )
+
+
+def _log_protection_diagnostics(logger, *, symbol: str, protection: dict[str, object]) -> None:
+    if not protection.get("protection_triggered"):
+        return
+    triggers = protection.get("triggers", [])
+    if not isinstance(triggers, list):
+        triggers = []
+    for trigger in triggers:
+        if not isinstance(trigger, dict):
+            continue
+        log_json(
+            logger,
+            "protection_triggered",
+            protection_triggered=True,
+            protection_reason=trigger.get("protection_reason", "unknown"),
+            protection_mode=protection.get("protection_mode"),
+            protection_enforced=protection.get("protection_enforced"),
+            affected_symbol=symbol,
+            affected_context=protection.get("affected_context", {}),
+            details=trigger,
+        )
 
 
 def _signal_activity_status(*, signal: TradeSignal, paper_trade_created: bool, experimental_signal_saved: bool) -> str:
@@ -938,11 +978,11 @@ def run_market_scan(
                 else:
                     public_meta_filter_reason = meta_decision_public_filter_reason(settings, pattern_memory)
                     public_block_reason = public_meta_filter_reason
-                if public_meta_filter_reason is not None:
-                    log_json(
-                        logger,
-                        "meta_decision_filter_blocked",
-                        symbol=symbol,
+            if public_meta_filter_reason is not None:
+                log_json(
+                    logger,
+                    "meta_decision_filter_blocked",
+                    symbol=symbol,
                         direction=evaluation.decision,
                         reason=public_meta_filter_reason,
                         meta_decision=(pattern_memory or {}).get("meta_decision") if isinstance(pattern_memory, dict) else None,
@@ -959,6 +999,15 @@ def run_market_scan(
                 signal.signal_type = lifecycle.signal_type
                 signal.lifecycle_reason = lifecycle.reason
                 signal_repo.save_signal(signal)
+            protection_engine = evaluate_protection_engine(
+                data_path=settings.data_storage_path,
+                symbol=symbol,
+                direction=evaluation.decision if evaluation.decision != SignalDecision.NO_TRADE.value else _candidate_direction(analysis),
+                setup_type=_signal_setup_type(evaluation) if evaluation.decision != SignalDecision.NO_TRADE.value else (_candidate_setup_type(analysis, evaluation) or "NO_SIGNAL"),
+                setup_context=setup_context,
+                config=_protection_engine_config(settings),
+            )
+            _log_protection_diagnostics(logger, symbol=symbol, protection=protection_engine)
             if status == SignalStatus.VALID.value and should_publish_after_filters and not is_duplicate and lifecycle and lifecycle.should_publish:
                 deliveries = publish_signal(
                     signal_repo,
@@ -1245,6 +1294,7 @@ def run_market_scan(
                     "performance_gate": performance_gate,
                     "multi_agent_shadow_decision": multi_agent_shadow_decision,
                     "kill_switch": kill_switch_status,
+                    "protection_engine": protection_engine,
                 }
             )
             _log_symbol_diagnostics(

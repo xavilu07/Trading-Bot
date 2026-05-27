@@ -1,5 +1,0 @@
-scenario,total_signals,wins,losses,winrate,total_r,avg_r,max_drawdown_r,consecutive_losses_max,blocked_signals,avoided_losses,missed_wins,meta_filter_evaluable,meta_unknown_signals
-BASELINE,23,0,23,0.0,-23.0,-1.0,-23.0,23,0,0,0,false,23
-META_FILTER,23,0,23,0.0,-23.0,-1.0,-23.0,23,0,0,0,false,23
-KILL_SWITCH,7,0,7,0.0,-7.0,-1.0,-7.0,7,16,16,0,false,23
-META_FILTER_PLUS_KILL_SWITCH,7,0,7,0.0,-7.0,-1.0,-7.0,7,16,16,0,false,23

@@ -1,0 +1,122 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 5 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 2418 >>
+stream
+BT
+/F1 10 Tf
+50 780 Td
+13 TL
+(Bot Intelligence Report DAILY 2026-05-27) Tj T*
+() Tj T*
+(Intelligence Report DAILY 2026-05-27) Tj T*
+() Tj T*
+(Generated: 2026-05-27T16:35:10.100Z) Tj T*
+(BOT_DATA_DIR: /Users/xaviestruch/Documents/Prueba Trading) Tj T*
+() Tj T*
+(A\) Executive Summary) Tj T*
+(  - Estado general: heartbeat sin datos suficientes; all-time -4.5754R, WR 32.61%, PF 0.8299) Tj T*
+(  - Cambios importantes: Periodo 2026-05-27: 0 trades cerrados, 0R. / focused shadow sin datos) Tj T*
+(  - Riesgo actual: DD actual 6.9942R) Tj T*
+(- Recomendacion principal: No tocar produccion: mantener la validacion en observabilidad/shadow) Tj T*
+(hasta tener muestra suficiente.) Tj T*
+() Tj T*
+(B\) Performance) Tj T*
+(  - Periodo: trades 0, cerrados 0, WR 0%, total R 0, avg R 0, PF 0, max DD 0R, DD actual 0R) Tj T*
+(- All-time: trades 56, cerrados 46, WR 32.61%, total R -4.5754, avg R -0.0995, PF 0.8299, max) Tj T*
+(DD 8.4942R, DD actual 6.9942R) Tj T*
+() Tj T*
+(C\) Best/Worst Contexts) Tj T*
+(Top setups) Tj T*
+(  - sin datos suficientes) Tj T*
+(Bottom setups) Tj T*
+(  - sin datos suficientes) Tj T*
+(Sesiones) Tj T*
+(- Win: group: LONDON | closed_trades: 14 | winrate: 42.86 | total_r: 3.084 | profit_factor:) Tj T*
+(1.5257) Tj T*
+(  - Win: group: ASIA | closed_trades: 1 | winrate: 100 | total_r: 1 | profit_factor: N/A) Tj T*
+(- Loss: group: NEW_YORK | closed_trades: 14 | winrate: 21.43 | total_r: -8.4083 |) Tj T*
+(profit_factor: 0.2356) Tj T*
+(- Loss: group: OVERLAP | closed_trades: 17 | winrate: 29.41 | total_r: -0.2511 | profit_factor:) Tj T*
+(0.975) Tj T*
+(Direction LONG/SHORT) Tj T*
+(  - group: LONG | closed_trades: 24 | winrate: 50 | total_r: 6.225 | profit_factor: 1.5516) Tj T*
+(- group: SHORT | closed_trades: 22 | winrate: 13.64 | total_r: -10.8004 | profit_factor: 0.3085) Tj T*
+() Tj T*
+(D\) Rejection Analysis) Tj T*
+(  - group: rejected | trades: 1 | winrate: N/A | total_r: N/A | avg_r: N/A) Tj T*
+(  - High score rejects >=70: 1) Tj T*
+() Tj T*
+(E\) Controlled Experiments) Tj T*
+(  - sin datos suficientes) Tj T*
+() Tj T*
+(F\) Focused Shadow Validation) Tj T*
+(  - sin datos suficientes) Tj T*
+() Tj T*
+(G\) Operational Health) Tj T*
+(  - Scheduler/heartbeat: sin datos suficientes, age N/Am) Tj T*
+(  - Last trade: 2026-05-18T13:20:17.362Z) Tj T*
+(  - Last signal: 2026-05-27T14:42:20.180Z) Tj T*
+(  - Binance/market data warning: N/A) Tj T*
+(  - Telegram DEV: not_configured) Tj T*
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 6 0 R >>
+endobj
+6 0 obj
+<< /Length 1241 >>
+stream
+BT
+/F1 10 Tf
+50 780 Td
+13 TL
+() Tj T*
+(H\) Smart Alerts) Tj T*
+(  - Alertas activas: 1) Tj T*
+(- [critical] Scheduler heartbeat stale: Comprobar PM2, logs del scheduler y escritura de) Tj T*
+(data/runtime/scheduler_heartbeat.json.) Tj T*
+() Tj T*
+(I\) Decision Recommendations) Tj T*
+(- No tocar produccion: mantener la validacion en observabilidad/shadow hasta tener muestra) Tj T*
+(suficiente.) Tj T*
+(- Sin trades cerrados en la ventana: usar el reporte como health check, no como decision de) Tj T*
+(edge.) Tj T*
+(  - Riesgo elevado: revisar drawdown antes de activar experimentos nuevos.) Tj T*
+(  - Focused shadow con muestra insuficiente: esperar 30-50 observaciones antes de decidir.) Tj T*
+(  - Resolver warnings de datos antes de usar este reporte como base de decision.) Tj T*
+() Tj T*
+(Warnings) Tj T*
+(  - Missing optional file: reports/outcome_intelligence.csv) Tj T*
+(  - Missing optional file: reports/setup_rankings.csv) Tj T*
+(  - Missing optional file: reports/edge_breakdown.csv) Tj T*
+(  - Missing optional file: reports/controlled_experiments_report.json) Tj T*
+(  - Missing optional file: reports/london_short_analysis.json) Tj T*
+(  - Missing optional file: reports/london_short_focused_shadow.json) Tj T*
+() Tj T*
+ET
+endstream
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000121 00000 n 
+0000000296 00000 n 
+0000002766 00000 n 
+0000002941 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+4234
+%%EOF

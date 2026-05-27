@@ -1,1 +1,0 @@
-window_id,group_type,group,train_start,train_end,test_start,test_end,train_trades,test_trades,train_winrate,test_winrate,train_total_r,test_total_r,train_avg_r,test_avg_r,train_profit_factor,test_profit_factor,max_drawdown_r,stability_score,overfit_warning

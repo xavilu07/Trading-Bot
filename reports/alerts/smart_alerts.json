@@ -1,0 +1,52 @@
+{
+  "generated_at": "2026-05-27T16:44:23.706Z",
+  "bot_data_dir": "/Users/xaviestruch/Documents/Prueba Trading",
+  "config": {
+    "minSeverity": "warning",
+    "focusedMinSample": 30,
+    "ddWarningR": 10,
+    "highScoreRejectsThreshold": 10,
+    "heartbeatStaleMinutes": 30,
+    "dedupeHours": 12
+  },
+  "source_reports": {
+    "daily": "2026-05-27",
+    "weekly": "2026-22",
+    "controlled_experiments": false,
+    "focused_shadow": false,
+    "london_short_analysis": false
+  },
+  "alert_count": 1,
+  "severity_counts": {
+    "critical": 1
+  },
+  "alerts": [
+    {
+      "id": "scheduler_stale",
+      "severity": "critical",
+      "title": "Scheduler heartbeat stale",
+      "message": "Heartbeat antiguo: 13164 minutos.",
+      "metric_snapshot": {
+        "last_cycle_finished_at": "2026-05-18T13:20:19.634648+00:00",
+        "heartbeat_timestamp": "2026-05-18T13:20:19.634648+00:00",
+        "age_minutes": 13164,
+        "status": "ok",
+        "cycle_number": 5,
+        "threshold_minutes": 30,
+        "stale_reason": "age_exceeds_threshold"
+      },
+      "recommended_action": "Comprobar PM2, logs del scheduler y escritura de data/runtime/scheduler_heartbeat.json.",
+      "created_at": "2026-05-27T16:44:23.706Z"
+    }
+  ],
+  "warnings": [
+    "Missing optional file: reports/controlled_experiments_report.json",
+    "Missing optional file: reports/london_short_focused_shadow.json",
+    "Missing optional file: reports/london_short_analysis.json"
+  ],
+  "telegram": {
+    "enabled": false,
+    "min_severity": "warning",
+    "max_chars": 1200
+  }
+}

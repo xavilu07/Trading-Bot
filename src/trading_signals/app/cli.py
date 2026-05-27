@@ -9,6 +9,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from trading_signals.app.container import build_container
+from trading_signals.application.use_cases.bot_health_report import build_bot_health_telegram_section
 from trading_signals.application.use_cases.live_trading import (
     format_live_daily_summary_for_telegram,
     now_utc_date_key as live_now_utc_date_key,
@@ -871,8 +872,14 @@ def main(argv: list[str] | None = None) -> int:
                     summary = build_scheduler_diagnostic_summary(results_window)
                     log_json(logger, "scheduler_diagnostic_summary", **summary)
                     if settings.telegram_diagnostic_summary_enabled:
+                        message = format_scheduler_diagnostic_summary_for_telegram(summary)
+                        if settings.bot_health_telegram_enabled:
+                            message = (
+                                f"{message}\n\n"
+                                f"{build_bot_health_telegram_section(data_path=settings.data_storage_path, reports_path=Path('reports'), min_score=settings.bot_health_min_score)}"
+                            )
                         container["notifier"].publish(
-                            format_scheduler_diagnostic_summary_for_telegram(summary),
+                            message,
                             dry_run=args.dry_run,
                         )
                     results_window.clear()

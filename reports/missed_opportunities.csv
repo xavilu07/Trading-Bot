@@ -1,4 +1,0 @@
-timestamp,symbol,direction,score,entry_price,atr,status,rejection_reasons,missed_opportunity_type,max_r,min_r,time_to_resolution
-2026-05-13T10:45:40.012268+00:00,BTCUSDT,short,90.0,,,no_trade,"[""volatility_failed""]",NEUTRAL,0.0,0.0,0
-2026-05-13T10:45:40.013471+00:00,ETHUSDT,short,90.0,,,no_trade,"[""volatility_failed""]",NEUTRAL,0.0,0.0,0
-2026-05-13T10:45:40.028633+00:00,BTCUSDT,long,100.0,267.95,,rejected,"[""duplicate_signal_suppressed""]",MISSED_BIG_WIN,54390.6728,0.0,1

@@ -6,6 +6,8 @@ from trading_signals.app.settings import Settings
 def test_telegram_diagnostic_summary_settings_are_configurable(monkeypatch) -> None:
     monkeypatch.setenv("TELEGRAM_DIAGNOSTIC_SUMMARY_ENABLED", "false")
     monkeypatch.setenv("TELEGRAM_DIAGNOSTIC_SUMMARY_EVERY_CYCLES", "3")
+    monkeypatch.setenv("BOT_HEALTH_TELEGRAM_ENABLED", "false")
+    monkeypatch.setenv("BOT_HEALTH_MIN_SCORE", "80")
     monkeypatch.setenv("TELEGRAM_PUBLIC_CHAT_ID", "public-chat")
     monkeypatch.setenv("TELEGRAM_DEV_CHAT_ID", "dev-chat")
 
@@ -13,6 +15,8 @@ def test_telegram_diagnostic_summary_settings_are_configurable(monkeypatch) -> N
 
     assert settings.telegram_diagnostic_summary_enabled is False
     assert settings.telegram_diagnostic_summary_every_cycles == 3
+    assert settings.bot_health_telegram_enabled is False
+    assert settings.bot_health_min_score == 80
     assert settings.telegram_public_chat_id == "public-chat"
     assert settings.telegram_dev_chat_id == "dev-chat"
     assert settings.telegram_dev_chat_ids == ["dev-chat"]
@@ -120,6 +124,34 @@ def test_kill_switch_settings_are_configurable(monkeypatch) -> None:
     assert settings.max_consecutive_losses == 4
     assert settings.max_weekly_drawdown_r == 7.5
     assert settings.kill_switch_cooldown_hours == 24
+
+
+def test_protection_engine_settings_are_configurable(monkeypatch) -> None:
+    monkeypatch.setenv("PROTECTION_ENGINE_MODE", "enforce_paper")
+    monkeypatch.setenv("PROTECTION_SYMBOL_LOSS_COOLDOWN_HOURS", "8")
+    monkeypatch.setenv("PROTECTION_SYMBOL_REJECTION_THRESHOLD", "4")
+    monkeypatch.setenv("PROTECTION_SYMBOL_REJECTION_LOOKBACK_HOURS", "18")
+    monkeypatch.setenv("PROTECTION_SYMBOL_REJECTION_COOLDOWN_HOURS", "9")
+    monkeypatch.setenv("PROTECTION_MAX_DRAWDOWN_GUARD_R", "6")
+    monkeypatch.setenv("PROTECTION_MAX_DRAWDOWN_LOOKBACK_DAYS", "10")
+    monkeypatch.setenv("PROTECTION_LOW_PROFIT_MIN_TRADES", "7")
+    monkeypatch.setenv("PROTECTION_LOW_PROFIT_MIN_AVG_R", "-0.4")
+    monkeypatch.setenv("PROTECTION_LOW_PROFIT_LOOKBACK_DAYS", "21")
+    monkeypatch.setenv("PROTECTION_TOXIC_CONTEXT_SHADOW_ENABLED", "false")
+
+    settings = Settings()
+
+    assert settings.protection_engine_mode == "enforce_paper"
+    assert settings.protection_symbol_loss_cooldown_hours == 8
+    assert settings.protection_symbol_rejection_threshold == 4
+    assert settings.protection_symbol_rejection_lookback_hours == 18
+    assert settings.protection_symbol_rejection_cooldown_hours == 9
+    assert settings.protection_max_drawdown_guard_r == 6
+    assert settings.protection_max_drawdown_lookback_days == 10
+    assert settings.protection_low_profit_min_trades == 7
+    assert settings.protection_low_profit_min_avg_r == -0.4
+    assert settings.protection_low_profit_lookback_days == 21
+    assert settings.protection_toxic_context_shadow_enabled is False
 
 
 def test_market_data_provider_defaults_to_binance(monkeypatch) -> None:
