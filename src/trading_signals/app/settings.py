@@ -97,6 +97,35 @@ class Settings:
     protection_toxic_context_shadow_enabled: bool = field(
         default_factory=lambda: _bool_env("PROTECTION_TOXIC_CONTEXT_SHADOW_ENABLED", "true")
     )
+    pair_universe_filter_mode: str = field(default_factory=lambda: os.getenv("PAIR_UNIVERSE_FILTER_MODE", "shadow_only"))
+    pair_universe_min_volume: float = field(default_factory=lambda: float(os.getenv("PAIR_UNIVERSE_MIN_VOLUME", "0")))
+    pair_universe_max_spread_pct: float = field(default_factory=lambda: float(os.getenv("PAIR_UNIVERSE_MAX_SPREAD_PCT", "5")))
+    pair_universe_min_volatility_pct: float = field(
+        default_factory=lambda: float(os.getenv("PAIR_UNIVERSE_MIN_VOLATILITY_PCT", "0.1"))
+    )
+    pair_universe_max_volatility_pct: float = field(
+        default_factory=lambda: float(os.getenv("PAIR_UNIVERSE_MAX_VOLATILITY_PCT", "25"))
+    )
+    pair_universe_min_history_candles: int = field(
+        default_factory=lambda: int(os.getenv("PAIR_UNIVERSE_MIN_HISTORY_CANDLES", "220"))
+    )
+    pair_universe_blacklist: list[str] = field(default_factory=lambda: _csv_env("PAIR_UNIVERSE_BLACKLIST", ""))
+    pair_universe_whitelist: list[str] = field(default_factory=lambda: _csv_env("PAIR_UNIVERSE_WHITELIST", ""))
+    pair_universe_rejection_threshold: int = field(
+        default_factory=lambda: int(os.getenv("PAIR_UNIVERSE_REJECTION_THRESHOLD", "5"))
+    )
+    pair_universe_rejection_lookback_hours: float = field(
+        default_factory=lambda: float(os.getenv("PAIR_UNIVERSE_REJECTION_LOOKBACK_HOURS", "24"))
+    )
+    pair_universe_min_recent_avg_r: float = field(
+        default_factory=lambda: float(os.getenv("PAIR_UNIVERSE_MIN_RECENT_AVG_R", "-0.5"))
+    )
+    pair_universe_performance_min_trades: int = field(
+        default_factory=lambda: int(os.getenv("PAIR_UNIVERSE_PERFORMANCE_MIN_TRADES", "3"))
+    )
+    pair_universe_performance_lookback_days: float = field(
+        default_factory=lambda: float(os.getenv("PAIR_UNIVERSE_PERFORMANCE_LOOKBACK_DAYS", "14"))
+    )
     telegram_bot_token: str = os.getenv("TELEGRAM_BOT_TOKEN", "")
     telegram_chat_ids: list[str] = field(default_factory=lambda: _csv_env("TELEGRAM_CHAT_IDS", ""))
     telegram_public_chat_id: str = field(default_factory=lambda: os.getenv("TELEGRAM_PUBLIC_CHAT_ID", ""))

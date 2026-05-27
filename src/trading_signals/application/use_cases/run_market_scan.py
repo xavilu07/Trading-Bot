@@ -53,6 +53,7 @@ from trading_signals.domain.services.risk_service import calculate_risk_plan
 from trading_signals.domain.strategies.liquidity_sweep_mtf_v1 import LiquiditySweepMTFV1
 from trading_signals.domain.value_objects.enums import SignalDecision, SignalStatus
 from trading_signals.infrastructure.logging.logger import log_json
+from trading_signals.market.pair_universe_filter import PairUniverseFilterConfig, evaluate_pair_universe
 from trading_signals.memory.pattern_memory import build_pattern_record
 from trading_signals.memory.signal_activity_log import append_signal_log
 from trading_signals.notifications.telegram import telegram_status
@@ -90,6 +91,7 @@ def effective_config(settings: Settings, symbols: list[str] | None = None) -> di
         "scan_interval_seconds": settings.scan_interval_seconds,
         "publish_signal_decisions": settings.publish_signal_decisions,
         "protection_engine_mode": settings.protection_engine_mode,
+        "pair_universe_filter_mode": settings.pair_universe_filter_mode,
     }
 
 
@@ -122,6 +124,65 @@ def validate_symbol_universe(settings: Settings, market_data, symbols: list[str]
         "skipped_reasons": dict(Counter(item["reason"] for item in skipped_symbols)),
         "provider": provider,
     }
+
+
+def _pair_universe_filter_config(settings: Settings) -> PairUniverseFilterConfig:
+    return PairUniverseFilterConfig(
+        mode=settings.pair_universe_filter_mode,
+        min_volume=settings.pair_universe_min_volume,
+        max_spread_pct=settings.pair_universe_max_spread_pct,
+        min_volatility_pct=settings.pair_universe_min_volatility_pct,
+        max_volatility_pct=settings.pair_universe_max_volatility_pct,
+        min_history_candles=settings.pair_universe_min_history_candles,
+        blacklist=settings.pair_universe_blacklist,
+        whitelist=settings.pair_universe_whitelist,
+        rejection_threshold=settings.pair_universe_rejection_threshold,
+        rejection_lookback_hours=settings.pair_universe_rejection_lookback_hours,
+        min_recent_avg_r=settings.pair_universe_min_recent_avg_r,
+        performance_min_trades=settings.pair_universe_performance_min_trades,
+        performance_lookback_days=settings.pair_universe_performance_lookback_days,
+    )
+
+
+def _log_pair_universe_filter(logger, summary: dict[str, object]) -> None:
+    mode = str(summary.get("mode", "shadow_only"))
+    failed = summary.get("failed_symbols", [])
+    passed = set(str(symbol) for symbol in summary.get("passed_symbols", []) if symbol)
+    for symbol in passed:
+        log_json(
+            logger,
+            "pair_filter_evaluated",
+            symbol=symbol,
+            mode=mode,
+            pair_filter_passed=True,
+            pair_filter_failed=False,
+            pair_filter_reason="passed",
+        )
+    if isinstance(failed, list):
+        for item in failed:
+            if not isinstance(item, dict):
+                continue
+            reasons = item.get("reasons", [])
+            if not isinstance(reasons, list):
+                reasons = [str(reasons)]
+            log_json(
+                logger,
+                "pair_filter_evaluated",
+                symbol=item.get("symbol"),
+                mode=mode,
+                pair_filter_passed=False,
+                pair_filter_failed=True,
+                pair_filter_reason="|".join(str(reason) for reason in reasons) or "unknown",
+                metrics=item.get("metrics", {}),
+            )
+            log_json(
+                logger,
+                "pair_filter_failed",
+                symbol=item.get("symbol"),
+                mode=mode,
+                pair_filter_reason="|".join(str(reason) for reason in reasons) or "unknown",
+                metrics=item.get("metrics", {}),
+            )
 
 
 def build_signal_dedupe_key(symbol: str, decision: str, strategy_id: str, strategy_version: str, entry_snapshot) -> str:
@@ -674,6 +735,18 @@ def run_market_scan(
                 reason=skipped.get("reason"),
                 provider=skipped.get("provider"),
             )
+    fetch = market_data.get_ohlcv if hasattr(market_data, "get_ohlcv") else market_data.fetch_ohlcv
+    pair_universe_filter = evaluate_pair_universe(
+        symbols=valid_symbols,
+        fetch_ohlcv=fetch,
+        data_path=settings.data_storage_path,
+        timeframe=settings.entry_timeframe,
+        config=_pair_universe_filter_config(settings),
+        provider=str(universe_validation.get("provider", getattr(market_data, "provider_name", "unknown"))),
+    )
+    _log_pair_universe_filter(logger, pair_universe_filter)
+    if settings.pair_universe_filter_mode == "enforce_paper":
+        valid_symbols = [str(symbol) for symbol in pair_universe_filter.get("passed_symbols", [])]
     scan_run = ScanRun(
         id=f"run_{uuid4().hex[:12]}",
         started_at=started_at,
@@ -1364,4 +1437,9 @@ def run_market_scan(
     scan_run.updated_at = scan_run.finished_at
     scan_repo.save_scan_run(scan_run)
     metrics.increment("scan_runs_total")
-    return {"scan_run": asdict(scan_run), "results": results, "universe_validation": universe_validation}
+    return {
+        "scan_run": asdict(scan_run),
+        "results": results,
+        "universe_validation": universe_validation,
+        "pair_universe_filter": pair_universe_filter,
+    }

@@ -154,6 +154,38 @@ def test_protection_engine_settings_are_configurable(monkeypatch) -> None:
     assert settings.protection_toxic_context_shadow_enabled is False
 
 
+def test_pair_universe_filter_settings_are_configurable(monkeypatch) -> None:
+    monkeypatch.setenv("PAIR_UNIVERSE_FILTER_MODE", "enforce_paper")
+    monkeypatch.setenv("PAIR_UNIVERSE_MIN_VOLUME", "1000")
+    monkeypatch.setenv("PAIR_UNIVERSE_MAX_SPREAD_PCT", "2.5")
+    monkeypatch.setenv("PAIR_UNIVERSE_MIN_VOLATILITY_PCT", "0.3")
+    monkeypatch.setenv("PAIR_UNIVERSE_MAX_VOLATILITY_PCT", "15")
+    monkeypatch.setenv("PAIR_UNIVERSE_MIN_HISTORY_CANDLES", "250")
+    monkeypatch.setenv("PAIR_UNIVERSE_BLACKLIST", "DOGEUSDT,XRPUSDT")
+    monkeypatch.setenv("PAIR_UNIVERSE_WHITELIST", "BTCUSDT,ETHUSDT")
+    monkeypatch.setenv("PAIR_UNIVERSE_REJECTION_THRESHOLD", "8")
+    monkeypatch.setenv("PAIR_UNIVERSE_REJECTION_LOOKBACK_HOURS", "48")
+    monkeypatch.setenv("PAIR_UNIVERSE_MIN_RECENT_AVG_R", "-0.25")
+    monkeypatch.setenv("PAIR_UNIVERSE_PERFORMANCE_MIN_TRADES", "5")
+    monkeypatch.setenv("PAIR_UNIVERSE_PERFORMANCE_LOOKBACK_DAYS", "30")
+
+    settings = Settings()
+
+    assert settings.pair_universe_filter_mode == "enforce_paper"
+    assert settings.pair_universe_min_volume == 1000
+    assert settings.pair_universe_max_spread_pct == 2.5
+    assert settings.pair_universe_min_volatility_pct == 0.3
+    assert settings.pair_universe_max_volatility_pct == 15
+    assert settings.pair_universe_min_history_candles == 250
+    assert settings.pair_universe_blacklist == ["DOGEUSDT", "XRPUSDT"]
+    assert settings.pair_universe_whitelist == ["BTCUSDT", "ETHUSDT"]
+    assert settings.pair_universe_rejection_threshold == 8
+    assert settings.pair_universe_rejection_lookback_hours == 48
+    assert settings.pair_universe_min_recent_avg_r == -0.25
+    assert settings.pair_universe_performance_min_trades == 5
+    assert settings.pair_universe_performance_lookback_days == 30
+
+
 def test_market_data_provider_defaults_to_binance(monkeypatch) -> None:
     monkeypatch.delenv("MARKET_DATA_PROVIDER", raising=False)
 
