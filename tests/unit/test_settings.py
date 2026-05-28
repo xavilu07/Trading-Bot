@@ -110,6 +110,24 @@ def test_short_shadow_mode_defaults_to_true_and_is_configurable(monkeypatch) -> 
     assert Settings().short_shadow_mode is False
 
 
+def test_public_short_canary_settings_are_configurable(monkeypatch) -> None:
+    monkeypatch.setenv("PUBLIC_SHORT_CANARY_ENABLED", "true")
+    monkeypatch.setenv("PUBLIC_SHORT_CANARY_SESSION", "LONDON")
+    monkeypatch.setenv("PUBLIC_SHORT_CANARY_DIRECTION", "SHORT")
+    monkeypatch.setenv("PUBLIC_SHORT_CANARY_ENTRY_CONTEXT", "PULLBACK")
+    monkeypatch.setenv("PUBLIC_SHORT_CANARY_SETUP_TYPE", "MAIN_SIGNAL")
+    monkeypatch.setenv("PUBLIC_SHORT_CANARY_MIN_SCORE", "72")
+
+    settings = Settings()
+
+    assert settings.public_short_canary_enabled is True
+    assert settings.public_short_canary_session == "LONDON"
+    assert settings.public_short_canary_direction == "SHORT"
+    assert settings.public_short_canary_entry_context == "PULLBACK"
+    assert settings.public_short_canary_setup_type == "MAIN_SIGNAL"
+    assert settings.public_short_canary_min_score == 72
+
+
 def test_kill_switch_settings_are_configurable(monkeypatch) -> None:
     monkeypatch.setenv("KILL_SWITCH_ENABLED", "true")
     monkeypatch.setenv("MAX_DAILY_LOSS_R", "3.5")

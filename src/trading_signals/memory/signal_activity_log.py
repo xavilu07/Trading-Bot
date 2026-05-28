@@ -66,6 +66,9 @@ def _normalize_entry(entry: dict) -> dict[str, Any]:
         "entry_context",
         "source_engine",
         "meta_decision",
+        "public_canary_decision",
+        "public_canary_match",
+        "public_canary_reason",
         "raw_summary",
     ]
     normalized = {key: entry.get(key) for key in allowed_keys if entry.get(key) is not None}

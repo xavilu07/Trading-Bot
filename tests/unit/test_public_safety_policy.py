@@ -45,16 +45,16 @@ def test_policy_version_present_and_clean_signal_allowed() -> None:
         setup_context=base_context(),
     )
 
-    assert result == {
-        "public_allowed": True,
-        "block_reasons": [],
-        "warnings": [],
-        "policy_version": "v1",
-        "edge_activation_mode": True,
-        "edge_activation_allowed": True,
-        "edge_activation_reasons": [],
-        "short_shadow_mode": True,
-    }
+    assert result["public_allowed"] is True
+    assert result["block_reasons"] == []
+    assert result["warnings"] == []
+    assert result["policy_version"] == "v1"
+    assert result["edge_activation_mode"] is True
+    assert result["edge_activation_allowed"] is True
+    assert result["edge_activation_reasons"] == []
+    assert result["short_shadow_mode"] is True
+    assert result["public_canary_decision"] == "block"
+    assert result["public_canary_match"] is False
 
 
 def test_policy_blocks_each_core_rule() -> None:

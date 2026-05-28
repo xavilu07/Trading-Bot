@@ -3,6 +3,8 @@ from __future__ import annotations
 import os
 from typing import Any
 
+from trading_signals.application.policies.public_canary_policy import PublicShortCanaryConfig, evaluate_public_short_canary
+
 
 POLICY_VERSION = "v1"
 DANGEROUS_CLASSIFICATIONS = {"DANGEROUS", "AVOID_PUBLIC"}
@@ -14,6 +16,7 @@ def evaluate_public_safety_policy(
     evaluation_or_decision=None,
     setup_context: dict[str, Any] | None = None,
     public_block_reason: str | None = None,
+    public_short_canary_config: PublicShortCanaryConfig | None = None,
 ) -> dict[str, Any]:
     context = setup_context or {}
     block_reasons: list[str] = []
@@ -92,6 +95,17 @@ def evaluate_public_safety_policy(
     if edge_activation_mode:
         block_reasons.extend(edge_activation_reasons)
 
+    canary = evaluate_public_short_canary(
+        signal=signal,
+        evaluation_or_decision=evaluation_or_decision,
+        setup_context=context,
+        config=public_short_canary_config or _public_short_canary_config_from_env(),
+    )
+    if canary["public_canary_match"]:
+        block_reasons = _remove_canary_overridden_short_blocks(block_reasons)
+        edge_activation_reasons = _remove_canary_overridden_edge_reasons(edge_activation_reasons)
+        edge_activation_allowed = not edge_activation_mode or not edge_activation_reasons
+
     block_reasons = _dedupe(block_reasons)
     return {
         "public_allowed": not block_reasons,
@@ -102,6 +116,10 @@ def evaluate_public_safety_policy(
         "edge_activation_allowed": edge_activation_allowed,
         "edge_activation_reasons": _dedupe(edge_activation_reasons),
         "short_shadow_mode": short_shadow_mode,
+        "public_canary_decision": canary["public_canary_decision"],
+        "public_canary_match": canary["public_canary_match"],
+        "public_canary_reason": canary["public_canary_reason"],
+        "public_canary": canary,
     }
 
 
@@ -196,6 +214,32 @@ def _short_shadow_enabled(context: dict[str, Any]) -> bool:
     if "short_shadow_mode" in context:
         return _truthy(context.get("short_shadow_mode"))
     return _truthy(os.getenv("SHORT_SHADOW_MODE", "true"))
+
+
+def _public_short_canary_config_from_env() -> PublicShortCanaryConfig:
+    return PublicShortCanaryConfig(
+        enabled=_truthy(os.getenv("PUBLIC_SHORT_CANARY_ENABLED", "false")),
+        session=os.getenv("PUBLIC_SHORT_CANARY_SESSION", "LONDON"),
+        direction=os.getenv("PUBLIC_SHORT_CANARY_DIRECTION", "SHORT"),
+        entry_context=os.getenv("PUBLIC_SHORT_CANARY_ENTRY_CONTEXT", "PULLBACK"),
+        setup_type=os.getenv("PUBLIC_SHORT_CANARY_SETUP_TYPE", "MAIN_SIGNAL"),
+        min_score=float(os.getenv("PUBLIC_SHORT_CANARY_MIN_SCORE", "70")),
+    )
+
+
+def _remove_canary_overridden_short_blocks(block_reasons: list[str]) -> list[str]:
+    allowed_overrides = {
+        "short_shadow_mode",
+        "short_without_high_historical_edge",
+        "edge_activation_requires_long",
+        "edge_activation_requires_overlap_session",
+    }
+    return [reason for reason in block_reasons if reason not in allowed_overrides]
+
+
+def _remove_canary_overridden_edge_reasons(edge_reasons: list[str]) -> list[str]:
+    allowed_overrides = {"edge_activation_requires_long", "edge_activation_requires_overlap_session"}
+    return [reason for reason in edge_reasons if reason not in allowed_overrides]
 
 
 def _edge_activation_reasons(

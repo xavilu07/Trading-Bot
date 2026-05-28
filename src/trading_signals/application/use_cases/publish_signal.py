@@ -4,6 +4,7 @@ import logging
 from datetime import UTC, datetime
 from uuid import uuid4
 
+from trading_signals.application.policies.public_canary_policy import PublicShortCanaryConfig
 from trading_signals.application.policies.public_safety_policy import evaluate_public_safety_policy
 from trading_signals.domain.entities.signal_delivery import SignalDelivery
 from trading_signals.notifications.telegram import send_dev_signal_detail, send_public_signal
@@ -357,6 +358,7 @@ def publish_signal(
     signal_type: str = "NEW",
     setup_context: dict[str, object] | None = None,
     public_block_reason: str | None = None,
+    public_short_canary_config: PublicShortCanaryConfig | None = None,
 ) -> list[SignalDelivery]:
     public_message = format_public_signal_message(signal.symbol, signal.decision, entry_snapshot, higher_snapshot, evaluation, risk_plan)
     dev_message = format_telegram_message(signal.symbol, signal.decision, entry_snapshot, higher_snapshot, evaluation, risk_plan, signal_type=signal_type)
@@ -366,9 +368,25 @@ def publish_signal(
         evaluation_or_decision=evaluation,
         setup_context=setup_context,
         public_block_reason=public_block_reason,
+        public_short_canary_config=public_short_canary_config,
     )
+    logger = logging.getLogger("trading_signals")
+    canary = policy.get("public_canary", {})
+    if isinstance(canary, dict) and canary.get("public_canary_enabled") and signal.decision == "short":
+        logger.info(
+            "public_canary_evaluated",
+            extra={
+                "event": "public_canary_evaluated",
+                "symbol": signal.symbol,
+                "reason": canary.get("public_canary_reason"),
+                "score": canary.get("score"),
+                "session": canary.get("session"),
+                "entry_context": canary.get("entry_context"),
+                "setup_type": canary.get("setup_type"),
+                "public_canary_match": canary.get("public_canary_match"),
+            },
+        )
     if not bool(policy.get("public_allowed")):
-        logger = logging.getLogger("trading_signals")
         logger.info(
             "public_safety_policy_blocked",
             extra={
@@ -405,7 +423,33 @@ def publish_signal(
                     "block_reasons": policy.get("block_reasons", []),
                 },
             )
+        if isinstance(canary, dict) and canary.get("public_canary_enabled") and signal.decision == "short":
+            logger.info(
+                "public_canary_blocked",
+                extra={
+                    "event": "public_canary_blocked",
+                    "symbol": signal.symbol,
+                    "reason": canary.get("public_canary_reason"),
+                    "score": canary.get("score"),
+                    "session": canary.get("session"),
+                    "entry_context": canary.get("entry_context"),
+                    "setup_type": canary.get("setup_type"),
+                },
+            )
     else:
+        if isinstance(canary, dict) and canary.get("public_canary_enabled") and signal.decision == "short":
+            logger.info(
+                "public_canary_allowed",
+                extra={
+                    "event": "public_canary_allowed",
+                    "symbol": signal.symbol,
+                    "reason": canary.get("public_canary_reason"),
+                    "score": canary.get("score"),
+                    "session": canary.get("session"),
+                    "entry_context": canary.get("entry_context"),
+                    "setup_type": canary.get("setup_type"),
+                },
+            )
         routed_results.append(("telegram_public", public_message, send_public_signal(notifier, public_message, dry_run=dry_run)))
     routed_results.append(("telegram_dev", dev_message, send_dev_signal_detail(notifier, dev_message, dry_run=dry_run)))
     deliveries: list[SignalDelivery] = []

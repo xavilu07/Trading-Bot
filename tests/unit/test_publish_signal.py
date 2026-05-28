@@ -9,6 +9,7 @@ from trading_signals.application.use_cases.publish_signal import (
     public_routing_rejection_reason,
 )
 from trading_signals.app.settings import Settings
+from trading_signals.application.policies.public_canary_policy import PublicShortCanaryConfig
 from trading_signals.domain.entities.risk_plan import RiskPlan
 from trading_signals.domain.entities.signal_decision import SignalDecision
 from trading_signals.domain.entities.strategy_evaluation import StrategyEvaluation
@@ -760,6 +761,205 @@ def test_publish_signal_routes_short_ranging_to_dev_only_due_to_negative_edge(ca
     assert "short_shadow_mode" in caplog.records[0].block_reasons
     assert "market_regime_ranging" in caplog.records[0].block_reasons
     assert "short_without_high_historical_edge" in caplog.records[0].block_reasons
+
+
+def test_publish_signal_canary_allows_exact_london_short_pullback_main_signal(caplog) -> None:
+    entry = build_snapshot(
+        scan_run_id="run_test",
+        symbol="XRPUSDT",
+        timeframe="1h",
+        trend="bearish",
+        structure="bearish",
+        sweep="bearish",
+        score=88.0,
+        distance=1.0,
+    )
+    higher = build_snapshot(
+        scan_run_id="run_test",
+        symbol="XRPUSDT",
+        timeframe="4h",
+        trend="bearish",
+        structure="bearish",
+        sweep="none",
+        score=70.0,
+        distance=1.0,
+    )
+    evaluation = StrategyEvaluation(
+        id="eval_test",
+        scan_run_id="run_test",
+        strategy_id="liquidity_sweep_mtf",
+        strategy_version="v1",
+        symbol="XRPUSDT",
+        entry_timeframe="1h",
+        higher_timeframe="4h",
+        entry_snapshot_id=entry.id,
+        higher_snapshot_id=higher.id,
+        decision="short",
+        decision_trace=[],
+        rejection_reasons=[],
+        passed_filters=["timeframe_alignment", "primary_sweep_setup", "quality_score"],
+        failed_filters=[],
+        setup_score=88.0,
+        confidence=0.88,
+        created_at=entry.created_at,
+    )
+    risk_plan = RiskPlan(
+        id="risk_test",
+        evaluation_id="eval_test",
+        entry=100.0,
+        stop_loss=105.0,
+        take_profit=90.0,
+        risk_reward=2.0,
+        risk_amount=10.0,
+        position_size=2.0,
+        sl_method="test",
+        tp_method="test",
+        created_at=entry.created_at,
+    )
+    signal = TradeSignal(
+        id="sig_test",
+        scan_run_id="run_test",
+        evaluation_id="eval_test",
+        risk_plan_id="risk_test",
+        strategy_id="liquidity_sweep_mtf",
+        strategy_version="v1",
+        symbol="XRPUSDT",
+        decision="short",
+        status="valid",
+        dedupe_key="dedupe",
+        entry_timeframe="1h",
+        higher_timeframe="4h",
+        entry_snapshot_id=entry.id,
+        higher_snapshot_id=higher.id,
+        created_at=entry.created_at,
+    )
+    repo = RecordingSignalRepo()
+    notifier = RoutingNotifier()
+
+    with caplog.at_level("INFO", logger="trading_signals"):
+        deliveries = publish_signal(
+            repo,
+            notifier,
+            signal,
+            entry,
+            higher,
+            evaluation,
+            risk_plan,
+            setup_context={
+                "market_regime": "TRENDING",
+                "session": "LONDON",
+                "entry_context": "PULLBACK",
+                "trade_location": "mid_range",
+                "setup_type": "MAIN_SIGNAL",
+            },
+            public_short_canary_config=PublicShortCanaryConfig(enabled=True),
+        )
+
+    assert {delivery.channel for delivery in deliveries} == {"telegram_public", "telegram_dev"}
+    assert len(notifier.public_messages) == 1
+    assert len(notifier.dev_messages) == 1
+    assert "public_canary_evaluated" in caplog.text
+    assert "public_canary_allowed" in caplog.text
+    assert "short_shadow_signal" not in caplog.text
+
+
+def test_publish_signal_canary_blocks_short_below_min_score(caplog) -> None:
+    entry = build_snapshot(
+        scan_run_id="run_test",
+        symbol="XRPUSDT",
+        timeframe="1h",
+        trend="bearish",
+        structure="bearish",
+        sweep="bearish",
+        score=68.0,
+        distance=1.0,
+    )
+    higher = build_snapshot(
+        scan_run_id="run_test",
+        symbol="XRPUSDT",
+        timeframe="4h",
+        trend="bearish",
+        structure="bearish",
+        sweep="none",
+        score=70.0,
+        distance=1.0,
+    )
+    evaluation = StrategyEvaluation(
+        id="eval_test",
+        scan_run_id="run_test",
+        strategy_id="liquidity_sweep_mtf",
+        strategy_version="v1",
+        symbol="XRPUSDT",
+        entry_timeframe="1h",
+        higher_timeframe="4h",
+        entry_snapshot_id=entry.id,
+        higher_snapshot_id=higher.id,
+        decision="short",
+        decision_trace=[],
+        rejection_reasons=[],
+        passed_filters=["timeframe_alignment", "primary_sweep_setup", "quality_score"],
+        failed_filters=[],
+        setup_score=68.0,
+        confidence=0.68,
+        created_at=entry.created_at,
+    )
+    risk_plan = RiskPlan(
+        id="risk_test",
+        evaluation_id="eval_test",
+        entry=100.0,
+        stop_loss=105.0,
+        take_profit=90.0,
+        risk_reward=2.0,
+        risk_amount=10.0,
+        position_size=2.0,
+        sl_method="test",
+        tp_method="test",
+        created_at=entry.created_at,
+    )
+    signal = TradeSignal(
+        id="sig_test",
+        scan_run_id="run_test",
+        evaluation_id="eval_test",
+        risk_plan_id="risk_test",
+        strategy_id="liquidity_sweep_mtf",
+        strategy_version="v1",
+        symbol="XRPUSDT",
+        decision="short",
+        status="valid",
+        dedupe_key="dedupe",
+        entry_timeframe="1h",
+        higher_timeframe="4h",
+        entry_snapshot_id=entry.id,
+        higher_snapshot_id=higher.id,
+        created_at=entry.created_at,
+    )
+    repo = RecordingSignalRepo()
+    notifier = RoutingNotifier()
+
+    with caplog.at_level("INFO", logger="trading_signals"):
+        deliveries = publish_signal(
+            repo,
+            notifier,
+            signal,
+            entry,
+            higher,
+            evaluation,
+            risk_plan,
+            setup_context={
+                "market_regime": "TRENDING",
+                "session": "LONDON",
+                "entry_context": "PULLBACK",
+                "trade_location": "mid_range",
+                "setup_type": "MAIN_SIGNAL",
+            },
+            public_short_canary_config=PublicShortCanaryConfig(enabled=True),
+        )
+
+    assert {delivery.channel for delivery in deliveries} == {"telegram_dev"}
+    assert notifier.public_messages == []
+    assert "public_canary_blocked" in caplog.text
+    blocked_record = next(record for record in caplog.records if record.event == "public_canary_blocked")
+    assert blocked_record.reason == "canary_score_mismatch"
 
 
 def test_publish_signal_with_public_block_reason_still_sends_dev_only(caplog) -> None:

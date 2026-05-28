@@ -17,6 +17,7 @@ from trading_signals.analysis.market_regime import analyze_market_regime
 from trading_signals.analysis.momentum import analyze_momentum
 from trading_signals.analysis.risk import analyze_risk
 from trading_signals.analysis.trend import analyze_trend
+from trading_signals.application.policies.public_canary_policy import PublicShortCanaryConfig, evaluate_public_short_canary
 from trading_signals.application.use_cases.analyze_symbol import analyze_symbol
 from trading_signals.application.use_cases.paper_trading import (
     build_paper_candidate_from_decision,
@@ -516,6 +517,17 @@ def _protection_engine_config(settings: Settings) -> ProtectionEngineConfig:
     )
 
 
+def _public_short_canary_config(settings: Settings) -> PublicShortCanaryConfig:
+    return PublicShortCanaryConfig(
+        enabled=settings.public_short_canary_enabled,
+        session=settings.public_short_canary_session,
+        direction=settings.public_short_canary_direction,
+        entry_context=settings.public_short_canary_entry_context,
+        setup_type=settings.public_short_canary_setup_type,
+        min_score=settings.public_short_canary_min_score,
+    )
+
+
 def _log_protection_diagnostics(logger, *, symbol: str, protection: dict[str, object]) -> None:
     if not protection.get("protection_triggered"):
         return
@@ -566,6 +578,7 @@ def _signal_activity_entry(
     experimental_signal_saved: bool,
     publish_filter_reason: str | None,
     paper_rejection: dict[str, object] | None,
+    public_canary: dict[str, object] | None = None,
 ) -> dict[str, object]:
     entry = analysis.entry_snapshot
     strategy_gate = module_diagnostics.get("strategy_gate", {})
@@ -608,6 +621,9 @@ def _signal_activity_entry(
         "market_regime": setup_context.get("market_regime"),
         "entry_context": setup_context.get("entry_context"),
         "source_engine": getattr(signal_decision, "source_engine", selected_engine),
+        "public_canary_decision": (public_canary or {}).get("public_canary_decision"),
+        "public_canary_match": (public_canary or {}).get("public_canary_match"),
+        "public_canary_reason": (public_canary or {}).get("public_canary_reason"),
         "raw_summary": {
             "signal_id": signal.id,
             "evaluation_id": evaluation.id,
@@ -622,6 +638,9 @@ def _signal_activity_entry(
             "paper_trade_created": paper_trade_created,
             "experimental_signal_saved": experimental_signal_saved,
             "publish_filter_reason": publish_filter_reason,
+            "public_canary_decision": (public_canary or {}).get("public_canary_decision"),
+            "public_canary_match": (public_canary or {}).get("public_canary_match"),
+            "public_canary_reason": (public_canary or {}).get("public_canary_reason"),
         },
     }
 
@@ -1081,6 +1100,12 @@ def run_market_scan(
                 config=_protection_engine_config(settings),
             )
             _log_protection_diagnostics(logger, symbol=symbol, protection=protection_engine)
+            public_canary = evaluate_public_short_canary(
+                signal=signal,
+                evaluation_or_decision=signal_decision,
+                setup_context=setup_context,
+                config=_public_short_canary_config(settings),
+            )
             if status == SignalStatus.VALID.value and should_publish_after_filters and not is_duplicate and lifecycle and lifecycle.should_publish:
                 deliveries = publish_signal(
                     signal_repo,
@@ -1094,6 +1119,7 @@ def run_market_scan(
                     signal_type=lifecycle.signal_type,
                     setup_context=setup_context,
                     public_block_reason=public_block_reason,
+                    public_short_canary_config=_public_short_canary_config(settings),
                 )
                 if any(item.status == "sent" for item in deliveries):
                     public_published = any(item.channel == "telegram_public" and item.status == "sent" for item in deliveries)
@@ -1291,6 +1317,7 @@ def run_market_scan(
                     experimental_signal_saved=experimental_signal_saved,
                     publish_filter_reason=publish_filter_reason,
                     paper_rejection=paper_rejection,
+                    public_canary=public_canary,
                 )
             )
             multi_agent_shadow_decision = None
@@ -1368,6 +1395,7 @@ def run_market_scan(
                     "multi_agent_shadow_decision": multi_agent_shadow_decision,
                     "kill_switch": kill_switch_status,
                     "protection_engine": protection_engine,
+                    "public_canary": public_canary,
                 }
             )
             _log_symbol_diagnostics(
