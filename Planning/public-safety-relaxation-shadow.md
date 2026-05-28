@@ -45,7 +45,7 @@ El Backtest Runner compara:
 - `pair_universe_filter_shadow`
 - `kill_switch_risk_guard`
 
-La variante relajada no se importa desde Telegram, scheduler ni `publish_signal`.
+La variante relajada no controla Telegram público ni sustituye `public_safety_policy`. Puede ejecutarse en `publish_signal` solo para diagnósticos privados DEV cuando `RELAXED_PUBLIC_POLICY_RUNTIME_SHADOW=true`.
 
 ## Ejecución
 
@@ -68,4 +68,4 @@ Outputs:
 
 ## Estado
 
-Shadow-only. No activa señales reales, no modifica el canal público y no cambia la estrategia base.
+Shadow-only. No activa señales públicas, no modifica el canal público y no cambia la estrategia base.

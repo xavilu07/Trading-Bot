@@ -528,6 +528,16 @@ def _public_short_canary_config(settings: Settings) -> PublicShortCanaryConfig:
     )
 
 
+def _relaxed_public_shadow_from_deliveries(deliveries) -> dict[str, object] | None:
+    for delivery in deliveries or []:
+        if getattr(delivery, "channel", "") != "telegram_dev_relaxed_shadow":
+            continue
+        payload = getattr(delivery, "payload", {})
+        if isinstance(payload, dict) and isinstance(payload.get("relaxed_public_policy"), dict):
+            return payload["relaxed_public_policy"]
+    return None
+
+
 def _log_protection_diagnostics(logger, *, symbol: str, protection: dict[str, object]) -> None:
     if not protection.get("protection_triggered"):
         return
@@ -579,6 +589,7 @@ def _signal_activity_entry(
     publish_filter_reason: str | None,
     paper_rejection: dict[str, object] | None,
     public_canary: dict[str, object] | None = None,
+    relaxed_public_shadow: dict[str, object] | None = None,
 ) -> dict[str, object]:
     entry = analysis.entry_snapshot
     strategy_gate = module_diagnostics.get("strategy_gate", {})
@@ -624,6 +635,9 @@ def _signal_activity_entry(
         "public_canary_decision": (public_canary or {}).get("public_canary_decision"),
         "public_canary_match": (public_canary or {}).get("public_canary_match"),
         "public_canary_reason": (public_canary or {}).get("public_canary_reason"),
+        "relaxed_public_policy_decision": (relaxed_public_shadow or {}).get("relaxed_public_policy_decision"),
+        "relaxed_public_policy_vs_current": (relaxed_public_shadow or {}).get("relaxed_public_policy_vs_current"),
+        "relaxed_public_shadow_sent_dev": (relaxed_public_shadow or {}).get("relaxed_public_shadow_sent_dev"),
         "raw_summary": {
             "signal_id": signal.id,
             "evaluation_id": evaluation.id,
@@ -641,6 +655,9 @@ def _signal_activity_entry(
             "public_canary_decision": (public_canary or {}).get("public_canary_decision"),
             "public_canary_match": (public_canary or {}).get("public_canary_match"),
             "public_canary_reason": (public_canary or {}).get("public_canary_reason"),
+            "relaxed_public_policy_decision": (relaxed_public_shadow or {}).get("relaxed_public_policy_decision"),
+            "relaxed_public_policy_vs_current": (relaxed_public_shadow or {}).get("relaxed_public_policy_vs_current"),
+            "relaxed_public_shadow_sent_dev": (relaxed_public_shadow or {}).get("relaxed_public_shadow_sent_dev"),
         },
     }
 
@@ -943,6 +960,7 @@ def run_market_scan(
             )
             signal_repo.save_signal(signal)
             deliveries = []
+            relaxed_public_shadow = None
             should_publish_decision = signal.decision in settings.publish_signal_decisions
             is_duplicate = signal_repo.has_published_dedupe_key(signal.dedupe_key)
             lifecycle = None
@@ -1121,6 +1139,7 @@ def run_market_scan(
                     public_block_reason=public_block_reason,
                     public_short_canary_config=_public_short_canary_config(settings),
                 )
+                relaxed_public_shadow = _relaxed_public_shadow_from_deliveries(deliveries)
                 if any(item.status == "sent" for item in deliveries):
                     public_published = any(item.channel == "telegram_public" and item.status == "sent" for item in deliveries)
                     signal.status = SignalStatus.PUBLISHED.value
@@ -1318,6 +1337,7 @@ def run_market_scan(
                     publish_filter_reason=publish_filter_reason,
                     paper_rejection=paper_rejection,
                     public_canary=public_canary,
+                    relaxed_public_shadow=relaxed_public_shadow,
                 )
             )
             multi_agent_shadow_decision = None

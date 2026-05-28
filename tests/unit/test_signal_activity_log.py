@@ -24,6 +24,9 @@ def test_append_signal_log_writes_jsonl(tmp_path, monkeypatch) -> None:
             "take_profit": 2940,
             "trend_entry": "bearish",
             "trend_higher": "bearish",
+            "relaxed_public_policy_decision": "allow",
+            "relaxed_public_policy_vs_current": "relaxed_allow_current_block",
+            "relaxed_public_shadow_sent_dev": True,
             "raw_summary": {"source": "unit_test"},
         }
     )
@@ -36,6 +39,9 @@ def test_append_signal_log_writes_jsonl(tmp_path, monkeypatch) -> None:
     assert payload["direction"] == "short"
     assert payload["status"] == "rejected"
     assert payload["rejection_reasons"] == ["directional_confluence_failed"]
+    assert payload["relaxed_public_policy_decision"] == "allow"
+    assert payload["relaxed_public_policy_vs_current"] == "relaxed_allow_current_block"
+    assert payload["relaxed_public_shadow_sent_dev"] is True
     assert payload["dedupe_key"]
 
 

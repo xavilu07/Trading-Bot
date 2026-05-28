@@ -50,6 +50,16 @@ def test_publish_signal_decisions_both_enables_long_and_short(monkeypatch) -> No
     assert settings.publish_signal_decisions == ["long", "short"]
 
 
+def test_relaxed_public_policy_shadow_settings(monkeypatch) -> None:
+    monkeypatch.setenv("RELAXED_PUBLIC_POLICY_RUNTIME_SHADOW", "true")
+    monkeypatch.setenv("RELAXED_PUBLIC_POLICY_SEND_DEV", "true")
+
+    settings = Settings()
+
+    assert settings.relaxed_public_policy_runtime_shadow is True
+    assert settings.relaxed_public_policy_send_dev is True
+
+
 def test_publish_filters_are_configurable(monkeypatch) -> None:
     monkeypatch.setenv("PUBLISH_ALLOWED_DIRECTIONS", "LONG")
     monkeypatch.setenv("PUBLISH_ALLOWED_SESSIONS", "LONDON")

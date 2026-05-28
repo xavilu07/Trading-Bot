@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import logging
+import os
+from collections import deque
 from datetime import UTC, datetime
 from uuid import uuid4
 
 from trading_signals.application.policies.public_canary_policy import PublicShortCanaryConfig
 from trading_signals.application.policies.public_safety_policy import evaluate_public_safety_policy
+from trading_signals.application.policies.relaxed_public_safety_v2 import evaluate_relaxed_public_safety_v2
 from trading_signals.domain.entities.signal_delivery import SignalDelivery
 from trading_signals.notifications.telegram import send_dev_signal_detail, send_public_signal
 
@@ -15,6 +18,8 @@ HARMFUL_PUBLISH_FILTERS = {
     "directional_confluence_failed",
 }
 NEGATIVE_EDGE_PUBLIC_ROUTE_REASON = "negative_historical_edge"
+RELAXED_SHADOW_DEDUPE_MAX = 500
+_RELAXED_SHADOW_DEDUPE_KEYS: deque[str] = deque(maxlen=RELAXED_SHADOW_DEDUPE_MAX)
 
 
 def signal_message_context(evaluation_or_decision) -> dict[str, object]:
@@ -346,6 +351,10 @@ def format_public_signal_message(symbol: str, decision: str, entry_snapshot, hig
     return message
 
 
+def clear_relaxed_public_shadow_dedupe() -> None:
+    _RELAXED_SHADOW_DEDUPE_KEYS.clear()
+
+
 def publish_signal(
     signal_repo,
     notifier,
@@ -436,6 +445,53 @@ def publish_signal(
                     "setup_type": canary.get("setup_type"),
                 },
             )
+        relaxed_shadow = _evaluate_relaxed_public_shadow(
+            signal=signal,
+            evaluation=evaluation,
+            risk_plan=risk_plan,
+            setup_context=setup_context,
+            current_policy=policy,
+        )
+        if relaxed_shadow["should_send_dev"]:
+            relaxed_message = format_relaxed_public_shadow_message(
+                signal=signal,
+                evaluation=evaluation,
+                risk_plan=risk_plan,
+                setup_context=setup_context or {},
+                relaxed_policy=relaxed_shadow["relaxed_policy"],
+                current_policy=policy,
+            )
+            routed_results.append(
+                (
+                    "telegram_dev_relaxed_shadow",
+                    relaxed_message,
+                    send_dev_signal_detail(notifier, relaxed_message, dry_run=dry_run),
+                )
+            )
+            logger.info(
+                "relaxed_public_shadow_signal_sent_dev",
+                extra={
+                    "event": "relaxed_public_shadow_signal_sent_dev",
+                    "symbol": signal.symbol,
+                    "direction": signal.decision,
+                    "relaxed_public_policy_decision": relaxed_shadow["relaxed_public_policy_decision"],
+                    "relaxed_public_policy_vs_current": relaxed_shadow["relaxed_public_policy_vs_current"],
+                    "current_block_reasons": policy.get("block_reasons", []),
+                    "relaxed_warnings": relaxed_shadow["relaxed_policy"].get("warnings", []),
+                },
+            )
+        else:
+            logger.info(
+                "relaxed_public_shadow_signal_skipped",
+                extra={
+                    "event": "relaxed_public_shadow_signal_skipped",
+                    "symbol": signal.symbol,
+                    "direction": signal.decision,
+                    "reason": relaxed_shadow["skip_reason"],
+                    "relaxed_public_policy_decision": relaxed_shadow["relaxed_public_policy_decision"],
+                    "relaxed_public_policy_vs_current": relaxed_shadow["relaxed_public_policy_vs_current"],
+                },
+            )
     else:
         if isinstance(canary, dict) and canary.get("public_canary_enabled") and signal.decision == "short":
             logger.info(
@@ -456,6 +512,15 @@ def publish_signal(
     attempted_at = datetime.now(tz=UTC).isoformat()
     for channel, message, results in routed_results:
         for result in results:
+            payload = {"message": message}
+            if channel == "telegram_dev_relaxed_shadow":
+                payload["relaxed_public_policy"] = {
+                    "relaxed_public_policy_decision": "allow",
+                    "relaxed_public_policy_vs_current": "relaxed_allow_current_block",
+                    "relaxed_public_shadow_sent_dev": str(result["status"]) == "sent",
+                    "current_public_policy_decision": "block",
+                    "shadow_label": "RELAXED_SHADOW_SIGNAL",
+                }
             delivery = SignalDelivery(
                 id=f"delivery_{uuid4().hex[:12]}",
                 signal_id=signal.id,
@@ -463,10 +528,126 @@ def publish_signal(
                 status=str(result["status"]),
                 recipient=str(result["recipient"]),
                 provider_message_id=result.get("provider_message_id"),
-                payload={"message": message},
+                payload=payload,
                 error_message=result.get("error_message"),
                 attempted_at=attempted_at,
             )
             signal_repo.save_delivery(delivery)
             deliveries.append(delivery)
     return deliveries
+
+
+def format_relaxed_public_shadow_message(
+    *,
+    signal,
+    evaluation,
+    risk_plan,
+    setup_context: dict[str, object],
+    relaxed_policy: dict[str, object],
+    current_policy: dict[str, object],
+) -> str:
+    reason = ", ".join(str(item) for item in current_policy.get("block_reasons", [])[:3]) or "public_safety_policy_blocked"
+    return (
+        "🧪 RELAXED SHADOW SIGNAL\n"
+        "No publicada en canal público.\n\n"
+        f"Símbolo: {signal.symbol}\n"
+        f"Dirección: {str(signal.decision).upper()}\n"
+        f"Entry: {getattr(risk_plan, 'entry', 'n/a')}\n"
+        f"SL: {getattr(risk_plan, 'stop_loss', 'n/a')}\n"
+        f"TP: {getattr(risk_plan, 'take_profit', 'n/a')}\n"
+        f"Score: {getattr(evaluation, 'setup_score', getattr(evaluation, 'total_score', 'n/a'))}\n"
+        f"Session: {setup_context.get('session', 'UNKNOWN')}\n"
+        f"Setup type: {setup_context.get('setup_type') or getattr(evaluation, 'setup_type', 'UNKNOWN')}\n"
+        f"Entry context: {setup_context.get('entry_context', 'UNKNOWN')}\n"
+        f"Reason: relaxed allow; current block: {reason}\n"
+        f"Relaxed warnings: {', '.join(str(item) for item in relaxed_policy.get('warnings', [])) or 'none'}"
+    )
+
+
+def _evaluate_relaxed_public_shadow(
+    *,
+    signal,
+    evaluation,
+    risk_plan,
+    setup_context: dict[str, object] | None,
+    current_policy: dict[str, object],
+) -> dict[str, object]:
+    runtime_shadow_enabled = _env_bool("RELAXED_PUBLIC_POLICY_RUNTIME_SHADOW", "true")
+    send_dev_enabled = _env_bool("RELAXED_PUBLIC_POLICY_SEND_DEV", "true")
+    if not runtime_shadow_enabled:
+        return _relaxed_shadow_result("disabled", {}, "disabled", "not_evaluated")
+
+    trade = _relaxed_runtime_trade(signal=signal, evaluation=evaluation, risk_plan=risk_plan, setup_context=setup_context or {})
+    relaxed_policy = evaluate_relaxed_public_safety_v2(trade=trade, history=[])
+    relaxed_allowed = bool(relaxed_policy.get("public_allowed"))
+    current_allowed = bool(current_policy.get("public_allowed"))
+    relaxed_decision = "allow" if relaxed_allowed else "block"
+    comparison = f"relaxed_{relaxed_decision}_current_{'allow' if current_allowed else 'block'}"
+    if not send_dev_enabled:
+        return _relaxed_shadow_result("send_dev_disabled", relaxed_policy, relaxed_decision, comparison)
+    if current_allowed or not relaxed_allowed:
+        return _relaxed_shadow_result("no_policy_gap", relaxed_policy, relaxed_decision, comparison)
+
+    dedupe_key = _relaxed_shadow_dedupe_key(trade)
+    if dedupe_key in _RELAXED_SHADOW_DEDUPE_KEYS:
+        return _relaxed_shadow_result("duplicate", relaxed_policy, relaxed_decision, comparison)
+    _RELAXED_SHADOW_DEDUPE_KEYS.append(dedupe_key)
+    return {
+        "should_send_dev": True,
+        "skip_reason": "",
+        "relaxed_policy": relaxed_policy,
+        "relaxed_public_policy_decision": relaxed_decision,
+        "relaxed_public_policy_vs_current": comparison,
+    }
+
+
+def _relaxed_shadow_result(
+    skip_reason: str,
+    relaxed_policy: dict[str, object],
+    relaxed_decision: str,
+    comparison: str,
+) -> dict[str, object]:
+    return {
+        "should_send_dev": False,
+        "skip_reason": skip_reason,
+        "relaxed_policy": relaxed_policy,
+        "relaxed_public_policy_decision": relaxed_decision,
+        "relaxed_public_policy_vs_current": comparison,
+    }
+
+
+def _relaxed_runtime_trade(*, signal, evaluation, risk_plan, setup_context: dict[str, object]) -> dict[str, object]:
+    return {
+        **setup_context,
+        "symbol": signal.symbol,
+        "direction": signal.decision,
+        "setup_type": setup_context.get("setup_type") or getattr(evaluation, "setup_type", "") or _infer_setup_type(evaluation),
+        "score": getattr(evaluation, "setup_score", getattr(evaluation, "total_score", None)),
+        "entry": getattr(risk_plan, "entry", None),
+        "stop_loss": getattr(risk_plan, "stop_loss", None),
+        "take_profit": getattr(risk_plan, "take_profit", None),
+        "risk_reward": getattr(risk_plan, "risk_reward", None),
+        "warnings": setup_context.get("warnings", setup_context.get("avoidance_warnings", [])),
+        "penalties": setup_context.get("penalties", []),
+        "trend_higher_timeframe": setup_context.get("trend_higher_timeframe") or setup_context.get("trend_higher"),
+        "risk_plan_valid": risk_plan is not None,
+    }
+
+
+def _relaxed_shadow_dedupe_key(trade: dict[str, object]) -> str:
+    fields = [
+        "symbol",
+        "direction",
+        "setup_type",
+        "session",
+        "entry_context",
+        "entry",
+        "stop_loss",
+        "take_profit",
+        "score",
+    ]
+    return "|".join(str(trade.get(field, "")).strip().lower() for field in fields)
+
+
+def _env_bool(name: str, default: str) -> bool:
+    return os.getenv(name, default).strip().lower() in {"1", "true", "yes", "on"}

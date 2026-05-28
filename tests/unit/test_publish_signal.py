@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import pytest
+
 from trading_signals.application.use_cases.publish_signal import (
+    clear_relaxed_public_shadow_dedupe,
     format_public_signal_message,
     format_telegram_message,
     meta_decision_public_filter_reason,
@@ -45,6 +48,93 @@ class PublicRiskPlan:
     take_profit = 90.0
     take_profit_2 = 85.0
     take_profit_3 = 80.0
+
+
+def _build_publish_case(
+    *,
+    symbol: str = "AVAXUSDT",
+    direction: str = "long",
+    entry_trend: str = "bullish",
+    higher_trend: str = "bullish",
+    score: float = 88.0,
+):
+    entry = build_snapshot(
+        scan_run_id="run_test",
+        symbol=symbol,
+        timeframe="1h",
+        trend=entry_trend,
+        structure=entry_trend,
+        sweep=entry_trend,
+        score=score,
+        distance=1.0,
+    )
+    higher = build_snapshot(
+        scan_run_id="run_test",
+        symbol=symbol,
+        timeframe="4h",
+        trend=higher_trend,
+        structure=higher_trend,
+        sweep="none",
+        score=70.0,
+        distance=1.0,
+    )
+    evaluation = StrategyEvaluation(
+        id=f"eval_{symbol}",
+        scan_run_id="run_test",
+        strategy_id="liquidity_sweep_mtf",
+        strategy_version="v1",
+        symbol=symbol,
+        entry_timeframe="1h",
+        higher_timeframe="4h",
+        entry_snapshot_id=entry.id,
+        higher_snapshot_id=higher.id,
+        decision=direction,
+        decision_trace=[],
+        rejection_reasons=[],
+        passed_filters=["timeframe_alignment", "primary_sweep_setup", "quality_score"],
+        failed_filters=[],
+        setup_score=score,
+        confidence=0.88,
+        created_at=entry.created_at,
+    )
+    risk_plan = RiskPlan(
+        id=f"risk_{symbol}",
+        evaluation_id=evaluation.id,
+        entry=100.0,
+        stop_loss=95.0 if direction == "long" else 105.0,
+        take_profit=110.0 if direction == "long" else 90.0,
+        risk_reward=2.0,
+        risk_amount=10.0,
+        position_size=2.0,
+        sl_method="test",
+        tp_method="test",
+        created_at=entry.created_at,
+    )
+    signal = TradeSignal(
+        id=f"sig_{symbol}",
+        scan_run_id="run_test",
+        evaluation_id=evaluation.id,
+        risk_plan_id=risk_plan.id,
+        strategy_id="liquidity_sweep_mtf",
+        strategy_version="v1",
+        symbol=symbol,
+        decision=direction,
+        status="valid",
+        dedupe_key=f"dedupe_{symbol}",
+        entry_timeframe="1h",
+        higher_timeframe="4h",
+        entry_snapshot_id=entry.id,
+        higher_snapshot_id=higher.id,
+        created_at=entry.created_at,
+    )
+    return entry, higher, evaluation, risk_plan, signal
+
+
+@pytest.fixture(autouse=True)
+def clear_relaxed_shadow_state():
+    clear_relaxed_public_shadow_dedupe()
+    yield
+    clear_relaxed_public_shadow_dedupe()
 
 
 def test_signal_message_contains_clear_direction_for_short() -> None:
@@ -658,12 +748,101 @@ def test_publish_signal_edge_activation_blocks_public_but_keeps_dev(caplog) -> N
             },
         )
 
-    assert {delivery.channel for delivery in deliveries} == {"telegram_dev"}
+    assert {delivery.channel for delivery in deliveries} == {"telegram_dev", "telegram_dev_relaxed_shadow"}
     assert notifier.public_messages == []
-    assert len(notifier.dev_messages) == 1
+    assert len(notifier.dev_messages) == 2
     assert "public_safety_policy_blocked" in caplog.text
     assert "edge_activation_blocked" in caplog.text
+    assert "relaxed_public_shadow_signal_sent_dev" in caplog.text
+    assert "🧪 RELAXED SHADOW SIGNAL" in notifier.dev_messages[0]
     assert "edge_activation_requires_overlap_session" in caplog.records[0].edge_activation_reasons
+
+
+def test_relaxed_shadow_does_not_send_public_and_sends_dev_when_policy_gap(caplog) -> None:
+    entry, higher, evaluation, risk_plan, signal = _build_publish_case()
+    repo = RecordingSignalRepo()
+    notifier = RoutingNotifier()
+
+    with caplog.at_level("INFO", logger="trading_signals"):
+        deliveries = publish_signal(
+            repo,
+            notifier,
+            signal,
+            entry,
+            higher,
+            evaluation,
+            risk_plan,
+            setup_context={
+                "market_regime": "TRENDING",
+                "session": "LONDON",
+                "entry_context": "BREAKOUT",
+                "trade_location": "mid_range",
+                "setup_type": "MAIN_SIGNAL",
+            },
+        )
+
+    assert "telegram_public" not in {delivery.channel for delivery in deliveries}
+    assert "telegram_dev_relaxed_shadow" in {delivery.channel for delivery in deliveries}
+    assert notifier.public_messages == []
+    assert any("🧪 RELAXED SHADOW SIGNAL" in message for message in notifier.dev_messages)
+    assert "No publicada en canal público." in "\n".join(notifier.dev_messages)
+    assert "relaxed_public_shadow_signal_sent_dev" in caplog.text
+
+
+def test_relaxed_shadow_does_not_send_when_relaxed_blocks(caplog) -> None:
+    entry, higher, evaluation, risk_plan, signal = _build_publish_case(
+        symbol="XRPUSDT",
+        direction="short",
+        entry_trend="bearish",
+        higher_trend="bearish",
+    )
+    repo = RecordingSignalRepo()
+    notifier = RoutingNotifier()
+
+    with caplog.at_level("INFO", logger="trading_signals"):
+        deliveries = publish_signal(
+            repo,
+            notifier,
+            signal,
+            entry,
+            higher,
+            evaluation,
+            risk_plan,
+            setup_context={
+                "market_regime": "TRENDING",
+                "session": "LONDON",
+                "entry_context": "PULLBACK",
+                "trade_location": "mid_range",
+                "setup_type": "MAIN_SIGNAL",
+            },
+        )
+
+    assert {delivery.channel for delivery in deliveries} == {"telegram_dev"}
+    assert notifier.public_messages == []
+    assert not any("🧪 RELAXED SHADOW SIGNAL" in message for message in notifier.dev_messages)
+    assert "relaxed_public_shadow_signal_skipped" in caplog.text
+
+
+def test_relaxed_shadow_dedupes_same_signal() -> None:
+    entry, higher, evaluation, risk_plan, signal = _build_publish_case()
+    repo = RecordingSignalRepo()
+    first_notifier = RoutingNotifier()
+    second_notifier = RoutingNotifier()
+    setup_context = {
+        "market_regime": "TRENDING",
+        "session": "LONDON",
+        "entry_context": "BREAKOUT",
+        "trade_location": "mid_range",
+        "setup_type": "MAIN_SIGNAL",
+    }
+
+    first = publish_signal(repo, first_notifier, signal, entry, higher, evaluation, risk_plan, setup_context=setup_context)
+    second = publish_signal(repo, second_notifier, signal, entry, higher, evaluation, risk_plan, setup_context=setup_context)
+
+    assert "telegram_dev_relaxed_shadow" in {delivery.channel for delivery in first}
+    assert "telegram_dev_relaxed_shadow" not in {delivery.channel for delivery in second}
+    assert any("🧪 RELAXED SHADOW SIGNAL" in message for message in first_notifier.dev_messages)
+    assert not any("🧪 RELAXED SHADOW SIGNAL" in message for message in second_notifier.dev_messages)
 
 
 def test_publish_signal_routes_short_ranging_to_dev_only_due_to_negative_edge(caplog) -> None:
@@ -1047,10 +1226,11 @@ def test_publish_signal_with_public_block_reason_still_sends_dev_only(caplog) ->
             public_block_reason="meta_decision_reject",
         )
 
-    assert {delivery.channel for delivery in deliveries} == {"telegram_dev"}
+    assert {delivery.channel for delivery in deliveries} == {"telegram_dev", "telegram_dev_relaxed_shadow"}
     assert notifier.public_messages == []
-    assert len(notifier.dev_messages) == 1
+    assert len(notifier.dev_messages) == 2
     assert "public_safety_policy_blocked" in caplog.text
+    assert "relaxed_public_shadow_signal_sent_dev" in caplog.text
     assert "meta_decision_reject" in caplog.records[0].block_reasons
 
 
@@ -1238,9 +1418,10 @@ def test_publish_signal_routes_secondary_choppy_range_to_dev_only() -> None:
         },
     )
 
-    assert {delivery.channel for delivery in deliveries} == {"telegram_dev"}
+    assert {delivery.channel for delivery in deliveries} == {"telegram_dev", "telegram_dev_relaxed_shadow"}
     assert notifier.public_messages == []
-    assert len(notifier.dev_messages) == 1
+    assert len(notifier.dev_messages) == 2
+    assert any("🧪 RELAXED SHADOW SIGNAL" in message for message in notifier.dev_messages)
 
 
 def test_public_routing_allows_long_breakout_main_signal() -> None:

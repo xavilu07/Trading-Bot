@@ -67,6 +67,12 @@ class Settings:
     public_short_canary_entry_context: str = field(default_factory=lambda: os.getenv("PUBLIC_SHORT_CANARY_ENTRY_CONTEXT", "PULLBACK"))
     public_short_canary_setup_type: str = field(default_factory=lambda: os.getenv("PUBLIC_SHORT_CANARY_SETUP_TYPE", "MAIN_SIGNAL"))
     public_short_canary_min_score: float = field(default_factory=lambda: float(os.getenv("PUBLIC_SHORT_CANARY_MIN_SCORE", "70")))
+    relaxed_public_policy_runtime_shadow: bool = field(
+        default_factory=lambda: _bool_env("RELAXED_PUBLIC_POLICY_RUNTIME_SHADOW", "true")
+    )
+    relaxed_public_policy_send_dev: bool = field(
+        default_factory=lambda: _bool_env("RELAXED_PUBLIC_POLICY_SEND_DEV", "true")
+    )
     kill_switch_enabled: bool = field(default_factory=lambda: _bool_env("KILL_SWITCH_ENABLED", "false"))
     max_daily_loss_r: float = field(default_factory=lambda: float(os.getenv("MAX_DAILY_LOSS_R", "2.0")))
     max_consecutive_losses: int = field(default_factory=lambda: int(os.getenv("MAX_CONSECUTIVE_LOSSES", "2")))

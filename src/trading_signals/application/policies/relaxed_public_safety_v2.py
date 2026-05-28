@@ -16,9 +16,9 @@ def evaluate_relaxed_public_safety_v2(
 ) -> dict[str, Any]:
     """Shadow-only public policy candidate.
 
-    This policy is deliberately not imported by the live publication path. It is
-    used by offline backtests to estimate whether a less restrictive public
-    policy would have improved historical results.
+    This policy never controls public publication. It is used by offline
+    backtests and by runtime private shadow diagnostics to estimate whether a
+    less restrictive public policy would have improved visibility.
     """
 
     history_rows = list(history or [])
@@ -35,6 +35,9 @@ def evaluate_relaxed_public_safety_v2(
     )
 
     edge = _historical_edge(trade, history_rows, min_context_sample=min_context_sample)
+    explicit_edge = _explicit_historical_edge(trade)
+    if explicit_edge["favorable"]:
+        edge = {**edge, **explicit_edge}
     negative_context = _negative_context(trade, history_rows, min_context_sample=min_context_sample)
     rr = _risk_reward(trade)
 
@@ -111,6 +114,34 @@ def _historical_edge(
         "dimensions": [],
         "favorable": False,
     }
+
+
+def _explicit_historical_edge(trade: dict[str, Any]) -> dict[str, Any]:
+    candidates = [
+        trade,
+        _dict(trade.get("historical_edge")),
+        _dict(trade.get("edge_score")),
+        _dict(trade.get("pattern_memory")).get("historical_edge"),
+        _dict(trade.get("pattern_memory")).get("edge_score"),
+    ]
+    for candidate in candidates:
+        data = _dict(candidate)
+        confidence = str(data.get("historical_confidence") or data.get("confidence_level") or "").upper()
+        edge_score = _float(data.get("historical_edge_score"))
+        winrate = _float(data.get("matched_winrate") or data.get("historical_winrate") or data.get("winrate"))
+        avg_r = _float(data.get("matched_avg_r") or data.get("historical_avg_r") or data.get("avg_r"))
+        profit_factor = _float(data.get("matched_profit_factor") or data.get("historical_profit_factor") or data.get("profit_factor"))
+        if confidence == "HIGH" or (edge_score is not None and edge_score >= 70):
+            return {
+                "sample_size": int(_float(data.get("matched_patterns_count") or data.get("similar_count")) or 0),
+                "winrate": round(winrate or 0.0, 2),
+                "avg_r": round(avg_r or 0.0, 4),
+                "total_r": 0.0,
+                "profit_factor": round(profit_factor or 0.0, 4),
+                "dimensions": ["explicit_historical_edge"],
+                "favorable": True,
+            }
+    return {"favorable": False}
 
 
 def _negative_context(
@@ -240,6 +271,10 @@ def _norm_upper(value: object) -> str:
 
 def _norm_lower(value: object) -> str:
     return str(value or "").strip().lower()
+
+
+def _dict(value: object) -> dict[str, Any]:
+    return value if isinstance(value, dict) else {}
 
 
 def _dedupe(values: list[str]) -> list[str]:
