@@ -1,0 +1,55 @@
+generated_at,analysis_type,feature,value,sample_size,closed_trades,allowed_count,blocked_count,wins,losses,winrate,total_r,avg_r,profit_factor,confidence,driver_score,interpretation
+2026-05-28T16:01:30+00:00,driver,has_range_penalty,true,7,7,7,0,2,5,28.57,1.584,0.2263,1.5525,LOW,2.2978,mixed_or_neutral
+2026-05-28T16:01:30+00:00,driver,penalty,market_structure_range_penalty:10,7,7,7,0,2,5,28.57,1.584,0.2263,1.5525,LOW,2.2978,mixed_or_neutral
+2026-05-28T16:01:30+00:00,driver,rejection_reason,market_structure_range_penalty,7,7,7,0,2,5,28.57,1.584,0.2263,1.5525,LOW,2.2978,mixed_or_neutral
+2026-05-28T16:01:30+00:00,driver,trend_alignment,aligned,8,8,8,0,2,6,25.0,0.584,0.073,1.151,LOW,1.7407,mixed_or_neutral
+2026-05-28T16:01:30+00:00,driver,body_bucket,UNKNOWN,9,9,9,0,2,7,22.22,-0.416,-0.0462,0.9145,LOW,1.3905,negative_driver
+2026-05-28T16:01:30+00:00,driver,has_penalties,true,9,9,9,0,2,7,22.22,-0.416,-0.0462,0.9145,LOW,1.3905,negative_driver
+2026-05-28T16:01:30+00:00,driver,score_bucket,<70,5,5,5,0,1,4,20.0,-0.5265,-0.1053,0.8486,LOW,1.11,negative_driver
+2026-05-28T16:01:30+00:00,driver,rr_bucket,rr_1_5_to_2,5,5,5,0,1,4,20.0,-0.367,-0.0734,0.8034,LOW,1.0967,negative_driver
+2026-05-28T16:01:30+00:00,driver,has_secondary_setup_requirements_failed,true,5,5,5,0,1,4,20.0,-0.367,-0.0734,0.8034,LOW,1.0967,negative_driver
+2026-05-28T16:01:30+00:00,driver,rejection_reason,secondary_setup_requirements_failed,5,5,5,0,1,4,20.0,-0.367,-0.0734,0.8034,LOW,1.0967,negative_driver
+2026-05-28T16:01:30+00:00,driver,setup_type,SECONDARY_SIGNAL,6,6,6,0,1,5,16.67,-1.367,-0.2278,0.5232,LOW,0.6621,negative_driver
+2026-05-28T16:01:30+00:00,driver,entry_context,BREAKOUT,6,6,6,0,1,5,16.67,-1.367,-0.2278,0.5232,LOW,0.6621,negative_driver
+2026-05-28T16:01:30+00:00,driver,volume_bucket,volume_high,6,6,6,0,1,5,16.67,-1.367,-0.2278,0.5232,LOW,0.6621,negative_driver
+2026-05-28T16:01:30+00:00,driver,rejection_reason,directional_confluence_failed,6,6,6,0,1,5,16.67,-1.367,-0.2278,0.5232,LOW,0.6621,negative_driver
+2026-05-28T16:01:30+00:00,driver,has_body_ratio_below_threshold,false,7,7,7,0,1,6,14.29,-2.367,-0.3381,0.3879,LOW,0.426,negative_driver
+2026-05-28T16:01:30+00:00,driver,market_regime,RANGING,4,4,4,0,1,3,25.0,-0.9775,-0.2444,0.6054,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,driver,rr_bucket,rr_2_plus,4,4,4,0,1,3,25.0,-0.049,-0.0122,0.9837,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,driver,has_secondary_setup_requirements_failed,false,4,4,4,0,1,3,25.0,-0.049,-0.0122,0.9837,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,driver,penalty,distance_to_liquidity_penalty:10,4,4,4,0,0,4,0.0,-3.4775,-0.8694,0.0,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,driver,rejection_reason,distance_to_liquidity_penalty,4,4,4,0,0,4,0.0,-3.4775,-0.8694,0.0,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,driver,penalty,secondary_confluence_bonus:+30,4,4,4,0,1,3,25.0,0.633,0.1583,1.7301,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,driver,market_regime,HIGH_VOLATILITY,4,4,4,0,1,3,25.0,1.5615,0.3904,2.1238,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,driver,trade_location,discount_zone,3,3,3,0,0,3,0.0,-1.657,-0.5523,0.0,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,driver,score_bucket,80-89,3,3,3,0,1,2,33.33,1.1105,0.3702,3.8511,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,driver,setup_type,MAIN_SIGNAL,3,3,3,0,1,2,33.33,0.951,0.317,1.4755,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,driver,trade_location,near_resistance,3,3,3,0,1,2,33.33,0.951,0.317,1.4755,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,driver,trade_location,mid_range,2,2,2,0,0,2,0.0,-1.21,-0.605,0.0,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,driver,has_range_penalty,false,2,2,2,0,0,2,0.0,-2.0,-1.0,0.0,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,driver,entry_context,PULLBACK,2,2,2,0,1,1,50.0,1.951,0.9755,2.951,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,driver,volume_bucket,volume_mid,2,2,2,0,1,1,50.0,1.951,0.9755,2.951,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,driver,has_body_ratio_below_threshold,true,2,2,2,0,1,1,50.0,1.951,0.9755,2.951,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,driver,rejection_reason,body_ratio_below_threshold,2,2,2,0,1,1,50.0,1.951,0.9755,2.951,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,driver,penalty,secondary_confluence_bonus:+35,1,1,1,0,0,1,0.0,-1.0,-1.0,0.0,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,driver,trade_location,near_support,1,1,1,0,1,0,100.0,1.5,1.5,,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,driver,score_bucket,90+,1,1,1,0,0,1,0.0,-1.0,-1.0,0.0,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,driver,volume_bucket,volume_low,1,1,1,0,0,1,0.0,-1.0,-1.0,0.0,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,driver,penalty,secondary_confluence_bonus:+25,1,1,1,0,0,1,0.0,-1.0,-1.0,0.0,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,driver,entry_context,CHOPPY_RANGE,1,1,1,0,0,1,0.0,-1.0,-1.0,0.0,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,driver,market_regime,TRENDING,1,1,1,0,0,1,0.0,-1.0,-1.0,0.0,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,driver,trend_alignment,misaligned,1,1,1,0,0,1,0.0,-1.0,-1.0,0.0,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,driver,penalty,timeframe_alignment_penalty:10,1,1,1,0,0,1,0.0,-1.0,-1.0,0.0,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,driver,rejection_reason,timeframe_alignment_penalty,1,1,1,0,0,1,0.0,-1.0,-1.0,0.0,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,comparison,MAIN_SIGNAL vs SECONDARY_SIGNAL,MAIN_SIGNAL,3,3,3,0,1,2,33.33,0.951,0.317,1.4755,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,comparison,MAIN_SIGNAL vs SECONDARY_SIGNAL,SECONDARY_SIGNAL,6,6,6,0,1,5,16.67,-1.367,-0.2278,0.5232,LOW,0.6621,negative_driver
+2026-05-28T16:01:30+00:00,comparison,PULLBACK vs BREAKOUT,PULLBACK,2,2,2,0,1,1,50.0,1.951,0.9755,2.951,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,comparison,PULLBACK vs BREAKOUT,BREAKOUT,6,6,6,0,1,5,16.67,-1.367,-0.2278,0.5232,LOW,0.6621,negative_driver
+2026-05-28T16:01:30+00:00,comparison,RANGING vs TRENDING vs HIGH_VOLATILITY,RANGING,4,4,4,0,1,3,25.0,-0.9775,-0.2444,0.6054,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,comparison,RANGING vs TRENDING vs HIGH_VOLATILITY,TRENDING,1,1,1,0,0,1,0.0,-1.0,-1.0,0.0,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,comparison,RANGING vs TRENDING vs HIGH_VOLATILITY,HIGH_VOLATILITY,4,4,4,0,1,3,25.0,1.5615,0.3904,2.1238,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,comparison,score 70-79 vs 80-89 vs 90+,70-79,0,0,0,0,0,0,0.0,0,0.0,0.0,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,comparison,score 70-79 vs 80-89 vs 90+,80-89,0,0,0,0,0,0,0.0,0,0.0,0.0,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,comparison,score 70-79 vs 80-89 vs 90+,90+,0,0,0,0,0,0,0.0,0,0.0,0.0,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,comparison,with range penalty vs without range penalty,true,0,0,0,0,0,0,0.0,0,0.0,0.0,LOW,0.0,insufficient_sample
+2026-05-28T16:01:30+00:00,comparison,with range penalty vs without range penalty,false,0,0,0,0,0,0,0.0,0,0.0,0.0,LOW,0.0,insufficient_sample
