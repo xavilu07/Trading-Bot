@@ -56,9 +56,6 @@ BOT_DATA_DIR: /Users/xaviestruch/Documents/Prueba Trading
 - Resolver warnings de datos antes de usar este reporte como base de decision.
 
 ## Warnings
-- Missing optional file: reports/outcome_intelligence.csv
-- Missing optional file: reports/setup_rankings.csv
-- Missing optional file: reports/edge_breakdown.csv
 - Missing optional file: reports/controlled_experiments_report.json
 - Missing optional file: reports/london_short_analysis.json
 - Missing optional file: reports/london_short_focused_shadow.json

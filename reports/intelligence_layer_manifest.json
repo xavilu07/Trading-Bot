@@ -1,0 +1,30 @@
+{
+  "generated_at": "2026-05-28T14:52:21+00:00",
+  "data_sources": {
+    "paper_trade_csvs": 4,
+    "live_trades_exists": true,
+    "signals_log_rows": 166,
+    "pattern_memory_rows": 28
+  },
+  "reports": {
+    "outcome_intelligence": "reports/outcome_intelligence.csv",
+    "setup_rankings": "reports/setup_rankings.csv",
+    "setup_combinations_rankings": "reports/setup_combinations_rankings.csv",
+    "edge_breakdown": "reports/edge_breakdown.csv",
+    "secondary_signal_breakdown": "reports/secondary_signal_breakdown.csv",
+    "performance_report": "reports/performance_report.html",
+    "dashboard": "reports/dashboard.html"
+  },
+  "rows": {
+    "outcome_intelligence": 45,
+    "setup_rankings": 25,
+    "setup_combinations_rankings": 40,
+    "edge_breakdown": 32,
+    "closed_trades": 45
+  },
+  "warnings": [],
+  "refreshed_intelligence_reports": [
+    "reports/intelligence/daily/2026-05-27/report.json",
+    "reports/intelligence/weekly/2026-22/report.json"
+  ]
+}

@@ -5,6 +5,7 @@ import csv
 import json
 import sys
 from collections import Counter, defaultdict
+from datetime import UTC, datetime
 from pathlib import Path
 
 from trading_signals.memory.outcome_intelligence import analyze_trade_outcome
@@ -12,6 +13,7 @@ from trading_signals.memory.outcome_intelligence import analyze_trade_outcome
 
 CLOSED_STATUSES = {"tp2_hit", "tp_hit", "sl_hit", "expired", "breakeven"}
 OUTPUT_FIELDS = [
+    "generated_at",
     "source_csv",
     "symbol",
     "direction",
@@ -22,6 +24,12 @@ OUTPUT_FIELDS = [
     "trade_location",
     "status",
     "result_r",
+    "sample_size",
+    "confidence",
+    "winrate",
+    "avg_r",
+    "profit_factor",
+    "PF",
     "mfe_r",
     "mae_r",
     "bars_held",
@@ -58,11 +66,13 @@ def load_closed_trades(data_path: Path) -> list[dict[str, object]]:
 
 def build_outcome_rows(trades: list[dict[str, object]]) -> list[dict[str, object]]:
     rows = []
+    generated_at = datetime.now(UTC).isoformat(timespec="seconds")
     for trade in trades:
         outcome = analyze_trade_outcome(trade)
         row = {field: trade.get(field, "") for field in OUTPUT_FIELDS}
         row.update(
             {
+                "generated_at": generated_at,
                 "mfe_r": trade.get("mfe_r") or trade.get("max_favorable_move_r") or trade.get("max_favorable_move") or "",
                 "mae_r": trade.get("mae_r") or trade.get("max_adverse_move_r") or trade.get("max_adverse_move") or "",
                 "bars_held": trade.get("bars_held") or trade.get("candles_held") or trade.get("candles_elapsed") or "",
@@ -78,6 +88,7 @@ def build_outcome_rows(trades: list[dict[str, object]]) -> list[dict[str, object
             }
         )
         rows.append(row)
+    _attach_context_metrics(rows)
     return rows
 
 
@@ -162,6 +173,64 @@ def _rank_contexts(rows: list[dict[str, object]], *, reverse: bool) -> list[dict
     return sorted(ranked, key=lambda item: float(item["avg_outcome_score"]), reverse=reverse)[:10]
 
 
+def _attach_context_metrics(rows: list[dict[str, object]]) -> None:
+    groups: dict[tuple[str, str, str, str, str], list[dict[str, object]]] = defaultdict(list)
+    for row in rows:
+        groups[_context_key(row)].append(row)
+    metrics_by_key = {key: _result_metrics(items) for key, items in groups.items()}
+    for row in rows:
+        metrics = metrics_by_key.get(_context_key(row), {})
+        row.update(metrics)
+
+
+def _context_key(row: dict[str, object]) -> tuple[str, str, str, str, str]:
+    return (
+        _value(row.get("setup_type")),
+        _value(row.get("direction")),
+        _value(row.get("session")),
+        _value(row.get("entry_context")),
+        _value(row.get("market_regime")),
+    )
+
+
+def _result_metrics(rows: list[dict[str, object]]) -> dict[str, object]:
+    r_values = [_to_float(row.get("result_r")) for row in rows]
+    r_values = [value for value in r_values if value is not None]
+    wins = [value for value in r_values if value > 0]
+    gross_profit = sum(max(0.0, value) for value in r_values)
+    gross_loss = abs(sum(min(0.0, value) for value in r_values))
+    profit_factor = round(gross_profit / gross_loss, 4) if gross_loss > 0 else None
+    sample_size = len(r_values)
+    return {
+        "sample_size": sample_size,
+        "confidence": _confidence(sample_size),
+        "winrate": round(len(wins) / sample_size * 100, 2) if sample_size else 0.0,
+        "avg_r": round(sum(r_values) / sample_size, 4) if sample_size else 0.0,
+        "profit_factor": profit_factor,
+        "PF": profit_factor,
+    }
+
+
+def _value(value: object) -> str:
+    text = str(value or "").strip()
+    return text if text else "UNKNOWN"
+
+
+def _confidence(sample_size: int) -> str:
+    if sample_size >= 30:
+        return "HIGH"
+    if sample_size >= 10:
+        return "MEDIUM"
+    return "LOW"
+
+
+def _to_float(value: object) -> float | None:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
 def _format_contexts(items: object) -> str:
     if not isinstance(items, list) or not items:
         return "- sin datos"
@@ -170,4 +239,3 @@ def _format_contexts(items: object) -> str:
 
 if __name__ == "__main__":
     raise SystemExit(main(sys.argv[1:]))
-

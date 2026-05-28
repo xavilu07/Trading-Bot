@@ -6,18 +6,19 @@ import html
 import json
 import sys
 from collections import Counter, defaultdict
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 
 CLOSED_STATUSES = {"tp2_hit", "tp_hit", "sl_hit", "expired"}
 WIN_STATUSES = {"tp2_hit", "tp_hit"}
 EDGE_GROUP_FIELDS = (
+    "session",
     "direction",
     "setup_type",
-    "score_bucket",
     "market_regime",
-    "session",
+    "regime",
+    "score_bucket",
     "entry_context",
     "trade_location",
     "warnings",
@@ -42,9 +43,17 @@ def discover_paper_csvs(data_path: Path) -> list[Path]:
     return sorted(path for path in paper_path.glob("*.csv") if path.is_file())
 
 
+def discover_trade_csvs(data_path: Path) -> list[Path]:
+    paths = discover_paper_csvs(data_path)
+    live_path = data_path / "live_trading" / "trades.csv"
+    if live_path.exists():
+        paths.append(live_path)
+    return sorted(paths)
+
+
 def load_closed_trades(data_path: Path) -> list[dict[str, object]]:
     trades: list[dict[str, object]] = []
-    for csv_path in discover_paper_csvs(data_path):
+    for csv_path in discover_trade_csvs(data_path):
         with csv_path.open("r", encoding="utf-8", newline="") as handle:
             for row in csv.DictReader(handle):
                 status = str(row.get("status", row.get("outcome", ""))).strip().lower()
@@ -90,7 +99,7 @@ def build_edge_breakdown(trades: list[dict[str, object]]) -> list[dict[str, obje
                 groups[(field, value)].append(trade)
     rows = []
     for (field, value), items in groups.items():
-        rows.append({"group_type": field, "group": value, **_group_metrics(items)})
+        rows.append({"group_type": field, "group": value, "dimension": field, "value": value, **_group_metrics(items)})
     return sorted(rows, key=lambda item: float(item["total_r"]))
 
 
@@ -102,7 +111,7 @@ def build_secondary_signal_breakdown(trades: list[dict[str, object]]) -> list[di
                 groups[(field, value)].append(trade)
     rows = []
     for (field, value), items in groups.items():
-        rows.append({"group_type": field, "group": value, **_group_metrics(items)})
+        rows.append({"group_type": field, "group": value, "dimension": field, "value": value, **_group_metrics(items)})
     return sorted(rows, key=lambda item: (str(item["group_type"]), str(item["group"])))
 
 
@@ -265,14 +274,30 @@ def _max_drawdown(values: list[float]) -> float:
 
 
 def write_edge_breakdown_csv(path: Path, rows: object) -> Path:
-    fieldnames = ["group_type", "group", "trades", "winrate", "total_r", "avg_r", "profit_factor"]
+    fieldnames = [
+        "generated_at",
+        "group_type",
+        "group",
+        "dimension",
+        "value",
+        "trades",
+        "sample_size",
+        "confidence",
+        "winrate",
+        "total_r",
+        "avg_r",
+        "profit_factor",
+    ]
+    generated_at = datetime.now(UTC).isoformat(timespec="seconds")
     with path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
         writer.writeheader()
         if isinstance(rows, list):
             for row in rows:
                 if isinstance(row, dict):
-                    writer.writerow({field: row.get(field, "") for field in fieldnames})
+                    output = {field: row.get(field, "") for field in fieldnames}
+                    output["generated_at"] = generated_at
+                    writer.writerow(output)
     return path
 
 
@@ -283,6 +308,8 @@ def _group_metrics(trades: list[dict[str, object]]) -> dict[str, object]:
     gross_loss = abs(sum(min(0.0, value) for value in r_values))
     return {
         "trades": len(trades),
+        "sample_size": len(trades),
+        "confidence": _confidence(len(trades)),
         "winrate": round(len(wins) / len(trades) * 100, 2) if trades else 0.0,
         "total_r": round(sum(r_values), 4),
         "avg_r": round(sum(r_values) / len(r_values), 4) if r_values else 0.0,
@@ -295,6 +322,9 @@ def _edge_values(trade: dict[str, object], field: str) -> list[str]:
         return [_score_bucket(_to_float(trade.get("score")))]
     if field == "warnings":
         return _tokens(trade.get("avoidance_warnings") or trade.get("warnings"))
+    if field == "regime":
+        value = str(trade.get("market_regime", "") or "").strip()
+        return [value] if value else []
     if field == "high_score_rejected":
         value = trade.get("high_score_rejected")
         if str(value).strip().lower() in {"1", "true", "yes", "high_score_rejected"}:
@@ -433,6 +463,14 @@ def _to_float(value: object) -> float | None:
         return float(value)
     except (TypeError, ValueError):
         return None
+
+
+def _confidence(sample_size: int) -> str:
+    if sample_size >= 30:
+        return "HIGH"
+    if sample_size >= 10:
+        return "MEDIUM"
+    return "LOW"
 
 
 if __name__ == "__main__":

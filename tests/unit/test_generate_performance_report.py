@@ -125,6 +125,8 @@ def test_performance_report_creates_reports_directory(tmp_path: Path) -> None:
     assert (reports_path / "performance_report.html").exists()
     assert (reports_path / "edge_breakdown.csv").exists()
     assert (reports_path / "secondary_signal_breakdown.csv").exists()
+    rows = list(csv.DictReader((reports_path / "edge_breakdown.csv").open("r", encoding="utf-8")))
+    assert {"generated_at", "dimension", "value", "sample_size", "confidence"}.issubset(rows[0].keys())
 
 
 def test_edge_breakdown_metrics_and_console_format() -> None:
@@ -139,12 +141,30 @@ def test_edge_breakdown_metrics_and_console_format() -> None:
     long_row = next(row for row in rows if row["group_type"] == "direction" and row["group"] == "long")
 
     assert long_row["trades"] == 2
+    assert long_row["sample_size"] == 2
+    assert long_row["confidence"] == "LOW"
     assert long_row["winrate"] == 50.0
     assert long_row["total_r"] == 1.0
     assert "🔎 Edge Breakdown" in text
     assert "✅ Mejores grupos" in text
     assert "⚠️ Peores grupos" in text
     assert "🧨 Principales fugas de R" in text
+
+
+def test_performance_report_loads_live_trades_too(tmp_path: Path) -> None:
+    data_path = tmp_path / "data"
+    write_trades(data_path, [{"status": "tp_hit", "result_r": "1"}])
+    live_dir = data_path / "live_trading"
+    live_dir.mkdir(parents=True)
+    with (live_dir / "trades.csv").open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=["status", "result_r"])
+        writer.writeheader()
+        writer.writerow({"status": "sl_hit", "result_r": "-1"})
+
+    trades = load_closed_trades(data_path)
+
+    assert len(trades) == 2
+    assert any(str(trade["source_csv"]).endswith("live_trading/trades.csv") for trade in trades)
 
 
 def test_secondary_signal_analysis_breaks_down_sweep_and_main() -> None:

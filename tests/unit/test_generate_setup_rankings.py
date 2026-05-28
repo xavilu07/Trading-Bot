@@ -95,6 +95,11 @@ def test_setup_rankings_builds_simple_rankings_from_paper_and_live(tmp_path: Pat
     assert main["trades"] == 2
     assert main["winrate"] == 100.0
     assert main["total_r"] == 3.5
+    assert main["sample_size"] == 2
+    assert main["sample_sufficiency"] == "LOW"
+    assert main["confidence"] == "LOW"
+    assert main["consistency"] == 1.0
+    assert "ranking_score" in main
     assert main["long_trades"] == 2
     assert main["main_signal_trades"] == 2
 
@@ -121,11 +126,13 @@ def test_setup_rankings_builds_combinations_and_token_groups(tmp_path: Path) -> 
 
     result = generate_setup_rankings(data_path, tmp_path / "reports", min_trades=1)
     combo = result["combinations"]
+    rows = list(csv.DictReader((tmp_path / "reports" / "setup_rankings.csv").open("r", encoding="utf-8")))
 
     assert any(row["ranking_type"] == "setup_type+direction" and row["group"] == "SECONDARY_SIGNAL|long" for row in combo)
     assert any(row["ranking_type"] == "setup_type+liquidity_sweep" and row["group"] == "SECONDARY_SIGNAL|no" for row in combo)
     assert any(row["ranking_type"] == "warnings" and row["group"] == "low_volume" for row in combo)
     assert any(row["ranking_type"] == "penalties" and row["group"] == "distance_to_liquidity_penalty" for row in combo)
+    assert {"generated_at", "sample_size", "sample_sufficiency", "consistency", "ranking_score"}.issubset(rows[0].keys())
 
 
 def test_setup_rankings_tolerates_missing_columns(tmp_path: Path) -> None:
@@ -153,4 +160,3 @@ def test_setup_rankings_dry_run_does_not_write_reports(tmp_path: Path) -> None:
 
     assert result["trades"] == 1
     assert not (tmp_path / "reports" / "setup_rankings.csv").exists()
-

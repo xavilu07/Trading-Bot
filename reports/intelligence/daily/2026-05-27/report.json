@@ -11,14 +11,11 @@
   "data_sources": {
     "paper_trades_rows": 49,
     "live_trades_rows": 7,
-    "outcome_rows": 0,
+    "outcome_rows": 45,
     "signals_rows": 154,
-    "setup_rankings_rows": 0,
-    "edge_breakdown_rows": 0,
+    "setup_rankings_rows": 25,
+    "edge_breakdown_rows": 32,
     "warnings": [
-      "Missing optional file: reports/outcome_intelligence.csv",
-      "Missing optional file: reports/setup_rankings.csv",
-      "Missing optional file: reports/edge_breakdown.csv",
       "Missing optional file: reports/controlled_experiments_report.json",
       "Missing optional file: reports/london_short_analysis.json",
       "Missing optional file: reports/london_short_focused_shadow.json"
@@ -200,9 +197,6 @@
     "telegram_dev_status": "not_configured"
   },
   "warnings": [
-    "Missing optional file: reports/outcome_intelligence.csv",
-    "Missing optional file: reports/setup_rankings.csv",
-    "Missing optional file: reports/edge_breakdown.csv",
     "Missing optional file: reports/controlled_experiments_report.json",
     "Missing optional file: reports/london_short_analysis.json",
     "Missing optional file: reports/london_short_focused_shadow.json"

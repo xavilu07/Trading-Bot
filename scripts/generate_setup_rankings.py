@@ -5,6 +5,7 @@ import csv
 import json
 import sys
 from collections import Counter, defaultdict
+from datetime import UTC, datetime
 from pathlib import Path
 
 
@@ -32,14 +33,20 @@ COMBINATION_FIELDS = (
     ("penalties",),
 )
 CSV_FIELDS = [
+    "generated_at",
     "ranking_type",
     "group",
     "trades",
+    "sample_size",
+    "sample_sufficiency",
+    "confidence",
     "winrate",
     "total_r",
     "avg_r",
     "profit_factor",
     "expectancy",
+    "consistency",
+    "ranking_score",
     "long_trades",
     "short_trades",
     "main_signal_trades",
@@ -167,7 +174,7 @@ def _build_rows(
         if len(items) < min_trades:
             continue
         rows.append({"ranking_type": ranking_type, "group": group, **_metrics(items)})
-    return sorted(rows, key=lambda row: (str(row["ranking_type"]), -float(row["total_r"]), -float(row["avg_r"])))
+    return sorted(rows, key=_ranking_sort_key, reverse=True)
 
 
 def _group_values(trade: dict[str, object], definition: str | tuple[str, ...]) -> list[str]:
@@ -200,13 +207,28 @@ def _metrics(trades: list[dict[str, object]]) -> dict[str, object]:
     gross_profit = sum(max(0.0, value) for value in r_values)
     gross_loss = abs(sum(min(0.0, value) for value in r_values))
     total_r = sum(r_values)
+    winrate = round(len(wins) / len(trades) * 100, 2) if trades else 0.0
+    profit_factor = round(gross_profit / gross_loss, 4) if gross_loss > 0 else None
+    consistency = round(winrate / 100.0, 4)
+    sample_sufficiency = _sample_sufficiency(len(trades))
+    ranking_score = _ranking_score(
+        profit_factor=profit_factor,
+        total_r=total_r,
+        consistency=consistency,
+        sample_sufficiency=sample_sufficiency,
+    )
     return {
         "trades": len(trades),
-        "winrate": round(len(wins) / len(trades) * 100, 2) if trades else 0.0,
+        "sample_size": len(trades),
+        "sample_sufficiency": sample_sufficiency,
+        "confidence": _confidence(len(trades)),
+        "winrate": winrate,
         "total_r": round(total_r, 4),
         "avg_r": round(total_r / len(trades), 4) if trades else 0.0,
-        "profit_factor": round(gross_profit / gross_loss, 4) if gross_loss > 0 else None,
+        "profit_factor": profit_factor,
         "expectancy": round(total_r / len(trades), 4) if trades else 0.0,
+        "consistency": consistency,
+        "ranking_score": ranking_score,
         "long_trades": _count_value(trades, "direction", "long"),
         "short_trades": _count_value(trades, "direction", "short"),
         "main_signal_trades": _count_value(trades, "setup_type", "MAIN_SIGNAL"),
@@ -215,11 +237,14 @@ def _metrics(trades: list[dict[str, object]]) -> dict[str, object]:
 
 
 def _write_rows(path: Path, rows: list[dict[str, object]]) -> Path:
+    generated_at = datetime.now(UTC).isoformat(timespec="seconds")
     with path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=CSV_FIELDS)
         writer.writeheader()
         for row in rows:
-            writer.writerow({field: row.get(field, "") for field in CSV_FIELDS})
+            output = {field: row.get(field, "") for field in CSV_FIELDS}
+            output["generated_at"] = generated_at
+            writer.writerow(output)
     return path
 
 
@@ -276,6 +301,45 @@ def _count_value(trades: list[dict[str, object]], key: str, expected: str) -> in
     return len([trade for trade in trades if str(trade.get(key, "")).strip().lower() == expected_norm])
 
 
+def _sample_sufficiency(sample_size: int) -> str:
+    if sample_size >= 30:
+        return "HIGH"
+    if sample_size >= 10:
+        return "MEDIUM"
+    return "LOW"
+
+
+def _confidence(sample_size: int) -> str:
+    return _sample_sufficiency(sample_size)
+
+
+def _ranking_score(
+    *,
+    profit_factor: float | None,
+    total_r: float,
+    consistency: float,
+    sample_sufficiency: str,
+) -> float:
+    pf_component = 5.0 if profit_factor is None and total_r > 0 else max(0.0, min(float(profit_factor or 0.0), 5.0))
+    sample_component = {"HIGH": 3.0, "MEDIUM": 2.0, "LOW": 1.0}.get(sample_sufficiency, 0.0)
+    return round((pf_component * 2.0) + total_r + (consistency * 3.0) + sample_component, 4)
+
+
+def _ranking_sort_key(row: dict[str, object]) -> tuple[float, float, float, float, str, str]:
+    total_r = float(row.get("total_r", 0.0) or 0.0)
+    profit_factor = row.get("profit_factor")
+    pf_sort = 999.0 if profit_factor is None and total_r > 0 else float(profit_factor or 0.0)
+    sample_rank = {"HIGH": 3.0, "MEDIUM": 2.0, "LOW": 1.0}.get(str(row.get("sample_sufficiency") or ""), 0.0)
+    return (
+        pf_sort,
+        total_r,
+        float(row.get("consistency", 0.0) or 0.0),
+        sample_rank,
+        str(row.get("ranking_type", "")),
+        str(row.get("group", "")),
+    )
+
+
 def _rows(value: object) -> list[dict[str, object]]:
     return [item for item in value if isinstance(item, dict)] if isinstance(value, list) else []
 
@@ -303,4 +367,3 @@ def _to_float(value: object) -> float | None:
 
 if __name__ == "__main__":
     raise SystemExit(main(sys.argv[1:]))
-
