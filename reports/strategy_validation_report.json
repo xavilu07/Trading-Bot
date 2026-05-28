@@ -1,0 +1,319 @@
+{
+  "generated_at": "2026-05-28T16:11:05+00:00",
+  "validation_status": "DANGEROUS",
+  "records_analyzed": 253,
+  "closed_records": 55,
+  "rolling_window": 100,
+  "delay_candles": 1,
+  "full_history_evaluation": {
+    "trades": 55,
+    "wins": 14,
+    "losses": 41,
+    "winrate": 25.45,
+    "total_r": -15.5754,
+    "avg_r": -0.2832,
+    "profit_factor": 0.5779,
+    "max_drawdown": -19.1323
+  },
+  "rolling_window_evaluation": {
+    "windows": 1,
+    "pf_stability": 0.0,
+    "wr_stability": 0.0,
+    "avg_r_stability": 0.0,
+    "drawdown_stability": 0.0,
+    "avg_r_mean": -0.2832,
+    "confidence": "MEDIUM"
+  },
+  "recalculated_chunk_evaluation": {
+    "windows": 1,
+    "pf_stability": 0.0,
+    "wr_stability": 0.0,
+    "avg_r_stability": 0.0,
+    "drawdown_stability": 0.0,
+    "avg_r_mean": -0.2832,
+    "confidence": "MEDIUM"
+  },
+  "delayed_execution_evaluation": {
+    "input_records": 55,
+    "delay_candles": 1,
+    "delayed_records": 52,
+    "skipped_early_resolution": 3,
+    "metrics": {
+      "trades": 52,
+      "wins": 13,
+      "losses": 39,
+      "winrate": 25.0,
+      "total_r": -16.5264,
+      "avg_r": -0.3178,
+      "profit_factor": 0.5265,
+      "max_drawdown": -21.0833
+    }
+  },
+  "matrix_rows": [
+    {
+      "validation": "lookahead_bias_detection",
+      "status": "SAFE",
+      "metric": "future_dependency_suspicion_rate",
+      "value": 0.0,
+      "threshold": "<=0.01",
+      "confidence": "HIGH",
+      "details": "0 suspicious records"
+    },
+    {
+      "validation": "recursive_recalculation_consistency",
+      "status": "SAFE",
+      "metric": "setup_drift_rate",
+      "value": 0.0,
+      "threshold": "<=0.02",
+      "confidence": "HIGH",
+      "details": "0 duplicate keys changed setup/score"
+    },
+    {
+      "validation": "rolling_window_validation",
+      "status": "SAFE",
+      "metric": "avgR_drift_vs_full_history",
+      "value": 0.0,
+      "threshold": "<=0.35R",
+      "confidence": "MEDIUM",
+      "details": "1 rolling windows"
+    },
+    {
+      "validation": "candle_close_dependency_detection",
+      "status": "SAFE",
+      "metric": "pre_close_signal_rate",
+      "value": 0.0,
+      "threshold": "0 preferred",
+      "confidence": "HIGH",
+      "details": "0 records opened before candle close"
+    },
+    {
+      "validation": "signal_timestamp_consistency",
+      "status": "SAFE",
+      "metric": "timestamp_mismatch_rate",
+      "value": 0.0,
+      "threshold": "0 preferred",
+      "confidence": "HIGH",
+      "details": "0 closed_at before opened_at"
+    },
+    {
+      "validation": "delayed_entry_simulation",
+      "status": "SAFE",
+      "metric": "delayed_avgR_drift",
+      "value": 0.0346,
+      "threshold": "<=0.35R",
+      "confidence": "MEDIUM",
+      "details": "early_resolution_rate=0.0545"
+    },
+    {
+      "validation": "indicator_recalculation_drift",
+      "status": "SAFE",
+      "metric": "indicator_or_score_drift_rate",
+      "value": 0.0,
+      "threshold": "<=0.03",
+      "confidence": "HIGH",
+      "details": "0 duplicate keys with indicator/score drift"
+    },
+    {
+      "validation": "rolling_pf_stability",
+      "status": "SAFE",
+      "metric": "pf_stddev",
+      "value": 0.0,
+      "threshold": "<=1.0",
+      "confidence": "MEDIUM",
+      "details": ""
+    },
+    {
+      "validation": "rolling_wr_stability",
+      "status": "SAFE",
+      "metric": "wr_stddev",
+      "value": 0.0,
+      "threshold": "<=25",
+      "confidence": "MEDIUM",
+      "details": ""
+    },
+    {
+      "validation": "overfit_context_detection",
+      "status": "DANGEROUS",
+      "metric": "unstable_contexts",
+      "value": 10,
+      "threshold": "<=3",
+      "confidence": "MEDIUM",
+      "details": "setup_type=UNKNOWN; session=UNKNOWN; trade_location=UNKNOWN; trade_location=premium_zone; direction=short"
+    }
+  ],
+  "setups_that_disappear_after_recalculation": [],
+  "signals_dependent_on_future_candles": [],
+  "unstable_indicators": [],
+  "unstable_score_regions": [
+    {
+      "score_bucket": "90+",
+      "trades": 14,
+      "wins": 1,
+      "losses": 13,
+      "winrate": 7.14,
+      "total_r": -9.0366,
+      "avg_r": -0.6455,
+      "profit_factor": 0.1812,
+      "max_drawdown": -9.0366
+    },
+    {
+      "score_bucket": "80-89",
+      "trades": 8,
+      "wins": 2,
+      "losses": 6,
+      "winrate": 25.0,
+      "total_r": -2.4791,
+      "avg_r": -0.3099,
+      "profit_factor": 0.4352,
+      "max_drawdown": -3.3895
+    },
+    {
+      "score_bucket": "<60",
+      "trades": 17,
+      "wins": 5,
+      "losses": 12,
+      "winrate": 29.41,
+      "total_r": -3.0197,
+      "avg_r": -0.1776,
+      "profit_factor": 0.7369,
+      "max_drawdown": -6.4707
+    },
+    {
+      "score_bucket": "60-69",
+      "trades": 15,
+      "wins": 5,
+      "losses": 10,
+      "winrate": 33.33,
+      "total_r": -2.04,
+      "avg_r": -0.136,
+      "profit_factor": 0.796,
+      "max_drawdown": -5.3187
+    }
+  ],
+  "overfit_contexts": [
+    {
+      "context": "setup_type",
+      "value": "UNKNOWN",
+      "trades": 10,
+      "wins": 0,
+      "losses": 10,
+      "winrate": 0.0,
+      "total_r": -10.0,
+      "avg_r": -1.0,
+      "profit_factor": 0.0,
+      "max_drawdown": -10.0
+    },
+    {
+      "context": "session",
+      "value": "UNKNOWN",
+      "trades": 10,
+      "wins": 0,
+      "losses": 10,
+      "winrate": 0.0,
+      "total_r": -10.0,
+      "avg_r": -1.0,
+      "profit_factor": 0.0,
+      "max_drawdown": -10.0
+    },
+    {
+      "context": "trade_location",
+      "value": "UNKNOWN",
+      "trades": 10,
+      "wins": 0,
+      "losses": 10,
+      "winrate": 0.0,
+      "total_r": -10.0,
+      "avg_r": -1.0,
+      "profit_factor": 0.0,
+      "max_drawdown": -10.0
+    },
+    {
+      "context": "trade_location",
+      "value": "premium_zone",
+      "trades": 8,
+      "wins": 1,
+      "losses": 7,
+      "winrate": 12.5,
+      "total_r": -6.5896,
+      "avg_r": -0.8237,
+      "profit_factor": 0.0586,
+      "max_drawdown": -7.0
+    },
+    {
+      "context": "direction",
+      "value": "short",
+      "trades": 32,
+      "wins": 3,
+      "losses": 29,
+      "winrate": 9.38,
+      "total_r": -20.8004,
+      "avg_r": -0.65,
+      "profit_factor": 0.1881,
+      "max_drawdown": -20.8004
+    },
+    {
+      "context": "session",
+      "value": "NEW_YORK",
+      "trades": 14,
+      "wins": 3,
+      "losses": 11,
+      "winrate": 21.43,
+      "total_r": -8.4083,
+      "avg_r": -0.6006,
+      "profit_factor": 0.2356,
+      "max_drawdown": -8.5
+    },
+    {
+      "context": "entry_context",
+      "value": "CHOPPY_RANGE",
+      "trades": 7,
+      "wins": 2,
+      "losses": 5,
+      "winrate": 28.57,
+      "total_r": -3.5896,
+      "avg_r": -0.5128,
+      "profit_factor": 0.2821,
+      "max_drawdown": -4.0
+    },
+    {
+      "context": "market_regime",
+      "value": "HIGH_VOLATILITY",
+      "trades": 13,
+      "wins": 2,
+      "losses": 11,
+      "winrate": 15.38,
+      "total_r": -5.0798,
+      "avg_r": -0.3908,
+      "profit_factor": 0.4375,
+      "max_drawdown": -5.3895
+    },
+    {
+      "context": "entry_context",
+      "value": "PULLBACK",
+      "trades": 10,
+      "wins": 2,
+      "losses": 8,
+      "winrate": 20.0,
+      "total_r": -3.5422,
+      "avg_r": -0.3542,
+      "profit_factor": 0.5572,
+      "max_drawdown": -4.4932
+    },
+    {
+      "context": "market_regime",
+      "value": "RANGING",
+      "trades": 21,
+      "wins": 7,
+      "losses": 14,
+      "winrate": 33.33,
+      "total_r": -7.0123,
+      "avg_r": -0.3339,
+      "profit_factor": 0.4797,
+      "max_drawdown": -8.0123
+    }
+  ],
+  "recommended_actions": [
+    "investigate_immediately:overfit_context_detection:setup_type=UNKNOWN; session=UNKNOWN; trade_location=UNKNOWN; trade_location=premium_zone; direction=short"
+  ],
+  "confidence": "MEDIUM"
+}

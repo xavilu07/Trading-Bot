@@ -1,0 +1,11 @@
+validation,status,metric,value,threshold,confidence,details
+lookahead_bias_detection,SAFE,future_dependency_suspicion_rate,0.0,<=0.01,HIGH,0 suspicious records
+recursive_recalculation_consistency,SAFE,setup_drift_rate,0.0,<=0.02,HIGH,0 duplicate keys changed setup/score
+rolling_window_validation,SAFE,avgR_drift_vs_full_history,0.0,<=0.35R,MEDIUM,1 rolling windows
+candle_close_dependency_detection,SAFE,pre_close_signal_rate,0.0,0 preferred,HIGH,0 records opened before candle close
+signal_timestamp_consistency,SAFE,timestamp_mismatch_rate,0.0,0 preferred,HIGH,0 closed_at before opened_at
+delayed_entry_simulation,SAFE,delayed_avgR_drift,0.0346,<=0.35R,MEDIUM,early_resolution_rate=0.0545
+indicator_recalculation_drift,SAFE,indicator_or_score_drift_rate,0.0,<=0.03,HIGH,0 duplicate keys with indicator/score drift
+rolling_pf_stability,SAFE,pf_stddev,0.0,<=1.0,MEDIUM,
+rolling_wr_stability,SAFE,wr_stddev,0.0,<=25,MEDIUM,
+overfit_context_detection,DANGEROUS,unstable_contexts,10,<=3,MEDIUM,setup_type=UNKNOWN; session=UNKNOWN; trade_location=UNKNOWN; trade_location=premium_zone; direction=short
