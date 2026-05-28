@@ -17,6 +17,7 @@ if str(ROOT) not in sys.path:
 
 from trading_signals.application.policies.public_canary_policy import PublicShortCanaryConfig
 from trading_signals.application.policies.public_safety_policy import evaluate_public_safety_policy
+from trading_signals.application.policies.relaxed_public_safety_v2 import evaluate_relaxed_public_safety_v2
 
 
 CLOSED_STATUSES = {"tp2_hit", "tp_hit", "sl_hit", "expired", "breakeven", "closed", "win", "loss"}
@@ -33,9 +34,13 @@ SUMMARY_FIELDS = [
     "max_drawdown",
     "delta_total_r_vs_baseline",
     "delta_winrate_vs_baseline",
+    "delta_total_r_vs_current_policy",
+    "delta_accepted_vs_current_policy",
     "sample_size",
     "confidence",
     "top_rejection_reasons",
+    "top_allowed_contexts",
+    "top_blocked_contexts",
 ]
 
 
@@ -70,12 +75,17 @@ def run_backtest_runner(
     signals = _load_signal_rows(data_path / "bot_activity" / "signals_log.jsonl")
     layers = _evaluate_layers(trades, signals, cfg=cfg)
     baseline = layers[0]["metrics"] if layers else _metrics([])
+    current_policy = next((layer["metrics"] for layer in layers if layer["layer"] == "public_safety_policy"), baseline)
     for layer in layers:
         metrics = layer["metrics"]
         metrics["delta_total_r_vs_baseline"] = round(float(metrics["total_r"]) - float(baseline["total_r"]), 4)
         metrics["delta_winrate_vs_baseline"] = round(float(metrics["winrate"]) - float(baseline["winrate"]), 4)
+        metrics["delta_total_r_vs_current_policy"] = round(float(metrics["total_r"]) - float(current_policy["total_r"]), 4)
+        metrics["delta_accepted_vs_current_policy"] = int(metrics["trades_accepted"]) - int(current_policy["trades_accepted"])
         layer["top_improved_contexts"] = _context_delta_rows(layer["rejected_trades"], improvement=True)
         layer["top_worsened_contexts"] = _context_delta_rows(layer["rejected_trades"], improvement=False)
+        layer["top_allowed_contexts"] = _context_rank_rows(layer["accepted_trades"], best=True)
+        layer["top_blocked_contexts"] = _context_rank_rows(layer["rejected_trades"], best=False)
 
     report = {
         "generated_at": datetime.now(UTC).isoformat(timespec="seconds"),
@@ -119,13 +129,13 @@ def format_backtest_runner_summary(report: dict[str, object]) -> str:
         f"- Mode: {report.get('mode')}",
         f"- Trades loaded: {report.get('trades_loaded', 0)}",
         "",
-        "| Layer | Evaluated | Accepted | Rejected | Total R | WR | Avg R | PF | Max DD | Delta R | Confidence |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|",
+        "| Layer | Evaluated | Accepted | Rejected | Total R | WR | Avg R | PF | Max DD | Delta R | Delta vs Current | Confidence |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|",
     ]
     for layer in layers:
         metrics = _dict(layer.get("metrics"))
         lines.append(
-            "| {layer} | {evaluated} | {accepted} | {rejected} | {total_r} | {wr}% | {avg_r} | {pf} | {dd} | {delta} | {confidence} |".format(
+            "| {layer} | {evaluated} | {accepted} | {rejected} | {total_r} | {wr}% | {avg_r} | {pf} | {dd} | {delta} | {delta_current} | {confidence} |".format(
                 layer=layer.get("layer"),
                 evaluated=metrics.get("trades_evaluated", 0),
                 accepted=metrics.get("trades_accepted", 0),
@@ -136,6 +146,7 @@ def format_backtest_runner_summary(report: dict[str, object]) -> str:
                 pf=_pf(metrics.get("profit_factor")),
                 dd=metrics.get("max_drawdown", 0),
                 delta=metrics.get("delta_total_r_vs_baseline", 0),
+                delta_current=metrics.get("delta_total_r_vs_current_policy", 0),
                 confidence=metrics.get("confidence", "LOW"),
             )
         )
@@ -146,6 +157,8 @@ def format_backtest_runner_summary(report: dict[str, object]) -> str:
         lines.append(f"### {layer.get('layer')}")
         lines.append(f"- Mejoran: {_format_contexts(improved)}")
         lines.append(f"- Empeoran: {_format_contexts(worsened)}")
+        lines.append(f"- Top allowed: {_format_contexts(layer.get('top_allowed_contexts', []))}")
+        lines.append(f"- Top blocked: {_format_contexts(layer.get('top_blocked_contexts', []))}")
     return "\n".join(lines) + "\n"
 
 
@@ -153,6 +166,7 @@ def _evaluate_layers(trades: list[dict[str, Any]], signals: list[dict[str, Any]]
     layer_defs = [
         ("raw_strategy", _raw_accept),
         ("public_safety_policy", _public_safety_accept),
+        ("relaxed_public_safety_v2", _relaxed_public_safety_v2_accept),
         ("public_short_canary", _public_short_canary_accept),
         ("protection_engine_shadow", lambda trade, prior, signals, cfg: _protection_accept(trade, prior, cfg)),
         ("pair_universe_filter_shadow", lambda trade, prior, signals, cfg: _pair_universe_accept(trade, prior, signals, cfg)),
@@ -164,8 +178,10 @@ def _evaluate_layers(trades: list[dict[str, Any]], signals: list[dict[str, Any]]
         rejected: list[dict[str, Any]] = []
         rows: list[dict[str, Any]] = []
         executed_prior: list[dict[str, Any]] = []
+        history_prior: list[dict[str, Any]] = []
         for trade in trades:
-            decision = evaluator(trade, executed_prior, signals, cfg)
+            trade_for_eval = {**trade, "_history_prior": list(history_prior)}
+            decision = evaluator(trade_for_eval, executed_prior, signals, cfg)
             row = {
                 "trade": trade,
                 "accepted": bool(decision["accepted"]),
@@ -178,6 +194,7 @@ def _evaluate_layers(trades: list[dict[str, Any]], signals: list[dict[str, Any]]
                 executed_prior.append(trade)
             else:
                 rejected.append(trade)
+            history_prior.append(trade)
         metrics = _metrics(accepted)
         metrics.update(
             {
@@ -205,6 +222,20 @@ def _raw_accept(trade: dict[str, Any], prior: list[dict[str, Any]], signals: lis
 
 def _public_safety_accept(trade: dict[str, Any], prior: list[dict[str, Any]], signals: list[dict[str, Any]], cfg: BacktestConfig) -> dict[str, object]:
     return _policy_accept(trade, canary_enabled=False, cfg=cfg)
+
+
+def _relaxed_public_safety_v2_accept(trade: dict[str, Any], prior: list[dict[str, Any]], signals: list[dict[str, Any]], cfg: BacktestConfig) -> dict[str, object]:
+    policy = evaluate_relaxed_public_safety_v2(
+        trade=trade,
+        history=trade.get("_history_prior", []),
+        min_rr=1.5,
+        min_context_sample=5,
+    )
+    return {
+        "accepted": bool(policy.get("public_allowed")),
+        "reasons": list(policy.get("block_reasons", [])),
+        "details": policy,
+    }
 
 
 def _public_short_canary_accept(trade: dict[str, Any], prior: list[dict[str, Any]], signals: list[dict[str, Any]], cfg: BacktestConfig) -> dict[str, object]:
@@ -350,6 +381,29 @@ def _context_delta_rows(trades: list[dict[str, Any]], *, improvement: bool) -> l
     return sorted(rows, key=lambda item: float(item["impact_r"]), reverse=True)[:5]
 
 
+def _context_rank_rows(trades: list[dict[str, Any]], *, best: bool) -> list[dict[str, object]]:
+    grouped: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+    for trade in trades:
+        for dimension in ("session", "direction", "setup_type", "market_regime", "entry_context", "trade_location"):
+            grouped[(dimension, str(trade.get(dimension) or "UNKNOWN"))].append(trade)
+    rows = []
+    for (dimension, value), items in grouped.items():
+        metrics = _metrics(items)
+        rows.append(
+            {
+                "dimension": dimension,
+                "value": value,
+                "sample_size": len(items),
+                "total_r": metrics["total_r"],
+                "winrate": metrics["winrate"],
+                "avg_r": metrics["avg_r"],
+                "profit_factor": metrics["profit_factor"],
+                "confidence": metrics["confidence"],
+            }
+        )
+    return sorted(rows, key=lambda item: (float(item["total_r"]), float(item["avg_r"])), reverse=best)[:5]
+
+
 def _public_layer(layer: dict[str, Any]) -> dict[str, object]:
     metrics = dict(layer["metrics"])
     metrics["top_rejection_reasons"] = _top_rejection_reasons(metrics.get("rejection_reasons", {}))
@@ -358,6 +412,8 @@ def _public_layer(layer: dict[str, Any]) -> dict[str, object]:
         "metrics": metrics,
         "top_improved_contexts": layer.get("top_improved_contexts", []),
         "top_worsened_contexts": layer.get("top_worsened_contexts", []),
+        "top_allowed_contexts": layer.get("top_allowed_contexts", []),
+        "top_blocked_contexts": layer.get("top_blocked_contexts", []),
     }
 
 
@@ -380,9 +436,13 @@ def _write_summary_csv(path: Path, layers: list[dict[str, Any]], *, cfg: Backtes
                 "max_drawdown": metrics.get("max_drawdown", 0),
                 "delta_total_r_vs_baseline": metrics.get("delta_total_r_vs_baseline", 0),
                 "delta_winrate_vs_baseline": metrics.get("delta_winrate_vs_baseline", 0),
+                "delta_total_r_vs_current_policy": metrics.get("delta_total_r_vs_current_policy", 0),
+                "delta_accepted_vs_current_policy": metrics.get("delta_accepted_vs_current_policy", 0),
                 "sample_size": metrics.get("sample_size", 0),
                 "confidence": metrics.get("confidence", "LOW"),
                 "top_rejection_reasons": json.dumps(_top_rejection_reasons(metrics.get("rejection_reasons", {})), ensure_ascii=False),
+                "top_allowed_contexts": json.dumps(layer.get("top_allowed_contexts", []), ensure_ascii=False),
+                "top_blocked_contexts": json.dumps(layer.get("top_blocked_contexts", []), ensure_ascii=False),
             }
             writer.writerow(row)
 
@@ -551,7 +611,8 @@ def _format_contexts(rows: object) -> str:
     output = []
     for row in rows[:3]:
         if isinstance(row, dict):
-            output.append(f"{row.get('dimension')}:{row.get('value')} ({row.get('impact_r')}R, n={row.get('sample_size')})")
+            impact = row.get("impact_r", row.get("total_r", 0))
+            output.append(f"{row.get('dimension')}:{row.get('value')} ({impact}R, n={row.get('sample_size')})")
     return ", ".join(output) if output else "sin datos"
 
 

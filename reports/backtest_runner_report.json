@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-28T15:17:42+00:00",
+  "generated_at": "2026-05-28T15:28:25+00:00",
   "mode": "shadow",
   "data_path": "data",
   "trades_loaded": 45,
@@ -23,10 +23,65 @@
         "rejection_reasons": {},
         "delta_total_r_vs_baseline": 0.0,
         "delta_winrate_vs_baseline": 0.0,
+        "delta_total_r_vs_current_policy": -5.5754,
+        "delta_accepted_vs_current_policy": 45,
         "top_rejection_reasons": []
       },
       "top_improved_contexts": [],
-      "top_worsened_contexts": []
+      "top_worsened_contexts": [],
+      "top_allowed_contexts": [
+        {
+          "dimension": "direction",
+          "value": "long",
+          "sample_size": 23,
+          "total_r": 5.225,
+          "winrate": 47.83,
+          "avg_r": 0.2272,
+          "profit_factor": 1.463,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "session",
+          "value": "LONDON",
+          "sample_size": 14,
+          "total_r": 3.084,
+          "winrate": 42.86,
+          "avg_r": 0.2203,
+          "profit_factor": 1.5257,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "market_regime",
+          "value": "TRENDING",
+          "sample_size": 15,
+          "total_r": 2.5167,
+          "winrate": 33.33,
+          "avg_r": 0.1678,
+          "profit_factor": 1.2998,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "near_resistance",
+          "sample_size": 7,
+          "total_r": 1.1323,
+          "winrate": 42.86,
+          "avg_r": 0.1618,
+          "profit_factor": 1.2831,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "setup_type",
+          "value": "MAIN_SIGNAL",
+          "sample_size": 22,
+          "total_r": 0.8698,
+          "winrate": 36.36,
+          "avg_r": 0.0395,
+          "profit_factor": 1.0621,
+          "confidence": "MEDIUM"
+        }
+      ],
+      "top_blocked_contexts": []
     },
     {
       "layer": "public_safety_policy",
@@ -64,6 +119,8 @@
         },
         "delta_total_r_vs_baseline": 5.5754,
         "delta_winrate_vs_baseline": -31.11,
+        "delta_total_r_vs_current_policy": 0.0,
+        "delta_accepted_vs_current_policy": 0,
         "top_rejection_reasons": [
           {
             "reason": "edge_activation_requires_trending",
@@ -168,6 +225,292 @@
           "sample_size": 22,
           "total_r": 0.8698,
           "impact_r": 0.8698,
+          "confidence": "MEDIUM"
+        }
+      ],
+      "top_allowed_contexts": [],
+      "top_blocked_contexts": [
+        {
+          "dimension": "direction",
+          "value": "short",
+          "sample_size": 22,
+          "total_r": -10.8004,
+          "winrate": 13.64,
+          "avg_r": -0.4909,
+          "profit_factor": 0.3085,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "session",
+          "value": "NEW_YORK",
+          "sample_size": 14,
+          "total_r": -8.4083,
+          "winrate": 21.43,
+          "avg_r": -0.6006,
+          "profit_factor": 0.2356,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "premium_zone",
+          "sample_size": 8,
+          "total_r": -6.5896,
+          "winrate": 12.5,
+          "avg_r": -0.8237,
+          "profit_factor": 0.0586,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "setup_type",
+          "value": "SECONDARY_SIGNAL",
+          "sample_size": 23,
+          "total_r": -6.4452,
+          "winrate": 26.09,
+          "avg_r": -0.2802,
+          "profit_factor": 0.5005,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "market_regime",
+          "value": "RANGING",
+          "sample_size": 20,
+          "total_r": -6.0123,
+          "winrate": 35.0,
+          "avg_r": -0.3006,
+          "profit_factor": 0.5181,
+          "confidence": "MEDIUM"
+        }
+      ]
+    },
+    {
+      "layer": "relaxed_public_safety_v2",
+      "metrics": {
+        "total_r": 1.0,
+        "winrate": 50.0,
+        "avg_r": 0.5,
+        "profit_factor": 2.0,
+        "max_drawdown": -1.0,
+        "wins": 1,
+        "losses": 1,
+        "sample_size": 2,
+        "confidence": "LOW",
+        "trades_evaluated": 45,
+        "trades_accepted": 2,
+        "trades_rejected": 43,
+        "rejection_reasons": {
+          "rr_below_min": 40,
+          "against_htf_without_edge": 10,
+          "short_without_demonstrated_edge": 20,
+          "high_volatility_long": 5
+        },
+        "delta_total_r_vs_baseline": 6.5754,
+        "delta_winrate_vs_baseline": 18.89,
+        "delta_total_r_vs_current_policy": 1.0,
+        "delta_accepted_vs_current_policy": 2,
+        "top_rejection_reasons": [
+          {
+            "reason": "rr_below_min",
+            "count": 40
+          },
+          {
+            "reason": "short_without_demonstrated_edge",
+            "count": 20
+          },
+          {
+            "reason": "against_htf_without_edge",
+            "count": 10
+          },
+          {
+            "reason": "high_volatility_long",
+            "count": 5
+          }
+        ]
+      },
+      "top_improved_contexts": [
+        {
+          "dimension": "direction",
+          "value": "short",
+          "sample_size": 22,
+          "total_r": -10.8004,
+          "impact_r": 10.8004,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "setup_type",
+          "value": "SECONDARY_SIGNAL",
+          "sample_size": 21,
+          "total_r": -7.4452,
+          "impact_r": 7.4452,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "session",
+          "value": "NEW_YORK",
+          "sample_size": 13,
+          "total_r": -7.4083,
+          "impact_r": 7.4083,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "premium_zone",
+          "sample_size": 8,
+          "total_r": -6.5896,
+          "impact_r": 6.5896,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "market_regime",
+          "value": "RANGING",
+          "sample_size": 19,
+          "total_r": -5.0123,
+          "impact_r": 5.0123,
+          "confidence": "MEDIUM"
+        }
+      ],
+      "top_worsened_contexts": [
+        {
+          "dimension": "direction",
+          "value": "long",
+          "sample_size": 21,
+          "total_r": 4.225,
+          "impact_r": 4.225,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "session",
+          "value": "LONDON",
+          "sample_size": 14,
+          "total_r": 3.084,
+          "impact_r": 3.084,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "near_resistance",
+          "sample_size": 6,
+          "total_r": 2.1323,
+          "impact_r": 2.1323,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "setup_type",
+          "value": "MAIN_SIGNAL",
+          "sample_size": 22,
+          "total_r": 0.8698,
+          "impact_r": 0.8698,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "market_regime",
+          "value": "TRENDING",
+          "sample_size": 14,
+          "total_r": 0.5167,
+          "impact_r": 0.5167,
+          "confidence": "MEDIUM"
+        }
+      ],
+      "top_allowed_contexts": [
+        {
+          "dimension": "session",
+          "value": "OVERLAP",
+          "sample_size": 1,
+          "total_r": 2.0,
+          "winrate": 100.0,
+          "avg_r": 2.0,
+          "profit_factor": 2.0,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "market_regime",
+          "value": "TRENDING",
+          "sample_size": 1,
+          "total_r": 2.0,
+          "winrate": 100.0,
+          "avg_r": 2.0,
+          "profit_factor": 2.0,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "mid_range",
+          "sample_size": 1,
+          "total_r": 2.0,
+          "winrate": 100.0,
+          "avg_r": 2.0,
+          "profit_factor": 2.0,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "direction",
+          "value": "long",
+          "sample_size": 2,
+          "total_r": 1.0,
+          "winrate": 50.0,
+          "avg_r": 0.5,
+          "profit_factor": 2.0,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "setup_type",
+          "value": "SECONDARY_SIGNAL",
+          "sample_size": 2,
+          "total_r": 1.0,
+          "winrate": 50.0,
+          "avg_r": 0.5,
+          "profit_factor": 2.0,
+          "confidence": "LOW"
+        }
+      ],
+      "top_blocked_contexts": [
+        {
+          "dimension": "direction",
+          "value": "short",
+          "sample_size": 22,
+          "total_r": -10.8004,
+          "winrate": 13.64,
+          "avg_r": -0.4909,
+          "profit_factor": 0.3085,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "setup_type",
+          "value": "SECONDARY_SIGNAL",
+          "sample_size": 21,
+          "total_r": -7.4452,
+          "winrate": 23.81,
+          "avg_r": -0.3545,
+          "profit_factor": 0.3745,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "session",
+          "value": "NEW_YORK",
+          "sample_size": 13,
+          "total_r": -7.4083,
+          "winrate": 23.08,
+          "avg_r": -0.5699,
+          "profit_factor": 0.2592,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "premium_zone",
+          "sample_size": 8,
+          "total_r": -6.5896,
+          "winrate": 12.5,
+          "avg_r": -0.8237,
+          "profit_factor": 0.0586,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "market_regime",
+          "value": "RANGING",
+          "sample_size": 19,
+          "total_r": -5.0123,
+          "winrate": 36.84,
+          "avg_r": -0.2638,
+          "profit_factor": 0.5633,
           "confidence": "MEDIUM"
         }
       ]
@@ -208,6 +551,8 @@
         },
         "delta_total_r_vs_baseline": 5.5754,
         "delta_winrate_vs_baseline": -31.11,
+        "delta_total_r_vs_current_policy": 0.0,
+        "delta_accepted_vs_current_policy": 0,
         "top_rejection_reasons": [
           {
             "reason": "edge_activation_requires_trending",
@@ -314,6 +659,59 @@
           "impact_r": 0.8698,
           "confidence": "MEDIUM"
         }
+      ],
+      "top_allowed_contexts": [],
+      "top_blocked_contexts": [
+        {
+          "dimension": "direction",
+          "value": "short",
+          "sample_size": 22,
+          "total_r": -10.8004,
+          "winrate": 13.64,
+          "avg_r": -0.4909,
+          "profit_factor": 0.3085,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "session",
+          "value": "NEW_YORK",
+          "sample_size": 14,
+          "total_r": -8.4083,
+          "winrate": 21.43,
+          "avg_r": -0.6006,
+          "profit_factor": 0.2356,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "premium_zone",
+          "sample_size": 8,
+          "total_r": -6.5896,
+          "winrate": 12.5,
+          "avg_r": -0.8237,
+          "profit_factor": 0.0586,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "setup_type",
+          "value": "SECONDARY_SIGNAL",
+          "sample_size": 23,
+          "total_r": -6.4452,
+          "winrate": 26.09,
+          "avg_r": -0.2802,
+          "profit_factor": 0.5005,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "market_regime",
+          "value": "RANGING",
+          "sample_size": 20,
+          "total_r": -6.0123,
+          "winrate": 35.0,
+          "avg_r": -0.3006,
+          "profit_factor": 0.5181,
+          "confidence": "MEDIUM"
+        }
       ]
     },
     {
@@ -338,6 +736,8 @@
         },
         "delta_total_r_vs_baseline": 8.1645,
         "delta_winrate_vs_baseline": 2.22,
+        "delta_total_r_vs_current_policy": 2.5891,
+        "delta_accepted_vs_current_policy": 21,
         "top_rejection_reasons": [
           {
             "reason": "toxic_context_new_york",
@@ -428,6 +828,110 @@
           "impact_r": 0.1813,
           "confidence": "LOW"
         }
+      ],
+      "top_allowed_contexts": [
+        {
+          "dimension": "direction",
+          "value": "long",
+          "sample_size": 9,
+          "total_r": 3.912,
+          "winrate": 44.44,
+          "avg_r": 0.4347,
+          "profit_factor": 1.7824,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "market_regime",
+          "value": "TRENDING",
+          "sample_size": 8,
+          "total_r": 3.8022,
+          "winrate": 37.5,
+          "avg_r": 0.4753,
+          "profit_factor": 1.9252,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "entry_context",
+          "value": "BREAKOUT",
+          "sample_size": 14,
+          "total_r": 2.9813,
+          "winrate": 35.71,
+          "avg_r": 0.213,
+          "profit_factor": 1.4855,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "setup_type",
+          "value": "MAIN_SIGNAL",
+          "sample_size": 11,
+          "total_r": 2.863,
+          "winrate": 36.36,
+          "avg_r": 0.2603,
+          "profit_factor": 1.409,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "session",
+          "value": "OVERLAP",
+          "sample_size": 11,
+          "total_r": 2.5276,
+          "winrate": 36.36,
+          "avg_r": 0.2298,
+          "profit_factor": 1.4395,
+          "confidence": "MEDIUM"
+        }
+      ],
+      "top_blocked_contexts": [
+        {
+          "dimension": "direction",
+          "value": "short",
+          "sample_size": 10,
+          "total_r": -9.4775,
+          "winrate": 0.0,
+          "avg_r": -0.9477,
+          "profit_factor": 0.0,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "session",
+          "value": "NEW_YORK",
+          "sample_size": 14,
+          "total_r": -8.4083,
+          "winrate": 21.43,
+          "avg_r": -0.6006,
+          "profit_factor": 0.2356,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "premium_zone",
+          "sample_size": 8,
+          "total_r": -6.5896,
+          "winrate": 12.5,
+          "avg_r": -0.8237,
+          "profit_factor": 0.0586,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "setup_type",
+          "value": "SECONDARY_SIGNAL",
+          "sample_size": 13,
+          "total_r": -6.1713,
+          "winrate": 23.08,
+          "avg_r": -0.4747,
+          "profit_factor": 0.2958,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "entry_context",
+          "value": "BREAKOUT",
+          "sample_size": 14,
+          "total_r": -4.0817,
+          "winrate": 28.57,
+          "avg_r": -0.2915,
+          "profit_factor": 0.5342,
+          "confidence": "MEDIUM"
+        }
       ]
     },
     {
@@ -451,6 +955,8 @@
         },
         "delta_total_r_vs_baseline": 3.4775,
         "delta_winrate_vs_baseline": 2.22,
+        "delta_total_r_vs_current_policy": -2.0979,
+        "delta_accepted_vs_current_policy": 39,
         "top_rejection_reasons": [
           {
             "reason": "too_many_recent_rejections",
@@ -529,6 +1035,110 @@
           "impact_r": 0.5225,
           "confidence": "LOW"
         }
+      ],
+      "top_allowed_contexts": [
+        {
+          "dimension": "direction",
+          "value": "long",
+          "sample_size": 18,
+          "total_r": 8.225,
+          "winrate": 55.56,
+          "avg_r": 0.4569,
+          "profit_factor": 2.129,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "near_resistance",
+          "sample_size": 5,
+          "total_r": 3.1323,
+          "winrate": 60.0,
+          "avg_r": 0.6265,
+          "profit_factor": 2.5661,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "session",
+          "value": "OVERLAP",
+          "sample_size": 14,
+          "total_r": 2.7489,
+          "winrate": 35.71,
+          "avg_r": 0.1964,
+          "profit_factor": 1.3907,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "session",
+          "value": "LONDON",
+          "sample_size": 12,
+          "total_r": 2.5615,
+          "winrate": 41.67,
+          "avg_r": 0.2135,
+          "profit_factor": 1.4753,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "market_regime",
+          "value": "TRENDING",
+          "sample_size": 15,
+          "total_r": 2.5167,
+          "winrate": 33.33,
+          "avg_r": 0.1678,
+          "profit_factor": 1.2998,
+          "confidence": "MEDIUM"
+        }
+      ],
+      "top_blocked_contexts": [
+        {
+          "dimension": "setup_type",
+          "value": "SECONDARY_SIGNAL",
+          "sample_size": 5,
+          "total_r": -4.4775,
+          "winrate": 0.0,
+          "avg_r": -0.8955,
+          "profit_factor": 0.0,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "entry_context",
+          "value": "BREAKOUT",
+          "sample_size": 6,
+          "total_r": -3.4775,
+          "winrate": 16.67,
+          "avg_r": -0.5796,
+          "profit_factor": 0.2233,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "session",
+          "value": "OVERLAP",
+          "sample_size": 3,
+          "total_r": -3.0,
+          "winrate": 0.0,
+          "avg_r": -1.0,
+          "profit_factor": 0.0,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "direction",
+          "value": "long",
+          "sample_size": 5,
+          "total_r": -3.0,
+          "winrate": 20.0,
+          "avg_r": -0.6,
+          "profit_factor": 0.25,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "near_resistance",
+          "sample_size": 2,
+          "total_r": -2.0,
+          "winrate": 0.0,
+          "avg_r": -1.0,
+          "profit_factor": 0.0,
+          "confidence": "LOW"
+        }
       ]
     },
     {
@@ -552,6 +1162,8 @@
         },
         "delta_total_r_vs_baseline": 8.4874,
         "delta_winrate_vs_baseline": 8.89,
+        "delta_total_r_vs_current_policy": 2.912,
+        "delta_accepted_vs_current_policy": 5,
         "top_rejection_reasons": [
           {
             "reason": "consecutive_losses_limit",
@@ -637,6 +1249,110 @@
           "total_r": 0.7017,
           "impact_r": 0.7017,
           "confidence": "LOW"
+        }
+      ],
+      "top_allowed_contexts": [
+        {
+          "dimension": "market_regime",
+          "value": "TRENDING",
+          "sample_size": 2,
+          "total_r": 5.912,
+          "winrate": 100.0,
+          "avg_r": 2.956,
+          "profit_factor": 5.912,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "session",
+          "value": "OVERLAP",
+          "sample_size": 3,
+          "total_r": 4.912,
+          "winrate": 66.67,
+          "avg_r": 1.6373,
+          "profit_factor": 5.912,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "direction",
+          "value": "long",
+          "sample_size": 4,
+          "total_r": 3.912,
+          "winrate": 50.0,
+          "avg_r": 0.978,
+          "profit_factor": 2.956,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "setup_type",
+          "value": "MAIN_SIGNAL",
+          "sample_size": 4,
+          "total_r": 3.912,
+          "winrate": 50.0,
+          "avg_r": 0.978,
+          "profit_factor": 2.956,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "near_support",
+          "sample_size": 3,
+          "total_r": 2.2552,
+          "winrate": 33.33,
+          "avg_r": 0.7517,
+          "profit_factor": 2.1276,
+          "confidence": "LOW"
+        }
+      ],
+      "top_blocked_contexts": [
+        {
+          "dimension": "direction",
+          "value": "short",
+          "sample_size": 21,
+          "total_r": -9.8004,
+          "winrate": 14.29,
+          "avg_r": -0.4667,
+          "profit_factor": 0.3296,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "session",
+          "value": "NEW_YORK",
+          "sample_size": 14,
+          "total_r": -8.4083,
+          "winrate": 21.43,
+          "avg_r": -0.6006,
+          "profit_factor": 0.2356,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "premium_zone",
+          "sample_size": 8,
+          "total_r": -6.5896,
+          "winrate": 12.5,
+          "avg_r": -0.8237,
+          "profit_factor": 0.0586,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "setup_type",
+          "value": "SECONDARY_SIGNAL",
+          "sample_size": 22,
+          "total_r": -5.4452,
+          "winrate": 27.27,
+          "avg_r": -0.2475,
+          "profit_factor": 0.5426,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "session",
+          "value": "OVERLAP",
+          "sample_size": 14,
+          "total_r": -5.1631,
+          "winrate": 21.43,
+          "avg_r": -0.3688,
+          "profit_factor": 0.4286,
+          "confidence": "MEDIUM"
         }
       ]
     }
