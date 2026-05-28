@@ -1,0 +1,644 @@
+{
+  "generated_at": "2026-05-28T15:17:42+00:00",
+  "mode": "shadow",
+  "data_path": "data",
+  "trades_loaded": 45,
+  "baseline_layer": "raw_strategy",
+  "layers": [
+    {
+      "layer": "raw_strategy",
+      "metrics": {
+        "total_r": -5.5754,
+        "winrate": 31.11,
+        "avg_r": -0.1239,
+        "profit_factor": 0.7928,
+        "max_drawdown": -9.4942,
+        "wins": 14,
+        "losses": 31,
+        "sample_size": 45,
+        "confidence": "HIGH",
+        "trades_evaluated": 45,
+        "trades_accepted": 45,
+        "trades_rejected": 0,
+        "rejection_reasons": {},
+        "delta_total_r_vs_baseline": 0.0,
+        "delta_winrate_vs_baseline": 0.0,
+        "top_rejection_reasons": []
+      },
+      "top_improved_contexts": [],
+      "top_worsened_contexts": []
+    },
+    {
+      "layer": "public_safety_policy",
+      "metrics": {
+        "total_r": 0,
+        "winrate": 0.0,
+        "avg_r": 0.0,
+        "profit_factor": 0.0,
+        "max_drawdown": 0.0,
+        "wins": 0,
+        "losses": 0,
+        "sample_size": 0,
+        "confidence": "LOW",
+        "trades_evaluated": 45,
+        "trades_accepted": 0,
+        "trades_rejected": 45,
+        "rejection_reasons": {
+          "market_regime_ranging": 20,
+          "entry_context_choppy_range": 7,
+          "against_htf": 19,
+          "low_volume": 5,
+          "dirty_sideways_market": 6,
+          "edge_activation_requires_trending": 30,
+          "edge_activation_requires_overlap_session": 28,
+          "edge_activation_choppy_range": 7,
+          "breakout_bad_location": 14,
+          "setup_type_secondary_signal": 23,
+          "short_shadow_mode": 22,
+          "short_without_high_historical_edge": 22,
+          "edge_activation_requires_long": 22,
+          "edge_activation_secondary_signal": 23,
+          "market_regime_not_trending": 10,
+          "trade_location_premium_zone": 8,
+          "edge_activation_premium_zone": 8
+        },
+        "delta_total_r_vs_baseline": 5.5754,
+        "delta_winrate_vs_baseline": -31.11,
+        "top_rejection_reasons": [
+          {
+            "reason": "edge_activation_requires_trending",
+            "count": 30
+          },
+          {
+            "reason": "edge_activation_requires_overlap_session",
+            "count": 28
+          },
+          {
+            "reason": "setup_type_secondary_signal",
+            "count": 23
+          },
+          {
+            "reason": "edge_activation_secondary_signal",
+            "count": 23
+          },
+          {
+            "reason": "short_shadow_mode",
+            "count": 22
+          }
+        ]
+      },
+      "top_improved_contexts": [
+        {
+          "dimension": "direction",
+          "value": "short",
+          "sample_size": 22,
+          "total_r": -10.8004,
+          "impact_r": 10.8004,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "session",
+          "value": "NEW_YORK",
+          "sample_size": 14,
+          "total_r": -8.4083,
+          "impact_r": 8.4083,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "premium_zone",
+          "sample_size": 8,
+          "total_r": -6.5896,
+          "impact_r": 6.5896,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "setup_type",
+          "value": "SECONDARY_SIGNAL",
+          "sample_size": 23,
+          "total_r": -6.4452,
+          "impact_r": 6.4452,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "market_regime",
+          "value": "RANGING",
+          "sample_size": 20,
+          "total_r": -6.0123,
+          "impact_r": 6.0123,
+          "confidence": "MEDIUM"
+        }
+      ],
+      "top_worsened_contexts": [
+        {
+          "dimension": "direction",
+          "value": "long",
+          "sample_size": 23,
+          "total_r": 5.225,
+          "impact_r": 5.225,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "session",
+          "value": "LONDON",
+          "sample_size": 14,
+          "total_r": 3.084,
+          "impact_r": 3.084,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "market_regime",
+          "value": "TRENDING",
+          "sample_size": 15,
+          "total_r": 2.5167,
+          "impact_r": 2.5167,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "near_resistance",
+          "sample_size": 7,
+          "total_r": 1.1323,
+          "impact_r": 1.1323,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "setup_type",
+          "value": "MAIN_SIGNAL",
+          "sample_size": 22,
+          "total_r": 0.8698,
+          "impact_r": 0.8698,
+          "confidence": "MEDIUM"
+        }
+      ]
+    },
+    {
+      "layer": "public_short_canary",
+      "metrics": {
+        "total_r": 0,
+        "winrate": 0.0,
+        "avg_r": 0.0,
+        "profit_factor": 0.0,
+        "max_drawdown": 0.0,
+        "wins": 0,
+        "losses": 0,
+        "sample_size": 0,
+        "confidence": "LOW",
+        "trades_evaluated": 45,
+        "trades_accepted": 0,
+        "trades_rejected": 45,
+        "rejection_reasons": {
+          "market_regime_ranging": 20,
+          "entry_context_choppy_range": 7,
+          "against_htf": 19,
+          "low_volume": 5,
+          "dirty_sideways_market": 6,
+          "edge_activation_requires_trending": 30,
+          "edge_activation_requires_overlap_session": 28,
+          "edge_activation_choppy_range": 7,
+          "breakout_bad_location": 14,
+          "setup_type_secondary_signal": 23,
+          "short_shadow_mode": 22,
+          "short_without_high_historical_edge": 22,
+          "edge_activation_requires_long": 22,
+          "edge_activation_secondary_signal": 23,
+          "market_regime_not_trending": 10,
+          "trade_location_premium_zone": 8,
+          "edge_activation_premium_zone": 8
+        },
+        "delta_total_r_vs_baseline": 5.5754,
+        "delta_winrate_vs_baseline": -31.11,
+        "top_rejection_reasons": [
+          {
+            "reason": "edge_activation_requires_trending",
+            "count": 30
+          },
+          {
+            "reason": "edge_activation_requires_overlap_session",
+            "count": 28
+          },
+          {
+            "reason": "setup_type_secondary_signal",
+            "count": 23
+          },
+          {
+            "reason": "edge_activation_secondary_signal",
+            "count": 23
+          },
+          {
+            "reason": "short_shadow_mode",
+            "count": 22
+          }
+        ]
+      },
+      "top_improved_contexts": [
+        {
+          "dimension": "direction",
+          "value": "short",
+          "sample_size": 22,
+          "total_r": -10.8004,
+          "impact_r": 10.8004,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "session",
+          "value": "NEW_YORK",
+          "sample_size": 14,
+          "total_r": -8.4083,
+          "impact_r": 8.4083,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "premium_zone",
+          "sample_size": 8,
+          "total_r": -6.5896,
+          "impact_r": 6.5896,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "setup_type",
+          "value": "SECONDARY_SIGNAL",
+          "sample_size": 23,
+          "total_r": -6.4452,
+          "impact_r": 6.4452,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "market_regime",
+          "value": "RANGING",
+          "sample_size": 20,
+          "total_r": -6.0123,
+          "impact_r": 6.0123,
+          "confidence": "MEDIUM"
+        }
+      ],
+      "top_worsened_contexts": [
+        {
+          "dimension": "direction",
+          "value": "long",
+          "sample_size": 23,
+          "total_r": 5.225,
+          "impact_r": 5.225,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "session",
+          "value": "LONDON",
+          "sample_size": 14,
+          "total_r": 3.084,
+          "impact_r": 3.084,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "market_regime",
+          "value": "TRENDING",
+          "sample_size": 15,
+          "total_r": 2.5167,
+          "impact_r": 2.5167,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "near_resistance",
+          "sample_size": 7,
+          "total_r": 1.1323,
+          "impact_r": 1.1323,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "setup_type",
+          "value": "MAIN_SIGNAL",
+          "sample_size": 22,
+          "total_r": 0.8698,
+          "impact_r": 0.8698,
+          "confidence": "MEDIUM"
+        }
+      ]
+    },
+    {
+      "layer": "protection_engine_shadow",
+      "metrics": {
+        "total_r": 2.5891,
+        "winrate": 33.33,
+        "avg_r": 0.1233,
+        "profit_factor": 1.2324,
+        "max_drawdown": -3.8844,
+        "wins": 7,
+        "losses": 14,
+        "sample_size": 21,
+        "confidence": "MEDIUM",
+        "trades_evaluated": 45,
+        "trades_accepted": 21,
+        "trades_rejected": 24,
+        "rejection_reasons": {
+          "symbol_loss_cooldown": 6,
+          "toxic_context_new_york": 14,
+          "toxic_context_high_volatility_long": 5
+        },
+        "delta_total_r_vs_baseline": 8.1645,
+        "delta_winrate_vs_baseline": 2.22,
+        "top_rejection_reasons": [
+          {
+            "reason": "toxic_context_new_york",
+            "count": 14
+          },
+          {
+            "reason": "symbol_loss_cooldown",
+            "count": 6
+          },
+          {
+            "reason": "toxic_context_high_volatility_long",
+            "count": 5
+          }
+        ]
+      },
+      "top_improved_contexts": [
+        {
+          "dimension": "direction",
+          "value": "short",
+          "sample_size": 10,
+          "total_r": -9.4775,
+          "impact_r": 9.4775,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "session",
+          "value": "NEW_YORK",
+          "sample_size": 14,
+          "total_r": -8.4083,
+          "impact_r": 8.4083,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "premium_zone",
+          "sample_size": 8,
+          "total_r": -6.5896,
+          "impact_r": 6.5896,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "setup_type",
+          "value": "SECONDARY_SIGNAL",
+          "sample_size": 13,
+          "total_r": -6.1713,
+          "impact_r": 6.1713,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "entry_context",
+          "value": "BREAKOUT",
+          "sample_size": 14,
+          "total_r": -4.0817,
+          "impact_r": 4.0817,
+          "confidence": "MEDIUM"
+        }
+      ],
+      "top_worsened_contexts": [
+        {
+          "dimension": "session",
+          "value": "LONDON",
+          "sample_size": 4,
+          "total_r": 3.0225,
+          "impact_r": 3.0225,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "direction",
+          "value": "long",
+          "sample_size": 14,
+          "total_r": 1.313,
+          "impact_r": 1.313,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "discount_zone",
+          "sample_size": 2,
+          "total_r": 0.5225,
+          "impact_r": 0.5225,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "near_resistance",
+          "sample_size": 4,
+          "total_r": 0.1813,
+          "impact_r": 0.1813,
+          "confidence": "LOW"
+        }
+      ]
+    },
+    {
+      "layer": "pair_universe_filter_shadow",
+      "metrics": {
+        "total_r": -2.0979,
+        "winrate": 33.33,
+        "avg_r": -0.0538,
+        "profit_factor": 0.9065,
+        "max_drawdown": -8.5782,
+        "wins": 13,
+        "losses": 26,
+        "sample_size": 39,
+        "confidence": "HIGH",
+        "trades_evaluated": 45,
+        "trades_accepted": 39,
+        "trades_rejected": 6,
+        "rejection_reasons": {
+          "recent_performance_too_negative": 2,
+          "too_many_recent_rejections": 4
+        },
+        "delta_total_r_vs_baseline": 3.4775,
+        "delta_winrate_vs_baseline": 2.22,
+        "top_rejection_reasons": [
+          {
+            "reason": "too_many_recent_rejections",
+            "count": 4
+          },
+          {
+            "reason": "recent_performance_too_negative",
+            "count": 2
+          }
+        ]
+      },
+      "top_improved_contexts": [
+        {
+          "dimension": "setup_type",
+          "value": "SECONDARY_SIGNAL",
+          "sample_size": 5,
+          "total_r": -4.4775,
+          "impact_r": 4.4775,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "entry_context",
+          "value": "BREAKOUT",
+          "sample_size": 6,
+          "total_r": -3.4775,
+          "impact_r": 3.4775,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "direction",
+          "value": "long",
+          "sample_size": 5,
+          "total_r": -3.0,
+          "impact_r": 3.0,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "session",
+          "value": "OVERLAP",
+          "sample_size": 3,
+          "total_r": -3.0,
+          "impact_r": 3.0,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "market_regime",
+          "value": "HIGH_VOLATILITY",
+          "sample_size": 4,
+          "total_r": -2.0,
+          "impact_r": 2.0,
+          "confidence": "LOW"
+        }
+      ],
+      "top_worsened_contexts": [
+        {
+          "dimension": "setup_type",
+          "value": "MAIN_SIGNAL",
+          "sample_size": 1,
+          "total_r": 1.0,
+          "impact_r": 1.0,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "session",
+          "value": "LONDON",
+          "sample_size": 2,
+          "total_r": 0.5225,
+          "impact_r": 0.5225,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "discount_zone",
+          "sample_size": 2,
+          "total_r": 0.5225,
+          "impact_r": 0.5225,
+          "confidence": "LOW"
+        }
+      ]
+    },
+    {
+      "layer": "kill_switch_risk_guard",
+      "metrics": {
+        "total_r": 2.912,
+        "winrate": 40.0,
+        "avg_r": 0.5824,
+        "profit_factor": 1.9707,
+        "max_drawdown": -2.0,
+        "wins": 2,
+        "losses": 3,
+        "sample_size": 5,
+        "confidence": "LOW",
+        "trades_evaluated": 45,
+        "trades_accepted": 5,
+        "trades_rejected": 40,
+        "rejection_reasons": {
+          "cooldown_active": 6,
+          "consecutive_losses_limit": 35
+        },
+        "delta_total_r_vs_baseline": 8.4874,
+        "delta_winrate_vs_baseline": 8.89,
+        "top_rejection_reasons": [
+          {
+            "reason": "consecutive_losses_limit",
+            "count": 35
+          },
+          {
+            "reason": "cooldown_active",
+            "count": 6
+          }
+        ]
+      },
+      "top_improved_contexts": [
+        {
+          "dimension": "direction",
+          "value": "short",
+          "sample_size": 21,
+          "total_r": -9.8004,
+          "impact_r": 9.8004,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "session",
+          "value": "NEW_YORK",
+          "sample_size": 14,
+          "total_r": -8.4083,
+          "impact_r": 8.4083,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "premium_zone",
+          "sample_size": 8,
+          "total_r": -6.5896,
+          "impact_r": 6.5896,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "setup_type",
+          "value": "SECONDARY_SIGNAL",
+          "sample_size": 22,
+          "total_r": -5.4452,
+          "impact_r": 5.4452,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "session",
+          "value": "OVERLAP",
+          "sample_size": 14,
+          "total_r": -5.1631,
+          "impact_r": 5.1631,
+          "confidence": "MEDIUM"
+        }
+      ],
+      "top_worsened_contexts": [
+        {
+          "dimension": "session",
+          "value": "LONDON",
+          "sample_size": 12,
+          "total_r": 5.084,
+          "impact_r": 5.084,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "direction",
+          "value": "long",
+          "sample_size": 19,
+          "total_r": 1.313,
+          "impact_r": 1.313,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "near_resistance",
+          "sample_size": 7,
+          "total_r": 1.1323,
+          "impact_r": 1.1323,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "discount_zone",
+          "sample_size": 5,
+          "total_r": 0.7017,
+          "impact_r": 0.7017,
+          "confidence": "LOW"
+        }
+      ]
+    }
+  ]
+}
