@@ -7,6 +7,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Iterable
 
+from trading_signals.application.use_cases.intelligence_layer_health import build_intelligence_layer_health
 from trading_signals.application.use_cases.paper_stats import (
     build_paper_performance_summary,
     load_paper_trades,
@@ -18,6 +19,7 @@ def build_dashboard_summary(
     data_path: Path = Path("data"),
     logs_path: Path = Path("logs"),
     runtime_path: Path = Path(".runtime"),
+    reports_path: Path = Path("reports"),
     latest_limit: int = 10,
 ) -> dict[str, object]:
     paper_trades_path = data_path / "paper_trading" / "trades.csv"
@@ -38,6 +40,7 @@ def build_dashboard_summary(
         "latest_signals": [_signal_view(row) for row in latest_signals],
         "latest_rejections": latest_rejections,
         "paper_stats": paper_stats,
+        "intelligence_layer": build_intelligence_layer_health(reports_path),
         "top_rejection_reasons": _top_rejection_reasons(paper_stats, paper_trades, experimental_signals),
         "files": {
             "paper_trades": _file_status(paper_trades_path, rows=len(paper_trades)),

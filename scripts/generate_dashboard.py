@@ -22,6 +22,7 @@ def load_dashboard_data(data_path: Path, reports_path: Path) -> dict[str, object
         "setup_combinations_rankings": _read_csv(reports_path / "setup_combinations_rankings.csv"),
         "edge_breakdown": _read_csv(reports_path / "edge_breakdown.csv"),
         "secondary_signal_breakdown": _read_csv(reports_path / "secondary_signal_breakdown.csv"),
+        "intelligence_layer": _read_intelligence_manifest(reports_path / "intelligence_layer_manifest.json"),
         "pattern_memory_records": _read_jsonl(data_path / "pattern_memory" / "patterns.jsonl"),
     }
 
@@ -45,6 +46,7 @@ def build_dashboard_model(data: dict[str, object], *, min_trades: int) -> dict[s
         "worst_avg_r": _rank(ranking_rows, metric="avg_r", reverse=False, min_trades=min_trades, limit=10),
         "secondary_analysis": _secondary_analysis(trades, secondary_breakdown, min_trades=min_trades),
         "public_vs_dev": _group_stats(trades, "public_published"),
+        "intelligence_layer": _intelligence_health(_dict(data.get("intelligence_layer"))),
         "adaptive_pattern_memory": _pattern_memory_summary(_rows(data.get("pattern_memory_records"))),
         "min_trades": min_trades,
     }
@@ -61,6 +63,7 @@ def generate_dashboard(data_path: Path, reports_path: Path, *, min_trades: int =
 
 def render_dashboard_html(model: dict[str, object]) -> str:
     summary = _dict(model.get("summary"))
+    intelligence = _dict(model.get("intelligence_layer"))
     winrate_text = f"{summary.get('winrate', 0)}%"
     return (
         "<!doctype html><html><head><meta charset='utf-8'>"
@@ -77,6 +80,7 @@ def render_dashboard_html(model: dict[str, object]) -> str:
         f"{_metric_card('Avg R', summary.get('avg_r', 0))}"
         f"{_metric_card('Profit Factor', _pf(summary.get('profit_factor')))}"
         f"{_metric_card('Max DD aprox', summary.get('max_drawdown', 0))}"
+        f"{_metric_card('Intelligence Layer', intelligence.get('status', 'error'))}"
         "</section>"
         f"{_section('Performance por dirección', _table(_rows(model.get('by_direction')), ['group', 'trades', 'winrate', 'total_r', 'avg_r', 'profit_factor']))}"
         f"{_section('Performance por setup', _table(_rows(model.get('by_setup')), ['group', 'trades', 'winrate', 'total_r', 'avg_r', 'profit_factor']))}"
@@ -87,6 +91,7 @@ def render_dashboard_html(model: dict[str, object]) -> str:
         f"{_section('Peores fugas por AvgR', _table(_rows(model.get('worst_avg_r')), ['ranking_type', 'group', 'trades', 'winrate', 'total_r', 'avg_r', 'profit_factor']))}"
         f"{_section('Secondary Signal Analysis', _table(_rows(model.get('secondary_analysis')), ['ranking_type', 'group', 'trades', 'winrate', 'total_r', 'avg_r', 'profit_factor']))}"
         f"{_section('Public vs DEV/Paper', _table(_rows(model.get('public_vs_dev')), ['group', 'trades', 'winrate', 'total_r', 'avg_r', 'profit_factor']))}"
+        f"{_section('Intelligence Layer Health', _intelligence_layer_html(intelligence))}"
         f"{_section('Adaptive / Pattern Memory', _pattern_memory_html(_dict(model.get('adaptive_pattern_memory'))))}"
         "</main></body></html>"
     )
@@ -154,6 +159,16 @@ def _read_jsonl(path: Path) -> list[dict[str, object]]:
     return records
 
 
+def _read_intelligence_manifest(path: Path) -> dict[str, object]:
+    if not path.exists() or path.stat().st_size == 0:
+        return {"status": "error", "missing_required_reports": ["missing_manifest"]}
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {"status": "error", "missing_required_reports": ["invalid_manifest"]}
+    return raw if isinstance(raw, dict) else {"status": "error", "missing_required_reports": ["invalid_manifest"]}
+
+
 def _metrics(trades: list[dict[str, object]]) -> dict[str, object]:
     r_values = [_to_float(trade.get("result_r")) or 0.0 for trade in trades]
     wins = [trade for trade in trades if _is_win(trade)]
@@ -205,6 +220,26 @@ def _pattern_memory_summary(records: list[dict[str, object]]) -> dict[str, objec
         "wins": outcomes.get("win", 0),
         "losses": outcomes.get("loss", 0),
         "avg_r": round(sum(r_values) / len(r_values), 4) if r_values else 0.0,
+    }
+
+
+def _intelligence_health(manifest: dict[str, object]) -> dict[str, object]:
+    rows = _dict(manifest.get("rows"))
+    missing = manifest.get("warnings", [])
+    if not isinstance(missing, list):
+        missing = []
+    if manifest.get("generated_at"):
+        status = "OK" if not missing else "warning"
+    else:
+        status = "error"
+    return {
+        "status": status,
+        "generated_at": manifest.get("generated_at"),
+        "closed_trades_analyzed": int(_to_float(rows.get("closed_trades")) or 0),
+        "outcome_rows": int(_to_float(rows.get("outcome_intelligence")) or 0),
+        "setup_ranking_rows": int(_to_float(rows.get("setup_rankings")) or 0),
+        "edge_breakdown_rows": int(_to_float(rows.get("edge_breakdown")) or 0),
+        "missing_required_reports": [str(item) for item in missing],
     }
 
 
@@ -270,6 +305,33 @@ def _pattern_memory_html(summary: dict[str, object]) -> str:
     if summary.get("status") != "ok":
         return "<p class='muted'>datos insuficientes</p>"
     return _table([summary], ["records", "wins", "losses", "avg_r"])
+
+
+def _intelligence_layer_html(health: dict[str, object]) -> str:
+    missing = health.get("missing_required_reports", [])
+    rows = [
+        {
+            "status": health.get("status", "error"),
+            "generated_at": health.get("generated_at") or "N/A",
+            "closed_trades_analyzed": health.get("closed_trades_analyzed", 0),
+            "outcome_rows": health.get("outcome_rows", 0),
+            "setup_ranking_rows": health.get("setup_ranking_rows", 0),
+            "edge_breakdown_rows": health.get("edge_breakdown_rows", 0),
+            "missing_required_reports": len(missing) if isinstance(missing, list) else 0,
+        }
+    ]
+    return _table(
+        rows,
+        [
+            "status",
+            "generated_at",
+            "closed_trades_analyzed",
+            "outcome_rows",
+            "setup_ranking_rows",
+            "edge_breakdown_rows",
+            "missing_required_reports",
+        ],
+    )
 
 
 def _css() -> str:

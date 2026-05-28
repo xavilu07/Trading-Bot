@@ -280,6 +280,15 @@ def test_scheduler_diagnostic_summary_telegram_format() -> None:
             "meta_risks": ["low confidence contexts"],
             "system_alignment": {"historical_edge_score": 82},
         },
+        "intelligence_layer": {
+            "status": "OK",
+            "generated_at": "2026-05-28T10:00:00+00:00",
+            "closed_trades_analyzed": 45,
+            "outcome_rows": 45,
+            "setup_ranking_rows": 25,
+            "edge_breakdown_rows": 32,
+            "missing_required_reports": [],
+        },
     }
 
     message = format_scheduler_diagnostic_summary_for_telegram(summary)
@@ -359,6 +368,10 @@ def test_scheduler_diagnostic_summary_telegram_format() -> None:
     assert "- Preservation mode: NO" in message
     assert "- Main reasons: historical edge HIGH, trade quality A, RR válido (2.0)" in message
     assert "- Risks: low confidence contexts" in message
+    assert "🧠 Intelligence Layer" in message
+    assert "- Status: OK" in message
+    assert "- Closed trades: 45" in message
+    assert "- Edge breakdown: 32" in message
     assert "- Símbolo: XRPUSDT" in message
     assert "0 señales enviadas" in message
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import json
 from pathlib import Path
 
 from trading_signals.application.use_cases.dashboard_reader import build_dashboard_summary
@@ -20,6 +21,7 @@ def test_dashboard_summary_handles_missing_files(tmp_path: Path) -> None:
         data_path=tmp_path / "data",
         logs_path=tmp_path / "logs",
         runtime_path=tmp_path / ".runtime",
+        reports_path=tmp_path / "reports",
     )
 
     assert summary["latest_signals"] == []
@@ -28,6 +30,7 @@ def test_dashboard_summary_handles_missing_files(tmp_path: Path) -> None:
     assert summary["files"]["paper_trades"]["state"] == "missing"
     assert summary["files"]["experimental_signals"]["state"] == "missing"
     assert summary["last_cycle"]["status"] == "missing"
+    assert summary["intelligence_layer"]["status"] == "error"
 
 
 def test_dashboard_summary_reads_signals_rejections_stats_and_logs(tmp_path: Path) -> None:
@@ -83,8 +86,25 @@ def test_dashboard_summary_reads_signals_rejections_stats_and_logs(tmp_path: Pat
     )
     logs_path.mkdir(parents=True)
     (logs_path / "scheduler.log").write_text('cycle started\n{"event": "cycle_finished", "cycle": 7}\n', encoding="utf-8")
+    reports_path = tmp_path / "reports"
+    reports_path.mkdir()
+    (reports_path / "intelligence_layer_manifest.json").write_text(
+        json.dumps(
+            {
+                "generated_at": "2026-05-28T10:00:00+00:00",
+                "rows": {
+                    "closed_trades": 2,
+                    "outcome_intelligence": 2,
+                    "setup_rankings": 4,
+                    "edge_breakdown": 5,
+                },
+                "warnings": [],
+            }
+        ),
+        encoding="utf-8",
+    )
 
-    summary = build_dashboard_summary(data_path=data_path, logs_path=logs_path, runtime_path=runtime_path)
+    summary = build_dashboard_summary(data_path=data_path, logs_path=logs_path, runtime_path=runtime_path, reports_path=reports_path)
 
     assert summary["files"]["paper_trades"]["rows"] == 2
     assert summary["files"]["experimental_signals"]["rows"] == 1
@@ -93,6 +113,8 @@ def test_dashboard_summary_reads_signals_rejections_stats_and_logs(tmp_path: Pat
     assert summary["latest_signals"][0]["symbol"] == "SOLUSDT"
     assert summary["latest_rejections"][0]["source"] == "experimental_signals"
     assert summary["last_cycle"]["last_event"] == {"event": "cycle_finished", "cycle": 7}
+    assert summary["intelligence_layer"]["status"] == "OK"
+    assert summary["intelligence_layer"]["edge_breakdown_rows"] == 5
     labels = [item["label"] for item in summary["top_rejection_reasons"]]
     assert "directional_confluence_failed" in labels
     assert "quality_score_failed" in labels

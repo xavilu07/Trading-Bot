@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-05-28T14:52:21+00:00",
+  "generated_at": "2026-05-28T15:02:14+00:00",
   "data_sources": {
     "paper_trade_csvs": 4,
     "live_trades_exists": true,
-    "signals_log_rows": 166,
+    "signals_log_rows": 174,
     "pattern_memory_rows": 28
   },
   "reports": {

@@ -10,6 +10,10 @@ from pathlib import Path
 
 from trading_signals.app.container import build_container
 from trading_signals.application.use_cases.bot_health_report import build_bot_health_telegram_section
+from trading_signals.application.use_cases.intelligence_layer_health import (
+    build_intelligence_layer_health,
+    format_intelligence_layer_health_for_telegram,
+)
 from trading_signals.application.use_cases.live_trading import (
     format_live_daily_summary_for_telegram,
     now_utc_date_key as live_now_utc_date_key,
@@ -295,6 +299,7 @@ def format_scheduler_diagnostic_summary_for_telegram(summary: dict[str, object])
     edge_confirmation_text = _format_edge_confirmation(summary.get("edge_confirmation"))
     trade_quality_text = _format_trade_quality(summary.get("trade_quality"))
     meta_decision_text = _format_meta_decision(summary.get("meta_decision"))
+    intelligence_layer_text = _format_intelligence_layer_health(summary.get("intelligence_layer"))
 
     return (
         "📊 Resumen del bot - últimos 5 ciclos\n\n"
@@ -330,6 +335,7 @@ def format_scheduler_diagnostic_summary_for_telegram(summary: dict[str, object])
         f"{edge_confirmation_text}"
         f"{trade_quality_text}"
         f"{meta_decision_text}"
+        f"{intelligence_layer_text}"
         "📊 Conclusión\n"
         f"{_build_scheduler_conclusion(summary, bottleneck_text)}"
     )
@@ -349,6 +355,12 @@ def _aggregate_meta_decision(items: list[dict[str, object]]) -> dict[str, object
         "meta_risks": selected.get("meta_risks", []),
         "system_alignment": selected.get("system_alignment", {}),
     }
+
+
+def _format_intelligence_layer_health(value: object) -> str:
+    if not isinstance(value, dict):
+        return ""
+    return f"{format_intelligence_layer_health_for_telegram(value)}\n\n"
 
 
 def _aggregate_trade_quality(items: list[dict[str, object]]) -> dict[str, object] | None:
@@ -870,6 +882,7 @@ def main(argv: list[str] | None = None) -> int:
                 )
                 if len(results_window) == summary_every_cycles:
                     summary = build_scheduler_diagnostic_summary(results_window)
+                    summary["intelligence_layer"] = build_intelligence_layer_health(Path("reports"))
                     log_json(logger, "scheduler_diagnostic_summary", **summary)
                     if settings.telegram_diagnostic_summary_enabled:
                         message = format_scheduler_diagnostic_summary_for_telegram(summary)

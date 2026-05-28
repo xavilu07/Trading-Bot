@@ -27,8 +27,8 @@ def generate_intelligence_reports(
     outcome = generate_outcome_intelligence(data_path, reports_path)
     rankings = generate_setup_rankings(data_path, reports_path, min_trades=max(1, min_trades))
     performance = generate_performance_report(data_path, reports_path)
-    dashboard = generate_dashboard(data_path, reports_path, min_trades=max(1, dashboard_min_trades))
     edge_rows = _count_csv_rows(reports_path / "edge_breakdown.csv")
+    dashboard_path = reports_path / "dashboard.html"
     manifest = {
         "generated_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "data_sources": {
@@ -44,7 +44,7 @@ def generate_intelligence_reports(
             "edge_breakdown": performance.get("edge_breakdown_path"),
             "secondary_signal_breakdown": performance.get("secondary_signal_breakdown_path"),
             "performance_report": performance.get("report_path"),
-            "dashboard": dashboard.get("dashboard_path"),
+            "dashboard": str(dashboard_path),
         },
         "rows": {
             "outcome_intelligence": len(outcome.get("rows", [])) if isinstance(outcome.get("rows"), list) else 0,
@@ -58,6 +58,7 @@ def generate_intelligence_reports(
     manifest["refreshed_intelligence_reports"] = _refresh_existing_intelligence_reports(reports_path, manifest)
     manifest_path = reports_path / "intelligence_layer_manifest.json"
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+    generate_dashboard(data_path, reports_path, min_trades=max(1, dashboard_min_trades))
     manifest["manifest_path"] = str(manifest_path)
     return manifest
 

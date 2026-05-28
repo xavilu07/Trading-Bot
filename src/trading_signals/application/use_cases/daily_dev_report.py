@@ -6,6 +6,10 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Iterable
 
+from trading_signals.application.use_cases.intelligence_layer_health import (
+    build_intelligence_layer_health,
+    format_intelligence_layer_health_for_telegram,
+)
 from trading_signals.memory.insights import build_pattern_memory_insights
 from trading_signals.risk.kill_switch import evaluate_kill_switch
 
@@ -19,6 +23,7 @@ def build_daily_dev_report(
     data_path: Path,
     *,
     logs_path: Path = Path("logs"),
+    reports_path: Path = Path("reports"),
     report_date: date | None = None,
     now: datetime | None = None,
     scheduler_expected_interval_seconds: int = 900,
@@ -65,6 +70,7 @@ def build_daily_dev_report(
         },
         "leaks": _build_leaks(closed_today),
         "pattern_memory": _build_pattern_memory_section(pattern_records),
+        "intelligence_layer": build_intelligence_layer_health(reports_path),
     }
 
 
@@ -77,6 +83,7 @@ def format_daily_dev_report(report: dict[str, object]) -> str:
     leaks = _dict(report.get("leaks"))
     memory = _dict(report.get("pattern_memory"))
     kill_switch = _dict(report.get("kill_switch"))
+    intelligence_layer = _dict(report.get("intelligence_layer"))
     return (
         "📊 Daily Bot Report\n"
         f"Fecha: {report.get('date', '-')}\n\n"
@@ -108,7 +115,8 @@ def format_daily_dev_report(report: dict[str, object]) -> str:
         f"{_format_leaks(leaks)}\n\n"
         "🧠 Pattern Memory\n"
         f"- Insights ready: {_yes_no(memory.get('insights_ready'))}\n"
-        f"- Top insight: {memory.get('top_insight') or 'Datos insuficientes todavía.'}"
+        f"- Top insight: {memory.get('top_insight') or 'Datos insuficientes todavía.'}\n\n"
+        f"{format_intelligence_layer_health_for_telegram(intelligence_layer)}"
     )
 
 

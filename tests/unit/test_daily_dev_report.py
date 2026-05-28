@@ -78,6 +78,23 @@ def test_daily_dev_report_builds_today_metrics_and_breakdowns(tmp_path: Path) ->
         ],
     )
     write_csv(data_path / "live_trading" / "trades.csv", [{"symbol": "BTCUSDT", "status": "open"}])
+    reports_path = tmp_path / "reports"
+    reports_path.mkdir()
+    (reports_path / "intelligence_layer_manifest.json").write_text(
+        json.dumps(
+            {
+                "generated_at": "2026-05-28T10:00:00+00:00",
+                "rows": {
+                    "closed_trades": 3,
+                    "outcome_intelligence": 3,
+                    "setup_rankings": 2,
+                    "edge_breakdown": 4,
+                },
+                "warnings": [],
+            }
+        ),
+        encoding="utf-8",
+    )
     patterns_path = data_path / "pattern_memory" / "patterns.jsonl"
     patterns_path.parent.mkdir(parents=True)
     records = [
@@ -108,6 +125,7 @@ def test_daily_dev_report_builds_today_metrics_and_breakdowns(tmp_path: Path) ->
     report = build_daily_dev_report(
         data_path,
         logs_path=logs_path,
+        reports_path=reports_path,
         report_date=date(2026, 5, 11),
         now=now,
         scheduler_expected_interval_seconds=900,
@@ -124,6 +142,8 @@ def test_daily_dev_report_builds_today_metrics_and_breakdowns(tmp_path: Path) ->
     assert report["breakdown"]["setup_type"]["MAIN_SIGNAL"]["total_r"] == -1.0
     assert report["pattern_memory"]["insights_ready"] is True
     assert report["kill_switch"]["daily_realized_r"] == 1.0
+    assert report["intelligence_layer"]["status"] == "OK"
+    assert report["intelligence_layer"]["edge_breakdown_rows"] == 4
 
 
 def test_daily_dev_report_message_contains_main_sections(tmp_path: Path) -> None:
@@ -145,6 +165,7 @@ def test_daily_dev_report_message_contains_main_sections(tmp_path: Path) -> None
     assert "🧪 Breakdown rápido" in message
     assert "⚠️ Fugas principales" in message
     assert "🧠 Pattern Memory" in message
+    assert "🧠 Intelligence Layer" in message
 
 
 def test_send_daily_dev_report_dry_run_prints_without_notifier_send(tmp_path: Path, capsys) -> None:

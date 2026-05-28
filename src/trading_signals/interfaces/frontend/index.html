@@ -150,6 +150,11 @@
           <p id="paper-detail" class="muted">Cargando...</p>
         </article>
         <article class="card">
+          <h2>Intelligence Layer</h2>
+          <p class="metric" id="intelligence-status">-</p>
+          <p id="intelligence-detail" class="muted">Cargando...</p>
+        </article>
+        <article class="card">
           <h2>Archivos</h2>
           <pre id="files">Cargando...</pre>
         </article>
@@ -195,10 +200,14 @@
         const response = await fetch("/dashboard/summary");
         const data = await response.json();
         const stats = data.paper_stats || {};
+        const intelligence = data.intelligence_layer || {};
         document.getElementById("last-cycle").textContent = JSON.stringify(data.last_cycle, null, 2);
         document.getElementById("paper-total").textContent = `${stats.closed_trades || 0} cerrados`;
         document.getElementById("paper-detail").textContent =
           `Total ${stats.trades_total || 0} | Abiertos ${stats.open_trades || 0} | WR ${stats.winrate || 0}% | Total R ${stats.total_r || 0}`;
+        document.getElementById("intelligence-status").textContent = intelligence.status || "error";
+        document.getElementById("intelligence-detail").textContent =
+          `Closed ${intelligence.closed_trades_analyzed || 0} | Outcome ${intelligence.outcome_rows || 0} | Rankings ${intelligence.setup_ranking_rows || 0} | Edge ${intelligence.edge_breakdown_rows || 0} | Missing ${(intelligence.missing_required_reports || []).length}`;
         document.getElementById("files").textContent = JSON.stringify(data.files, null, 2);
         document.getElementById("signals").innerHTML = formatRows(data.latest_signals, [
           { label: "Timestamp", value: (row) => row.timestamp },

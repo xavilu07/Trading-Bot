@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import json
 from pathlib import Path
 
 from scripts.generate_dashboard import build_dashboard_model, generate_dashboard, load_dashboard_data
@@ -63,6 +64,22 @@ def test_dashboard_with_trades_generates_html_and_metrics(tmp_path: Path) -> Non
         reports_path / "setup_rankings.csv",
         [{"ranking_type": "setup_type", "group": "MAIN_SIGNAL", "trades": "1", "winrate": "100", "total_r": "2", "avg_r": "2", "profit_factor": ""}],
     )
+    reports_path.mkdir(parents=True, exist_ok=True)
+    (reports_path / "intelligence_layer_manifest.json").write_text(
+        json.dumps(
+            {
+                "generated_at": "2026-05-28T10:00:00+00:00",
+                "rows": {
+                    "closed_trades": 2,
+                    "outcome_intelligence": 2,
+                    "setup_rankings": 1,
+                    "edge_breakdown": 3,
+                },
+                "warnings": [],
+            }
+        ),
+        encoding="utf-8",
+    )
 
     result = generate_dashboard(data_path, reports_path, min_trades=1)
     html = (reports_path / "dashboard.html").read_text(encoding="utf-8")
@@ -74,6 +91,9 @@ def test_dashboard_with_trades_generates_html_and_metrics(tmp_path: Path) -> Non
     assert "MAIN_SIGNAL" in html
     assert "SECONDARY_SIGNAL" in html
     assert "Public vs DEV/Paper" in html
+    assert "Intelligence Layer Health" in html
+    assert result["model"]["intelligence_layer"]["status"] == "OK"
+    assert result["model"]["intelligence_layer"]["edge_breakdown_rows"] == 3
 
 
 def test_dashboard_tolerates_missing_columns(tmp_path: Path) -> None:
@@ -92,4 +112,3 @@ def test_dashboard_tolerates_missing_columns(tmp_path: Path) -> None:
     assert model["summary"]["trades"] == 2
     assert any(row["group"] == "UNKNOWN" for row in model["by_setup"])
     assert any(row["group"] == "unknown" for row in model["public_vs_dev"])
-
