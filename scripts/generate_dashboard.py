@@ -8,6 +8,8 @@ import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
+from trading_signals.data.canonical_trade_source import load_canonical_closed_trades
+
 
 CLOSED_STATUSES = {"tp2_hit", "tp_hit", "sl_hit", "expired", "breakeven"}
 WIN_STATUSES = {"tp2_hit", "tp_hit"}
@@ -113,26 +115,7 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def _load_closed_trades(data_path: Path) -> list[dict[str, object]]:
-    trades = []
-    csv_paths = []
-    paper_path = data_path / "paper_trading"
-    if paper_path.exists():
-        csv_paths.extend(path for path in paper_path.glob("*.csv") if path.is_file())
-    live_path = data_path / "live_trading" / "trades.csv"
-    if live_path.exists():
-        csv_paths.append(live_path)
-    for path in sorted(csv_paths):
-        for row in _read_csv(path):
-            status = str(row.get("status", row.get("outcome", ""))).strip().lower()
-            result_r = _to_float(row.get("result_r") or row.get("r_result"))
-            if status not in CLOSED_STATUSES or result_r is None:
-                continue
-            item = dict(row)
-            item["status"] = status
-            item["result_r"] = result_r
-            item["source_csv"] = str(path)
-            trades.append(item)
-    return trades
+    return load_canonical_closed_trades(data_path)
 
 
 def _read_csv(path: Path) -> list[dict[str, object]]:

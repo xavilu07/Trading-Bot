@@ -40,7 +40,7 @@ def test_london_short_edge_filters_to_london_short_only() -> None:
     assert result["closed_trades"] == 1
 
 
-def test_london_short_edge_loads_trades_and_signal_log(tmp_path: Path) -> None:
+def test_london_short_edge_loads_only_canonical_trades(tmp_path: Path) -> None:
     data_path = tmp_path / "data"
     reports_path = tmp_path / "reports"
     _write_csv(
@@ -49,20 +49,7 @@ def test_london_short_edge_loads_trades_and_signal_log(tmp_path: Path) -> None:
     )
     signal_log = data_path / "bot_activity" / "signals_log.jsonl"
     signal_log.parent.mkdir(parents=True, exist_ok=True)
-    signal_log.write_text(
-        json.dumps(
-            {
-                "symbol": "BTCUSDT",
-                "direction": "short",
-                "session": "LONDON",
-                "status": "rejected",
-                "setup_type": "SECONDARY_SIGNAL",
-                "rejection_reasons": ["secondary_setup_requirements_failed"],
-            }
-        )
-        + "\n",
-        encoding="utf-8",
-    )
+    signal_log.write_text(json.dumps({"symbol": "BTCUSDT", "direction": "short", "session": "LONDON"}) + "\n", encoding="utf-8")
     _write_csv(
         reports_path / "meta_dataset.csv",
         [_row(result_r=-1.0, direction="short", session="LONDON", setup_type="SECONDARY_SIGNAL", label="0")],
@@ -70,8 +57,8 @@ def test_london_short_edge_loads_trades_and_signal_log(tmp_path: Path) -> None:
 
     rows = load_london_short_research_rows(data_path, reports_path)
 
-    assert len(rows) == 3
-    assert any(row["blocked"] for row in rows)
+    assert len(rows) == 1
+    assert rows[0]["source"].endswith("paper_trading/trades.csv")
 
 
 def test_london_short_edge_writes_reports(tmp_path: Path) -> None:

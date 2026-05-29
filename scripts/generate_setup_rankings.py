@@ -8,6 +8,8 @@ from collections import Counter, defaultdict
 from datetime import UTC, datetime
 from pathlib import Path
 
+from trading_signals.data.canonical_trade_source import canonical_trades_path, load_canonical_closed_trades
+
 
 CLOSED_STATUSES = {"tp2_hit", "tp_hit", "sl_hit", "expired", "breakeven"}
 WIN_STATUSES = {"tp2_hit", "tp_hit"}
@@ -55,37 +57,12 @@ CSV_FIELDS = [
 
 
 def discover_trade_csvs(data_path: Path) -> list[Path]:
-    paths = []
-    paper_path = data_path / "paper_trading"
-    if paper_path.exists():
-        paths.extend(path for path in paper_path.glob("*.csv") if path.is_file())
-    live_path = data_path / "live_trading" / "trades.csv"
-    if live_path.exists():
-        paths.append(live_path)
-    return sorted(paths)
+    path = canonical_trades_path(data_path)
+    return [path] if path.exists() else []
 
 
 def load_closed_trades(data_path: Path) -> list[dict[str, object]]:
-    trades: list[dict[str, object]] = []
-    for path in discover_trade_csvs(data_path):
-        if path.stat().st_size == 0:
-            continue
-        try:
-            with path.open("r", encoding="utf-8", newline="") as handle:
-                reader = csv.DictReader(handle)
-                for row in reader:
-                    status = str(row.get("status", row.get("outcome", ""))).strip().lower()
-                    result_r = _to_float(row.get("result_r") or row.get("r_result"))
-                    if status not in CLOSED_STATUSES or result_r is None:
-                        continue
-                    item: dict[str, object] = dict(row)
-                    item["status"] = status
-                    item["result_r"] = result_r
-                    item["source_csv"] = str(path)
-                    trades.append(item)
-        except csv.Error:
-            continue
-    return trades
+    return load_canonical_closed_trades(data_path)
 
 
 def build_setup_rankings(trades: list[dict[str, object]], *, min_trades: int = 1) -> dict[str, list[dict[str, object]]]:

@@ -99,7 +99,7 @@ def test_dashboard_with_trades_generates_html_and_metrics(tmp_path: Path) -> Non
 def test_dashboard_tolerates_missing_columns(tmp_path: Path) -> None:
     data_path = tmp_path / "data"
     write_csv(
-        data_path / "paper_trading" / "old.csv",
+        data_path / "paper_trading" / "trades.csv",
         [
             {"status": "tp_hit", "result_r": "1.5"},
             {"status": "sl_hit", "result_r": "-1"},

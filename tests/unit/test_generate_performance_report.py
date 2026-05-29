@@ -151,7 +151,7 @@ def test_edge_breakdown_metrics_and_console_format() -> None:
     assert "🧨 Principales fugas de R" in text
 
 
-def test_performance_report_loads_live_trades_too(tmp_path: Path) -> None:
+def test_performance_report_ignores_live_trades_and_uses_canonical_source(tmp_path: Path) -> None:
     data_path = tmp_path / "data"
     write_trades(data_path, [{"status": "tp_hit", "result_r": "1"}])
     live_dir = data_path / "live_trading"
@@ -163,8 +163,8 @@ def test_performance_report_loads_live_trades_too(tmp_path: Path) -> None:
 
     trades = load_closed_trades(data_path)
 
-    assert len(trades) == 2
-    assert any(str(trade["source_csv"]).endswith("live_trading/trades.csv") for trade in trades)
+    assert len(trades) == 1
+    assert all(str(trade["source_csv"]).endswith("paper_trading/trades.csv") for trade in trades)
 
 
 def test_secondary_signal_analysis_breaks_down_sweep_and_main() -> None:

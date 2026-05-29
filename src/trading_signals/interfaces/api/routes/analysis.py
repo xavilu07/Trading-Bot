@@ -26,6 +26,7 @@ def run_scan(payload: RunScanRequest) -> dict[str, object]:
         diagnostics_store=container["diagnostics_store"],
         metrics=container["metrics"],
         paper_trading_store=container["paper_trading_store"],
+        relaxation_shadow_store=container["relaxation_shadow_store"],
         symbols=payload.symbols or None,
         dry_run=payload.dry_run,
     )

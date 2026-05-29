@@ -8,6 +8,7 @@ from collections import Counter, defaultdict
 from datetime import UTC, datetime
 from pathlib import Path
 
+from trading_signals.data.canonical_trade_source import load_canonical_closed_trades
 from trading_signals.memory.outcome_intelligence import analyze_trade_outcome
 
 
@@ -46,22 +47,7 @@ OUTPUT_FIELDS = [
 
 
 def load_closed_trades(data_path: Path) -> list[dict[str, object]]:
-    trades = []
-    paths = []
-    paper_path = data_path / "paper_trading"
-    if paper_path.exists():
-        paths.extend(path for path in paper_path.glob("*.csv") if path.is_file())
-    live_path = data_path / "live_trading" / "trades.csv"
-    if live_path.exists():
-        paths.append(live_path)
-    for path in sorted(paths):
-        for row in _read_csv(path):
-            status = str(row.get("status", row.get("outcome", ""))).strip().lower()
-            if status not in CLOSED_STATUSES and not str(row.get("closed_at", "")).strip():
-                continue
-            row["source_csv"] = str(path)
-            trades.append(row)
-    return trades
+    return load_canonical_closed_trades(data_path)
 
 
 def build_outcome_rows(trades: list[dict[str, object]]) -> list[dict[str, object]]:

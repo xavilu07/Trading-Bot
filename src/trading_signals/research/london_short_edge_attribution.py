@@ -7,6 +7,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from trading_signals.data.canonical_trade_source import load_canonical_closed_trades
+
 
 CLOSED_STATUSES = {"tp2_hit", "tp_hit", "sl_hit", "expired", "breakeven", "closed", "win", "loss"}
 WIN_STATUSES = {"tp2_hit", "tp_hit", "win"}
@@ -63,12 +65,7 @@ COMPARISONS = {
 
 
 def load_london_short_research_rows(data_path: Path, reports_path: Path | None = None) -> list[dict[str, Any]]:
-    rows: list[dict[str, Any]] = []
-    rows.extend(_load_trade_csvs(data_path))
-    rows.extend(_load_signal_activity(data_path / "bot_activity" / "signals_log.jsonl"))
-    if reports_path is not None:
-        rows.extend(_load_meta_dataset(reports_path / "meta_dataset.csv"))
-    normalized = [_normalize_row(row) for row in rows]
+    normalized = [_normalize_row(row) for row in load_canonical_closed_trades(data_path)]
     return [
         row
         for row in normalized
@@ -215,6 +212,7 @@ def _metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
     losses = [value for value in values if value < 0]
     gross_profit = sum(max(0.0, value) for value in values)
     gross_loss = abs(sum(min(0.0, value) for value in values))
+    max_drawdown, current_drawdown = _drawdowns(values)
     return {
         "trades": len(values),
         "wins": len(wins),
@@ -223,7 +221,20 @@ def _metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "total_r": round(sum(values), 4),
         "avg_r": round(sum(values) / len(values), 4) if values else 0.0,
         "profit_factor": round(gross_profit / gross_loss, 4) if gross_loss > 0 else (None if gross_profit > 0 else 0.0),
+        "max_drawdown": round(max_drawdown, 4),
+        "current_drawdown": round(current_drawdown, 4),
     }
+
+
+def _drawdowns(values: list[float]) -> tuple[float, float]:
+    cumulative = 0.0
+    peak = 0.0
+    max_drawdown = 0.0
+    for value in values:
+        cumulative += value
+        peak = max(peak, cumulative)
+        max_drawdown = min(max_drawdown, cumulative - peak)
+    return max_drawdown, cumulative - peak
 
 
 def _driver_score(metrics: dict[str, Any], *, min_trades: int) -> float:
@@ -317,53 +328,6 @@ def _what_not_to_change(rows: list[dict[str, Any]]) -> list[str]:
     if range_row and range_row["interpretation"] == "negative_driver":
         output.append("do_not_relax_market_structure_range_penalty_without_a_specific_positive_subcontext")
     return output
-
-
-def _load_trade_csvs(data_path: Path) -> list[dict[str, Any]]:
-    paths = []
-    paper_path = data_path / "paper_trading"
-    if paper_path.exists():
-        paths.extend(path for path in paper_path.glob("*.csv") if path.is_file())
-    live_path = data_path / "live_trading" / "trades.csv"
-    if live_path.exists():
-        paths.append(live_path)
-    rows = []
-    for path in sorted(paths):
-        for row in _read_csv(path):
-            status = str(row.get("status") or row.get("outcome") or "").strip().lower()
-            result_r = _float(row.get("result_r") or row.get("r_result") or row.get("realized_r"))
-            if result_r is None:
-                continue
-            if status and status not in CLOSED_STATUSES and not row.get("closed_at"):
-                continue
-            rows.append({**row, "result_r": result_r, "source": f"trade:{path.name}", "allowed": True})
-    return rows
-
-
-def _load_signal_activity(path: Path, *, max_lines: int = 10000) -> list[dict[str, Any]]:
-    if not path.exists() or path.stat().st_size == 0:
-        return []
-    rows = []
-    with path.open("r", encoding="utf-8", errors="replace") as handle:
-        for line in handle.readlines()[-max_lines:]:
-            try:
-                item = json.loads(line)
-            except json.JSONDecodeError:
-                continue
-            if isinstance(item, dict):
-                rows.append({**item, "source": "signals_log"})
-    return rows
-
-
-def _load_meta_dataset(path: Path) -> list[dict[str, Any]]:
-    rows = []
-    for row in _read_csv(path):
-        result_r = _float(row.get("result_r"))
-        label = str(row.get("label") or "").strip()
-        if result_r is None and label in {"0", "1"}:
-            result_r = 1.0 if label == "1" else -1.0
-        rows.append({**row, "result_r": result_r, "source": "meta_dataset"})
-    return rows
 
 
 def _normalize_row(row: dict[str, Any] | None) -> dict[str, Any] | None:

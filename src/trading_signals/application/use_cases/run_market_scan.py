@@ -741,6 +741,7 @@ def run_market_scan(
     diagnostics_store,
     metrics,
     paper_trading_store=None,
+    relaxation_shadow_store=None,
     experimental_signal_store=None,
     shadow_signal_store=None,
     modular_signal_store=None,
@@ -805,6 +806,12 @@ def run_market_scan(
             paper_updates = []
             if settings.paper_trading_enabled and paper_trading_store is not None:
                 paper_updates = paper_trading_store.update_open_trades_for_snapshot(
+                    analysis.entry_snapshot,
+                    updated_at=_now_iso(),
+                )
+            relaxation_shadow_updates = []
+            if relaxation_shadow_store is not None:
+                relaxation_shadow_updates = relaxation_shadow_store.update_open_trades_for_snapshot(
                     analysis.entry_snapshot,
                     updated_at=_now_iso(),
                 )
@@ -1138,6 +1145,8 @@ def run_market_scan(
                     setup_context=setup_context,
                     public_block_reason=public_block_reason,
                     public_short_canary_config=_public_short_canary_config(settings),
+                    relaxation_shadow_store=relaxation_shadow_store,
+                    relaxation_shadow_expires_after_candles=settings.paper_trading_timeout_candles,
                 )
                 relaxed_public_shadow = _relaxed_public_shadow_from_deliveries(deliveries)
                 if any(item.status == "sent" for item in deliveries):
@@ -1399,6 +1408,7 @@ def run_market_scan(
                     "paper_trade_created": paper_trade_created,
                     "paper_trade_rejection": paper_rejection,
                     "paper_trade_updates": paper_updates,
+                    "relaxation_shadow_updates": relaxation_shadow_updates,
                     "live_trade_updates": live_trade_updates,
                     "module_diagnostics": module_diagnostics,
                     "signal_decision": signal_decision.to_dict(),

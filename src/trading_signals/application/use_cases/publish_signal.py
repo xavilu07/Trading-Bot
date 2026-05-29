@@ -9,6 +9,11 @@ from uuid import uuid4
 from trading_signals.application.policies.public_canary_policy import PublicShortCanaryConfig
 from trading_signals.application.policies.public_safety_policy import evaluate_public_safety_policy
 from trading_signals.application.policies.relaxed_public_safety_v2 import evaluate_relaxed_public_safety_v2
+from trading_signals.application.use_cases.relaxation_shadow_v1 import (
+    build_relaxation_shadow_candidate,
+    format_relaxation_shadow_v1_message,
+    safe_relaxation_filter_result,
+)
 from trading_signals.domain.entities.signal_delivery import SignalDelivery
 from trading_signals.notifications.telegram import send_dev_signal_detail, send_public_signal
 
@@ -368,6 +373,8 @@ def publish_signal(
     setup_context: dict[str, object] | None = None,
     public_block_reason: str | None = None,
     public_short_canary_config: PublicShortCanaryConfig | None = None,
+    relaxation_shadow_store=None,
+    relaxation_shadow_expires_after_candles: int = 24,
 ) -> list[SignalDelivery]:
     public_message = format_public_signal_message(signal.symbol, signal.decision, entry_snapshot, higher_snapshot, evaluation, risk_plan)
     dev_message = format_telegram_message(signal.symbol, signal.decision, entry_snapshot, higher_snapshot, evaluation, risk_plan, signal_type=signal_type)
@@ -492,6 +499,49 @@ def publish_signal(
                     "relaxed_public_policy_vs_current": relaxed_shadow["relaxed_public_policy_vs_current"],
                 },
             )
+        relaxation_shadow = _evaluate_relaxation_shadow_v1(
+            signal=signal,
+            evaluation=evaluation,
+            risk_plan=risk_plan,
+            entry_snapshot=entry_snapshot,
+            higher_snapshot=higher_snapshot,
+            setup_context=setup_context or {},
+            current_policy=policy,
+            store=relaxation_shadow_store,
+            expires_after_candles=relaxation_shadow_expires_after_candles,
+        )
+        if relaxation_shadow["should_send_dev"]:
+            candidate = relaxation_shadow["candidate"]
+            relaxation_message = format_relaxation_shadow_v1_message(candidate)
+            routed_results.append(
+                (
+                    "telegram_dev_relaxation_shadow_v1",
+                    relaxation_message,
+                    send_dev_signal_detail(notifier, relaxation_message, dry_run=dry_run),
+                )
+            )
+            logger.info(
+                "relaxation_shadow_v1_signal_sent_dev",
+                extra={
+                    "event": "relaxation_shadow_v1_signal_sent_dev",
+                    "symbol": signal.symbol,
+                    "direction": signal.decision,
+                    "relaxed_filters": candidate.relaxed_filters,
+                    "original_rejection_reasons": candidate.original_rejection_reasons,
+                },
+            )
+        else:
+            logger.info(
+                "relaxation_shadow_v1_signal_skipped",
+                extra={
+                    "event": "relaxation_shadow_v1_signal_skipped",
+                    "symbol": signal.symbol,
+                    "direction": signal.decision,
+                    "reason": relaxation_shadow["skip_reason"],
+                    "safe_filters": relaxation_shadow["filter_result"].get("safe_filters", []),
+                    "unsafe_filters": relaxation_shadow["filter_result"].get("unsafe_filters", []),
+                },
+            )
     else:
         if isinstance(canary, dict) and canary.get("public_canary_enabled") and signal.decision == "short":
             logger.info(
@@ -520,6 +570,12 @@ def publish_signal(
                     "relaxed_public_shadow_sent_dev": str(result["status"]) == "sent",
                     "current_public_policy_decision": "block",
                     "shadow_label": "RELAXED_SHADOW_SIGNAL",
+                }
+            if channel == "telegram_dev_relaxation_shadow_v1":
+                payload["relaxation_shadow_v1"] = {
+                    "shadow_label": "RELAXATION_SHADOW_V1",
+                    "dev_only": True,
+                    "public_published": False,
                 }
             delivery = SignalDelivery(
                 id=f"delivery_{uuid4().hex[:12]}",
@@ -598,6 +654,47 @@ def _evaluate_relaxed_public_shadow(
         "relaxed_policy": relaxed_policy,
         "relaxed_public_policy_decision": relaxed_decision,
         "relaxed_public_policy_vs_current": comparison,
+    }
+
+
+def _evaluate_relaxation_shadow_v1(
+    *,
+    signal,
+    evaluation,
+    risk_plan,
+    entry_snapshot,
+    higher_snapshot,
+    setup_context: dict[str, object],
+    current_policy: dict[str, object],
+    store,
+    expires_after_candles: int,
+) -> dict[str, object]:
+    filter_result = safe_relaxation_filter_result(current_policy.get("block_reasons", []))
+    if store is None:
+        return {"should_send_dev": False, "skip_reason": "store_not_configured", "filter_result": filter_result}
+    if not filter_result["eligible"]:
+        return {"should_send_dev": False, "skip_reason": "unsafe_or_empty_filters", "filter_result": filter_result}
+    candidate = build_relaxation_shadow_candidate(
+        signal=signal,
+        evaluation=evaluation,
+        risk_plan=risk_plan,
+        entry_snapshot=entry_snapshot,
+        higher_snapshot=higher_snapshot,
+        setup_context=setup_context,
+        current_policy=current_policy,
+        opened_at=datetime.now(tz=UTC).isoformat(),
+        expires_after_candles=expires_after_candles,
+    )
+    if candidate is None:
+        return {"should_send_dev": False, "skip_reason": "candidate_not_created", "filter_result": filter_result}
+    created = store.upsert_candidate(candidate)
+    if not created:
+        return {"should_send_dev": False, "skip_reason": "duplicate", "filter_result": filter_result, "candidate": candidate}
+    return {
+        "should_send_dev": True,
+        "skip_reason": "",
+        "filter_result": filter_result,
+        "candidate": candidate,
     }
 
 

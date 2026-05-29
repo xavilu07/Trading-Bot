@@ -14,6 +14,7 @@ from scripts.generate_dashboard import generate_dashboard
 from scripts.generate_outcome_intelligence import generate_outcome_intelligence
 from scripts.generate_performance_report import generate_performance_report
 from scripts.generate_setup_rankings import generate_setup_rankings
+from trading_signals.data.canonical_trade_source import canonical_trades_path
 
 
 def generate_intelligence_reports(
@@ -32,8 +33,8 @@ def generate_intelligence_reports(
     manifest = {
         "generated_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "data_sources": {
-            "paper_trade_csvs": _count_csv_files(data_path / "paper_trading"),
-            "live_trades_exists": (data_path / "live_trading" / "trades.csv").exists(),
+            "canonical_trades_path": str(canonical_trades_path(data_path)),
+            "canonical_trades_rows": _count_csv_rows(canonical_trades_path(data_path)),
             "signals_log_rows": _count_lines(data_path / "bot_activity" / "signals_log.jsonl"),
             "pattern_memory_rows": _count_lines(data_path / "pattern_memory" / "patterns.jsonl"),
         },

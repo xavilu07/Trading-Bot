@@ -18,9 +18,9 @@ if str(ROOT) not in sys.path:
 from trading_signals.application.policies.public_canary_policy import PublicShortCanaryConfig
 from trading_signals.application.policies.public_safety_policy import evaluate_public_safety_policy
 from trading_signals.application.policies.relaxed_public_safety_v2 import evaluate_relaxed_public_safety_v2
+from trading_signals.data.canonical_trade_source import load_canonical_closed_trades
 
 
-CLOSED_STATUSES = {"tp2_hit", "tp_hit", "sl_hit", "expired", "breakeven", "closed", "win", "loss"}
 SUMMARY_FIELDS = [
     "layer",
     "mode",
@@ -32,6 +32,7 @@ SUMMARY_FIELDS = [
     "avg_r",
     "profit_factor",
     "max_drawdown",
+    "current_drawdown",
     "delta_total_r_vs_baseline",
     "delta_winrate_vs_baseline",
     "delta_total_r_vs_current_policy",
@@ -72,7 +73,7 @@ def run_backtest_runner(
 ) -> dict[str, object]:
     cfg = config or BacktestConfig()
     trades = load_real_trades(data_path)
-    signals = _load_signal_rows(data_path / "bot_activity" / "signals_log.jsonl")
+    signals: list[dict[str, Any]] = []
     layers = _evaluate_layers(trades, signals, cfg=cfg)
     baseline = layers[0]["metrics"] if layers else _metrics([])
     current_policy = next((layer["metrics"] for layer in layers if layer["layer"] == "public_safety_policy"), baseline)
@@ -112,12 +113,12 @@ def run_backtest_runner(
 
 def load_real_trades(data_path: Path) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
-    paper_path = data_path / "paper_trading"
-    if paper_path.exists():
-        for path in sorted(paper_path.glob("*.csv")):
-            rows.extend(_read_trade_csv(path, source=f"paper:{path.name}"))
-    rows.extend(_read_trade_csv(data_path / "live_trading" / "trades.csv", source="live"))
-    return sorted(rows, key=lambda item: item["timestamp"])
+    for row in load_canonical_closed_trades(data_path):
+        timestamp = _parse_datetime(str(row.get("timestamp") or ""))
+        if timestamp is None:
+            continue
+        rows.append({**row, "timestamp": timestamp, "source": "canonical:paper_trading/trades.csv"})
+    return rows
 
 
 def format_backtest_runner_summary(report: dict[str, object]) -> str:
@@ -343,12 +344,14 @@ def _metrics(trades: list[dict[str, Any]]) -> dict[str, object]:
     losses = [value for value in values if value < 0]
     gross_profit = sum(max(0.0, value) for value in values)
     gross_loss = abs(sum(min(0.0, value) for value in values))
+    max_drawdown, current_drawdown = _drawdowns(values)
     return {
         "total_r": round(sum(values), 4),
         "winrate": round(len(wins) / len(values) * 100, 2) if values else 0.0,
         "avg_r": round(sum(values) / len(values), 4) if values else 0.0,
         "profit_factor": round(gross_profit / gross_loss, 4) if gross_loss > 0 else (round(gross_profit, 4) if gross_profit else 0.0),
-        "max_drawdown": round(_max_drawdown(values), 4),
+        "max_drawdown": round(max_drawdown, 4),
+        "current_drawdown": round(current_drawdown, 4),
         "wins": len(wins),
         "losses": len(losses),
         "sample_size": len(values),
@@ -434,6 +437,7 @@ def _write_summary_csv(path: Path, layers: list[dict[str, Any]], *, cfg: Backtes
                 "avg_r": metrics.get("avg_r", 0),
                 "profit_factor": metrics.get("profit_factor", 0),
                 "max_drawdown": metrics.get("max_drawdown", 0),
+                "current_drawdown": metrics.get("current_drawdown", 0),
                 "delta_total_r_vs_baseline": metrics.get("delta_total_r_vs_baseline", 0),
                 "delta_winrate_vs_baseline": metrics.get("delta_winrate_vs_baseline", 0),
                 "delta_total_r_vs_current_policy": metrics.get("delta_total_r_vs_current_policy", 0),
@@ -445,47 +449,6 @@ def _write_summary_csv(path: Path, layers: list[dict[str, Any]], *, cfg: Backtes
                 "top_blocked_contexts": json.dumps(layer.get("top_blocked_contexts", []), ensure_ascii=False),
             }
             writer.writerow(row)
-
-
-def _read_trade_csv(path: Path, *, source: str) -> list[dict[str, Any]]:
-    if not path.exists() or path.stat().st_size == 0:
-        return []
-    rows = []
-    try:
-        with path.open("r", encoding="utf-8", newline="") as handle:
-            for raw in csv.DictReader(handle):
-                parsed = _normalize_trade(dict(raw), source=source)
-                if parsed is not None:
-                    rows.append(parsed)
-    except csv.Error:
-        return []
-    return rows
-
-
-def _normalize_trade(row: dict[str, Any], *, source: str) -> dict[str, Any] | None:
-    result_r = _float(row.get("result_r") or row.get("r_result") or row.get("realized_r"))
-    timestamp = _trade_timestamp(row)
-    status = str(row.get("status") or row.get("outcome") or "").strip().lower()
-    if result_r is None or timestamp is None:
-        return None
-    if status and status not in CLOSED_STATUSES and not row.get("closed_at"):
-        return None
-    return {
-        **row,
-        "source": source,
-        "timestamp": timestamp,
-        "symbol": str(row.get("symbol") or "UNKNOWN").strip().upper(),
-        "direction": str(row.get("direction") or "unknown").strip().lower(),
-        "setup_type": str(row.get("setup_type") or "UNKNOWN").strip().upper(),
-        "market_regime": _value(row.get("market_regime")),
-        "session": _value(row.get("session")),
-        "entry_context": _value(row.get("entry_context")),
-        "trade_location": _value(row.get("trade_location")),
-        "score": _float(row.get("score") or row.get("setup_score") or row.get("setup_score_final")),
-        "result_r": result_r,
-        "warnings": _tokens(row.get("warnings") or row.get("avoidance_warnings")),
-        "penalties": _tokens(row.get("penalties")),
-    }
 
 
 def _policy_context(trade: dict[str, Any]) -> dict[str, Any]:
@@ -504,21 +467,6 @@ def _policy_context(trade: dict[str, Any]) -> dict[str, Any]:
         "edge_activation_mode": True,
         "short_shadow_mode": True,
     }
-
-
-def _load_signal_rows(path: Path, *, max_lines: int = 5000) -> list[dict[str, Any]]:
-    if not path.exists() or path.stat().st_size == 0:
-        return []
-    rows = []
-    with path.open("r", encoding="utf-8", errors="replace") as handle:
-        for line in handle.readlines()[-max_lines:]:
-            try:
-                item = json.loads(line)
-            except json.JSONDecodeError:
-                continue
-            if isinstance(item, dict):
-                rows.append(item)
-    return rows
 
 
 def _recent_symbol_rejections(symbol: str, signals: list[dict[str, Any]], timestamp: datetime) -> int:
@@ -559,14 +507,6 @@ def _context_key(trade: dict[str, Any]) -> str:
     )
 
 
-def _trade_timestamp(row: dict[str, Any]) -> datetime | None:
-    for key in ("closed_at", "updated_at", "evaluated_at", "exit_time", "timestamp", "opened_at", "created_at"):
-        parsed = _parse_datetime(str(row.get(key) or ""))
-        if parsed is not None:
-            return parsed
-    return None
-
-
 def _parse_datetime(raw: str) -> datetime | None:
     if not raw:
         return None
@@ -579,7 +519,7 @@ def _parse_datetime(raw: str) -> datetime | None:
     return value.astimezone(UTC)
 
 
-def _max_drawdown(values: list[float]) -> float:
+def _drawdowns(values: list[float]) -> tuple[float, float]:
     cumulative = 0.0
     peak = 0.0
     max_dd = 0.0
@@ -587,7 +527,7 @@ def _max_drawdown(values: list[float]) -> float:
         cumulative += value
         peak = max(peak, cumulative)
         max_dd = min(max_dd, cumulative - peak)
-    return max_dd
+    return max_dd, cumulative - peak
 
 
 def _confidence(sample_size: int) -> str:
@@ -618,28 +558,6 @@ def _format_contexts(rows: object) -> str:
 
 def _pf(value: object) -> object:
     return "inf" if value is None else value
-
-
-def _tokens(value: object) -> list[str]:
-    if value is None:
-        return []
-    if isinstance(value, list):
-        return [str(item).strip() for item in value if str(item).strip()]
-    text = str(value).strip()
-    if not text:
-        return []
-    try:
-        decoded = json.loads(text)
-    except json.JSONDecodeError:
-        decoded = None
-    if isinstance(decoded, list):
-        return [str(item).strip() for item in decoded if str(item).strip()]
-    return [item.strip() for item in text.replace("|", ",").split(",") if item.strip()]
-
-
-def _value(value: object) -> str:
-    text = str(value or "").strip()
-    return text if text else "UNKNOWN"
 
 
 def _float(value: object) -> float | None:

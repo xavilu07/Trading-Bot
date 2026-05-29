@@ -1,0 +1,441 @@
+from __future__ import annotations
+
+import csv
+import json
+from collections import defaultdict
+from dataclasses import asdict, dataclass
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any
+from uuid import uuid4
+
+from trading_signals.application.use_cases.paper_trading import evaluate_trade_status
+from trading_signals.data.canonical_trade_source import compute_trade_metrics
+from trading_signals.domain.entities.market_snapshot import MarketSnapshot
+
+
+SAFE_TO_RELAX_FILTERS = {
+    "edge_activation_requires_overlap_session",
+    "breakout_bad_location",
+    "against_htf",
+    "market_regime_ranging",
+    "edge_activation_requires_trending",
+    "setup_type_secondary_signal",
+    "edge_activation_secondary_signal",
+}
+
+RELAXATION_SHADOW_FIELDS = [
+    "trade_id",
+    "dedupe_key",
+    "symbol",
+    "direction",
+    "setup_type",
+    "score",
+    "entry_price",
+    "stop_loss",
+    "take_profit_1",
+    "take_profit_2",
+    "risk_reward_tp1",
+    "risk_reward_tp2",
+    "opened_at",
+    "updated_at",
+    "closed_at",
+    "expires_after_candles",
+    "candles_held",
+    "status",
+    "result_r",
+    "mfe_r",
+    "mae_r",
+    "session",
+    "market_regime",
+    "entry_context",
+    "trade_location",
+    "market_structure",
+    "liquidity_sweep",
+    "trend_1h",
+    "trend_4h",
+    "rr_valid",
+    "relaxed_filters",
+    "original_rejection_reasons",
+    "relaxed_reasons",
+    "context",
+]
+
+SUMMARY_FIELDS = [
+    "group",
+    "value",
+    "trades",
+    "closed_trades",
+    "open_trades",
+    "winrate",
+    "profit_factor",
+    "total_r",
+    "avg_r",
+]
+
+
+@dataclass(slots=True)
+class RelaxationShadowCandidate:
+    dedupe_key: str
+    symbol: str
+    direction: str
+    setup_type: str
+    score: float
+    entry_price: float
+    stop_loss: float
+    take_profit_1: float
+    take_profit_2: float
+    risk_reward_tp1: float
+    risk_reward_tp2: float
+    opened_at: str
+    expires_after_candles: int
+    session: str
+    market_regime: str
+    entry_context: str
+    trade_location: str
+    market_structure: str
+    liquidity_sweep: str
+    trend_1h: str
+    trend_4h: str
+    rr_valid: bool
+    relaxed_filters: list[str]
+    original_rejection_reasons: list[str]
+    relaxed_reasons: list[str]
+    context: dict[str, Any]
+
+
+class RelaxationShadowV1Store:
+    def __init__(self, base_path: Path) -> None:
+        self.base_path = base_path
+        self.trades_file = base_path / "shadow_relaxation" / "trades.csv"
+
+    def list_trades(self) -> list[dict[str, str]]:
+        if not self.trades_file.exists():
+            return []
+        with self.trades_file.open("r", encoding="utf-8", newline="") as handle:
+            return list(csv.DictReader(handle))
+
+    def save_trades(self, trades: list[dict[str, object]]) -> None:
+        self.trades_file.parent.mkdir(parents=True, exist_ok=True)
+        temp = self.trades_file.with_suffix(".csv.tmp")
+        with temp.open("w", encoding="utf-8", newline="") as handle:
+            writer = csv.DictWriter(handle, fieldnames=RELAXATION_SHADOW_FIELDS)
+            writer.writeheader()
+            for trade in trades:
+                writer.writerow({field: _serialize(trade.get(field, "")) for field in RELAXATION_SHADOW_FIELDS})
+        temp.replace(self.trades_file)
+
+    def upsert_candidate(self, candidate: RelaxationShadowCandidate) -> bool:
+        trades: list[dict[str, object]] = list(self.list_trades())
+        if any(item.get("dedupe_key") == candidate.dedupe_key for item in trades):
+            return False
+        row = asdict(candidate)
+        row.update(
+            {
+                "trade_id": f"relax_{uuid4().hex[:12]}",
+                "updated_at": candidate.opened_at,
+                "closed_at": "",
+                "candles_held": "0",
+                "status": "open",
+                "result_r": "0",
+                "mfe_r": "0",
+                "mae_r": "0",
+            }
+        )
+        trades.append(row)
+        self.save_trades(trades)
+        return True
+
+    def update_open_trades_for_snapshot(self, snapshot: MarketSnapshot, updated_at: str) -> list[dict[str, object]]:
+        trades: list[dict[str, object]] = list(self.list_trades())
+        updated: list[dict[str, object]] = []
+        changed = False
+        for trade in trades:
+            if trade.get("symbol") != snapshot.symbol or trade.get("status") not in {"open", "tp1_hit"}:
+                continue
+            previous_status = str(trade.get("status") or "open")
+            status, result_r, mfe_r, mae_r = evaluate_trade_status(trade, snapshot)
+            candles_held = int(float(trade.get("candles_held") or 0)) + 1
+            expires_after = int(float(trade.get("expires_after_candles") or 0))
+            if status in {"open", "tp1_hit"} and expires_after > 0 and candles_held >= expires_after:
+                status = "expired"
+            trade["status"] = status
+            trade["result_r"] = f"{result_r:.4f}"
+            trade["mfe_r"] = f"{max(float(trade.get('mfe_r') or 0.0), mfe_r):.4f}"
+            trade["mae_r"] = f"{min(float(trade.get('mae_r') or 0.0), mae_r):.4f}"
+            trade["candles_held"] = str(candles_held)
+            trade["updated_at"] = updated_at
+            if status in {"tp2_hit", "sl_hit", "expired"}:
+                trade["closed_at"] = updated_at
+            if status != previous_status or status in {"open", "tp1_hit", "expired"}:
+                updated.append(dict(trade))
+                changed = True
+        if changed:
+            self.save_trades(trades)
+        return updated
+
+
+def safe_relaxation_filter_result(block_reasons: object) -> dict[str, Any]:
+    reasons = _dedupe(_tokens(block_reasons))
+    unsafe = [reason for reason in reasons if reason not in SAFE_TO_RELAX_FILTERS]
+    safe = [reason for reason in reasons if reason in SAFE_TO_RELAX_FILTERS]
+    return {
+        "eligible": bool(safe) and not unsafe,
+        "safe_filters": safe,
+        "unsafe_filters": unsafe,
+        "original_rejection_reasons": reasons,
+    }
+
+
+def build_relaxation_shadow_candidate(
+    *,
+    signal,
+    evaluation,
+    risk_plan,
+    entry_snapshot: MarketSnapshot,
+    higher_snapshot: MarketSnapshot,
+    setup_context: dict[str, object],
+    current_policy: dict[str, object],
+    opened_at: str,
+    expires_after_candles: int = 24,
+) -> RelaxationShadowCandidate | None:
+    if risk_plan is None:
+        return None
+    filter_result = safe_relaxation_filter_result(current_policy.get("block_reasons", []))
+    if not filter_result["eligible"]:
+        return None
+    risk = abs(float(risk_plan.entry) - float(risk_plan.stop_loss))
+    if risk <= 0:
+        return None
+    direction = str(signal.decision).lower()
+    take_profit_1 = float(risk_plan.entry) + risk if direction == "long" else float(risk_plan.entry) - risk
+    take_profit_2 = float(risk_plan.take_profit)
+    score = float(getattr(evaluation, "setup_score", getattr(evaluation, "total_score", setup_context.get("score", 0.0))) or 0.0)
+    return RelaxationShadowCandidate(
+        dedupe_key=relaxation_shadow_dedupe_key(
+            symbol=signal.symbol,
+            direction=direction,
+            candle_timestamp=entry_snapshot.timestamp,
+        ),
+        symbol=str(signal.symbol).upper(),
+        direction=direction,
+        setup_type=str(setup_context.get("setup_type") or getattr(evaluation, "setup_type", "UNKNOWN") or "UNKNOWN").upper(),
+        score=round(score, 2),
+        entry_price=float(risk_plan.entry),
+        stop_loss=float(risk_plan.stop_loss),
+        take_profit_1=round(take_profit_1, 6),
+        take_profit_2=take_profit_2,
+        risk_reward_tp1=1.0,
+        risk_reward_tp2=round(abs(take_profit_2 - float(risk_plan.entry)) / risk, 4),
+        opened_at=opened_at,
+        expires_after_candles=expires_after_candles,
+        session=str(setup_context.get("session", "UNKNOWN")),
+        market_regime=str(setup_context.get("market_regime", "UNKNOWN")),
+        entry_context=str(setup_context.get("entry_context", "UNKNOWN")),
+        trade_location=str(setup_context.get("trade_location", "UNKNOWN")),
+        market_structure=str(setup_context.get("market_structure") or entry_snapshot.market_structure),
+        liquidity_sweep=str(setup_context.get("liquidity_sweep") or entry_snapshot.liquidity_sweep),
+        trend_1h=str(setup_context.get("trend_entry") or entry_snapshot.trend),
+        trend_4h=str(setup_context.get("trend_higher") or higher_snapshot.trend),
+        rr_valid=bool(setup_context.get("rr_valid", True)),
+        relaxed_filters=list(filter_result["safe_filters"]),
+        original_rejection_reasons=list(filter_result["original_rejection_reasons"]),
+        relaxed_reasons=["safe_to_relax_filters_only"],
+        context={
+            "policy_version": current_policy.get("policy_version"),
+            "edge_activation_mode": current_policy.get("edge_activation_mode"),
+            "edge_activation_reasons": current_policy.get("edge_activation_reasons", []),
+            "warnings": current_policy.get("warnings", []),
+        },
+    )
+
+
+def format_relaxation_shadow_v1_message(candidate: RelaxationShadowCandidate) -> str:
+    return (
+        "🧪 RELAXATION SHADOW V1\n"
+        "No publicada en canal público.\n\n"
+        f"Symbol: {candidate.symbol}\n"
+        f"Direction: {candidate.direction.upper()}\n"
+        f"Score: {candidate.score}\n"
+        f"Entry: {candidate.entry_price}\n"
+        f"SL: {candidate.stop_loss}\n"
+        f"TP1: {candidate.take_profit_1}\n"
+        f"TP2: {candidate.take_profit_2}\n"
+        f"Relaxed filters: {', '.join(candidate.relaxed_filters)}\n"
+        f"Original rejection reasons: {', '.join(candidate.original_rejection_reasons)}"
+    )
+
+
+def build_relaxation_shadow_summary(base_path: Path) -> dict[str, Any]:
+    store = RelaxationShadowV1Store(base_path)
+    trades = store.list_trades()
+    closed = [_normalize_for_metrics(trade) for trade in trades if str(trade.get("status")) in {"tp2_hit", "sl_hit", "expired"}]
+    metrics = compute_trade_metrics([trade for trade in closed if trade is not None])
+    return {
+        "generated_at": datetime.now(UTC).isoformat(timespec="seconds"),
+        "trades": len(trades),
+        "closed_trades": metrics["closed_trades"],
+        "open_trades": len([trade for trade in trades if str(trade.get("status")) in {"open", "tp1_hit"}]),
+        "metrics": metrics,
+        "by_relaxed_filter": _group_by_token(trades, "relaxed_filters"),
+        "by_direction": _group_by(trades, "direction"),
+        "by_session": _group_by(trades, "session"),
+        "by_setup_type": _group_by(trades, "setup_type"),
+        "by_market_regime": _group_by(trades, "market_regime"),
+        "by_entry_context": _group_by(trades, "entry_context"),
+    }
+
+
+def write_relaxation_shadow_reports(base_path: Path, reports_path: Path) -> dict[str, Path]:
+    reports_path.mkdir(parents=True, exist_ok=True)
+    store = RelaxationShadowV1Store(base_path)
+    trades = store.list_trades()
+    summary = build_relaxation_shadow_summary(base_path)
+    trades_csv = reports_path / "relaxation_shadow_v1_trades.csv"
+    summary_md = reports_path / "relaxation_shadow_v1_summary.md"
+    summary_csv = reports_path / "relaxation_shadow_v1_summary.csv"
+    _write_rows(trades_csv, trades, RELAXATION_SHADOW_FIELDS)
+    _write_rows(summary_csv, _summary_rows(summary), SUMMARY_FIELDS)
+    summary_md.write_text(format_relaxation_shadow_summary(summary), encoding="utf-8")
+    return {"trades_csv": trades_csv, "summary_md": summary_md, "summary_csv": summary_csv}
+
+
+def format_relaxation_shadow_summary(summary: dict[str, Any]) -> str:
+    metrics = summary.get("metrics", {})
+    lines = [
+        "# RELAXATION_SHADOW_V1 Summary",
+        "",
+        f"- Generated at: {summary.get('generated_at')}",
+        f"- Total trades: {summary.get('trades', 0)}",
+        f"- Closed trades: {summary.get('closed_trades', 0)}",
+        f"- Open trades: {summary.get('open_trades', 0)}",
+        f"- WR: {metrics.get('winrate', 0)}%",
+        f"- PF: {metrics.get('profit_factor', 0)}",
+        f"- Total R: {metrics.get('total_r', 0)}",
+        f"- Avg R: {metrics.get('avg_r', 0)}",
+        f"- Max DD: {metrics.get('max_drawdown', 0)}",
+        f"- Current DD: {metrics.get('current_drawdown', 0)}",
+        "",
+    ]
+    for title, key in (
+        ("Performance by relaxed filter", "by_relaxed_filter"),
+        ("Performance by direction", "by_direction"),
+        ("Performance by session", "by_session"),
+        ("Performance by setup_type", "by_setup_type"),
+        ("Performance by market_regime", "by_market_regime"),
+        ("Performance by entry_context", "by_entry_context"),
+    ):
+        lines.extend([f"## {title}", "", "| Value | Closed | Open | WR | PF | Total R | Avg R |", "|---|---:|---:|---:|---:|---:|---:|"])
+        group = summary.get(key, {})
+        if isinstance(group, dict) and group:
+            for value, stats in sorted(group.items()):
+                if not isinstance(stats, dict):
+                    continue
+                lines.append(
+                    f"| {value} | {stats.get('closed_trades', 0)} | {stats.get('open_trades', 0)} | "
+                    f"{stats.get('winrate', 0)}% | {stats.get('profit_factor', 0)} | "
+                    f"{stats.get('total_r', 0)} | {stats.get('avg_r', 0)} |"
+                )
+        else:
+            lines.append("| none | 0 | 0 | 0% | 0 | 0 | 0 |")
+        lines.append("")
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def relaxation_shadow_dedupe_key(*, symbol: str, direction: str, candle_timestamp: str) -> str:
+    return f"{symbol.strip().upper()}|{direction.strip().lower()}|{candle_timestamp}|RELAXATION_SHADOW_V1"
+
+
+def _group_by(trades: list[dict[str, str]], key: str) -> dict[str, dict[str, Any]]:
+    grouped: dict[str, list[dict[str, str]]] = defaultdict(list)
+    for trade in trades:
+        grouped[str(trade.get(key) or "UNKNOWN")].append(trade)
+    return {name: _stats(items) for name, items in grouped.items()}
+
+
+def _group_by_token(trades: list[dict[str, str]], key: str) -> dict[str, dict[str, Any]]:
+    grouped: dict[str, list[dict[str, str]]] = defaultdict(list)
+    for trade in trades:
+        for token in _tokens(trade.get(key)):
+            grouped[token].append(trade)
+    return {name: _stats(items) for name, items in grouped.items()}
+
+
+def _stats(trades: list[dict[str, str]]) -> dict[str, Any]:
+    closed = [_normalize_for_metrics(trade) for trade in trades if str(trade.get("status")) in {"tp2_hit", "sl_hit", "expired"}]
+    closed = [trade for trade in closed if trade is not None]
+    metrics = compute_trade_metrics(closed)
+    return {
+        "trades": len(trades),
+        "closed_trades": metrics["closed_trades"],
+        "open_trades": len([trade for trade in trades if str(trade.get("status")) in {"open", "tp1_hit"}]),
+        "winrate": metrics["winrate"],
+        "profit_factor": metrics["profit_factor"],
+        "total_r": metrics["total_r"],
+        "avg_r": metrics["avg_r"],
+    }
+
+
+def _normalize_for_metrics(trade: dict[str, Any]) -> dict[str, Any] | None:
+    try:
+        result_r = float(trade.get("result_r") or 0.0)
+    except (TypeError, ValueError):
+        return None
+    return {
+        **trade,
+        "result_r": result_r,
+        "status": str(trade.get("status") or "").lower(),
+    }
+
+
+def _summary_rows(summary: dict[str, Any]) -> list[dict[str, Any]]:
+    rows = []
+    for group_key in ("by_relaxed_filter", "by_direction", "by_session", "by_setup_type", "by_market_regime", "by_entry_context"):
+        group = summary.get(group_key, {})
+        if not isinstance(group, dict):
+            continue
+        for value, stats in group.items():
+            if not isinstance(stats, dict):
+                continue
+            rows.append({"group": group_key, "value": value, **stats})
+    return rows
+
+
+def _write_rows(path: Path, rows: list[dict[str, Any]], fields: list[str]) -> None:
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fields)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({field: _serialize(row.get(field, "")) for field in fields})
+
+
+def _tokens(value: object) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return _dedupe(str(item).strip() for item in value if str(item).strip())
+    text = str(value).strip()
+    if not text:
+        return []
+    try:
+        decoded = json.loads(text)
+    except json.JSONDecodeError:
+        decoded = None
+    if isinstance(decoded, list):
+        return _dedupe(str(item).strip() for item in decoded if str(item).strip())
+    return _dedupe(item.strip() for item in text.replace("|", ",").replace(";", ",").split(",") if item.strip())
+
+
+def _dedupe(values: object) -> list[str]:
+    output: list[str] = []
+    for value in values if not isinstance(values, str) else [values]:
+        text = str(value).strip()
+        if text and text not in output:
+            output.append(text)
+    return output
+
+
+def _serialize(value: object) -> object:
+    if isinstance(value, (list, dict)):
+        return json.dumps(value, ensure_ascii=False, sort_keys=True)
+    return value

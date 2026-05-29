@@ -7,6 +7,7 @@ from trading_signals.infrastructure.notifications.telegram_notifier import Teleg
 from trading_signals.infrastructure.persistence.file_store import FileStore
 from trading_signals.infrastructure.persistence.repositories import FileScanRunRepository, FileSignalRepository
 from trading_signals.application.use_cases.paper_trading import PaperTradingStore
+from trading_signals.application.use_cases.relaxation_shadow_v1 import RelaxationShadowV1Store
 from trading_signals.application.use_cases.live_trading import LiveTradingStore
 from trading_signals.application.use_cases.experimental_paper import ExperimentalSignalStore
 from trading_signals.application.use_cases.modular_paper import ModularSignalStore
@@ -36,6 +37,7 @@ def build_container() -> dict[str, object]:
         ),
         "diagnostics_store": FileStore(settings.diagnostics_path),
         "paper_trading_store": PaperTradingStore(settings.data_storage_path),
+        "relaxation_shadow_store": RelaxationShadowV1Store(settings.data_storage_path),
         "experimental_signal_store": ExperimentalSignalStore(settings.data_storage_path),
         "shadow_signal_store": ShadowSignalStore(settings.data_storage_path),
         "modular_signal_store": ModularSignalStore(settings.data_storage_path),

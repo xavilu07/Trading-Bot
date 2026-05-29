@@ -7,6 +7,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from trading_signals.data.canonical_trade_source import load_canonical_closed_trades
+
 
 CLOSED_STATUSES = {"tp2_hit", "tp_hit", "sl_hit", "expired", "breakeven", "closed", "win", "loss"}
 RANGE_PENALTY_TOKEN = "market_structure_range_penalty"
@@ -49,11 +51,7 @@ FOCUSED_CONTEXTS = {
 
 
 def load_research_rows(data_path: Path, reports_path: Path | None = None) -> list[dict[str, Any]]:
-    rows: list[dict[str, Any]] = []
-    rows.extend(_load_trade_csvs(data_path))
-    if reports_path is not None:
-        rows.extend(_load_meta_dataset(reports_path / "meta_dataset.csv"))
-    return rows
+    return load_canonical_closed_trades(data_path)
 
 
 def analyze_range_penalty_shadow(rows: list[dict[str, Any]], *, min_trades: int = 5) -> dict[str, Any]:
@@ -67,6 +65,7 @@ def analyze_range_penalty_shadow(rows: list[dict[str, Any]], *, min_trades: int 
         "rows_analyzed": len(normalized),
         "range_penalty_rows": len(range_rows),
         "no_range_penalty_rows": len(no_range_rows),
+        "overall_metrics": _metrics(normalized),
         "range_penalty_metrics": _metrics(range_rows),
         "no_range_penalty_metrics": _metrics(no_range_rows),
         "summary_rows": summary_rows,
@@ -209,48 +208,27 @@ def _metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
     wins = [value for value in values if value > 0]
     gross_profit = sum(max(0.0, value) for value in values)
     gross_loss = abs(sum(min(0.0, value) for value in values))
+    max_drawdown, current_drawdown = _drawdowns(values)
     return {
         "trades": len(values),
         "winrate": round(len(wins) / len(values) * 100, 2) if values else 0.0,
         "total_r": round(sum(values), 4),
         "avg_r": round(sum(values) / len(values), 4) if values else 0.0,
         "profit_factor": round(gross_profit / gross_loss, 4) if gross_loss > 0 else (None if gross_profit > 0 else 0.0),
+        "max_drawdown": round(max_drawdown, 4),
+        "current_drawdown": round(current_drawdown, 4),
     }
 
 
-def _load_trade_csvs(data_path: Path) -> list[dict[str, Any]]:
-    paths = []
-    paper_path = data_path / "paper_trading"
-    if paper_path.exists():
-        paths.extend(path for path in paper_path.glob("*.csv") if path.is_file())
-    live_path = data_path / "live_trading" / "trades.csv"
-    if live_path.exists():
-        paths.append(live_path)
-
-    rows = []
-    for path in sorted(paths):
-        for row in _read_csv(path):
-            status = str(row.get("status") or row.get("outcome") or "").strip().lower()
-            result_r = _to_float(row.get("result_r") or row.get("r_result") or row.get("realized_r"))
-            if result_r is None:
-                continue
-            if status and status not in CLOSED_STATUSES and not row.get("closed_at"):
-                continue
-            rows.append({**row, "result_r": result_r, "source": f"trade_csv:{path.name}"})
-    return rows
-
-
-def _load_meta_dataset(path: Path) -> list[dict[str, Any]]:
-    rows = []
-    for row in _read_csv(path):
-        result_r = _to_float(row.get("result_r"))
-        if result_r is None:
-            continue
-        label = str(row.get("label") or "").strip().lower()
-        if label not in {"0", "1", "tp_hit", "sl_hit"}:
-            continue
-        rows.append({**row, "result_r": result_r, "source": "meta_dataset"})
-    return rows
+def _drawdowns(values: list[float]) -> tuple[float, float]:
+    cumulative = 0.0
+    peak = 0.0
+    max_drawdown = 0.0
+    for value in values:
+        cumulative += value
+        peak = max(peak, cumulative)
+        max_drawdown = min(max_drawdown, cumulative - peak)
+    return max_drawdown, cumulative - peak
 
 
 def _normalize_row(row: dict[str, Any]) -> dict[str, Any] | None:

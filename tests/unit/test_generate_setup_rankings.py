@@ -31,7 +31,7 @@ def test_setup_rankings_empty_csv_does_not_break(tmp_path: Path) -> None:
     assert "sin datos" in format_setup_rankings(result)
 
 
-def test_setup_rankings_builds_simple_rankings_from_paper_and_live(tmp_path: Path) -> None:
+def test_setup_rankings_builds_simple_rankings_from_canonical_trades(tmp_path: Path) -> None:
     data_path = tmp_path / "data"
     write_csv(
         data_path / "paper_trading" / "trades.csv",
@@ -91,17 +91,17 @@ def test_setup_rankings_builds_simple_rankings_from_paper_and_live(tmp_path: Pat
     setup_rows = [row for row in rankings["single"] if row["ranking_type"] == "setup_type"]
     main = next(row for row in setup_rows if row["group"] == "MAIN_SIGNAL")
 
-    assert len(trades) == 3
-    assert main["trades"] == 2
+    assert len(trades) == 2
+    assert main["trades"] == 1
     assert main["winrate"] == 100.0
-    assert main["total_r"] == 3.5
-    assert main["sample_size"] == 2
+    assert main["total_r"] == 2.0
+    assert main["sample_size"] == 1
     assert main["sample_sufficiency"] == "LOW"
     assert main["confidence"] == "LOW"
     assert main["consistency"] == 1.0
     assert "ranking_score" in main
-    assert main["long_trades"] == 2
-    assert main["main_signal_trades"] == 2
+    assert main["long_trades"] == 1
+    assert main["main_signal_trades"] == 1
 
 
 def test_setup_rankings_builds_combinations_and_token_groups(tmp_path: Path) -> None:
@@ -138,7 +138,7 @@ def test_setup_rankings_builds_combinations_and_token_groups(tmp_path: Path) -> 
 def test_setup_rankings_tolerates_missing_columns(tmp_path: Path) -> None:
     data_path = tmp_path / "data"
     write_csv(
-        data_path / "paper_trading" / "old.csv",
+        data_path / "paper_trading" / "trades.csv",
         [
             {"direction": "long", "status": "tp_hit", "result_r": "1.5"},
             {"status": "sl_hit", "result_r": "-1"},

@@ -44,7 +44,7 @@ def test_range_penalty_shadow_detects_protective_penalty() -> None:
     assert result["top_protective_candidates"][0]["recommended_action"] == "keep_current_penalty"
 
 
-def test_range_penalty_shadow_loads_trade_csv_and_meta_dataset(tmp_path: Path) -> None:
+def test_range_penalty_shadow_uses_only_canonical_trade_source(tmp_path: Path) -> None:
     data_path = tmp_path / "data"
     reports_path = tmp_path / "reports"
     _write_csv(
@@ -78,7 +78,8 @@ def test_range_penalty_shadow_loads_trade_csv_and_meta_dataset(tmp_path: Path) -
 
     rows = load_research_rows(data_path, reports_path)
 
-    assert len(rows) == 2
+    assert len(rows) == 1
+    assert rows[0]["symbol"] == "BTCUSDT"
 
 
 def test_range_penalty_shadow_writes_reports(tmp_path: Path) -> None:

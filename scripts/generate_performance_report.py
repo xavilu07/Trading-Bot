@@ -9,6 +9,8 @@ from collections import Counter, defaultdict
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+from trading_signals.data.canonical_trade_source import canonical_trades_path, load_canonical_closed_trades
+
 
 CLOSED_STATUSES = {"tp2_hit", "tp_hit", "sl_hit", "expired"}
 WIN_STATUSES = {"tp2_hit", "tp_hit"}
@@ -37,35 +39,16 @@ SECONDARY_GROUP_FIELDS = (
 
 
 def discover_paper_csvs(data_path: Path) -> list[Path]:
-    paper_path = data_path / "paper_trading"
-    if not paper_path.exists():
-        return []
-    return sorted(path for path in paper_path.glob("*.csv") if path.is_file())
+    path = canonical_trades_path(data_path)
+    return [path] if path.exists() else []
 
 
 def discover_trade_csvs(data_path: Path) -> list[Path]:
-    paths = discover_paper_csvs(data_path)
-    live_path = data_path / "live_trading" / "trades.csv"
-    if live_path.exists():
-        paths.append(live_path)
-    return sorted(paths)
+    return discover_paper_csvs(data_path)
 
 
 def load_closed_trades(data_path: Path) -> list[dict[str, object]]:
-    trades: list[dict[str, object]] = []
-    for csv_path in discover_trade_csvs(data_path):
-        with csv_path.open("r", encoding="utf-8", newline="") as handle:
-            for row in csv.DictReader(handle):
-                status = str(row.get("status", row.get("outcome", ""))).strip().lower()
-                result_r = _to_float(row.get("result_r"))
-                if status not in CLOSED_STATUSES or result_r is None:
-                    continue
-                item: dict[str, object] = dict(row)
-                item["source_csv"] = str(csv_path)
-                item["status"] = status
-                item["result_r"] = result_r
-                trades.append(item)
-    return trades
+    return load_canonical_closed_trades(data_path)
 
 
 def build_performance_metrics(trades: list[dict[str, object]]) -> dict[str, object]:
