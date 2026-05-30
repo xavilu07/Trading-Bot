@@ -73,6 +73,16 @@ SUMMARY_FIELDS = [
     "avg_r",
 ]
 
+RELAXATION_SHADOW_SKIP_FIELDS = [
+    "symbol",
+    "direction",
+    "score",
+    "block_reasons",
+    "safe_filters",
+    "unsafe_filters",
+    "skip_reason",
+]
+
 
 @dataclass(slots=True)
 class RelaxationShadowCandidate:
@@ -104,15 +114,33 @@ class RelaxationShadowCandidate:
     context: dict[str, Any]
 
 
+@dataclass(slots=True)
+class RelaxationShadowSkip:
+    symbol: str
+    direction: str
+    score: float
+    block_reasons: list[str]
+    safe_filters: list[str]
+    unsafe_filters: list[str]
+    skip_reason: str
+
+
 class RelaxationShadowV1Store:
     def __init__(self, base_path: Path) -> None:
         self.base_path = base_path
         self.trades_file = base_path / "shadow_relaxation" / "trades.csv"
+        self.skips_file = base_path / "shadow_relaxation" / "skips.csv"
 
     def list_trades(self) -> list[dict[str, str]]:
         if not self.trades_file.exists():
             return []
         with self.trades_file.open("r", encoding="utf-8", newline="") as handle:
+            return list(csv.DictReader(handle))
+
+    def list_skips(self) -> list[dict[str, str]]:
+        if not self.skips_file.exists():
+            return []
+        with self.skips_file.open("r", encoding="utf-8", newline="") as handle:
             return list(csv.DictReader(handle))
 
     def save_trades(self, trades: list[dict[str, object]]) -> None:
@@ -145,6 +173,18 @@ class RelaxationShadowV1Store:
         trades.append(row)
         self.save_trades(trades)
         return True
+
+    def record_skip(self, skip: RelaxationShadowSkip) -> None:
+        skips: list[dict[str, object]] = list(self.list_skips())
+        skips.append(asdict(skip))
+        self.skips_file.parent.mkdir(parents=True, exist_ok=True)
+        temp = self.skips_file.with_suffix(".csv.tmp")
+        with temp.open("w", encoding="utf-8", newline="") as handle:
+            writer = csv.DictWriter(handle, fieldnames=RELAXATION_SHADOW_SKIP_FIELDS)
+            writer.writeheader()
+            for row in skips:
+                writer.writerow({field: _serialize(row.get(field, "")) for field in RELAXATION_SHADOW_SKIP_FIELDS})
+        temp.replace(self.skips_file)
 
     def update_open_trades_for_snapshot(self, snapshot: MarketSnapshot, updated_at: str) -> list[dict[str, object]]:
         trades: list[dict[str, object]] = list(self.list_trades())
@@ -290,14 +330,25 @@ def write_relaxation_shadow_reports(base_path: Path, reports_path: Path) -> dict
     reports_path.mkdir(parents=True, exist_ok=True)
     store = RelaxationShadowV1Store(base_path)
     trades = store.list_trades()
+    skips = store.list_skips()
     summary = build_relaxation_shadow_summary(base_path)
     trades_csv = reports_path / "relaxation_shadow_v1_trades.csv"
     summary_md = reports_path / "relaxation_shadow_v1_summary.md"
     summary_csv = reports_path / "relaxation_shadow_v1_summary.csv"
+    skips_md = reports_path / "relaxation_shadow_v1_skips.md"
+    skips_csv = reports_path / "relaxation_shadow_v1_skips.csv"
     _write_rows(trades_csv, trades, RELAXATION_SHADOW_FIELDS)
     _write_rows(summary_csv, _summary_rows(summary), SUMMARY_FIELDS)
+    _write_rows(skips_csv, skips, RELAXATION_SHADOW_SKIP_FIELDS)
     summary_md.write_text(format_relaxation_shadow_summary(summary), encoding="utf-8")
-    return {"trades_csv": trades_csv, "summary_md": summary_md, "summary_csv": summary_csv}
+    skips_md.write_text(format_relaxation_shadow_skips(skips), encoding="utf-8")
+    return {
+        "trades_csv": trades_csv,
+        "summary_md": summary_md,
+        "summary_csv": summary_csv,
+        "skips_md": skips_md,
+        "skips_csv": skips_csv,
+    }
 
 
 def format_relaxation_shadow_summary(summary: dict[str, Any]) -> str:
@@ -339,6 +390,27 @@ def format_relaxation_shadow_summary(summary: dict[str, Any]) -> str:
         else:
             lines.append("| none | 0 | 0 | 0% | 0 | 0 | 0 |")
         lines.append("")
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def format_relaxation_shadow_skips(skips: list[dict[str, Any]]) -> str:
+    lines = [
+        "# RELAXATION_SHADOW_V1_SKIP_DIAGNOSTICS",
+        "",
+        f"- Total skips: {len(skips)}",
+        "",
+        "| Symbol | Direction | Score | Block reasons | Safe filters | Unsafe filters | Skip reason |",
+        "|---|---|---:|---|---|---|---|",
+    ]
+    if not skips:
+        lines.append("| none | none | 0 | none | none | none | none |")
+        return "\n".join(lines).rstrip() + "\n"
+    for skip in skips:
+        lines.append(
+            f"| {_md(skip.get('symbol'))} | {_md(skip.get('direction'))} | {_md(skip.get('score'))} | "
+            f"{_md_list(skip.get('block_reasons'))} | {_md_list(skip.get('safe_filters'))} | "
+            f"{_md_list(skip.get('unsafe_filters'))} | {_md(skip.get('skip_reason'))} |"
+        )
     return "\n".join(lines).rstrip() + "\n"
 
 
@@ -424,6 +496,18 @@ def _tokens(value: object) -> list[str]:
     if isinstance(decoded, list):
         return _dedupe(str(item).strip() for item in decoded if str(item).strip())
     return _dedupe(item.strip() for item in text.replace("|", ",").replace(";", ",").split(",") if item.strip())
+
+
+def _md(value: object) -> str:
+    text = str(value or "").strip() or "none"
+    return text.replace("|", "\\|")
+
+
+def _md_list(value: object) -> str:
+    tokens = _tokens(value)
+    if not tokens:
+        return "none"
+    return ", ".join(_md(token) for token in tokens)
 
 
 def _dedupe(values: object) -> list[str]:

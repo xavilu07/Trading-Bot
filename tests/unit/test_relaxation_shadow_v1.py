@@ -2,7 +2,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from trading_signals.application.use_cases.publish_signal import clear_relaxed_public_shadow_dedupe, publish_signal
+from trading_signals.application.use_cases.publish_signal import (
+    _evaluate_relaxation_shadow_v1,
+    clear_relaxed_public_shadow_dedupe,
+    publish_signal,
+)
 from trading_signals.application.use_cases.relaxation_shadow_v1 import (
     RelaxationShadowV1Store,
     build_relaxation_shadow_candidate,
@@ -145,6 +149,38 @@ def test_relaxation_shadow_summary_metrics_and_reports(tmp_path: Path) -> None:
     assert summary["by_relaxed_filter"]["breakout_bad_location"]["closed_trades"] == 1
     assert paths["summary_md"].exists()
     assert paths["trades_csv"].exists()
+
+
+def test_relaxation_shadow_skip_diagnostics_are_recorded_and_reported(tmp_path: Path) -> None:
+    store = RelaxationShadowV1Store(tmp_path)
+    entry, higher, evaluation, risk_plan, signal, setup_context = _case()
+
+    result = _evaluate_relaxation_shadow_v1(
+        signal=signal,
+        evaluation=evaluation,
+        risk_plan=risk_plan,
+        entry_snapshot=entry,
+        higher_snapshot=higher,
+        setup_context=setup_context,
+        current_policy={"block_reasons": ["breakout_bad_location", "kill_switch_active"]},
+        store=store,
+        expires_after_candles=24,
+    )
+    paths = write_relaxation_shadow_reports(tmp_path, tmp_path / "reports")
+
+    skips = store.list_skips()
+    assert result["should_send_dev"] is False
+    assert result["skip_reason"] == "unsafe_or_empty_filters"
+    assert len(skips) == 1
+    assert skips[0]["symbol"] == "BTCUSDT"
+    assert skips[0]["direction"] == "long"
+    assert skips[0]["score"] == "80.0"
+    assert "breakout_bad_location" in skips[0]["safe_filters"]
+    assert "kill_switch_active" in skips[0]["unsafe_filters"]
+    assert skips[0]["skip_reason"] == "unsafe_or_empty_filters"
+    assert paths["skips_md"].exists()
+    assert paths["skips_csv"].exists()
+    assert "RELAXATION_SHADOW_V1_SKIP_DIAGNOSTICS" in paths["skips_md"].read_text(encoding="utf-8")
 
 
 def test_publish_signal_sends_relaxation_shadow_to_dev_only(tmp_path: Path) -> None:
