@@ -1,0 +1,13 @@
+generated_at,hypothesis,category,classification,survives,sample_size,total_r,winrate,avg_r,profit_factor,max_drawdown,current_drawdown,confidence,notes
+2026-05-29T15:26:06+00:00,LONDON_SHORT,london_short,TOXIC_CONTEXT,True,9,-0.416,22.22,-0.0462,0.9145,-2.0,-1.3895,LOW,London short edge after canonical consistency.
+2026-05-29T15:26:06+00:00,HIGH_VOLATILITY_LONG,high_volatility_long,NO_EDGE,False,3,-1.0,33.33,-0.3333,0.5,-1.0,-1.0,LOW,Checks whether high-volatility long remains toxic or has edge.
+2026-05-29T15:26:06+00:00,HIGH_VOLATILITY_SHORT,high_volatility_short,POSSIBLE_EDGE,True,5,0.9202,20.0,0.184,1.4531,-1.6413,-0.3895,LOW,Checks whether high-volatility short has hidden edge after canonical consistency.
+2026-05-29T15:26:06+00:00,CONTEXT_CHOPPY_RANGE,context_toxicity,TOXIC_CONTEXT,True,7,-3.5896,28.57,-0.5128,0.2821,-4.0,-4.0,LOW,Context Toxicity target: entry_context=CHOPPY_RANGE.
+2026-05-29T15:26:06+00:00,CONTEXT_HIGH_VOLATILITY,context_toxicity,TOXIC_CONTEXT,True,8,-0.0798,25.0,-0.01,0.9802,-2.6413,-1.21,LOW,Context Toxicity target: market_regime=HIGH_VOLATILITY.
+2026-05-29T15:26:06+00:00,CONTEXT_SETUP_UNKNOWN,context_toxicity,NO_EDGE,False,0,0,0.0,0.0,0.0,0.0,0.0,LOW,Context Toxicity target: setup_type=UNKNOWN.
+2026-05-29T15:26:06+00:00,CONTEXT_SESSION_UNKNOWN,context_toxicity,NO_EDGE,False,0,0,0.0,0.0,0.0,0.0,0.0,LOW,Context Toxicity target: session=UNKNOWN.
+2026-05-29T15:26:06+00:00,CONTEXT_TRADE_LOCATION_UNKNOWN,context_toxicity,NO_EDGE,False,0,0,0.0,0.0,0.0,0.0,0.0,LOW,Context Toxicity target: trade_location=UNKNOWN.
+2026-05-29T15:26:06+00:00,SHADOW_SEND_CURRENT_REJECT,shadow_vs_current,CONFIRMED_EDGE,True,14,7.3887,57.14,0.5278,2.6548,-1.1795,0.0,MEDIUM,"Relaxed shadow policy allowed while current public policy rejected, evaluated only on canonical trades."
+2026-05-29T15:26:06+00:00,CHOPPY_RANGE_SHORT,context_breakdown,NO_EDGE,False,4,-4.0,0.0,-1.0,0.0,-4.0,-4.0,LOW,Focused context breakdown.
+2026-05-29T15:26:06+00:00,CHOPPY_RANGE_LONG,context_breakdown,NO_EDGE,False,3,0.4104,66.67,0.1368,1.4104,-1.0,0.0,LOW,Focused context breakdown.
+2026-05-29T15:26:06+00:00,LONDON_SHORT_PULLBACK_MAIN_SIGNAL,context_breakdown,NO_EDGE,False,2,1.951,50.0,0.9755,2.951,-1.0,-1.0,LOW,Focused context breakdown.

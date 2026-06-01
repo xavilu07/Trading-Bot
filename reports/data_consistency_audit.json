@@ -1,0 +1,637 @@
+{
+  "generated_at": "2026-05-29T15:21:10+00:00",
+  "status": "CONSISTENT",
+  "audited_systems": [
+    "Dashboard",
+    "Control Center",
+    "Intelligence Reports",
+    "Daily Reports",
+    "Context Toxicity",
+    "London Short Analysis",
+    "Backtest Runner",
+    "Focused Shadow Validation"
+  ],
+  "source_summary": {
+    "canonical_dataset": {
+      "description": "data/paper_trading/trades.csv",
+      "metrics": {
+        "closed_trades": 40,
+        "wins": 13,
+        "losses": 27,
+        "total_r": -3.5754,
+        "winrate": 32.5,
+        "avg_r": -0.0894,
+        "profit_factor": 0.8439,
+        "max_drawdown": -8.9684,
+        "current_drawdown": -4.9069
+      },
+      "files": {
+        "canonical_trades": {
+          "path": "data/paper_trading/trades.csv",
+          "exists": true,
+          "size_bytes": 67621,
+          "rows": 49,
+          "updated_at": "2026-05-18T13:20:17+00:00"
+        },
+        "signals_log": {
+          "path": "data/bot_activity/signals_log.jsonl",
+          "exists": true,
+          "size_bytes": 368878,
+          "rows": 214,
+          "updated_at": "2026-05-29T15:20:35+00:00"
+        },
+        "outcome_intelligence": {
+          "path": "reports/outcome_intelligence.csv",
+          "exists": true,
+          "size_bytes": 13157,
+          "rows": 40,
+          "updated_at": "2026-05-29T15:16:45+00:00"
+        },
+        "edge_breakdown": {
+          "path": "reports/edge_breakdown.csv",
+          "exists": true,
+          "size_bytes": 3519,
+          "rows": 31,
+          "updated_at": "2026-05-29T15:16:45+00:00"
+        },
+        "setup_rankings": {
+          "path": "reports/setup_rankings.csv",
+          "exists": true,
+          "size_bytes": 3215,
+          "rows": 24,
+          "updated_at": "2026-05-29T15:16:45+00:00"
+        }
+      }
+    },
+    "signals_log": {
+      "path": "data/bot_activity/signals_log.jsonl",
+      "exists": true,
+      "size_bytes": 368878,
+      "rows": 214,
+      "updated_at": "2026-05-29T15:20:35+00:00",
+      "event_counts": {
+        "unknown": 214
+      }
+    },
+    "core_reports": {
+      "outcome_intelligence.csv": {
+        "path": "reports/outcome_intelligence.csv",
+        "exists": true,
+        "size_bytes": 13157,
+        "rows": 40,
+        "updated_at": "2026-05-29T15:16:45+00:00"
+      },
+      "edge_breakdown.csv": {
+        "path": "reports/edge_breakdown.csv",
+        "exists": true,
+        "size_bytes": 3519,
+        "rows": 31,
+        "updated_at": "2026-05-29T15:16:45+00:00"
+      },
+      "setup_rankings.csv": {
+        "path": "reports/setup_rankings.csv",
+        "exists": true,
+        "size_bytes": 3215,
+        "rows": 24,
+        "updated_at": "2026-05-29T15:16:45+00:00"
+      }
+    }
+  },
+  "systems": [
+    {
+      "system": "Dashboard",
+      "classification": "CONSISTENT",
+      "dataset_scope": "canonical_trade_source",
+      "observed_metrics": {
+        "closed_trades": 40,
+        "wins": 13,
+        "losses": 27,
+        "total_r": -3.5754,
+        "winrate": 32.5,
+        "avg_r": -0.0894,
+        "profit_factor": 0.8439,
+        "max_drawdown": -8.9684,
+        "current_drawdown": -4.9069
+      },
+      "expected_metrics": {
+        "closed_trades": 40,
+        "wins": 13,
+        "losses": 27,
+        "total_r": -3.5754,
+        "winrate": 32.5,
+        "avg_r": -0.0894,
+        "profit_factor": 0.8439,
+        "max_drawdown": -8.9684,
+        "current_drawdown": -4.9069
+      },
+      "diffs": {
+        "closed_trades": {
+          "observed": 40,
+          "expected": 40,
+          "delta": 0.0
+        },
+        "total_r": {
+          "observed": -3.5754,
+          "expected": -3.5754,
+          "delta": 0.0
+        },
+        "winrate": {
+          "observed": 32.5,
+          "expected": 32.5,
+          "delta": 0.0
+        },
+        "profit_factor": {
+          "observed": 0.8439,
+          "expected": 0.8439,
+          "delta": 0.0
+        },
+        "max_drawdown": {
+          "observed": -8.9684,
+          "expected": -8.9684,
+          "delta": 0.0
+        },
+        "current_drawdown": {
+          "observed": -4.9069,
+          "expected": -4.9069,
+          "delta": 0.0
+        }
+      },
+      "notes": [
+        "Dashboard must read data/paper_trading/trades.csv through canonical_trade_source."
+      ]
+    },
+    {
+      "system": "Control Center",
+      "classification": "CONSISTENT",
+      "dataset_scope": "canonical_trade_source",
+      "observed_metrics": {
+        "closed_trades": 40,
+        "wins": 13,
+        "losses": 27,
+        "total_r": -3.5754,
+        "winrate": 32.5,
+        "avg_r": -0.0894,
+        "profit_factor": 0.8439,
+        "max_drawdown": -8.9684,
+        "current_drawdown": -4.9069
+      },
+      "expected_metrics": {
+        "closed_trades": 40,
+        "wins": 13,
+        "losses": 27,
+        "total_r": -3.5754,
+        "winrate": 32.5,
+        "avg_r": -0.0894,
+        "profit_factor": 0.8439,
+        "max_drawdown": -8.9684,
+        "current_drawdown": -4.9069
+      },
+      "diffs": {
+        "closed_trades": {
+          "observed": 40,
+          "expected": 40,
+          "delta": 0.0
+        },
+        "total_r": {
+          "observed": -3.5754,
+          "expected": -3.5754,
+          "delta": 0.0
+        },
+        "winrate": {
+          "observed": 32.5,
+          "expected": 32.5,
+          "delta": 0.0
+        },
+        "profit_factor": {
+          "observed": 0.8439,
+          "expected": 0.8439,
+          "delta": 0.0
+        },
+        "max_drawdown": {
+          "observed": -8.9684,
+          "expected": -8.9684,
+          "delta": 0.0
+        },
+        "current_drawdown": {
+          "observed": -4.9069,
+          "expected": -4.9069,
+          "delta": 0.0
+        }
+      },
+      "notes": [
+        "Control Center must read data/paper_trading/trades.csv through canonical_trade_source."
+      ]
+    },
+    {
+      "system": "Intelligence Reports",
+      "classification": "CONSISTENT",
+      "dataset_scope": "outcome_intelligence_csv",
+      "observed_metrics": {
+        "closed_trades": 40,
+        "wins": 13,
+        "losses": 27,
+        "total_r": -3.5754,
+        "winrate": 32.5,
+        "avg_r": -0.0894,
+        "profit_factor": 0.8439,
+        "max_drawdown": -8.9684,
+        "current_drawdown": -4.9069
+      },
+      "expected_metrics": {
+        "closed_trades": 40,
+        "wins": 13,
+        "losses": 27,
+        "total_r": -3.5754,
+        "winrate": 32.5,
+        "avg_r": -0.0894,
+        "profit_factor": 0.8439,
+        "max_drawdown": -8.9684,
+        "current_drawdown": -4.9069
+      },
+      "diffs": {
+        "closed_trades": {
+          "observed": 40,
+          "expected": 40,
+          "delta": 0.0
+        },
+        "total_r": {
+          "observed": -3.5754,
+          "expected": -3.5754,
+          "delta": 0.0
+        },
+        "winrate": {
+          "observed": 32.5,
+          "expected": 32.5,
+          "delta": 0.0
+        },
+        "profit_factor": {
+          "observed": 0.8439,
+          "expected": 0.8439,
+          "delta": 0.0
+        },
+        "max_drawdown": {
+          "observed": -8.9684,
+          "expected": -8.9684,
+          "delta": 0.0
+        },
+        "current_drawdown": {
+          "observed": -4.9069,
+          "expected": -4.9069,
+          "delta": 0.0
+        }
+      },
+      "notes": [
+        "Intelligence Reports are expected to align with outcome_intelligence.csv row metrics.",
+        "Manifest rows: closed_trades=40, outcome=40, edge=31, setup=24"
+      ]
+    },
+    {
+      "system": "Daily Reports",
+      "classification": "CONSISTENT",
+      "dataset_scope": "canonical_trade_source_today",
+      "observed_metrics": {
+        "closed_trades": 0,
+        "wins": 0,
+        "losses": 0,
+        "total_r": 0,
+        "winrate": 0.0,
+        "avg_r": 0.0,
+        "profit_factor": 0.0,
+        "max_drawdown": 0.0,
+        "current_drawdown": 0.0
+      },
+      "expected_metrics": {
+        "closed_trades": 0,
+        "wins": 0,
+        "losses": 0,
+        "total_r": 0,
+        "winrate": 0.0,
+        "avg_r": 0.0,
+        "profit_factor": 0.0,
+        "max_drawdown": 0.0,
+        "current_drawdown": 0.0
+      },
+      "diffs": {
+        "closed_trades": {
+          "observed": 0,
+          "expected": 0,
+          "delta": 0.0
+        },
+        "total_r": {
+          "observed": 0,
+          "expected": 0,
+          "delta": 0.0
+        },
+        "winrate": {
+          "observed": 0.0,
+          "expected": 0.0,
+          "delta": 0.0
+        },
+        "profit_factor": {
+          "observed": 0.0,
+          "expected": 0.0,
+          "delta": 0.0
+        },
+        "max_drawdown": {
+          "observed": 0.0,
+          "expected": 0.0,
+          "delta": 0.0
+        },
+        "current_drawdown": {
+          "observed": 0.0,
+          "expected": 0.0,
+          "delta": 0.0
+        }
+      },
+      "notes": [
+        "Daily DEV Report is intentionally scoped to paper trades closed today."
+      ]
+    },
+    {
+      "system": "Context Toxicity",
+      "classification": "CONSISTENT",
+      "dataset_scope": "canonical_trade_source",
+      "observed_metrics": {
+        "closed_trades": 40,
+        "wins": 13,
+        "losses": 27,
+        "total_r": -3.5754,
+        "winrate": 32.5,
+        "profit_factor": 0.8439,
+        "max_drawdown": -8.9684,
+        "current_drawdown": -4.9069
+      },
+      "expected_metrics": {
+        "closed_trades": 40,
+        "wins": 13,
+        "losses": 27,
+        "total_r": -3.5754,
+        "winrate": 32.5,
+        "avg_r": -0.0894,
+        "profit_factor": 0.8439,
+        "max_drawdown": -8.9684,
+        "current_drawdown": -4.9069
+      },
+      "diffs": {
+        "closed_trades": {
+          "observed": 40,
+          "expected": 40,
+          "delta": 0.0
+        },
+        "total_r": {
+          "observed": -3.5754,
+          "expected": -3.5754,
+          "delta": 0.0
+        },
+        "winrate": {
+          "observed": 32.5,
+          "expected": 32.5,
+          "delta": 0.0
+        },
+        "profit_factor": {
+          "observed": 0.8439,
+          "expected": 0.8439,
+          "delta": 0.0
+        },
+        "max_drawdown": {
+          "observed": -8.9684,
+          "expected": -8.9684,
+          "delta": 0.0
+        },
+        "current_drawdown": {
+          "observed": -4.9069,
+          "expected": -4.9069,
+          "delta": 0.0
+        }
+      },
+      "notes": [
+        "Context Toxicity must use canonical_trade_source, not strategy validation rows."
+      ]
+    },
+    {
+      "system": "London Short Analysis",
+      "classification": "CONSISTENT",
+      "dataset_scope": "canonical_trade_source_london_short_subset",
+      "observed_metrics": {
+        "closed_trades": 9,
+        "wins": 2,
+        "losses": 7,
+        "total_r": -0.416,
+        "winrate": 22.22,
+        "profit_factor": 0.9145,
+        "max_drawdown": -2.0,
+        "current_drawdown": -1.3895
+      },
+      "expected_metrics": {
+        "closed_trades": 9,
+        "wins": 2,
+        "losses": 7,
+        "total_r": -0.416,
+        "winrate": 22.22,
+        "avg_r": -0.0462,
+        "profit_factor": 0.9145,
+        "max_drawdown": -2.0,
+        "current_drawdown": -1.3895
+      },
+      "diffs": {
+        "closed_trades": {
+          "observed": 9,
+          "expected": 9,
+          "delta": 0.0
+        },
+        "total_r": {
+          "observed": -0.416,
+          "expected": -0.416,
+          "delta": 0.0
+        },
+        "winrate": {
+          "observed": 22.22,
+          "expected": 22.22,
+          "delta": 0.0
+        },
+        "profit_factor": {
+          "observed": 0.9145,
+          "expected": 0.9145,
+          "delta": 0.0
+        },
+        "max_drawdown": {
+          "observed": -2.0,
+          "expected": -2.0,
+          "delta": 0.0
+        },
+        "current_drawdown": {
+          "observed": -1.3895,
+          "expected": -1.3895,
+          "delta": 0.0
+        }
+      },
+      "notes": [
+        "London Short Analysis is expected to match the LONDON+SHORT subset if it only uses canonical trades."
+      ]
+    },
+    {
+      "system": "Backtest Runner",
+      "classification": "CONSISTENT",
+      "dataset_scope": "canonical_trade_source",
+      "observed_metrics": {
+        "closed_trades": 40,
+        "wins": 13,
+        "losses": 27,
+        "total_r": -3.5754,
+        "winrate": 32.5,
+        "profit_factor": 0.8439,
+        "max_drawdown": -8.9684,
+        "current_drawdown": -4.9069
+      },
+      "expected_metrics": {
+        "closed_trades": 40,
+        "wins": 13,
+        "losses": 27,
+        "total_r": -3.5754,
+        "winrate": 32.5,
+        "avg_r": -0.0894,
+        "profit_factor": 0.8439,
+        "max_drawdown": -8.9684,
+        "current_drawdown": -4.9069
+      },
+      "diffs": {
+        "closed_trades": {
+          "observed": 40,
+          "expected": 40,
+          "delta": 0.0
+        },
+        "total_r": {
+          "observed": -3.5754,
+          "expected": -3.5754,
+          "delta": 0.0
+        },
+        "winrate": {
+          "observed": 32.5,
+          "expected": 32.5,
+          "delta": 0.0
+        },
+        "profit_factor": {
+          "observed": 0.8439,
+          "expected": 0.8439,
+          "delta": 0.0
+        },
+        "max_drawdown": {
+          "observed": -8.9684,
+          "expected": -8.9684,
+          "delta": 0.0
+        },
+        "current_drawdown": {
+          "observed": -4.9069,
+          "expected": -4.9069,
+          "delta": 0.0
+        }
+      },
+      "notes": [
+        "Backtest Runner baseline should be comparable to the canonical closed-trade universe."
+      ]
+    },
+    {
+      "system": "Focused Shadow Validation",
+      "classification": "CONSISTENT",
+      "dataset_scope": "canonical_trade_source",
+      "observed_metrics": {
+        "closed_trades": 40,
+        "wins": 0,
+        "losses": 0,
+        "total_r": -3.5754,
+        "winrate": 32.5,
+        "profit_factor": 0.8439,
+        "max_drawdown": -8.9684,
+        "current_drawdown": -4.9069
+      },
+      "expected_metrics": {
+        "closed_trades": 40,
+        "wins": 13,
+        "losses": 27,
+        "total_r": -3.5754,
+        "winrate": 32.5,
+        "avg_r": -0.0894,
+        "profit_factor": 0.8439,
+        "max_drawdown": -8.9684,
+        "current_drawdown": -4.9069
+      },
+      "diffs": {
+        "closed_trades": {
+          "observed": 40,
+          "expected": 40,
+          "delta": 0.0
+        },
+        "total_r": {
+          "observed": -3.5754,
+          "expected": -3.5754,
+          "delta": 0.0
+        },
+        "winrate": {
+          "observed": 32.5,
+          "expected": 32.5,
+          "delta": 0.0
+        },
+        "profit_factor": {
+          "observed": 0.8439,
+          "expected": 0.8439,
+          "delta": 0.0
+        },
+        "max_drawdown": {
+          "observed": -8.9684,
+          "expected": -8.9684,
+          "delta": 0.0
+        },
+        "current_drawdown": {
+          "observed": -4.9069,
+          "expected": -4.9069,
+          "delta": 0.0
+        }
+      },
+      "notes": [
+        "Focused shadow validation must use canonical_trade_source."
+      ]
+    }
+  ],
+  "summary": {
+    "consistent": 8,
+    "minor_drift": 0,
+    "critical_mismatch": 0,
+    "top_mismatches": [
+      {
+        "system": "Dashboard",
+        "classification": "CONSISTENT",
+        "closed_trades_delta": 0.0,
+        "total_r_delta": 0.0,
+        "dataset_scope": "canonical_trade_source"
+      },
+      {
+        "system": "Control Center",
+        "classification": "CONSISTENT",
+        "closed_trades_delta": 0.0,
+        "total_r_delta": 0.0,
+        "dataset_scope": "canonical_trade_source"
+      },
+      {
+        "system": "Intelligence Reports",
+        "classification": "CONSISTENT",
+        "closed_trades_delta": 0.0,
+        "total_r_delta": 0.0,
+        "dataset_scope": "outcome_intelligence_csv"
+      },
+      {
+        "system": "Daily Reports",
+        "classification": "CONSISTENT",
+        "closed_trades_delta": 0.0,
+        "total_r_delta": 0.0,
+        "dataset_scope": "canonical_trade_source_today"
+      },
+      {
+        "system": "Context Toxicity",
+        "classification": "CONSISTENT",
+        "closed_trades_delta": 0.0,
+        "total_r_delta": 0.0,
+        "dataset_scope": "canonical_trade_source"
+      }
+    ]
+  }
+}

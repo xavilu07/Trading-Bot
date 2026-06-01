@@ -34,6 +34,7 @@ def main(argv: list[str] | None = None) -> int:
     paths = write_bot_audit_ai(result, Path(args.reports_path))
     print(f"Markdown: {paths['markdown_path']}")
     print(f"JSON: {paths['json_path']}")
+    print(f"Inputs audit: {paths['inputs_audit_path']}")
     return 0
 
 

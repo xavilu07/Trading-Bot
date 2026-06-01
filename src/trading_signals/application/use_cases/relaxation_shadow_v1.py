@@ -290,6 +290,105 @@ def build_relaxation_shadow_candidate(
     )
 
 
+def evaluate_relaxation_shadow_v1(
+    *,
+    signal,
+    evaluation,
+    risk_plan,
+    entry_snapshot: MarketSnapshot,
+    higher_snapshot: MarketSnapshot,
+    setup_context: dict[str, object],
+    current_policy: dict[str, object],
+    store,
+    opened_at: str,
+    expires_after_candles: int = 24,
+) -> dict[str, object]:
+    filter_result = safe_relaxation_filter_result(current_policy.get("block_reasons", []))
+    if store is None:
+        return {"should_send_dev": False, "skip_reason": "store_not_configured", "filter_result": filter_result}
+    if not filter_result["eligible"]:
+        record_relaxation_shadow_skip(
+            store=store,
+            signal=signal,
+            evaluation=evaluation,
+            setup_context=setup_context,
+            filter_result=filter_result,
+            skip_reason="unsafe_or_empty_filters",
+        )
+        return {"should_send_dev": False, "skip_reason": "unsafe_or_empty_filters", "filter_result": filter_result}
+    candidate = build_relaxation_shadow_candidate(
+        signal=signal,
+        evaluation=evaluation,
+        risk_plan=risk_plan,
+        entry_snapshot=entry_snapshot,
+        higher_snapshot=higher_snapshot,
+        setup_context=setup_context,
+        current_policy=current_policy,
+        opened_at=opened_at,
+        expires_after_candles=expires_after_candles,
+    )
+    if candidate is None:
+        record_relaxation_shadow_skip(
+            store=store,
+            signal=signal,
+            evaluation=evaluation,
+            setup_context=setup_context,
+            filter_result=filter_result,
+            skip_reason="candidate_not_created",
+        )
+        return {"should_send_dev": False, "skip_reason": "candidate_not_created", "filter_result": filter_result}
+    created = store.upsert_candidate(candidate)
+    if not created:
+        store.record_skip(
+            RelaxationShadowSkip(
+                symbol=candidate.symbol,
+                direction=candidate.direction,
+                score=candidate.score,
+                block_reasons=list(filter_result["original_rejection_reasons"]),
+                safe_filters=list(filter_result["safe_filters"]),
+                unsafe_filters=list(filter_result["unsafe_filters"]),
+                skip_reason="duplicate",
+            )
+        )
+        return {"should_send_dev": False, "skip_reason": "duplicate", "filter_result": filter_result, "candidate": candidate}
+    return {
+        "should_send_dev": True,
+        "skip_reason": "",
+        "filter_result": filter_result,
+        "candidate": candidate,
+    }
+
+
+def record_relaxation_shadow_skip(
+    *,
+    store,
+    signal,
+    evaluation,
+    setup_context: dict[str, object],
+    filter_result: dict[str, object],
+    skip_reason: str,
+) -> None:
+    score = float(
+        getattr(
+            evaluation,
+            "setup_score",
+            getattr(evaluation, "total_score", setup_context.get("score", 0.0)),
+        )
+        or 0.0
+    )
+    store.record_skip(
+        RelaxationShadowSkip(
+            symbol=str(signal.symbol).upper(),
+            direction=str(signal.decision).lower(),
+            score=round(score, 2),
+            block_reasons=list(filter_result.get("original_rejection_reasons", [])),
+            safe_filters=list(filter_result.get("safe_filters", [])),
+            unsafe_filters=list(filter_result.get("unsafe_filters", [])),
+            skip_reason=skip_reason,
+        )
+    )
+
+
 def format_relaxation_shadow_v1_message(candidate: RelaxationShadowCandidate) -> str:
     return (
         "🧪 RELAXATION SHADOW V1\n"
@@ -309,11 +408,15 @@ def format_relaxation_shadow_v1_message(candidate: RelaxationShadowCandidate) ->
 def build_relaxation_shadow_summary(base_path: Path) -> dict[str, Any]:
     store = RelaxationShadowV1Store(base_path)
     trades = store.list_trades()
+    skips = store.list_skips()
     closed = [_normalize_for_metrics(trade) for trade in trades if str(trade.get("status")) in {"tp2_hit", "sl_hit", "expired"}]
     metrics = compute_trade_metrics([trade for trade in closed if trade is not None])
     return {
         "generated_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "trades": len(trades),
+        "skips": len(skips),
+        "top_unsafe_filters": _top_tokens(skips, "unsafe_filters"),
+        "last_skip_reason": str(skips[-1].get("skip_reason") or "none") if skips else "none",
         "closed_trades": metrics["closed_trades"],
         "open_trades": len([trade for trade in trades if str(trade.get("status")) in {"open", "tp1_hit"}]),
         "metrics": metrics,
@@ -337,17 +440,20 @@ def write_relaxation_shadow_reports(base_path: Path, reports_path: Path) -> dict
     summary_csv = reports_path / "relaxation_shadow_v1_summary.csv"
     skips_md = reports_path / "relaxation_shadow_v1_skips.md"
     skips_csv = reports_path / "relaxation_shadow_v1_skips.csv"
+    activation_audit_md = reports_path / "relaxation_shadow_activation_audit.md"
     _write_rows(trades_csv, trades, RELAXATION_SHADOW_FIELDS)
     _write_rows(summary_csv, _summary_rows(summary), SUMMARY_FIELDS)
     _write_rows(skips_csv, skips, RELAXATION_SHADOW_SKIP_FIELDS)
     summary_md.write_text(format_relaxation_shadow_summary(summary), encoding="utf-8")
     skips_md.write_text(format_relaxation_shadow_skips(skips), encoding="utf-8")
+    activation_audit_md.write_text(format_relaxation_shadow_activation_audit(summary, skips), encoding="utf-8")
     return {
         "trades_csv": trades_csv,
         "summary_md": summary_md,
         "summary_csv": summary_csv,
         "skips_md": skips_md,
         "skips_csv": skips_csv,
+        "activation_audit_md": activation_audit_md,
     }
 
 
@@ -358,6 +464,9 @@ def format_relaxation_shadow_summary(summary: dict[str, Any]) -> str:
         "",
         f"- Generated at: {summary.get('generated_at')}",
         f"- Total trades: {summary.get('trades', 0)}",
+        f"- Total skips: {summary.get('skips', 0)}",
+        f"- Top unsafe filters: {_format_filter_counts(summary.get('top_unsafe_filters'))}",
+        f"- Last skip reason: {summary.get('last_skip_reason', 'none')}",
         f"- Closed trades: {summary.get('closed_trades', 0)}",
         f"- Open trades: {summary.get('open_trades', 0)}",
         f"- WR: {metrics.get('winrate', 0)}%",
@@ -394,10 +503,14 @@ def format_relaxation_shadow_summary(summary: dict[str, Any]) -> str:
 
 
 def format_relaxation_shadow_skips(skips: list[dict[str, Any]]) -> str:
+    top_unsafe = _top_tokens(skips, "unsafe_filters")
+    last_skip = str(skips[-1].get("skip_reason") or "none") if skips else "none"
     lines = [
         "# RELAXATION_SHADOW_V1_SKIP_DIAGNOSTICS",
         "",
         f"- Total skips: {len(skips)}",
+        f"- Top unsafe filters: {_format_filter_counts(top_unsafe)}",
+        f"- Last skip reason: {last_skip}",
         "",
         "| Symbol | Direction | Score | Block reasons | Safe filters | Unsafe filters | Skip reason |",
         "|---|---|---:|---|---|---|---|",
@@ -414,8 +527,28 @@ def format_relaxation_shadow_skips(skips: list[dict[str, Any]]) -> str:
     return "\n".join(lines).rstrip() + "\n"
 
 
+def format_relaxation_shadow_activation_audit(summary: dict[str, Any], skips: list[dict[str, Any]]) -> str:
+    return (
+        "# RELAXATION_SHADOW_V1 Activation Audit\n\n"
+        f"- Trades captured: {summary.get('trades', 0)}\n"
+        f"- Skips captured: {len(skips)}\n"
+        f"- Top unsafe filters: {_format_filter_counts(summary.get('top_unsafe_filters'))}\n"
+        f"- Last skip reason: {summary.get('last_skip_reason', 'none')}\n"
+        f"- Status: {_activation_status(summary, skips)}\n"
+    )
+
+
 def relaxation_shadow_dedupe_key(*, symbol: str, direction: str, candle_timestamp: str) -> str:
     return f"{symbol.strip().upper()}|{direction.strip().lower()}|{candle_timestamp}|RELAXATION_SHADOW_V1"
+
+
+def _activation_status(summary: dict[str, Any], skips: list[dict[str, Any]]) -> str:
+    trades = int(summary.get("trades", 0) or 0)
+    if trades > 0:
+        return "reachable"
+    if skips:
+        return "observing_skips_only"
+    return "no_candidates_observed"
 
 
 def _group_by(trades: list[dict[str, str]], key: str) -> dict[str, dict[str, Any]]:
@@ -471,6 +604,25 @@ def _summary_rows(summary: dict[str, Any]) -> list[dict[str, Any]]:
                 continue
             rows.append({"group": group_key, "value": value, **stats})
     return rows
+
+
+def _top_tokens(rows: list[dict[str, Any]], field: str, limit: int = 5) -> list[dict[str, Any]]:
+    counts: dict[str, int] = {}
+    for row in rows:
+        for token in _tokens(row.get(field)):
+            counts[token] = counts.get(token, 0) + 1
+    return [{"filter": name, "count": count} for name, count in sorted(counts.items(), key=lambda item: (-item[1], item[0]))[:limit]]
+
+
+def _format_filter_counts(value: object) -> str:
+    rows = value if isinstance(value, list) else []
+    if not rows:
+        return "none"
+    parts = []
+    for row in rows[:5]:
+        if isinstance(row, dict):
+            parts.append(f"{row.get('filter')} ({row.get('count')})")
+    return ", ".join(parts) if parts else "none"
 
 
 def _write_rows(path: Path, rows: list[dict[str, Any]], fields: list[str]) -> None:

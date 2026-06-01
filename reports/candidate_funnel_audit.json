@@ -1,0 +1,60 @@
+{
+  "conclusion": "no_raw_candidates",
+  "cycles_total": 0,
+  "generated_at": "2026-06-01T14:49:48.090083+00:00",
+  "latest_cycle": {
+    "counts": {
+      "candidates_created": 0,
+      "candidates_reaching_publish_signal": 0,
+      "observed_by_relaxation_shadow_v1": 0,
+      "published_signals": 0,
+      "raw_setups_evaluated": 0,
+      "rejected_by_lifecycle_publishability": 0,
+      "rejected_by_quality_gates": 0,
+      "rejected_by_score": 0,
+      "v1_skips_created": 0,
+      "v1_trades_created": 0
+    },
+    "finished_at": null,
+    "rejection_reasons": {
+      "lifecycle_publishability": {},
+      "publishing": {},
+      "quality": {},
+      "relaxation_shadow_v1": {},
+      "score": {}
+    },
+    "scan_run_id": "none",
+    "started_at": "2026-06-01T14:49:48.089950+00:00"
+  },
+  "rolling_last_5_counts": {
+    "candidates_created": 0,
+    "candidates_reaching_publish_signal": 0,
+    "observed_by_relaxation_shadow_v1": 0,
+    "published_signals": 0,
+    "raw_setups_evaluated": 0,
+    "rejected_by_lifecycle_publishability": 0,
+    "rejected_by_quality_gates": 0,
+    "rejected_by_score": 0,
+    "v1_skips_created": 0,
+    "v1_trades_created": 0
+  },
+  "rolling_window": 5,
+  "top_disappearance_stage": {
+    "count": 0,
+    "stage": "none",
+    "stage_counts": {
+      "lifecycle_publishability": 0,
+      "publishing": 0,
+      "quality_gate": 0,
+      "score_gate": 0,
+      "v1_gap": 0
+    }
+  },
+  "top_rejection_reasons_per_stage": {
+    "lifecycle_publishability": [],
+    "publishing": [],
+    "quality": [],
+    "relaxation_shadow_v1": [],
+    "score": []
+  }
+}

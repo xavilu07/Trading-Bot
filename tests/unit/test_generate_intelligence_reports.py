@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import json
 from pathlib import Path
 
 from scripts.generate_intelligence_reports import generate_intelligence_reports
@@ -92,14 +93,33 @@ def test_generate_intelligence_reports_refreshes_stale_intelligence_warnings(tmp
         data_path / "paper_trading" / "trades.csv",
         [{"status": "tp_hit", "result_r": "1", "setup_type": "MAIN_SIGNAL", "direction": "long"}],
     )
+    write_csv(
+        data_path / "shadow_relaxation" / "skips.csv",
+        [
+            {
+                "symbol": "BTCUSDT",
+                "direction": "long",
+                "score": "80",
+                "block_reasons": json.dumps(["breakout_bad_location", "kill_switch_active"]),
+                "safe_filters": json.dumps(["breakout_bad_location"]),
+                "unsafe_filters": json.dumps(["kill_switch_active"]),
+                "skip_reason": "unsafe_or_empty_filters",
+            }
+        ],
+    )
 
     result = generate_intelligence_reports(data_path=data_path, reports_path=reports_path, min_trades=1)
-    refreshed_json = (report_dir / "report.json").read_text(encoding="utf-8")
+    refreshed_payload = json.loads((report_dir / "report.json").read_text(encoding="utf-8"))
+    refreshed_json = json.dumps(refreshed_payload)
     refreshed_md = (report_dir / "report.md").read_text(encoding="utf-8")
 
     assert result["refreshed_intelligence_reports"] == [str(report_dir / "report.json")]
+    assert refreshed_payload["relaxation_shadow_status"]["skips_captured"] == 1
+    assert refreshed_payload["relaxation_shadow_status"]["last_skip_reason"] == "unsafe_or_empty_filters"
     assert "reports/outcome_intelligence.csv" not in refreshed_json
     assert "reports/setup_rankings.csv" not in refreshed_json
     assert "reports/edge_breakdown.csv" not in refreshed_json
     assert "reports/controlled_experiments_report.json" in refreshed_json
     assert "reports/outcome_intelligence.csv" not in refreshed_md
+    assert "## Relaxation Shadow Status" in refreshed_md
+    assert "- skips captured: 1" in refreshed_md

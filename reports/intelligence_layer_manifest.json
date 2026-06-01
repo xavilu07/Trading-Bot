@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-05-28T15:02:14+00:00",
+  "generated_at": "2026-05-30T15:11:12+00:00",
   "data_sources": {
-    "paper_trade_csvs": 4,
-    "live_trades_exists": true,
-    "signals_log_rows": 174,
+    "canonical_trades_path": "data/paper_trading/trades.csv",
+    "canonical_trades_rows": 49,
+    "signals_log_rows": 238,
     "pattern_memory_rows": 28
   },
   "reports": {
@@ -16,13 +16,28 @@
     "dashboard": "reports/dashboard.html"
   },
   "rows": {
-    "outcome_intelligence": 45,
-    "setup_rankings": 25,
-    "setup_combinations_rankings": 40,
-    "edge_breakdown": 32,
-    "closed_trades": 45
+    "outcome_intelligence": 40,
+    "setup_rankings": 24,
+    "setup_combinations_rankings": 39,
+    "edge_breakdown": 31,
+    "closed_trades": 40
   },
   "warnings": [],
+  "relaxation_shadow_status": {
+    "trades_captured": 0,
+    "skips_captured": 0,
+    "last_skip_reason": "none",
+    "top_unsafe_filters": [],
+    "top_safe_filters": [],
+    "v1_too_strict": false,
+    "recommendation": "keep",
+    "sources": {
+      "data_trades_exists": false,
+      "data_skips_exists": false,
+      "report_summary_exists": true,
+      "report_skips_exists": true
+    }
+  },
   "refreshed_intelligence_reports": [
     "reports/intelligence/daily/2026-05-27/report.json",
     "reports/intelligence/weekly/2026-22/report.json"

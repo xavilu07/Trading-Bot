@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
 from trading_signals.application.use_cases.publish_signal import (
@@ -14,6 +15,11 @@ from trading_signals.application.use_cases.relaxation_shadow_v1 import (
     safe_relaxation_filter_result,
     write_relaxation_shadow_reports,
 )
+from trading_signals.application.use_cases.run_market_scan import (
+    _observe_relaxation_shadow_v1,
+    _pre_publishability_block_reasons,
+)
+from trading_signals.application.dto.analysis_result import AnalysisResult
 from trading_signals.domain.entities.risk_plan import RiskPlan
 from trading_signals.domain.entities.strategy_evaluation import StrategyEvaluation
 from trading_signals.domain.entities.trade_signal import TradeSignal
@@ -180,7 +186,9 @@ def test_relaxation_shadow_skip_diagnostics_are_recorded_and_reported(tmp_path: 
     assert skips[0]["skip_reason"] == "unsafe_or_empty_filters"
     assert paths["skips_md"].exists()
     assert paths["skips_csv"].exists()
+    assert paths["activation_audit_md"].exists()
     assert "RELAXATION_SHADOW_V1_SKIP_DIAGNOSTICS" in paths["skips_md"].read_text(encoding="utf-8")
+    assert "RELAXATION_SHADOW_V1 Activation Audit" in paths["activation_audit_md"].read_text(encoding="utf-8")
 
 
 def test_publish_signal_sends_relaxation_shadow_to_dev_only(tmp_path: Path) -> None:
@@ -209,6 +217,99 @@ def test_publish_signal_sends_relaxation_shadow_to_dev_only(tmp_path: Path) -> N
     assert any("🧪 RELAXATION SHADOW V1" in message for message in notifier.dev_messages)
     assert notifier.public_messages == []
     assert len(store.list_trades()) == 1
+
+
+def test_pre_publish_rejected_safe_candidate_is_observed_dev_only(tmp_path: Path) -> None:
+    store = RelaxationShadowV1Store(tmp_path)
+    notifier = RoutingNotifier()
+    entry, higher, evaluation, risk_plan, signal, setup_context = _case()
+
+    result = _observe_relaxation_shadow_v1(
+        logger=logging.getLogger("trading_signals"),
+        notifier=notifier,
+        signal=signal,
+        evaluation=evaluation,
+        risk_plan=risk_plan,
+        analysis=AnalysisResult(signal.symbol, "1h", "4h", entry, higher),
+        setup_context=setup_context,
+        current_policy={"public_allowed": False, "block_reasons": ["breakout_bad_location"]},
+        store=store,
+        expires_after_candles=24,
+        dry_run=False,
+        stage="pre_publish_policy",
+    )
+
+    assert result["trade_created"] is True
+    assert len(store.list_trades()) == 1
+    assert len(store.list_skips()) == 0
+    assert any("🧪 RELAXATION SHADOW V1" in message for message in notifier.dev_messages)
+    assert notifier.public_messages == []
+
+
+def test_pre_publish_unsafe_candidate_creates_skip(tmp_path: Path) -> None:
+    store = RelaxationShadowV1Store(tmp_path)
+    notifier = RoutingNotifier()
+    entry, higher, evaluation, risk_plan, signal, setup_context = _case()
+
+    result = _observe_relaxation_shadow_v1(
+        logger=logging.getLogger("trading_signals"),
+        notifier=notifier,
+        signal=signal,
+        evaluation=evaluation,
+        risk_plan=risk_plan,
+        analysis=AnalysisResult(signal.symbol, "1h", "4h", entry, higher),
+        setup_context=setup_context,
+        current_policy={"public_allowed": False, "block_reasons": ["breakout_bad_location", "kill_switch_active"]},
+        store=store,
+        expires_after_candles=24,
+        dry_run=False,
+        stage="pre_publish_policy",
+    )
+
+    assert result["trade_created"] is False
+    assert len(store.list_trades()) == 0
+    assert len(store.list_skips()) == 1
+    assert "kill_switch_active" in store.list_skips()[0]["unsafe_filters"]
+    assert notifier.public_messages == []
+
+
+def test_pre_publish_relaxation_shadow_dedupes_by_symbol_direction_candle(tmp_path: Path) -> None:
+    store = RelaxationShadowV1Store(tmp_path)
+    notifier = RoutingNotifier()
+    entry, higher, evaluation, risk_plan, signal, setup_context = _case()
+    analysis = AnalysisResult(signal.symbol, "1h", "4h", entry, higher)
+
+    for _ in range(2):
+        _observe_relaxation_shadow_v1(
+            logger=logging.getLogger("trading_signals"),
+            notifier=notifier,
+            signal=signal,
+            evaluation=evaluation,
+            risk_plan=risk_plan,
+            analysis=analysis,
+            setup_context=setup_context,
+            current_policy={"public_allowed": False, "block_reasons": ["breakout_bad_location"]},
+            store=store,
+            expires_after_candles=24,
+            dry_run=False,
+            stage="pre_publish_policy",
+        )
+
+    assert len(store.list_trades()) == 1
+    assert len([message for message in notifier.dev_messages if "RELAXATION SHADOW V1" in message]) == 1
+
+
+def test_pre_publishability_gate_reasons_are_recorded_as_unsafe() -> None:
+    reasons = _pre_publishability_block_reasons(
+        should_publish_decision=True,
+        publish_filter_reason="publish_filter_session",
+        is_duplicate=False,
+        lifecycle=None,
+        current_public_policy={"public_allowed": True, "block_reasons": []},
+    )
+
+    assert reasons == ["publish_filter_session"]
+    assert safe_relaxation_filter_result(reasons)["eligible"] is False
 
 
 def _case(symbol: str = "BTCUSDT"):

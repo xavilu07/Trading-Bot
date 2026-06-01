@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import json
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -11,6 +12,38 @@ from trading_signals.data.canonical_trade_source import compute_trade_metrics, l
 
 EDGE_CLASSES = {"CONFIRMED_EDGE", "POSSIBLE_EDGE", "NO_EDGE", "TOXIC_CONTEXT"}
 ACTION_LEVELS = {"HIGH IMPACT", "MEDIUM IMPACT", "LOW IMPACT"}
+DEFAULT_FRESHNESS_HOURS = 48.0
+
+
+@dataclass(frozen=True, slots=True)
+class BotAuditInputSpec:
+    name: str
+    relative_path: Path
+    kind: str
+    generator: str
+    required: bool = True
+    freshness_hours: float = DEFAULT_FRESHNESS_HOURS
+
+
+BOT_AUDIT_INPUT_SPECS = (
+    BotAuditInputSpec("canonical_trades", Path("data/paper_trading/trades.csv"), "csv", "runtime: PaperTradingStore"),
+    BotAuditInputSpec("intelligence_manifest", Path("reports/intelligence_layer_manifest.json"), "json", "scripts/generate_intelligence_reports.py"),
+    BotAuditInputSpec("outcome_intelligence", Path("reports/outcome_intelligence.csv"), "csv", "scripts/generate_outcome_intelligence.py"),
+    BotAuditInputSpec("edge_breakdown", Path("reports/edge_breakdown.csv"), "csv", "scripts/generate_performance_report.py"),
+    BotAuditInputSpec("setup_rankings", Path("reports/setup_rankings.csv"), "csv", "scripts/generate_setup_rankings.py"),
+    BotAuditInputSpec("relaxation_shadow_v1_data_trades", Path("data/shadow_relaxation/trades.csv"), "csv", "runtime: RelaxationShadowV1Store", required=False),
+    BotAuditInputSpec("relaxation_shadow_v1_data_skips", Path("data/shadow_relaxation/skips.csv"), "csv", "runtime: RelaxationShadowV1Store", required=False),
+    BotAuditInputSpec("relaxation_shadow_v1_summary", Path("reports/relaxation_shadow_v1_summary.csv"), "csv", "scripts/generate_relaxation_shadow_v1_summary.py", required=False),
+    BotAuditInputSpec("relaxation_shadow_v1_skips", Path("reports/relaxation_shadow_v1_skips.csv"), "csv", "scripts/generate_relaxation_shadow_v1_summary.py", required=False),
+    BotAuditInputSpec("relaxation_shadow_v1_trades", Path("reports/relaxation_shadow_v1_trades.csv"), "csv", "scripts/generate_relaxation_shadow_v1_summary.py", required=False),
+    BotAuditInputSpec("relaxation_shadow_v2", Path("reports/relaxation_shadow_v2_intelligence.json"), "json", "scripts/generate_relaxation_shadow_v2_intelligence.py", required=False),
+    BotAuditInputSpec("context_toxicity", Path("reports/context_toxicity_deep_dive.json"), "json", "scripts/analyze_context_toxicity.py"),
+    BotAuditInputSpec("post_consistency_edge", Path("reports/post_consistency_edge_recalc.json"), "json", "scripts/recalculate_post_consistency_edge.py"),
+    BotAuditInputSpec("shadow_current_reject", Path("reports/shadow_send_current_reject_deep_dive.json"), "json", "scripts/analyze_shadow_send_current_reject.py"),
+    BotAuditInputSpec("shadow_rejection_reasons", Path("reports/shadow_send_current_reject_rejection_reasons.csv"), "csv", "scripts/analyze_shadow_send_current_reject.py"),
+    BotAuditInputSpec("london_short_attribution", Path("reports/london_short_edge_attribution.json"), "json", "scripts/analyze_london_short_edge_attribution.py"),
+    BotAuditInputSpec("range_penalty_shadow", Path("reports/range_penalty_shadow.json"), "json", "scripts/analyze_range_penalty_shadow.py"),
+)
 
 
 def generate_bot_audit_ai(
@@ -20,10 +53,12 @@ def generate_bot_audit_ai(
 ) -> dict[str, Any]:
     trades = load_canonical_closed_trades(data_path)
     canonical_metrics = compute_trade_metrics(trades)
-    inputs = _load_inputs(reports_path)
+    input_audit = audit_bot_audit_ai_inputs(data_path=data_path, reports_path=reports_path)
+    inputs = _load_inputs(data_path=data_path, reports_path=reports_path, input_audit=input_audit)
     edge_detection = _edge_detection(inputs)
     experiments = _experiment_tracking(inputs)
     rejection_analysis = _rejection_analysis(inputs)
+    relaxation_shadow_status = build_relaxation_shadow_status(data_path=data_path, reports_path=reports_path)
     improved = _what_improved(inputs, edge_detection, experiments)
     worsened = _what_worsened(inputs, edge_detection, experiments)
     actions = _recommended_actions(
@@ -37,12 +72,14 @@ def generate_bot_audit_ai(
         "generated_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "dataset": "data/paper_trading/trades.csv",
         "inputs": inputs["manifest"],
+        "input_audit": input_audit,
         "executive_summary": _executive_summary(canonical_metrics, edge_detection, experiments),
         "what_improved": improved,
         "what_worsened": worsened,
         "edge_detection": edge_detection,
         "experiment_tracking": experiments,
         "rejection_analysis": rejection_analysis,
+        "relaxation_shadow_status": relaxation_shadow_status,
         "recommended_actions": actions,
         "tomorrow_priorities": actions["tomorrow_priorities"],
     }
@@ -52,9 +89,11 @@ def write_bot_audit_ai(result: dict[str, Any], reports_path: Path) -> dict[str, 
     reports_path.mkdir(parents=True, exist_ok=True)
     json_path = reports_path / "bot_audit_ai.json"
     md_path = reports_path / "bot_audit_ai.md"
+    inputs_audit_path = reports_path / "bot_audit_ai_inputs_audit.md"
     json_path.write_text(json.dumps(result, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
     md_path.write_text(format_bot_audit_ai_markdown(result), encoding="utf-8")
-    return {"json_path": json_path, "markdown_path": md_path}
+    inputs_audit_path.write_text(format_bot_audit_ai_inputs_audit(_dict(result.get("input_audit"))), encoding="utf-8")
+    return {"json_path": json_path, "markdown_path": md_path, "inputs_audit_path": inputs_audit_path}
 
 
 def format_bot_audit_ai_markdown(result: dict[str, Any]) -> str:
@@ -97,6 +136,8 @@ def format_bot_audit_ai_markdown(result: dict[str, Any]) -> str:
     lines.extend(_experiment_lines(experiments.get("losing_experiments")))
     lines.extend(["", "## 6. Rejection Analysis", ""])
     lines.extend(_rejection_lines(_dict(result.get("rejection_analysis")).get("most_expensive_rejection_reasons")))
+    lines.extend(["", "## Relaxation Shadow Status", ""])
+    lines.extend(format_relaxation_shadow_status_lines(_dict(result.get("relaxation_shadow_status"))))
     lines.extend(["", "## 7. Recommended Actions", ""])
     actions = _dict(result.get("recommended_actions"))
     for level in ("HIGH IMPACT", "MEDIUM IMPACT", "LOW IMPACT"):
@@ -113,35 +154,158 @@ def format_bot_audit_ai_markdown(result: dict[str, Any]) -> str:
     return "\n".join(lines).rstrip() + "\n"
 
 
-def _load_inputs(reports_path: Path) -> dict[str, Any]:
+def audit_bot_audit_ai_inputs(
+    *,
+    data_path: Path = Path("data"),
+    reports_path: Path = Path("reports"),
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    now_dt = now or datetime.now(UTC)
+    rows = [_audit_input_spec(spec, data_path=data_path, reports_path=reports_path, now=now_dt) for spec in BOT_AUDIT_INPUT_SPECS]
+    return {
+        "generated_at": now_dt.isoformat(timespec="seconds"),
+        "freshness_hours": DEFAULT_FRESHNESS_HOURS,
+        "summary": {
+            "found": len([row for row in rows if row["classification"] == "FOUND"]),
+            "missing": len([row for row in rows if row["classification"] == "MISSING"]),
+            "stale": len([row for row in rows if row["classification"] == "STALE"]),
+        },
+        "inputs": rows,
+    }
+
+
+def format_bot_audit_ai_inputs_audit(audit: dict[str, Any]) -> str:
+    summary = _dict(audit.get("summary"))
+    lines = [
+        "# BOT_AUDIT_AI Inputs Audit",
+        "",
+        f"- Generated at: {audit.get('generated_at')}",
+        f"- Freshness threshold: {audit.get('freshness_hours', DEFAULT_FRESHNESS_HOURS)} hours",
+        f"- FOUND: {summary.get('found', 0)}",
+        f"- MISSING: {summary.get('missing', 0)}",
+        f"- STALE: {summary.get('stale', 0)}",
+        "",
+        "| Input | Classification | Path | Exists | Freshness | Generator | Script OK | Rows | Size |",
+        "|---|---|---|---:|---|---|---:|---:|---:|",
+    ]
+    for item in _list(audit.get("inputs")):
+        if not isinstance(item, dict):
+            continue
+        lines.append(
+            "| {name} | {classification} | `{path}` | {exists} | {freshness} | `{generator}` | {script_ok} | {rows} | {size} |".format(
+                name=item.get("name"),
+                classification=item.get("classification"),
+                path=item.get("path"),
+                exists=item.get("exists"),
+                freshness=item.get("freshness_status"),
+                generator=item.get("generator"),
+                script_ok=item.get("generation_script_exists"),
+                rows=item.get("rows"),
+                size=item.get("size_bytes"),
+            )
+        )
+    lines.extend(["", "## Details", ""])
+    for item in _list(audit.get("inputs")):
+        if not isinstance(item, dict):
+            continue
+        lines.append(f"### {item.get('name')}")
+        lines.append(f"- Classification: {item.get('classification')}")
+        lines.append(f"- Expected path: `{item.get('path')}`")
+        lines.append(f"- Path correctness: {item.get('path_correct')}")
+        lines.append(f"- Generator: `{item.get('generator')}`")
+        lines.append(f"- Generator exists: {item.get('generation_script_exists')}")
+        lines.append(f"- Modified at: {item.get('modified_at') or 'n/a'}")
+        lines.append(f"- Age hours: {item.get('age_hours')}")
+        lines.append(f"- Reason: {item.get('reason')}")
+        lines.append("")
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def _load_inputs(*, data_path: Path, reports_path: Path, input_audit: dict[str, Any]) -> dict[str, Any]:
     files = {
-        "intelligence_manifest": reports_path / "intelligence_layer_manifest.json",
-        "outcome_intelligence": reports_path / "outcome_intelligence.csv",
-        "edge_breakdown": reports_path / "edge_breakdown.csv",
-        "setup_rankings": reports_path / "setup_rankings.csv",
-        "relaxation_shadow_v1_summary": reports_path / "relaxation_shadow_v1_summary.csv",
-        "relaxation_shadow_v1_trades": reports_path / "relaxation_shadow_v1_trades.csv",
-        "relaxation_shadow_v2": reports_path / "relaxation_shadow_v2_intelligence.json",
-        "context_toxicity": reports_path / "context_toxicity_deep_dive.json",
-        "post_consistency_edge": reports_path / "post_consistency_edge_recalc.json",
-        "shadow_current_reject": reports_path / "shadow_send_current_reject_deep_dive.json",
-        "shadow_rejection_reasons": reports_path / "shadow_send_current_reject_rejection_reasons.csv",
-        "london_short_attribution": reports_path / "london_short_edge_attribution.json",
-        "range_penalty_shadow": reports_path / "range_penalty_shadow.json",
+        row["name"]: Path(str(row["path"]))
+        for row in _list(input_audit.get("inputs"))
+        if isinstance(row, dict) and row.get("name") != "canonical_trades"
     }
     payload = {
         "manifest": {
-            name: {
-                "path": str(path),
-                "exists": path.exists(),
-                "size_bytes": path.stat().st_size if path.exists() else 0,
-            }
-            for name, path in files.items()
+            str(row.get("name")): row
+            for row in _list(input_audit.get("inputs"))
+            if isinstance(row, dict)
         }
     }
     for name, path in files.items():
         payload[name] = _read_csv(path) if path.suffix == ".csv" else _read_json(path)
     return payload
+
+
+def _audit_input_spec(
+    spec: BotAuditInputSpec,
+    *,
+    data_path: Path,
+    reports_path: Path,
+    now: datetime,
+) -> dict[str, Any]:
+    path = _resolve_input_path(spec, data_path=data_path, reports_path=reports_path)
+    generator_path = Path(spec.generator) if spec.generator.startswith("scripts/") else None
+    exists = path.exists()
+    size = path.stat().st_size if exists else 0
+    modified_at = _modified_at(path) if exists else None
+    age_hours = _age_hours(modified_at, now) if modified_at else None
+    rows = _row_count(path, spec.kind) if exists else 0
+    path_correct = _path_correct(spec, path, data_path=data_path, reports_path=reports_path)
+    script_exists = True if generator_path is None else generator_path.exists()
+    freshness_status = "missing" if not exists else "stale" if age_hours is not None and age_hours > spec.freshness_hours else "fresh"
+    if not exists or not path_correct or not script_exists:
+        classification = "MISSING"
+    elif freshness_status == "stale":
+        classification = "STALE"
+    else:
+        classification = "FOUND"
+    return {
+        "name": spec.name,
+        "classification": classification,
+        "path": str(path),
+        "expected_relative_path": str(spec.relative_path),
+        "path_correct": path_correct,
+        "kind": spec.kind,
+        "required": spec.required,
+        "exists": exists,
+        "size_bytes": size,
+        "rows": rows,
+        "modified_at": modified_at.isoformat(timespec="seconds") if modified_at else "",
+        "age_hours": round(age_hours, 2) if age_hours is not None else None,
+        "freshness_hours": spec.freshness_hours,
+        "freshness_status": freshness_status,
+        "generator": spec.generator,
+        "generation_script_exists": script_exists,
+        "reason": _input_reason(exists=exists, path_correct=path_correct, script_exists=script_exists, freshness_status=freshness_status),
+    }
+
+
+def _resolve_input_path(spec: BotAuditInputSpec, *, data_path: Path, reports_path: Path) -> Path:
+    if spec.relative_path.parts[0] == "data":
+        return data_path / Path(*spec.relative_path.parts[1:])
+    if spec.relative_path.parts[0] == "reports":
+        return reports_path / Path(*spec.relative_path.parts[1:])
+    return spec.relative_path
+
+
+def _path_correct(spec: BotAuditInputSpec, path: Path, *, data_path: Path, reports_path: Path) -> bool:
+    expected = _resolve_input_path(spec, data_path=data_path, reports_path=reports_path)
+    return path == expected and path.suffix.removeprefix(".") == spec.kind
+
+
+def _input_reason(*, exists: bool, path_correct: bool, script_exists: bool, freshness_status: str) -> str:
+    if not path_correct:
+        return "path_incorrect"
+    if not script_exists:
+        return "generation_script_missing"
+    if not exists:
+        return "file_missing"
+    if freshness_status == "stale":
+        return "file_stale"
+    return "ok"
 
 
 def _executive_summary(metrics: dict[str, Any], edge_detection: dict[str, Any], experiments: dict[str, Any]) -> dict[str, Any]:
@@ -295,6 +459,59 @@ def _rejection_analysis(inputs: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def build_relaxation_shadow_status(*, data_path: Path = Path("data"), reports_path: Path = Path("reports")) -> dict[str, Any]:
+    data_trades = _read_csv(data_path / "shadow_relaxation" / "trades.csv")
+    data_skips = _read_csv(data_path / "shadow_relaxation" / "skips.csv")
+    report_summary = _read_csv(reports_path / "relaxation_shadow_v1_summary.csv")
+    report_skips = _read_csv(reports_path / "relaxation_shadow_v1_skips.csv")
+    trades_captured = len(data_trades) if data_trades else _trades_from_relaxation_summary(report_summary)
+    skip_rows = data_skips if data_skips else report_skips
+    skips_captured = len(skip_rows)
+    top_unsafe = _top_tokens(skip_rows, "unsafe_filters")
+    top_safe = _top_tokens(skip_rows, "safe_filters")
+    last_skip_reason = str(skip_rows[-1].get("skip_reason") or "none") if skip_rows else "none"
+    too_strict = _relaxation_shadow_too_strict(
+        trades_captured=trades_captured,
+        skips_captured=skips_captured,
+        top_safe=top_safe,
+        top_unsafe=top_unsafe,
+    )
+    recommendation = _relaxation_shadow_recommendation(
+        trades_captured=trades_captured,
+        skips_captured=skips_captured,
+        too_strict=too_strict,
+        top_safe=top_safe,
+        top_unsafe=top_unsafe,
+    )
+    return {
+        "trades_captured": trades_captured,
+        "skips_captured": skips_captured,
+        "last_skip_reason": last_skip_reason,
+        "top_unsafe_filters": top_unsafe,
+        "top_safe_filters": top_safe,
+        "v1_too_strict": too_strict,
+        "recommendation": recommendation,
+        "sources": {
+            "data_trades_exists": (data_path / "shadow_relaxation" / "trades.csv").exists(),
+            "data_skips_exists": (data_path / "shadow_relaxation" / "skips.csv").exists(),
+            "report_summary_exists": (reports_path / "relaxation_shadow_v1_summary.csv").exists(),
+            "report_skips_exists": (reports_path / "relaxation_shadow_v1_skips.csv").exists(),
+        },
+    }
+
+
+def format_relaxation_shadow_status_lines(status: dict[str, Any]) -> list[str]:
+    return [
+        f"- trades captured: {status.get('trades_captured', 0)}",
+        f"- skips captured: {status.get('skips_captured', 0)}",
+        f"- last skip reason: {status.get('last_skip_reason', 'none')}",
+        f"- top unsafe filters: {_format_filter_counts(status.get('top_unsafe_filters'))}",
+        f"- top safe filters: {_format_filter_counts(status.get('top_safe_filters'))}",
+        f"- whether V1 is too strict: {status.get('v1_too_strict', False)}",
+        f"- recommendation: {status.get('recommendation', 'keep')}",
+    ]
+
+
 def _recommended_actions(
     *,
     canonical_metrics: dict[str, Any],
@@ -325,6 +542,65 @@ def _recommended_actions(
     }
 
 
+def _trades_from_relaxation_summary(rows: list[dict[str, str]]) -> int:
+    if not rows:
+        return 0
+    by_direction = [_int(row.get("trades")) for row in rows if row.get("group") == "by_direction"]
+    if by_direction:
+        return sum(by_direction)
+    return max([_int(row.get("trades")) for row in rows] or [0])
+
+
+def _top_tokens(rows: list[dict[str, str]], field: str, limit: int = 5) -> list[dict[str, Any]]:
+    counts: dict[str, int] = {}
+    for row in rows:
+        for token in _tokens(row.get(field)):
+            counts[token] = counts.get(token, 0) + 1
+    return [{"filter": name, "count": count} for name, count in sorted(counts.items(), key=lambda item: (-item[1], item[0]))[:limit]]
+
+
+def _relaxation_shadow_too_strict(
+    *,
+    trades_captured: int,
+    skips_captured: int,
+    top_safe: list[dict[str, Any]],
+    top_unsafe: list[dict[str, Any]],
+) -> bool:
+    safe_count = sum(_int(item.get("count")) for item in top_safe)
+    unsafe_count = sum(_int(item.get("count")) for item in top_unsafe)
+    if skips_captured < 5:
+        return False
+    if trades_captured == 0 and safe_count > unsafe_count:
+        return True
+    return skips_captured > max(3, trades_captured * 2) and safe_count >= unsafe_count
+
+
+def _relaxation_shadow_recommendation(
+    *,
+    trades_captured: int,
+    skips_captured: int,
+    too_strict: bool,
+    top_safe: list[dict[str, Any]],
+    top_unsafe: list[dict[str, Any]],
+) -> str:
+    if skips_captured == 0:
+        return "keep"
+    unsafe_count = sum(_int(item.get("count")) for item in top_unsafe)
+    safe_count = sum(_int(item.get("count")) for item in top_safe)
+    if too_strict and safe_count > unsafe_count:
+        return "loosen shadow only"
+    if unsafe_count > safe_count or (skips_captured > 0 and trades_captured == 0):
+        return "investigate"
+    return "keep"
+
+
+def _format_filter_counts(value: object) -> str:
+    rows = _list(value)
+    if not rows:
+        return "none"
+    return ", ".join(f"{_dict(row).get('filter')} ({_dict(row).get('count')})" for row in rows[:5])
+
+
 def _read_json(path: Path) -> dict[str, Any]:
     if not path.exists() or path.stat().st_size == 0:
         return {}
@@ -340,6 +616,33 @@ def _read_csv(path: Path) -> list[dict[str, str]]:
         return []
     with path.open("r", encoding="utf-8", newline="") as handle:
         return list(csv.DictReader(handle))
+
+
+def _modified_at(path: Path) -> datetime:
+    return datetime.fromtimestamp(path.stat().st_mtime, tz=UTC)
+
+
+def _age_hours(modified_at: datetime, now: datetime) -> float:
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=UTC)
+    return max(0.0, (now.astimezone(UTC) - modified_at.astimezone(UTC)).total_seconds() / 3600)
+
+
+def _row_count(path: Path, kind: str) -> int:
+    if kind == "csv":
+        return len(_read_csv(path))
+    if kind == "json":
+        payload = _read_json(path)
+        if isinstance(payload.get("hypotheses"), list):
+            return len(payload["hypotheses"])
+        if isinstance(payload.get("analyses"), dict):
+            return sum(len(value) for value in payload["analyses"].values() if isinstance(value, list))
+        if isinstance(payload.get("systems"), list):
+            return len(payload["systems"])
+        if isinstance(payload.get("inputs"), list):
+            return len(payload["inputs"])
+        return 1 if payload else 0
+    return 0
 
 
 def _item(kind: str, name: object, summary: object, total_r: object, recommendation: object) -> dict[str, Any]:
@@ -452,3 +755,29 @@ def _int(value: object) -> int:
         return int(float(value))
     except (TypeError, ValueError):
         return 0
+
+
+def _tokens(value: object) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return _dedupe(str(item).strip() for item in value if str(item).strip())
+    text = str(value).strip()
+    if not text:
+        return []
+    try:
+        decoded = json.loads(text)
+    except json.JSONDecodeError:
+        decoded = None
+    if isinstance(decoded, list):
+        return _dedupe(str(item).strip() for item in decoded if str(item).strip())
+    return _dedupe(item.strip() for item in text.replace("|", ",").replace(";", ",").split(",") if item.strip())
+
+
+def _dedupe(values: object) -> list[str]:
+    output: list[str] = []
+    for value in values if not isinstance(values, str) else [values]:
+        text = str(value).strip()
+        if text and text not in output:
+            output.append(text)
+    return output

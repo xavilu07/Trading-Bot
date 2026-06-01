@@ -15,6 +15,7 @@ from scripts.generate_outcome_intelligence import generate_outcome_intelligence
 from scripts.generate_performance_report import generate_performance_report
 from scripts.generate_setup_rankings import generate_setup_rankings
 from trading_signals.data.canonical_trade_source import canonical_trades_path
+from trading_signals.research.bot_audit_ai import build_relaxation_shadow_status, format_relaxation_shadow_status_lines
 
 
 def generate_intelligence_reports(
@@ -56,6 +57,7 @@ def generate_intelligence_reports(
         },
         "warnings": _missing_required_reports(reports_path),
     }
+    manifest["relaxation_shadow_status"] = build_relaxation_shadow_status(data_path=data_path, reports_path=reports_path)
     manifest["refreshed_intelligence_reports"] = _refresh_existing_intelligence_reports(reports_path, manifest)
     manifest_path = reports_path / "intelligence_layer_manifest.json"
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -121,6 +123,7 @@ def _refresh_existing_intelligence_reports(reports_path: Path, manifest: dict[st
     rows = manifest.get("rows", {})
     if not isinstance(rows, dict):
         rows = {}
+    relaxation_shadow_status = manifest.get("relaxation_shadow_status")
     refreshed = []
     for report_json in sorted(intelligence_path.glob("**/report.json")):
         try:
@@ -136,8 +139,10 @@ def _refresh_existing_intelligence_reports(reports_path: Path, manifest: dict[st
             data_sources["edge_breakdown_rows"] = rows.get("edge_breakdown", 0)
             data_sources["warnings"] = _remove_stale_warnings(data_sources.get("warnings"), stale_warning_names)
         report["warnings"] = _remove_stale_warnings(report.get("warnings"), stale_warning_names)
+        if isinstance(relaxation_shadow_status, dict):
+            report["relaxation_shadow_status"] = relaxation_shadow_status
         report_json.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
-        _refresh_report_markdown(report_json.with_suffix(".md"), stale_warning_names)
+        _refresh_report_markdown(report_json.with_suffix(".md"), stale_warning_names, relaxation_shadow_status)
         refreshed.append(str(report_json))
     return refreshed
 
@@ -154,7 +159,7 @@ def _remove_stale_warnings(value: object, stale_warning_names: tuple[str, ...]) 
     return output
 
 
-def _refresh_report_markdown(path: Path, stale_warning_names: tuple[str, ...]) -> None:
+def _refresh_report_markdown(path: Path, stale_warning_names: tuple[str, ...], relaxation_shadow_status: object = None) -> None:
     if not path.exists():
         return
     try:
@@ -162,7 +167,25 @@ def _refresh_report_markdown(path: Path, stale_warning_names: tuple[str, ...]) -
     except OSError:
         return
     filtered = [line for line in lines if not any(name in line for name in stale_warning_names)]
+    filtered = _without_relaxation_shadow_status_section(filtered)
+    if isinstance(relaxation_shadow_status, dict):
+        filtered.extend(["", "## Relaxation Shadow Status", ""])
+        filtered.extend(format_relaxation_shadow_status_lines(relaxation_shadow_status))
     path.write_text("\n".join(filtered).rstrip() + "\n", encoding="utf-8")
+
+
+def _without_relaxation_shadow_status_section(lines: list[str]) -> list[str]:
+    output: list[str] = []
+    skipping = False
+    for line in lines:
+        if line.strip() == "## Relaxation Shadow Status":
+            skipping = True
+            continue
+        if skipping and line.startswith("## "):
+            skipping = False
+        if not skipping:
+            output.append(line)
+    return output
 
 
 def _count_csv_files(path: Path) -> int:

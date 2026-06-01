@@ -1,0 +1,5334 @@
+{
+  "generated_at": "2026-05-30T15:11:09+00:00",
+  "dataset": "data/paper_trading/trades.csv",
+  "inputs": {
+    "canonical_trades": {
+      "name": "canonical_trades",
+      "classification": "STALE",
+      "path": "data/paper_trading/trades.csv",
+      "expected_relative_path": "data/paper_trading/trades.csv",
+      "path_correct": true,
+      "kind": "csv",
+      "required": true,
+      "exists": true,
+      "size_bytes": 67621,
+      "rows": 49,
+      "modified_at": "2026-05-18T13:20:17+00:00",
+      "age_hours": 289.85,
+      "freshness_hours": 48.0,
+      "freshness_status": "stale",
+      "generator": "runtime: PaperTradingStore",
+      "generation_script_exists": true,
+      "reason": "file_stale"
+    },
+    "intelligence_manifest": {
+      "name": "intelligence_manifest",
+      "classification": "FOUND",
+      "path": "reports/intelligence_layer_manifest.json",
+      "expected_relative_path": "reports/intelligence_layer_manifest.json",
+      "path_correct": true,
+      "kind": "json",
+      "required": true,
+      "exists": true,
+      "size_bytes": 1009,
+      "rows": 1,
+      "modified_at": "2026-05-30T14:44:25+00:00",
+      "age_hours": 0.45,
+      "freshness_hours": 48.0,
+      "freshness_status": "fresh",
+      "generator": "scripts/generate_intelligence_reports.py",
+      "generation_script_exists": true,
+      "reason": "ok"
+    },
+    "outcome_intelligence": {
+      "name": "outcome_intelligence",
+      "classification": "FOUND",
+      "path": "reports/outcome_intelligence.csv",
+      "expected_relative_path": "reports/outcome_intelligence.csv",
+      "path_correct": true,
+      "kind": "csv",
+      "required": true,
+      "exists": true,
+      "size_bytes": 13157,
+      "rows": 40,
+      "modified_at": "2026-05-30T14:44:24+00:00",
+      "age_hours": 0.45,
+      "freshness_hours": 48.0,
+      "freshness_status": "fresh",
+      "generator": "scripts/generate_outcome_intelligence.py",
+      "generation_script_exists": true,
+      "reason": "ok"
+    },
+    "edge_breakdown": {
+      "name": "edge_breakdown",
+      "classification": "FOUND",
+      "path": "reports/edge_breakdown.csv",
+      "expected_relative_path": "reports/edge_breakdown.csv",
+      "path_correct": true,
+      "kind": "csv",
+      "required": true,
+      "exists": true,
+      "size_bytes": 3519,
+      "rows": 31,
+      "modified_at": "2026-05-30T14:44:24+00:00",
+      "age_hours": 0.45,
+      "freshness_hours": 48.0,
+      "freshness_status": "fresh",
+      "generator": "scripts/generate_performance_report.py",
+      "generation_script_exists": true,
+      "reason": "ok"
+    },
+    "setup_rankings": {
+      "name": "setup_rankings",
+      "classification": "FOUND",
+      "path": "reports/setup_rankings.csv",
+      "expected_relative_path": "reports/setup_rankings.csv",
+      "path_correct": true,
+      "kind": "csv",
+      "required": true,
+      "exists": true,
+      "size_bytes": 3215,
+      "rows": 24,
+      "modified_at": "2026-05-30T14:44:24+00:00",
+      "age_hours": 0.45,
+      "freshness_hours": 48.0,
+      "freshness_status": "fresh",
+      "generator": "scripts/generate_setup_rankings.py",
+      "generation_script_exists": true,
+      "reason": "ok"
+    },
+    "relaxation_shadow_v1_data_trades": {
+      "name": "relaxation_shadow_v1_data_trades",
+      "classification": "MISSING",
+      "path": "data/shadow_relaxation/trades.csv",
+      "expected_relative_path": "data/shadow_relaxation/trades.csv",
+      "path_correct": true,
+      "kind": "csv",
+      "required": false,
+      "exists": false,
+      "size_bytes": 0,
+      "rows": 0,
+      "modified_at": "",
+      "age_hours": null,
+      "freshness_hours": 48.0,
+      "freshness_status": "missing",
+      "generator": "runtime: RelaxationShadowV1Store",
+      "generation_script_exists": true,
+      "reason": "file_missing"
+    },
+    "relaxation_shadow_v1_data_skips": {
+      "name": "relaxation_shadow_v1_data_skips",
+      "classification": "MISSING",
+      "path": "data/shadow_relaxation/skips.csv",
+      "expected_relative_path": "data/shadow_relaxation/skips.csv",
+      "path_correct": true,
+      "kind": "csv",
+      "required": false,
+      "exists": false,
+      "size_bytes": 0,
+      "rows": 0,
+      "modified_at": "",
+      "age_hours": null,
+      "freshness_hours": 48.0,
+      "freshness_status": "missing",
+      "generator": "runtime: RelaxationShadowV1Store",
+      "generation_script_exists": true,
+      "reason": "file_missing"
+    },
+    "relaxation_shadow_v1_summary": {
+      "name": "relaxation_shadow_v1_summary",
+      "classification": "FOUND",
+      "path": "reports/relaxation_shadow_v1_summary.csv",
+      "expected_relative_path": "reports/relaxation_shadow_v1_summary.csv",
+      "path_correct": true,
+      "kind": "csv",
+      "required": false,
+      "exists": true,
+      "size_bytes": 82,
+      "rows": 0,
+      "modified_at": "2026-05-30T14:58:06+00:00",
+      "age_hours": 0.22,
+      "freshness_hours": 48.0,
+      "freshness_status": "fresh",
+      "generator": "scripts/generate_relaxation_shadow_v1_summary.py",
+      "generation_script_exists": true,
+      "reason": "ok"
+    },
+    "relaxation_shadow_v1_skips": {
+      "name": "relaxation_shadow_v1_skips",
+      "classification": "FOUND",
+      "path": "reports/relaxation_shadow_v1_skips.csv",
+      "expected_relative_path": "reports/relaxation_shadow_v1_skips.csv",
+      "path_correct": true,
+      "kind": "csv",
+      "required": false,
+      "exists": true,
+      "size_bytes": 78,
+      "rows": 0,
+      "modified_at": "2026-05-30T14:58:06+00:00",
+      "age_hours": 0.22,
+      "freshness_hours": 48.0,
+      "freshness_status": "fresh",
+      "generator": "scripts/generate_relaxation_shadow_v1_summary.py",
+      "generation_script_exists": true,
+      "reason": "ok"
+    },
+    "relaxation_shadow_v1_trades": {
+      "name": "relaxation_shadow_v1_trades",
+      "classification": "FOUND",
+      "path": "reports/relaxation_shadow_v1_trades.csv",
+      "expected_relative_path": "reports/relaxation_shadow_v1_trades.csv",
+      "path_correct": true,
+      "kind": "csv",
+      "required": false,
+      "exists": true,
+      "size_bytes": 409,
+      "rows": 0,
+      "modified_at": "2026-05-30T14:58:06+00:00",
+      "age_hours": 0.22,
+      "freshness_hours": 48.0,
+      "freshness_status": "fresh",
+      "generator": "scripts/generate_relaxation_shadow_v1_summary.py",
+      "generation_script_exists": true,
+      "reason": "ok"
+    },
+    "relaxation_shadow_v2": {
+      "name": "relaxation_shadow_v2",
+      "classification": "FOUND",
+      "path": "reports/relaxation_shadow_v2_intelligence.json",
+      "expected_relative_path": "reports/relaxation_shadow_v2_intelligence.json",
+      "path_correct": true,
+      "kind": "json",
+      "required": false,
+      "exists": true,
+      "size_bytes": 819,
+      "rows": 0,
+      "modified_at": "2026-05-30T14:44:21+00:00",
+      "age_hours": 0.45,
+      "freshness_hours": 48.0,
+      "freshness_status": "fresh",
+      "generator": "scripts/generate_relaxation_shadow_v2_intelligence.py",
+      "generation_script_exists": true,
+      "reason": "ok"
+    },
+    "context_toxicity": {
+      "name": "context_toxicity",
+      "classification": "FOUND",
+      "path": "reports/context_toxicity_deep_dive.json",
+      "expected_relative_path": "reports/context_toxicity_deep_dive.json",
+      "path_correct": true,
+      "kind": "json",
+      "required": true,
+      "exists": true,
+      "size_bytes": 525339,
+      "rows": 1,
+      "modified_at": "2026-05-29T15:17:24+00:00",
+      "age_hours": 23.9,
+      "freshness_hours": 48.0,
+      "freshness_status": "fresh",
+      "generator": "scripts/analyze_context_toxicity.py",
+      "generation_script_exists": true,
+      "reason": "ok"
+    },
+    "post_consistency_edge": {
+      "name": "post_consistency_edge",
+      "classification": "FOUND",
+      "path": "reports/post_consistency_edge_recalc.json",
+      "expected_relative_path": "reports/post_consistency_edge_recalc.json",
+      "path_correct": true,
+      "kind": "json",
+      "required": true,
+      "exists": true,
+      "size_bytes": 10272,
+      "rows": 12,
+      "modified_at": "2026-05-29T15:26:06+00:00",
+      "age_hours": 23.75,
+      "freshness_hours": 48.0,
+      "freshness_status": "fresh",
+      "generator": "scripts/recalculate_post_consistency_edge.py",
+      "generation_script_exists": true,
+      "reason": "ok"
+    },
+    "shadow_current_reject": {
+      "name": "shadow_current_reject",
+      "classification": "FOUND",
+      "path": "reports/shadow_send_current_reject_deep_dive.json",
+      "expected_relative_path": "reports/shadow_send_current_reject_deep_dive.json",
+      "path_correct": true,
+      "kind": "json",
+      "required": true,
+      "exists": true,
+      "size_bytes": 25293,
+      "rows": 1,
+      "modified_at": "2026-05-29T15:30:44+00:00",
+      "age_hours": 23.67,
+      "freshness_hours": 48.0,
+      "freshness_status": "fresh",
+      "generator": "scripts/analyze_shadow_send_current_reject.py",
+      "generation_script_exists": true,
+      "reason": "ok"
+    },
+    "shadow_rejection_reasons": {
+      "name": "shadow_rejection_reasons",
+      "classification": "FOUND",
+      "path": "reports/shadow_send_current_reject_rejection_reasons.csv",
+      "expected_relative_path": "reports/shadow_send_current_reject_rejection_reasons.csv",
+      "path_correct": true,
+      "kind": "csv",
+      "required": true,
+      "exists": true,
+      "size_bytes": 2803,
+      "rows": 17,
+      "modified_at": "2026-05-29T15:30:44+00:00",
+      "age_hours": 23.67,
+      "freshness_hours": 48.0,
+      "freshness_status": "fresh",
+      "generator": "scripts/analyze_shadow_send_current_reject.py",
+      "generation_script_exists": true,
+      "reason": "ok"
+    },
+    "london_short_attribution": {
+      "name": "london_short_attribution",
+      "classification": "FOUND",
+      "path": "reports/london_short_edge_attribution.json",
+      "expected_relative_path": "reports/london_short_edge_attribution.json",
+      "path_correct": true,
+      "kind": "json",
+      "required": true,
+      "exists": true,
+      "size_bytes": 33533,
+      "rows": 1,
+      "modified_at": "2026-05-29T15:17:24+00:00",
+      "age_hours": 23.9,
+      "freshness_hours": 48.0,
+      "freshness_status": "fresh",
+      "generator": "scripts/analyze_london_short_edge_attribution.py",
+      "generation_script_exists": true,
+      "reason": "ok"
+    },
+    "range_penalty_shadow": {
+      "name": "range_penalty_shadow",
+      "classification": "FOUND",
+      "path": "reports/range_penalty_shadow.json",
+      "expected_relative_path": "reports/range_penalty_shadow.json",
+      "path_correct": true,
+      "kind": "json",
+      "required": true,
+      "exists": true,
+      "size_bytes": 54511,
+      "rows": 1,
+      "modified_at": "2026-05-29T15:17:24+00:00",
+      "age_hours": 23.9,
+      "freshness_hours": 48.0,
+      "freshness_status": "fresh",
+      "generator": "scripts/analyze_range_penalty_shadow.py",
+      "generation_script_exists": true,
+      "reason": "ok"
+    }
+  },
+  "input_audit": {
+    "generated_at": "2026-05-30T15:11:09+00:00",
+    "freshness_hours": 48.0,
+    "summary": {
+      "found": 14,
+      "missing": 2,
+      "stale": 1
+    },
+    "inputs": [
+      {
+        "name": "canonical_trades",
+        "classification": "STALE",
+        "path": "data/paper_trading/trades.csv",
+        "expected_relative_path": "data/paper_trading/trades.csv",
+        "path_correct": true,
+        "kind": "csv",
+        "required": true,
+        "exists": true,
+        "size_bytes": 67621,
+        "rows": 49,
+        "modified_at": "2026-05-18T13:20:17+00:00",
+        "age_hours": 289.85,
+        "freshness_hours": 48.0,
+        "freshness_status": "stale",
+        "generator": "runtime: PaperTradingStore",
+        "generation_script_exists": true,
+        "reason": "file_stale"
+      },
+      {
+        "name": "intelligence_manifest",
+        "classification": "FOUND",
+        "path": "reports/intelligence_layer_manifest.json",
+        "expected_relative_path": "reports/intelligence_layer_manifest.json",
+        "path_correct": true,
+        "kind": "json",
+        "required": true,
+        "exists": true,
+        "size_bytes": 1009,
+        "rows": 1,
+        "modified_at": "2026-05-30T14:44:25+00:00",
+        "age_hours": 0.45,
+        "freshness_hours": 48.0,
+        "freshness_status": "fresh",
+        "generator": "scripts/generate_intelligence_reports.py",
+        "generation_script_exists": true,
+        "reason": "ok"
+      },
+      {
+        "name": "outcome_intelligence",
+        "classification": "FOUND",
+        "path": "reports/outcome_intelligence.csv",
+        "expected_relative_path": "reports/outcome_intelligence.csv",
+        "path_correct": true,
+        "kind": "csv",
+        "required": true,
+        "exists": true,
+        "size_bytes": 13157,
+        "rows": 40,
+        "modified_at": "2026-05-30T14:44:24+00:00",
+        "age_hours": 0.45,
+        "freshness_hours": 48.0,
+        "freshness_status": "fresh",
+        "generator": "scripts/generate_outcome_intelligence.py",
+        "generation_script_exists": true,
+        "reason": "ok"
+      },
+      {
+        "name": "edge_breakdown",
+        "classification": "FOUND",
+        "path": "reports/edge_breakdown.csv",
+        "expected_relative_path": "reports/edge_breakdown.csv",
+        "path_correct": true,
+        "kind": "csv",
+        "required": true,
+        "exists": true,
+        "size_bytes": 3519,
+        "rows": 31,
+        "modified_at": "2026-05-30T14:44:24+00:00",
+        "age_hours": 0.45,
+        "freshness_hours": 48.0,
+        "freshness_status": "fresh",
+        "generator": "scripts/generate_performance_report.py",
+        "generation_script_exists": true,
+        "reason": "ok"
+      },
+      {
+        "name": "setup_rankings",
+        "classification": "FOUND",
+        "path": "reports/setup_rankings.csv",
+        "expected_relative_path": "reports/setup_rankings.csv",
+        "path_correct": true,
+        "kind": "csv",
+        "required": true,
+        "exists": true,
+        "size_bytes": 3215,
+        "rows": 24,
+        "modified_at": "2026-05-30T14:44:24+00:00",
+        "age_hours": 0.45,
+        "freshness_hours": 48.0,
+        "freshness_status": "fresh",
+        "generator": "scripts/generate_setup_rankings.py",
+        "generation_script_exists": true,
+        "reason": "ok"
+      },
+      {
+        "name": "relaxation_shadow_v1_data_trades",
+        "classification": "MISSING",
+        "path": "data/shadow_relaxation/trades.csv",
+        "expected_relative_path": "data/shadow_relaxation/trades.csv",
+        "path_correct": true,
+        "kind": "csv",
+        "required": false,
+        "exists": false,
+        "size_bytes": 0,
+        "rows": 0,
+        "modified_at": "",
+        "age_hours": null,
+        "freshness_hours": 48.0,
+        "freshness_status": "missing",
+        "generator": "runtime: RelaxationShadowV1Store",
+        "generation_script_exists": true,
+        "reason": "file_missing"
+      },
+      {
+        "name": "relaxation_shadow_v1_data_skips",
+        "classification": "MISSING",
+        "path": "data/shadow_relaxation/skips.csv",
+        "expected_relative_path": "data/shadow_relaxation/skips.csv",
+        "path_correct": true,
+        "kind": "csv",
+        "required": false,
+        "exists": false,
+        "size_bytes": 0,
+        "rows": 0,
+        "modified_at": "",
+        "age_hours": null,
+        "freshness_hours": 48.0,
+        "freshness_status": "missing",
+        "generator": "runtime: RelaxationShadowV1Store",
+        "generation_script_exists": true,
+        "reason": "file_missing"
+      },
+      {
+        "name": "relaxation_shadow_v1_summary",
+        "classification": "FOUND",
+        "path": "reports/relaxation_shadow_v1_summary.csv",
+        "expected_relative_path": "reports/relaxation_shadow_v1_summary.csv",
+        "path_correct": true,
+        "kind": "csv",
+        "required": false,
+        "exists": true,
+        "size_bytes": 82,
+        "rows": 0,
+        "modified_at": "2026-05-30T14:58:06+00:00",
+        "age_hours": 0.22,
+        "freshness_hours": 48.0,
+        "freshness_status": "fresh",
+        "generator": "scripts/generate_relaxation_shadow_v1_summary.py",
+        "generation_script_exists": true,
+        "reason": "ok"
+      },
+      {
+        "name": "relaxation_shadow_v1_skips",
+        "classification": "FOUND",
+        "path": "reports/relaxation_shadow_v1_skips.csv",
+        "expected_relative_path": "reports/relaxation_shadow_v1_skips.csv",
+        "path_correct": true,
+        "kind": "csv",
+        "required": false,
+        "exists": true,
+        "size_bytes": 78,
+        "rows": 0,
+        "modified_at": "2026-05-30T14:58:06+00:00",
+        "age_hours": 0.22,
+        "freshness_hours": 48.0,
+        "freshness_status": "fresh",
+        "generator": "scripts/generate_relaxation_shadow_v1_summary.py",
+        "generation_script_exists": true,
+        "reason": "ok"
+      },
+      {
+        "name": "relaxation_shadow_v1_trades",
+        "classification": "FOUND",
+        "path": "reports/relaxation_shadow_v1_trades.csv",
+        "expected_relative_path": "reports/relaxation_shadow_v1_trades.csv",
+        "path_correct": true,
+        "kind": "csv",
+        "required": false,
+        "exists": true,
+        "size_bytes": 409,
+        "rows": 0,
+        "modified_at": "2026-05-30T14:58:06+00:00",
+        "age_hours": 0.22,
+        "freshness_hours": 48.0,
+        "freshness_status": "fresh",
+        "generator": "scripts/generate_relaxation_shadow_v1_summary.py",
+        "generation_script_exists": true,
+        "reason": "ok"
+      },
+      {
+        "name": "relaxation_shadow_v2",
+        "classification": "FOUND",
+        "path": "reports/relaxation_shadow_v2_intelligence.json",
+        "expected_relative_path": "reports/relaxation_shadow_v2_intelligence.json",
+        "path_correct": true,
+        "kind": "json",
+        "required": false,
+        "exists": true,
+        "size_bytes": 819,
+        "rows": 0,
+        "modified_at": "2026-05-30T14:44:21+00:00",
+        "age_hours": 0.45,
+        "freshness_hours": 48.0,
+        "freshness_status": "fresh",
+        "generator": "scripts/generate_relaxation_shadow_v2_intelligence.py",
+        "generation_script_exists": true,
+        "reason": "ok"
+      },
+      {
+        "name": "context_toxicity",
+        "classification": "FOUND",
+        "path": "reports/context_toxicity_deep_dive.json",
+        "expected_relative_path": "reports/context_toxicity_deep_dive.json",
+        "path_correct": true,
+        "kind": "json",
+        "required": true,
+        "exists": true,
+        "size_bytes": 525339,
+        "rows": 1,
+        "modified_at": "2026-05-29T15:17:24+00:00",
+        "age_hours": 23.9,
+        "freshness_hours": 48.0,
+        "freshness_status": "fresh",
+        "generator": "scripts/analyze_context_toxicity.py",
+        "generation_script_exists": true,
+        "reason": "ok"
+      },
+      {
+        "name": "post_consistency_edge",
+        "classification": "FOUND",
+        "path": "reports/post_consistency_edge_recalc.json",
+        "expected_relative_path": "reports/post_consistency_edge_recalc.json",
+        "path_correct": true,
+        "kind": "json",
+        "required": true,
+        "exists": true,
+        "size_bytes": 10272,
+        "rows": 12,
+        "modified_at": "2026-05-29T15:26:06+00:00",
+        "age_hours": 23.75,
+        "freshness_hours": 48.0,
+        "freshness_status": "fresh",
+        "generator": "scripts/recalculate_post_consistency_edge.py",
+        "generation_script_exists": true,
+        "reason": "ok"
+      },
+      {
+        "name": "shadow_current_reject",
+        "classification": "FOUND",
+        "path": "reports/shadow_send_current_reject_deep_dive.json",
+        "expected_relative_path": "reports/shadow_send_current_reject_deep_dive.json",
+        "path_correct": true,
+        "kind": "json",
+        "required": true,
+        "exists": true,
+        "size_bytes": 25293,
+        "rows": 1,
+        "modified_at": "2026-05-29T15:30:44+00:00",
+        "age_hours": 23.67,
+        "freshness_hours": 48.0,
+        "freshness_status": "fresh",
+        "generator": "scripts/analyze_shadow_send_current_reject.py",
+        "generation_script_exists": true,
+        "reason": "ok"
+      },
+      {
+        "name": "shadow_rejection_reasons",
+        "classification": "FOUND",
+        "path": "reports/shadow_send_current_reject_rejection_reasons.csv",
+        "expected_relative_path": "reports/shadow_send_current_reject_rejection_reasons.csv",
+        "path_correct": true,
+        "kind": "csv",
+        "required": true,
+        "exists": true,
+        "size_bytes": 2803,
+        "rows": 17,
+        "modified_at": "2026-05-29T15:30:44+00:00",
+        "age_hours": 23.67,
+        "freshness_hours": 48.0,
+        "freshness_status": "fresh",
+        "generator": "scripts/analyze_shadow_send_current_reject.py",
+        "generation_script_exists": true,
+        "reason": "ok"
+      },
+      {
+        "name": "london_short_attribution",
+        "classification": "FOUND",
+        "path": "reports/london_short_edge_attribution.json",
+        "expected_relative_path": "reports/london_short_edge_attribution.json",
+        "path_correct": true,
+        "kind": "json",
+        "required": true,
+        "exists": true,
+        "size_bytes": 33533,
+        "rows": 1,
+        "modified_at": "2026-05-29T15:17:24+00:00",
+        "age_hours": 23.9,
+        "freshness_hours": 48.0,
+        "freshness_status": "fresh",
+        "generator": "scripts/analyze_london_short_edge_attribution.py",
+        "generation_script_exists": true,
+        "reason": "ok"
+      },
+      {
+        "name": "range_penalty_shadow",
+        "classification": "FOUND",
+        "path": "reports/range_penalty_shadow.json",
+        "expected_relative_path": "reports/range_penalty_shadow.json",
+        "path_correct": true,
+        "kind": "json",
+        "required": true,
+        "exists": true,
+        "size_bytes": 54511,
+        "rows": 1,
+        "modified_at": "2026-05-29T15:17:24+00:00",
+        "age_hours": 23.9,
+        "freshness_hours": 48.0,
+        "freshness_status": "fresh",
+        "generator": "scripts/analyze_range_penalty_shadow.py",
+        "generation_script_exists": true,
+        "reason": "ok"
+      }
+    ]
+  },
+  "executive_summary": {
+    "current_state": "DEFENSIVE",
+    "risk_level": "HIGH",
+    "confidence_level": "MEDIUM",
+    "closed_trades": 40,
+    "total_r": -3.5754,
+    "winrate": 32.5,
+    "profit_factor": 0.8439,
+    "diagnosis": "40 closed trades, totalR=-3.5754, PF=0.8439. Winning experiments detected: 1."
+  },
+  "what_improved": [
+    {
+      "kind": "confirmed_edge",
+      "name": "SHADOW_SEND_CURRENT_REJECT",
+      "summary": "n=14 totalR=7.3887 PF=2.6548",
+      "total_r": 7.3887,
+      "recommendation": "Validated positive edge."
+    },
+    {
+      "kind": "winning_experiment",
+      "name": "SHADOW_SEND_CURRENT_REJECT",
+      "summary": "Current rejects that relaxed shadow would send: totalR=7.3887 PF=2.6548",
+      "total_r": 7.3887,
+      "recommendation": "Experiment improved historical R."
+    },
+    {
+      "kind": "possible_edge",
+      "name": "HIGH_VOLATILITY_SHORT",
+      "summary": "n=5 totalR=0.9202 PF=1.4531",
+      "total_r": 0.9202,
+      "recommendation": "Promising but needs more sample."
+    }
+  ],
+  "what_worsened": [
+    {
+      "kind": "toxic_context",
+      "name": "SHORT_ONLY",
+      "summary": "SHORT_ONLY: totalR=-9.8004 PF=0.3296",
+      "total_r": -9.8004,
+      "recommendation": "Keep blocked or isolate in shadow."
+    },
+    {
+      "kind": "toxic_context",
+      "name": "CONTEXT_CHOPPY_RANGE",
+      "summary": "n=7 totalR=-3.5896 PF=0.2821",
+      "total_r": -3.5896,
+      "recommendation": "Keep blocked or isolate in shadow."
+    },
+    {
+      "kind": "toxic_context",
+      "name": "SECONDARY_SIGNAL",
+      "summary": "SECONDARY_SIGNAL: totalR=-3.0308 PF=0.0",
+      "total_r": -3.0308,
+      "recommendation": "Keep blocked or isolate in shadow."
+    },
+    {
+      "kind": "toxic_context",
+      "name": "directional_confluence_failed",
+      "summary": "directional_confluence_failed: totalR=-3.0308 PF=0.0",
+      "total_r": -3.0308,
+      "recommendation": "Keep blocked or isolate in shadow."
+    },
+    {
+      "kind": "toxic_context",
+      "name": "LONDON_SHORT",
+      "summary": "n=9 totalR=-0.416 PF=0.9145",
+      "total_r": -0.416,
+      "recommendation": "Keep blocked or isolate in shadow."
+    },
+    {
+      "kind": "toxic_context",
+      "name": "CONTEXT_HIGH_VOLATILITY",
+      "summary": "n=8 totalR=-0.0798 PF=0.9802",
+      "total_r": -0.0798,
+      "recommendation": "Keep blocked or isolate in shadow."
+    }
+  ],
+  "edge_detection": {
+    "confirmed_edge": [
+      {
+        "name": "SHADOW_SEND_CURRENT_REJECT",
+        "source": "post_consistency_edge",
+        "sample_size": 14,
+        "total_r": 7.3887,
+        "winrate": 57.14,
+        "profit_factor": 2.6548,
+        "summary": "n=14 totalR=7.3887 PF=2.6548"
+      }
+    ],
+    "no_edge": [
+      {
+        "name": "LONG_ONLY",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 19,
+        "total_r": 6.225,
+        "winrate": 52.63,
+        "profit_factor": 1.7513,
+        "summary": "LONG_ONLY: totalR=6.225 PF=1.7513"
+      },
+      {
+        "name": "MAIN_SIGNAL",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 3.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "MAIN_SIGNAL: totalR=3.951 PF=None"
+      },
+      {
+        "name": "market_structure_range_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": 3.5615,
+        "winrate": 50.0,
+        "profit_factor": 10.1438,
+        "summary": "market_structure_range_penalty:10: totalR=3.5615 PF=10.1438"
+      },
+      {
+        "name": "market_structure_range_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": 3.5615,
+        "winrate": 50.0,
+        "profit_factor": 10.1438,
+        "summary": "market_structure_range_penalty: totalR=3.5615 PF=10.1438"
+      },
+      {
+        "name": "LONDON_ONLY",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 14,
+        "total_r": 3.084,
+        "winrate": 42.86,
+        "profit_factor": 1.5257,
+        "summary": "LONDON_ONLY: totalR=3.084 PF=1.5257"
+      },
+      {
+        "name": "MAIN_SIGNAL",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 2.951,
+        "winrate": 66.67,
+        "profit_factor": 3.951,
+        "summary": "MAIN_SIGNAL: totalR=2.951 PF=3.951"
+      },
+      {
+        "name": "PULLBACK",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "PULLBACK: totalR=2.951 PF=None"
+      },
+      {
+        "name": "near_resistance",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "near_resistance: totalR=2.951 PF=None"
+      },
+      {
+        "name": "<60",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "<60: totalR=2.951 PF=None"
+      },
+      {
+        "name": "8",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "8: totalR=2.951 PF=None"
+      },
+      {
+        "name": "INJUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "INJUSDT: totalR=2.951 PF=None"
+      },
+      {
+        "name": "body_ratio_below_threshold",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "body_ratio_below_threshold: totalR=2.951 PF=None"
+      },
+      {
+        "name": "PULLBACK",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "PULLBACK: totalR=2.951 PF=None"
+      },
+      {
+        "name": "near_resistance",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "near_resistance: totalR=2.951 PF=None"
+      },
+      {
+        "name": "<60",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "<60: totalR=2.951 PF=None"
+      },
+      {
+        "name": "volume_mid",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "volume_mid: totalR=2.951 PF=None"
+      },
+      {
+        "name": "rr_2_plus",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "rr_2_plus: totalR=2.951 PF=None"
+      },
+      {
+        "name": "8",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "8: totalR=2.951 PF=None"
+      },
+      {
+        "name": "INJUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "INJUSDT: totalR=2.951 PF=None"
+      },
+      {
+        "name": "body_ratio_below_threshold",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "body_ratio_below_threshold: totalR=2.951 PF=None"
+      },
+      {
+        "name": "MAIN_SIGNAL",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "MAIN_SIGNAL: totalR=2.951 PF=None"
+      },
+      {
+        "name": "PULLBACK",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "PULLBACK: totalR=2.951 PF=None"
+      },
+      {
+        "name": "near_resistance",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "near_resistance: totalR=2.951 PF=None"
+      },
+      {
+        "name": "<60",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "<60: totalR=2.951 PF=None"
+      },
+      {
+        "name": "rr_2_plus",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "rr_2_plus: totalR=2.951 PF=None"
+      },
+      {
+        "name": "8",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "8: totalR=2.951 PF=None"
+      },
+      {
+        "name": "INJUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "INJUSDT: totalR=2.951 PF=None"
+      },
+      {
+        "name": "body_ratio_below_threshold",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "body_ratio_below_threshold: totalR=2.951 PF=None"
+      },
+      {
+        "name": "MAIN_SIGNAL",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "MAIN_SIGNAL: totalR=2.951 PF=None"
+      },
+      {
+        "name": "PULLBACK",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "PULLBACK: totalR=2.951 PF=None"
+      },
+      {
+        "name": "near_resistance",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "near_resistance: totalR=2.951 PF=None"
+      },
+      {
+        "name": "<60",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "<60: totalR=2.951 PF=None"
+      },
+      {
+        "name": "rr_2_plus",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "rr_2_plus: totalR=2.951 PF=None"
+      },
+      {
+        "name": "8",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "8: totalR=2.951 PF=None"
+      },
+      {
+        "name": "INJUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "INJUSDT: totalR=2.951 PF=None"
+      },
+      {
+        "name": "body_ratio_below_threshold",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 2.951,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "body_ratio_below_threshold: totalR=2.951 PF=None"
+      },
+      {
+        "name": "market_structure_range_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 2.5615,
+        "winrate": 33.33,
+        "profit_factor": 7.5764,
+        "summary": "market_structure_range_penalty:10: totalR=2.5615 PF=7.5764"
+      },
+      {
+        "name": "market_structure_range_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 2.5615,
+        "winrate": 33.33,
+        "profit_factor": 7.5764,
+        "summary": "market_structure_range_penalty: totalR=2.5615 PF=7.5764"
+      },
+      {
+        "name": "market_structure_range_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 2.5615,
+        "winrate": 33.33,
+        "profit_factor": 7.5764,
+        "summary": "market_structure_range_penalty:10: totalR=2.5615 PF=7.5764"
+      },
+      {
+        "name": "market_structure_range_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 2.5615,
+        "winrate": 33.33,
+        "profit_factor": 7.5764,
+        "summary": "market_structure_range_penalty: totalR=2.5615 PF=7.5764"
+      },
+      {
+        "name": "LONDON",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 5,
+        "total_r": 2.5615,
+        "winrate": 40.0,
+        "profit_factor": 2.8435,
+        "summary": "LONDON: totalR=2.5615 PF=2.8435"
+      },
+      {
+        "name": "market_structure_range_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 5,
+        "total_r": 2.5615,
+        "winrate": 40.0,
+        "profit_factor": 2.8435,
+        "summary": "market_structure_range_penalty:10: totalR=2.5615 PF=2.8435"
+      },
+      {
+        "name": "market_structure_range_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 5,
+        "total_r": 2.5615,
+        "winrate": 40.0,
+        "profit_factor": 2.8435,
+        "summary": "market_structure_range_penalty: totalR=2.5615 PF=2.8435"
+      },
+      {
+        "name": "market_regime=HIGH_VOLATILITY",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 5,
+        "total_r": 2.5615,
+        "winrate": 40.0,
+        "profit_factor": 2.8435,
+        "summary": "market_regime=HIGH_VOLATILITY: totalR=2.5615 PF=2.8435"
+      },
+      {
+        "name": "LONDON",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 5,
+        "total_r": 2.5615,
+        "winrate": 40.0,
+        "profit_factor": 2.8435,
+        "summary": "LONDON: totalR=2.5615 PF=2.8435"
+      },
+      {
+        "name": "HIGH_VOLATILITY",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 5,
+        "total_r": 2.5615,
+        "winrate": 40.0,
+        "profit_factor": 2.8435,
+        "summary": "HIGH_VOLATILITY: totalR=2.5615 PF=2.8435"
+      },
+      {
+        "name": "UNKNOWN",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 5,
+        "total_r": 2.5615,
+        "winrate": 40.0,
+        "profit_factor": 2.8435,
+        "summary": "UNKNOWN: totalR=2.5615 PF=2.8435"
+      },
+      {
+        "name": "volume_mid",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 2.3097,
+        "winrate": 50.0,
+        "profit_factor": 4.6016,
+        "summary": "volume_mid: totalR=2.3097 PF=4.6016"
+      },
+      {
+        "name": "volume_mid",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 2.3097,
+        "winrate": 50.0,
+        "profit_factor": 4.6016,
+        "summary": "volume_mid: totalR=2.3097 PF=4.6016"
+      },
+      {
+        "name": "LONDON_SHORT_PULLBACK_MAIN_SIGNAL",
+        "source": "post_consistency_edge",
+        "sample_size": 2,
+        "total_r": 1.951,
+        "winrate": 50.0,
+        "profit_factor": 2.951,
+        "summary": "n=2 totalR=1.951 PF=2.951"
+      },
+      {
+        "name": "short",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": 1.5615,
+        "winrate": 25.0,
+        "profit_factor": 2.1238,
+        "summary": "short: totalR=1.5615 PF=2.1238"
+      },
+      {
+        "name": "aligned",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": 1.5615,
+        "winrate": 25.0,
+        "profit_factor": 2.1238,
+        "summary": "aligned: totalR=1.5615 PF=2.1238"
+      },
+      {
+        "name": "LONDON",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": 1.5615,
+        "winrate": 25.0,
+        "profit_factor": 2.1238,
+        "summary": "LONDON: totalR=1.5615 PF=2.1238"
+      },
+      {
+        "name": "LONDON",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": 1.5615,
+        "winrate": 25.0,
+        "profit_factor": 2.1238,
+        "summary": "LONDON: totalR=1.5615 PF=2.1238"
+      },
+      {
+        "name": "volume_mid",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 1.3097,
+        "winrate": 33.33,
+        "profit_factor": 1.798,
+        "summary": "volume_mid: totalR=1.3097 PF=1.798"
+      },
+      {
+        "name": "12",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "12: totalR=1.0 PF=None"
+      },
+      {
+        "name": "DOGEUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "DOGEUSDT: totalR=1.0 PF=None"
+      },
+      {
+        "name": "misaligned",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "misaligned: totalR=1.0 PF=None"
+      },
+      {
+        "name": "SOLUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "SOLUSDT: totalR=1.0 PF=None"
+      },
+      {
+        "name": "timeframe_alignment_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "timeframe_alignment_penalty:10: totalR=1.0 PF=None"
+      },
+      {
+        "name": "higher_timeframe_contradicts_long",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "higher_timeframe_contradicts_long: totalR=1.0 PF=None"
+      },
+      {
+        "name": "timeframe_alignment_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "timeframe_alignment_penalty: totalR=1.0 PF=None"
+      },
+      {
+        "name": "12",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "12: totalR=1.0 PF=None"
+      },
+      {
+        "name": "DOGEUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "DOGEUSDT: totalR=1.0 PF=None"
+      },
+      {
+        "name": "body_ratio_below_threshold",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "body_ratio_below_threshold: totalR=1.0 PF=None"
+      },
+      {
+        "name": "long",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "long: totalR=1.0 PF=None"
+      },
+      {
+        "name": "60-69",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "60-69: totalR=1.0 PF=None"
+      },
+      {
+        "name": "misaligned",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "misaligned: totalR=1.0 PF=None"
+      },
+      {
+        "name": "SOLUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "SOLUSDT: totalR=1.0 PF=None"
+      },
+      {
+        "name": "timeframe_alignment_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "timeframe_alignment_penalty:10: totalR=1.0 PF=None"
+      },
+      {
+        "name": "higher_timeframe_contradicts_long",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "higher_timeframe_contradicts_long: totalR=1.0 PF=None"
+      },
+      {
+        "name": "timeframe_alignment_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "timeframe_alignment_penalty: totalR=1.0 PF=None"
+      },
+      {
+        "name": "12",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "12: totalR=1.0 PF=None"
+      },
+      {
+        "name": "DOGEUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "DOGEUSDT: totalR=1.0 PF=None"
+      },
+      {
+        "name": "body_ratio_below_threshold",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "body_ratio_below_threshold: totalR=1.0 PF=None"
+      },
+      {
+        "name": "LONDON",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "LONDON: totalR=1.0 PF=None"
+      },
+      {
+        "name": "discount_zone",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "discount_zone: totalR=1.0 PF=None"
+      },
+      {
+        "name": "rr_1_5_to_2",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "rr_1_5_to_2: totalR=1.0 PF=None"
+      },
+      {
+        "name": "misaligned",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "misaligned: totalR=1.0 PF=None"
+      },
+      {
+        "name": "11",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "11: totalR=1.0 PF=None"
+      },
+      {
+        "name": "SOLUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "SOLUSDT: totalR=1.0 PF=None"
+      },
+      {
+        "name": "timeframe_alignment_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "timeframe_alignment_penalty:10: totalR=1.0 PF=None"
+      },
+      {
+        "name": "higher_timeframe_contradicts_long",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "higher_timeframe_contradicts_long: totalR=1.0 PF=None"
+      },
+      {
+        "name": "timeframe_alignment_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "timeframe_alignment_penalty: totalR=1.0 PF=None"
+      },
+      {
+        "name": "LONDON",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "LONDON: totalR=1.0 PF=None"
+      },
+      {
+        "name": "discount_zone",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "discount_zone: totalR=1.0 PF=None"
+      },
+      {
+        "name": "rr_1_5_to_2",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "rr_1_5_to_2: totalR=1.0 PF=None"
+      },
+      {
+        "name": "misaligned",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "misaligned: totalR=1.0 PF=None"
+      },
+      {
+        "name": "11",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "11: totalR=1.0 PF=None"
+      },
+      {
+        "name": "SOLUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "SOLUSDT: totalR=1.0 PF=None"
+      },
+      {
+        "name": "timeframe_alignment_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "timeframe_alignment_penalty:10: totalR=1.0 PF=None"
+      },
+      {
+        "name": "higher_timeframe_contradicts_long",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "higher_timeframe_contradicts_long: totalR=1.0 PF=None"
+      },
+      {
+        "name": "timeframe_alignment_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "timeframe_alignment_penalty: totalR=1.0 PF=None"
+      },
+      {
+        "name": "12",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "12: totalR=1.0 PF=None"
+      },
+      {
+        "name": "DOGEUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "DOGEUSDT: totalR=1.0 PF=None"
+      },
+      {
+        "name": "body_ratio_below_threshold",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 1.0,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "body_ratio_below_threshold: totalR=1.0 PF=None"
+      },
+      {
+        "name": "rr_2_plus",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 0.951,
+        "winrate": 33.33,
+        "profit_factor": 1.4755,
+        "summary": "rr_2_plus: totalR=0.951 PF=1.4755"
+      },
+      {
+        "name": "short",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 5,
+        "total_r": 0.9202,
+        "winrate": 20.0,
+        "profit_factor": 1.4531,
+        "summary": "short: totalR=0.9202 PF=1.4531"
+      },
+      {
+        "name": "market_regime=HIGH_VOLATILITY",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 5,
+        "total_r": 0.9202,
+        "winrate": 20.0,
+        "profit_factor": 1.4531,
+        "summary": "market_regime=HIGH_VOLATILITY: totalR=0.9202 PF=1.4531"
+      },
+      {
+        "name": "short",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 5,
+        "total_r": 0.9202,
+        "winrate": 20.0,
+        "profit_factor": 1.4531,
+        "summary": "short: totalR=0.9202 PF=1.4531"
+      },
+      {
+        "name": "HIGH_VOLATILITY",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 5,
+        "total_r": 0.9202,
+        "winrate": 20.0,
+        "profit_factor": 1.4531,
+        "summary": "HIGH_VOLATILITY: totalR=0.9202 PF=1.4531"
+      },
+      {
+        "name": "UNKNOWN",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 5,
+        "total_r": 0.9202,
+        "winrate": 20.0,
+        "profit_factor": 1.4531,
+        "summary": "UNKNOWN: totalR=0.9202 PF=1.4531"
+      },
+      {
+        "name": "aligned",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 5,
+        "total_r": 0.9202,
+        "winrate": 20.0,
+        "profit_factor": 1.4531,
+        "summary": "aligned: totalR=0.9202 PF=1.4531"
+      },
+      {
+        "name": "HIGH_VOLATILITY_SHORT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 5,
+        "total_r": 0.9202,
+        "winrate": 20.0,
+        "profit_factor": 1.4531,
+        "summary": "HIGH_VOLATILITY_SHORT: totalR=0.9202 PF=1.4531"
+      },
+      {
+        "name": "market_regime=HIGH_VOLATILITY",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 5,
+        "total_r": 0.9202,
+        "winrate": 20.0,
+        "profit_factor": 1.4531,
+        "summary": "market_regime=HIGH_VOLATILITY: totalR=0.9202 PF=1.4531"
+      },
+      {
+        "name": "short",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 5,
+        "total_r": 0.9202,
+        "winrate": 20.0,
+        "profit_factor": 1.4531,
+        "summary": "short: totalR=0.9202 PF=1.4531"
+      },
+      {
+        "name": "HIGH_VOLATILITY",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 5,
+        "total_r": 0.9202,
+        "winrate": 20.0,
+        "profit_factor": 1.4531,
+        "summary": "HIGH_VOLATILITY: totalR=0.9202 PF=1.4531"
+      },
+      {
+        "name": "UNKNOWN",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 5,
+        "total_r": 0.9202,
+        "winrate": 20.0,
+        "profit_factor": 1.4531,
+        "summary": "UNKNOWN: totalR=0.9202 PF=1.4531"
+      },
+      {
+        "name": "aligned",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 5,
+        "total_r": 0.9202,
+        "winrate": 20.0,
+        "profit_factor": 1.4531,
+        "summary": "aligned: totalR=0.9202 PF=1.4531"
+      },
+      {
+        "name": "discount_zone",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 0.8205,
+        "winrate": 50.0,
+        "profit_factor": 5.571,
+        "summary": "discount_zone: totalR=0.8205 PF=5.571"
+      },
+      {
+        "name": "11",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 0.6105,
+        "winrate": 33.33,
+        "profit_factor": 2.5674,
+        "summary": "11: totalR=0.6105 PF=2.5674"
+      },
+      {
+        "name": "volume_high",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 0.6105,
+        "winrate": 33.33,
+        "profit_factor": 2.5674,
+        "summary": "volume_high: totalR=0.6105 PF=2.5674"
+      },
+      {
+        "name": "11",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 0.6105,
+        "winrate": 33.33,
+        "profit_factor": 2.5674,
+        "summary": "11: totalR=0.6105 PF=2.5674"
+      },
+      {
+        "name": "CHOPPY_RANGE_LONG",
+        "source": "post_consistency_edge",
+        "sample_size": 3,
+        "total_r": 0.4104,
+        "winrate": 66.67,
+        "profit_factor": 1.4104,
+        "summary": "n=3 totalR=0.4104 PF=1.4104"
+      },
+      {
+        "name": "long",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 0.4104,
+        "winrate": 66.67,
+        "profit_factor": 1.4104,
+        "summary": "long: totalR=0.4104 PF=1.4104"
+      },
+      {
+        "name": "entry_context=CHOPPY_RANGE",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 0.4104,
+        "winrate": 66.67,
+        "profit_factor": 1.4104,
+        "summary": "entry_context=CHOPPY_RANGE: totalR=0.4104 PF=1.4104"
+      },
+      {
+        "name": "long",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 0.4104,
+        "winrate": 66.67,
+        "profit_factor": 1.4104,
+        "summary": "long: totalR=0.4104 PF=1.4104"
+      },
+      {
+        "name": "CHOPPY_RANGE",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 0.4104,
+        "winrate": 66.67,
+        "profit_factor": 1.4104,
+        "summary": "CHOPPY_RANGE: totalR=0.4104 PF=1.4104"
+      },
+      {
+        "name": "RANGING",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 0.4104,
+        "winrate": 66.67,
+        "profit_factor": 1.4104,
+        "summary": "RANGING: totalR=0.4104 PF=1.4104"
+      },
+      {
+        "name": "volume_low",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 0.4104,
+        "winrate": 66.67,
+        "profit_factor": 1.4104,
+        "summary": "volume_low: totalR=0.4104 PF=1.4104"
+      },
+      {
+        "name": "UNKNOWN",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 0.4104,
+        "winrate": 66.67,
+        "profit_factor": 1.4104,
+        "summary": "UNKNOWN: totalR=0.4104 PF=1.4104"
+      },
+      {
+        "name": "aligned",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 0.4104,
+        "winrate": 66.67,
+        "profit_factor": 1.4104,
+        "summary": "aligned: totalR=0.4104 PF=1.4104"
+      },
+      {
+        "name": "market_structure_range_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 0.4104,
+        "winrate": 66.67,
+        "profit_factor": 1.4104,
+        "summary": "market_structure_range_penalty:10: totalR=0.4104 PF=1.4104"
+      },
+      {
+        "name": "market_structure_range_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 0.4104,
+        "winrate": 66.67,
+        "profit_factor": 1.4104,
+        "summary": "market_structure_range_penalty: totalR=0.4104 PF=1.4104"
+      },
+      {
+        "name": "CHOPPY_RANGE_LONG",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 0.4104,
+        "winrate": 66.67,
+        "profit_factor": 1.4104,
+        "summary": "CHOPPY_RANGE_LONG: totalR=0.4104 PF=1.4104"
+      },
+      {
+        "name": "entry_context=CHOPPY_RANGE",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 0.4104,
+        "winrate": 66.67,
+        "profit_factor": 1.4104,
+        "summary": "entry_context=CHOPPY_RANGE: totalR=0.4104 PF=1.4104"
+      },
+      {
+        "name": "long",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 0.4104,
+        "winrate": 66.67,
+        "profit_factor": 1.4104,
+        "summary": "long: totalR=0.4104 PF=1.4104"
+      },
+      {
+        "name": "CHOPPY_RANGE",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 0.4104,
+        "winrate": 66.67,
+        "profit_factor": 1.4104,
+        "summary": "CHOPPY_RANGE: totalR=0.4104 PF=1.4104"
+      },
+      {
+        "name": "RANGING",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 0.4104,
+        "winrate": 66.67,
+        "profit_factor": 1.4104,
+        "summary": "RANGING: totalR=0.4104 PF=1.4104"
+      },
+      {
+        "name": "volume_low",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 0.4104,
+        "winrate": 66.67,
+        "profit_factor": 1.4104,
+        "summary": "volume_low: totalR=0.4104 PF=1.4104"
+      },
+      {
+        "name": "UNKNOWN",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 0.4104,
+        "winrate": 66.67,
+        "profit_factor": 1.4104,
+        "summary": "UNKNOWN: totalR=0.4104 PF=1.4104"
+      },
+      {
+        "name": "aligned",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 0.4104,
+        "winrate": 66.67,
+        "profit_factor": 1.4104,
+        "summary": "aligned: totalR=0.4104 PF=1.4104"
+      },
+      {
+        "name": "market_structure_range_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 0.4104,
+        "winrate": 66.67,
+        "profit_factor": 1.4104,
+        "summary": "market_structure_range_penalty:10: totalR=0.4104 PF=1.4104"
+      },
+      {
+        "name": "market_structure_range_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 0.4104,
+        "winrate": 66.67,
+        "profit_factor": 1.4104,
+        "summary": "market_structure_range_penalty: totalR=0.4104 PF=1.4104"
+      },
+      {
+        "name": "80-89",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 0.4104,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "80-89: totalR=0.4104 PF=None"
+      },
+      {
+        "name": "20",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 0.4104,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "20: totalR=0.4104 PF=None"
+      },
+      {
+        "name": "AVAXUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 0.4104,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "AVAXUSDT: totalR=0.4104 PF=None"
+      },
+      {
+        "name": "secondary_setup_requirements_failed",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 0.4104,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "secondary_setup_requirements_failed: totalR=0.4104 PF=None"
+      },
+      {
+        "name": "NEW_YORK",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 0.4104,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "NEW_YORK: totalR=0.4104 PF=None"
+      },
+      {
+        "name": "SECONDARY_SIGNAL",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 0.4104,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "SECONDARY_SIGNAL: totalR=0.4104 PF=None"
+      },
+      {
+        "name": "premium_zone",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 0.4104,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "premium_zone: totalR=0.4104 PF=None"
+      },
+      {
+        "name": "80-89",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 0.4104,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "80-89: totalR=0.4104 PF=None"
+      },
+      {
+        "name": "rr_1_5_to_2",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 0.4104,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "rr_1_5_to_2: totalR=0.4104 PF=None"
+      },
+      {
+        "name": "20",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 0.4104,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "20: totalR=0.4104 PF=None"
+      },
+      {
+        "name": "AVAXUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 0.4104,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "AVAXUSDT: totalR=0.4104 PF=None"
+      },
+      {
+        "name": "secondary_confluence_bonus:+30",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 0.4104,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "secondary_confluence_bonus:+30: totalR=0.4104 PF=None"
+      },
+      {
+        "name": "secondary_setup_requirements_failed",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 0.4104,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "secondary_setup_requirements_failed: totalR=0.4104 PF=None"
+      },
+      {
+        "name": "NEW_YORK",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 0.4104,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "NEW_YORK: totalR=0.4104 PF=None"
+      },
+      {
+        "name": "SECONDARY_SIGNAL",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 0.4104,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "SECONDARY_SIGNAL: totalR=0.4104 PF=None"
+      },
+      {
+        "name": "premium_zone",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 0.4104,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "premium_zone: totalR=0.4104 PF=None"
+      },
+      {
+        "name": "80-89",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 0.4104,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "80-89: totalR=0.4104 PF=None"
+      },
+      {
+        "name": "rr_1_5_to_2",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 0.4104,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "rr_1_5_to_2: totalR=0.4104 PF=None"
+      },
+      {
+        "name": "20",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 0.4104,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "20: totalR=0.4104 PF=None"
+      },
+      {
+        "name": "AVAXUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 0.4104,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "AVAXUSDT: totalR=0.4104 PF=None"
+      },
+      {
+        "name": "secondary_confluence_bonus:+30",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 0.4104,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "secondary_confluence_bonus:+30: totalR=0.4104 PF=None"
+      },
+      {
+        "name": "secondary_setup_requirements_failed",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": 0.4104,
+        "winrate": 100.0,
+        "profit_factor": null,
+        "summary": "secondary_setup_requirements_failed: totalR=0.4104 PF=None"
+      },
+      {
+        "name": "discount_zone",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": 0.1792,
+        "winrate": 33.33,
+        "profit_factor": 1.2183,
+        "summary": "discount_zone: totalR=0.1792 PF=1.2183"
+      },
+      {
+        "name": "CONTEXT_SETUP_UNKNOWN",
+        "source": "post_consistency_edge",
+        "sample_size": 0,
+        "total_r": 0,
+        "winrate": 0.0,
+        "profit_factor": 0.0,
+        "summary": "n=0 totalR=0 PF=0.0"
+      },
+      {
+        "name": "CONTEXT_SESSION_UNKNOWN",
+        "source": "post_consistency_edge",
+        "sample_size": 0,
+        "total_r": 0,
+        "winrate": 0.0,
+        "profit_factor": 0.0,
+        "summary": "n=0 totalR=0 PF=0.0"
+      },
+      {
+        "name": "CONTEXT_TRADE_LOCATION_UNKNOWN",
+        "source": "post_consistency_edge",
+        "sample_size": 0,
+        "total_r": 0,
+        "winrate": 0.0,
+        "profit_factor": 0.0,
+        "summary": "n=0 totalR=0 PF=0.0"
+      },
+      {
+        "name": "near_support",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 0.0,
+        "winrate": 50.0,
+        "profit_factor": 1.0,
+        "summary": "near_support: totalR=0.0 PF=1.0"
+      },
+      {
+        "name": "60-69",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 0.0,
+        "winrate": 50.0,
+        "profit_factor": 1.0,
+        "summary": "60-69: totalR=0.0 PF=1.0"
+      },
+      {
+        "name": "long",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 0.0,
+        "winrate": 50.0,
+        "profit_factor": 1.0,
+        "summary": "long: totalR=0.0 PF=1.0"
+      },
+      {
+        "name": "near_support",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 0.0,
+        "winrate": 50.0,
+        "profit_factor": 1.0,
+        "summary": "near_support: totalR=0.0 PF=1.0"
+      },
+      {
+        "name": "volume_low",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 0.0,
+        "winrate": 50.0,
+        "profit_factor": 1.0,
+        "summary": "volume_low: totalR=0.0 PF=1.0"
+      },
+      {
+        "name": "LONDON",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 0.0,
+        "winrate": 50.0,
+        "profit_factor": 1.0,
+        "summary": "LONDON: totalR=0.0 PF=1.0"
+      },
+      {
+        "name": "MAIN_SIGNAL",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 0.0,
+        "winrate": 50.0,
+        "profit_factor": 1.0,
+        "summary": "MAIN_SIGNAL: totalR=0.0 PF=1.0"
+      },
+      {
+        "name": "near_support",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 0.0,
+        "winrate": 50.0,
+        "profit_factor": 1.0,
+        "summary": "near_support: totalR=0.0 PF=1.0"
+      },
+      {
+        "name": "<60",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 0.0,
+        "winrate": 50.0,
+        "profit_factor": 1.0,
+        "summary": "<60: totalR=0.0 PF=1.0"
+      },
+      {
+        "name": "rr_2_plus",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 0.0,
+        "winrate": 50.0,
+        "profit_factor": 1.0,
+        "summary": "rr_2_plus: totalR=0.0 PF=1.0"
+      },
+      {
+        "name": "MAIN_SIGNAL",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 0.0,
+        "winrate": 50.0,
+        "profit_factor": 1.0,
+        "summary": "MAIN_SIGNAL: totalR=0.0 PF=1.0"
+      },
+      {
+        "name": "60-69",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 0.0,
+        "winrate": 50.0,
+        "profit_factor": 1.0,
+        "summary": "60-69: totalR=0.0 PF=1.0"
+      },
+      {
+        "name": "volume_high",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 0.0,
+        "winrate": 50.0,
+        "profit_factor": 1.0,
+        "summary": "volume_high: totalR=0.0 PF=1.0"
+      },
+      {
+        "name": "market_structure_range_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 0.0,
+        "winrate": 50.0,
+        "profit_factor": 1.0,
+        "summary": "market_structure_range_penalty:10: totalR=0.0 PF=1.0"
+      },
+      {
+        "name": "market_structure_range_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 0.0,
+        "winrate": 50.0,
+        "profit_factor": 1.0,
+        "summary": "market_structure_range_penalty: totalR=0.0 PF=1.0"
+      },
+      {
+        "name": "MAIN_SIGNAL",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 0.0,
+        "winrate": 50.0,
+        "profit_factor": 1.0,
+        "summary": "MAIN_SIGNAL: totalR=0.0 PF=1.0"
+      },
+      {
+        "name": "60-69",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 0.0,
+        "winrate": 50.0,
+        "profit_factor": 1.0,
+        "summary": "60-69: totalR=0.0 PF=1.0"
+      },
+      {
+        "name": "volume_high",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 0.0,
+        "winrate": 50.0,
+        "profit_factor": 1.0,
+        "summary": "volume_high: totalR=0.0 PF=1.0"
+      },
+      {
+        "name": "market_structure_range_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 0.0,
+        "winrate": 50.0,
+        "profit_factor": 1.0,
+        "summary": "market_structure_range_penalty:10: totalR=0.0 PF=1.0"
+      },
+      {
+        "name": "market_structure_range_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 0.0,
+        "winrate": 50.0,
+        "profit_factor": 1.0,
+        "summary": "market_structure_range_penalty: totalR=0.0 PF=1.0"
+      },
+      {
+        "name": "LONDON",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 0.0,
+        "winrate": 50.0,
+        "profit_factor": 1.0,
+        "summary": "LONDON: totalR=0.0 PF=1.0"
+      },
+      {
+        "name": "MAIN_SIGNAL",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 0.0,
+        "winrate": 50.0,
+        "profit_factor": 1.0,
+        "summary": "MAIN_SIGNAL: totalR=0.0 PF=1.0"
+      },
+      {
+        "name": "near_support",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 0.0,
+        "winrate": 50.0,
+        "profit_factor": 1.0,
+        "summary": "near_support: totalR=0.0 PF=1.0"
+      },
+      {
+        "name": "<60",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 0.0,
+        "winrate": 50.0,
+        "profit_factor": 1.0,
+        "summary": "<60: totalR=0.0 PF=1.0"
+      },
+      {
+        "name": "rr_2_plus",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": 0.0,
+        "winrate": 50.0,
+        "profit_factor": 1.0,
+        "summary": "rr_2_plus: totalR=0.0 PF=1.0"
+      },
+      {
+        "name": "market_regime=HIGH_VOLATILITY",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 8,
+        "total_r": -0.0798,
+        "winrate": 25.0,
+        "profit_factor": 0.9802,
+        "summary": "market_regime=HIGH_VOLATILITY: totalR=-0.0798 PF=0.9802"
+      },
+      {
+        "name": "HIGH_VOLATILITY",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 8,
+        "total_r": -0.0798,
+        "winrate": 25.0,
+        "profit_factor": 0.9802,
+        "summary": "HIGH_VOLATILITY: totalR=-0.0798 PF=0.9802"
+      },
+      {
+        "name": "UNKNOWN",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 8,
+        "total_r": -0.0798,
+        "winrate": 25.0,
+        "profit_factor": 0.9802,
+        "summary": "UNKNOWN: totalR=-0.0798 PF=0.9802"
+      },
+      {
+        "name": "ETHUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -0.1795,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "ETHUSDT: totalR=-0.1795 PF=0.0"
+      },
+      {
+        "name": "ETHUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -0.1795,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "ETHUSDT: totalR=-0.1795 PF=0.0"
+      },
+      {
+        "name": "ETHUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -0.1795,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "ETHUSDT: totalR=-0.1795 PF=0.0"
+      },
+      {
+        "name": "80-89",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -0.3895,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "80-89: totalR=-0.3895 PF=0.0"
+      },
+      {
+        "name": "secondary_confluence_bonus:+30",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -0.3895,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "secondary_confluence_bonus:+30: totalR=-0.3895 PF=0.0"
+      },
+      {
+        "name": "80-89",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -0.3895,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "80-89: totalR=-0.3895 PF=0.0"
+      },
+      {
+        "name": "secondary_confluence_bonus:+30",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -0.3895,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "secondary_confluence_bonus:+30: totalR=-0.3895 PF=0.0"
+      },
+      {
+        "name": "80-89",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -0.3895,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "80-89: totalR=-0.3895 PF=0.0"
+      },
+      {
+        "name": "volume_high",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -0.3895,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "volume_high: totalR=-0.3895 PF=0.0"
+      },
+      {
+        "name": "11",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -0.3895,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "11: totalR=-0.3895 PF=0.0"
+      },
+      {
+        "name": "secondary_confluence_bonus:+30",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -0.3895,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "secondary_confluence_bonus:+30: totalR=-0.3895 PF=0.0"
+      },
+      {
+        "name": "80-89",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -0.3895,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "80-89: totalR=-0.3895 PF=0.0"
+      },
+      {
+        "name": "volume_high",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -0.3895,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "volume_high: totalR=-0.3895 PF=0.0"
+      },
+      {
+        "name": "11",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -0.3895,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "11: totalR=-0.3895 PF=0.0"
+      },
+      {
+        "name": "secondary_confluence_bonus:+30",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -0.3895,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "secondary_confluence_bonus:+30: totalR=-0.3895 PF=0.0"
+      },
+      {
+        "name": "volume_high",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -0.3895,
+        "winrate": 25.0,
+        "profit_factor": 0.7197,
+        "summary": "volume_high: totalR=-0.3895 PF=0.7197"
+      },
+      {
+        "name": "BREAKOUT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -0.3895,
+        "winrate": 25.0,
+        "profit_factor": 0.7197,
+        "summary": "BREAKOUT: totalR=-0.3895 PF=0.7197"
+      },
+      {
+        "name": "rr_1_5_to_2",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -0.3895,
+        "winrate": 25.0,
+        "profit_factor": 0.7197,
+        "summary": "rr_1_5_to_2: totalR=-0.3895 PF=0.7197"
+      },
+      {
+        "name": "SECONDARY_SIGNAL",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -0.5896,
+        "winrate": 50.0,
+        "profit_factor": 0.4104,
+        "summary": "SECONDARY_SIGNAL: totalR=-0.5896 PF=0.4104"
+      },
+      {
+        "name": "secondary_confluence_bonus:+30",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -0.5896,
+        "winrate": 50.0,
+        "profit_factor": 0.4104,
+        "summary": "secondary_confluence_bonus:+30: totalR=-0.5896 PF=0.4104"
+      },
+      {
+        "name": "directional_confluence_failed",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -0.5896,
+        "winrate": 50.0,
+        "profit_factor": 0.4104,
+        "summary": "directional_confluence_failed: totalR=-0.5896 PF=0.4104"
+      },
+      {
+        "name": "directional_confluence_failed",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -0.5896,
+        "winrate": 50.0,
+        "profit_factor": 0.4104,
+        "summary": "directional_confluence_failed: totalR=-0.5896 PF=0.4104"
+      },
+      {
+        "name": "volume_low",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -0.5896,
+        "winrate": 50.0,
+        "profit_factor": 0.7052,
+        "summary": "volume_low: totalR=-0.5896 PF=0.7052"
+      },
+      {
+        "name": "17",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -0.6413,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "17: totalR=-0.6413 PF=0.0"
+      },
+      {
+        "name": "OVERLAP",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -0.6413,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "OVERLAP: totalR=-0.6413 PF=0.0"
+      },
+      {
+        "name": "17",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -0.6413,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "17: totalR=-0.6413 PF=0.0"
+      },
+      {
+        "name": "OVERLAP",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -0.6413,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "OVERLAP: totalR=-0.6413 PF=0.0"
+      },
+      {
+        "name": "17",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -0.6413,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "17: totalR=-0.6413 PF=0.0"
+      },
+      {
+        "name": "discount_zone",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -0.8208,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "discount_zone: totalR=-0.8208 PF=0.0"
+      },
+      {
+        "name": "discount_zone",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -0.8208,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "discount_zone: totalR=-0.8208 PF=0.0"
+      },
+      {
+        "name": "HIGH_VOLATILITY_LONG",
+        "source": "post_consistency_edge",
+        "sample_size": 3,
+        "total_r": -1.0,
+        "winrate": 33.33,
+        "profit_factor": 0.5,
+        "summary": "n=3 totalR=-1.0 PF=0.5"
+      },
+      {
+        "name": "mid_range",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "mid_range: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "near_resistance",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "near_resistance: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "60-69",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "60-69: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "volume_high",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "volume_high: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "misaligned",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "misaligned: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "10: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "22",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "22: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "8",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "8: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "SOLUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "SOLUSDT: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "UNIUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "UNIUSDT: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "ETCUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "ETCUSDT: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "ATOMUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "ATOMUSDT: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "TRXUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "TRXUSDT: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "timeframe_alignment_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "timeframe_alignment_penalty:10: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "timeframe_alignment_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "timeframe_alignment_penalty: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "NEW_YORK",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "NEW_YORK: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "near_support",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "near_support: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "premium_zone",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "premium_zone: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "volume_low",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "volume_low: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "10: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "21",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "21: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "15",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "15: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "APEUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "APEUSDT: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "none",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "none: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "distance_to_liquidity_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "distance_to_liquidity_penalty:10: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "secondary_confluence_bonus:+35",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "secondary_confluence_bonus:+35: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "distance_to_liquidity_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "distance_to_liquidity_penalty: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "short",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "short: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "near_resistance",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "near_resistance: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "volume_high",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "volume_high: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "10: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "8",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "8: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "SOLUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "SOLUSDT: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "TRXUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "TRXUSDT: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "90+",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "90+: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "volume_low",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "volume_low: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "10: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "secondary_confluence_bonus:+25",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "secondary_confluence_bonus:+25: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "LONDON",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "LONDON: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "SECONDARY_SIGNAL",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "SECONDARY_SIGNAL: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "mid_range",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "mid_range: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "near_resistance",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "near_resistance: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "60-69",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "60-69: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "volume_low",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "volume_low: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "volume_high",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "volume_high: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "rr_2_plus",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "rr_2_plus: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "misaligned",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "misaligned: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "22",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "22: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "8",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "8: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "UNIUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "UNIUSDT: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "ETCUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "ETCUSDT: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "ATOMUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "ATOMUSDT: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "TRXUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "TRXUSDT: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "timeframe_alignment_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "timeframe_alignment_penalty:10: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "secondary_confluence_bonus:+30",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "secondary_confluence_bonus:+30: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "distance_to_liquidity_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "distance_to_liquidity_penalty:10: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "timeframe_alignment_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "timeframe_alignment_penalty: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "directional_confluence_failed",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "directional_confluence_failed: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "distance_to_liquidity_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "distance_to_liquidity_penalty: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "volume_low",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "volume_low: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "10: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "10: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "SOLUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "SOLUSDT: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "distance_to_liquidity_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "distance_to_liquidity_penalty:10: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "distance_to_liquidity_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "distance_to_liquidity_penalty: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "NEW_YORK",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "NEW_YORK: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "OVERLAP",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "OVERLAP: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "SECONDARY_SIGNAL",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "SECONDARY_SIGNAL: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "near_support",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "near_support: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "premium_zone",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "premium_zone: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "90+",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "90+: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "volume_mid",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "volume_mid: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "21",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "21: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "15",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "15: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "APEUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "APEUSDT: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "ETHUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "ETHUSDT: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "none",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "none: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "distance_to_liquidity_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "distance_to_liquidity_penalty:10: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "secondary_confluence_bonus:+35",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "secondary_confluence_bonus:+35: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "directional_confluence_failed",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "directional_confluence_failed: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "distance_to_liquidity_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "distance_to_liquidity_penalty: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "NEW_YORK",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "NEW_YORK: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "OVERLAP",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "OVERLAP: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "SECONDARY_SIGNAL",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "SECONDARY_SIGNAL: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "near_support",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "near_support: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "premium_zone",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "premium_zone: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "90+",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "90+: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "volume_mid",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "volume_mid: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "21",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "21: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "15",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "15: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "APEUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "APEUSDT: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "ETHUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "ETHUSDT: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "none",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "none: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "distance_to_liquidity_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "distance_to_liquidity_penalty:10: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "secondary_confluence_bonus:+35",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "secondary_confluence_bonus:+35: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "directional_confluence_failed",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "directional_confluence_failed: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "distance_to_liquidity_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "distance_to_liquidity_penalty: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "volume_low",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "volume_low: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "10: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "LONDON",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "LONDON: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "SECONDARY_SIGNAL",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "SECONDARY_SIGNAL: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "mid_range",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "mid_range: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "near_resistance",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "near_resistance: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "60-69",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "60-69: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "volume_low",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "volume_low: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "volume_high",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "volume_high: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "rr_2_plus",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "rr_2_plus: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "misaligned",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "misaligned: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "22",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "22: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "8",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "8: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "UNIUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "UNIUSDT: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "ETCUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "ETCUSDT: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "ATOMUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "ATOMUSDT: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "TRXUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "TRXUSDT: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "timeframe_alignment_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "timeframe_alignment_penalty:10: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "secondary_confluence_bonus:+30",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "secondary_confluence_bonus:+30: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "distance_to_liquidity_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "distance_to_liquidity_penalty:10: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "timeframe_alignment_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "timeframe_alignment_penalty: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "directional_confluence_failed",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "directional_confluence_failed: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "distance_to_liquidity_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "distance_to_liquidity_penalty: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "10: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "SOLUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "SOLUSDT: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "distance_to_liquidity_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "distance_to_liquidity_penalty:10: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "distance_to_liquidity_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 1,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "distance_to_liquidity_penalty: totalR=-1.0 PF=0.0"
+      },
+      {
+        "name": "LONDON",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.0,
+        "winrate": 33.33,
+        "profit_factor": 0.5,
+        "summary": "LONDON: totalR=-1.0 PF=0.5"
+      },
+      {
+        "name": "rr_2_plus",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.0,
+        "winrate": 33.33,
+        "profit_factor": 0.5,
+        "summary": "rr_2_plus: totalR=-1.0 PF=0.5"
+      },
+      {
+        "name": "long",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.0,
+        "winrate": 33.33,
+        "profit_factor": 0.5,
+        "summary": "long: totalR=-1.0 PF=0.5"
+      },
+      {
+        "name": "entry_context=CHOPPY_RANGE",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.0,
+        "winrate": 33.33,
+        "profit_factor": 0.5,
+        "summary": "entry_context=CHOPPY_RANGE: totalR=-1.0 PF=0.5"
+      },
+      {
+        "name": "LONDON",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.0,
+        "winrate": 33.33,
+        "profit_factor": 0.5,
+        "summary": "LONDON: totalR=-1.0 PF=0.5"
+      },
+      {
+        "name": "MAIN_SIGNAL",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.0,
+        "winrate": 33.33,
+        "profit_factor": 0.5,
+        "summary": "MAIN_SIGNAL: totalR=-1.0 PF=0.5"
+      },
+      {
+        "name": "CHOPPY_RANGE",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.0,
+        "winrate": 33.33,
+        "profit_factor": 0.5,
+        "summary": "CHOPPY_RANGE: totalR=-1.0 PF=0.5"
+      },
+      {
+        "name": "RANGING",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.0,
+        "winrate": 33.33,
+        "profit_factor": 0.5,
+        "summary": "RANGING: totalR=-1.0 PF=0.5"
+      },
+      {
+        "name": "<60",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.0,
+        "winrate": 33.33,
+        "profit_factor": 0.5,
+        "summary": "<60: totalR=-1.0 PF=0.5"
+      },
+      {
+        "name": "UNKNOWN",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.0,
+        "winrate": 33.33,
+        "profit_factor": 0.5,
+        "summary": "UNKNOWN: totalR=-1.0 PF=0.5"
+      },
+      {
+        "name": "rr_2_plus",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.0,
+        "winrate": 33.33,
+        "profit_factor": 0.5,
+        "summary": "rr_2_plus: totalR=-1.0 PF=0.5"
+      },
+      {
+        "name": "aligned",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.0,
+        "winrate": 33.33,
+        "profit_factor": 0.5,
+        "summary": "aligned: totalR=-1.0 PF=0.5"
+      },
+      {
+        "name": "market_structure_range_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.0,
+        "winrate": 33.33,
+        "profit_factor": 0.5,
+        "summary": "market_structure_range_penalty:10: totalR=-1.0 PF=0.5"
+      },
+      {
+        "name": "market_structure_range_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.0,
+        "winrate": 33.33,
+        "profit_factor": 0.5,
+        "summary": "market_structure_range_penalty: totalR=-1.0 PF=0.5"
+      },
+      {
+        "name": "market_regime=HIGH_VOLATILITY",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.0,
+        "winrate": 33.33,
+        "profit_factor": 0.5,
+        "summary": "market_regime=HIGH_VOLATILITY: totalR=-1.0 PF=0.5"
+      },
+      {
+        "name": "long",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.0,
+        "winrate": 33.33,
+        "profit_factor": 0.5,
+        "summary": "long: totalR=-1.0 PF=0.5"
+      },
+      {
+        "name": "BREAKOUT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.0,
+        "winrate": 33.33,
+        "profit_factor": 0.5,
+        "summary": "BREAKOUT: totalR=-1.0 PF=0.5"
+      },
+      {
+        "name": "HIGH_VOLATILITY",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.0,
+        "winrate": 33.33,
+        "profit_factor": 0.5,
+        "summary": "HIGH_VOLATILITY: totalR=-1.0 PF=0.5"
+      },
+      {
+        "name": "UNKNOWN",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.0,
+        "winrate": 33.33,
+        "profit_factor": 0.5,
+        "summary": "UNKNOWN: totalR=-1.0 PF=0.5"
+      },
+      {
+        "name": "HIGH_VOLATILITY_LONG",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.0,
+        "winrate": 33.33,
+        "profit_factor": 0.5,
+        "summary": "HIGH_VOLATILITY_LONG: totalR=-1.0 PF=0.5"
+      },
+      {
+        "name": "market_regime=HIGH_VOLATILITY",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.0,
+        "winrate": 33.33,
+        "profit_factor": 0.5,
+        "summary": "market_regime=HIGH_VOLATILITY: totalR=-1.0 PF=0.5"
+      },
+      {
+        "name": "long",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.0,
+        "winrate": 33.33,
+        "profit_factor": 0.5,
+        "summary": "long: totalR=-1.0 PF=0.5"
+      },
+      {
+        "name": "BREAKOUT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.0,
+        "winrate": 33.33,
+        "profit_factor": 0.5,
+        "summary": "BREAKOUT: totalR=-1.0 PF=0.5"
+      },
+      {
+        "name": "HIGH_VOLATILITY",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.0,
+        "winrate": 33.33,
+        "profit_factor": 0.5,
+        "summary": "HIGH_VOLATILITY: totalR=-1.0 PF=0.5"
+      },
+      {
+        "name": "UNKNOWN",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.0,
+        "winrate": 33.33,
+        "profit_factor": 0.5,
+        "summary": "UNKNOWN: totalR=-1.0 PF=0.5"
+      },
+      {
+        "name": "rr_1_5_to_2",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 5,
+        "total_r": -1.0308,
+        "winrate": 20.0,
+        "profit_factor": 0.4924,
+        "summary": "rr_1_5_to_2: totalR=-1.0308 PF=0.4924"
+      },
+      {
+        "name": "aligned",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 7,
+        "total_r": -1.0798,
+        "winrate": 14.29,
+        "profit_factor": 0.7321,
+        "summary": "aligned: totalR=-1.0798 PF=0.7321"
+      },
+      {
+        "name": "ETHUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -1.1795,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "ETHUSDT: totalR=-1.1795 PF=0.0"
+      },
+      {
+        "name": "mid_range",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -1.21,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "mid_range: totalR=-1.21 PF=0.0"
+      },
+      {
+        "name": "mid_range",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -1.21,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "mid_range: totalR=-1.21 PF=0.0"
+      },
+      {
+        "name": "DOGEUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -1.21,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "DOGEUSDT: totalR=-1.21 PF=0.0"
+      },
+      {
+        "name": "mid_range",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -1.21,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "mid_range: totalR=-1.21 PF=0.0"
+      },
+      {
+        "name": "mid_range",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -1.21,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "mid_range: totalR=-1.21 PF=0.0"
+      },
+      {
+        "name": "SECONDARY_SIGNAL",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.3895,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "SECONDARY_SIGNAL: totalR=-1.3895 PF=0.0"
+      },
+      {
+        "name": "directional_confluence_failed",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.3895,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "directional_confluence_failed: totalR=-1.3895 PF=0.0"
+      },
+      {
+        "name": "secondary_setup_requirements_failed",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.3895,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "secondary_setup_requirements_failed: totalR=-1.3895 PF=0.0"
+      },
+      {
+        "name": "premium_zone",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.5896,
+        "winrate": 33.33,
+        "profit_factor": 0.2052,
+        "summary": "premium_zone: totalR=-1.5896 PF=0.2052"
+      },
+      {
+        "name": "directional_confluence_failed",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.5896,
+        "winrate": 33.33,
+        "profit_factor": 0.2052,
+        "summary": "directional_confluence_failed: totalR=-1.5896 PF=0.2052"
+      },
+      {
+        "name": "OVERLAP",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -1.6413,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "OVERLAP: totalR=-1.6413 PF=0.0"
+      },
+      {
+        "name": "secondary_confluence_bonus:+25",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -1.6413,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "secondary_confluence_bonus:+25: totalR=-1.6413 PF=0.0"
+      },
+      {
+        "name": "90+",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -1.6413,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "90+: totalR=-1.6413 PF=0.0"
+      },
+      {
+        "name": "secondary_confluence_bonus:+25",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -1.6413,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "secondary_confluence_bonus:+25: totalR=-1.6413 PF=0.0"
+      },
+      {
+        "name": "90+",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -1.6413,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "90+: totalR=-1.6413 PF=0.0"
+      },
+      {
+        "name": "secondary_confluence_bonus:+25",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -1.6413,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "secondary_confluence_bonus:+25: totalR=-1.6413 PF=0.0"
+      },
+      {
+        "name": "DOGEUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.8513,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "DOGEUSDT: totalR=-1.8513 PF=0.0"
+      },
+      {
+        "name": "DOGEUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.8513,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "DOGEUSDT: totalR=-1.8513 PF=0.0"
+      },
+      {
+        "name": "DOGEUSDT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -1.8513,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "DOGEUSDT: totalR=-1.8513 PF=0.0"
+      },
+      {
+        "name": "volume_mid",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -2.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "volume_mid: totalR=-2.0 PF=0.0"
+      },
+      {
+        "name": "21",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -2.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "21: totalR=-2.0 PF=0.0"
+      },
+      {
+        "name": "distance_to_liquidity_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -2.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "distance_to_liquidity_penalty:10: totalR=-2.0 PF=0.0"
+      },
+      {
+        "name": "distance_to_liquidity_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -2.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "distance_to_liquidity_penalty: totalR=-2.0 PF=0.0"
+      },
+      {
+        "name": "distance_to_liquidity_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -2.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "distance_to_liquidity_penalty:10: totalR=-2.0 PF=0.0"
+      },
+      {
+        "name": "directional_confluence_failed",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -2.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "directional_confluence_failed: totalR=-2.0 PF=0.0"
+      },
+      {
+        "name": "distance_to_liquidity_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -2.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "distance_to_liquidity_penalty: totalR=-2.0 PF=0.0"
+      },
+      {
+        "name": "premium_zone",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -2.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "premium_zone: totalR=-2.0 PF=0.0"
+      },
+      {
+        "name": "volume_mid",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -2.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "volume_mid: totalR=-2.0 PF=0.0"
+      },
+      {
+        "name": "21",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -2.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "21: totalR=-2.0 PF=0.0"
+      },
+      {
+        "name": "rr_2_plus",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -2.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "rr_2_plus: totalR=-2.0 PF=0.0"
+      },
+      {
+        "name": "aligned",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -2.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "aligned: totalR=-2.0 PF=0.0"
+      },
+      {
+        "name": "rr_2_plus",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -2.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "rr_2_plus: totalR=-2.0 PF=0.0"
+      },
+      {
+        "name": "aligned",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -2.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "aligned: totalR=-2.0 PF=0.0"
+      },
+      {
+        "name": "premium_zone",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -2.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "premium_zone: totalR=-2.0 PF=0.0"
+      },
+      {
+        "name": "volume_mid",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -2.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "volume_mid: totalR=-2.0 PF=0.0"
+      },
+      {
+        "name": "21",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 2,
+        "total_r": -2.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "21: totalR=-2.0 PF=0.0"
+      },
+      {
+        "name": "body_ratio_below_threshold",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -2.0,
+        "winrate": 25.0,
+        "profit_factor": 0.3333,
+        "summary": "body_ratio_below_threshold: totalR=-2.0 PF=0.3333"
+      },
+      {
+        "name": "secondary_setup_requirements_failed",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -2.0308,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "secondary_setup_requirements_failed: totalR=-2.0308 PF=0.0"
+      },
+      {
+        "name": "SECONDARY_SIGNAL",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -2.0308,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "SECONDARY_SIGNAL: totalR=-2.0308 PF=0.0"
+      },
+      {
+        "name": "BREAKOUT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -2.0308,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "BREAKOUT: totalR=-2.0308 PF=0.0"
+      },
+      {
+        "name": "rr_1_5_to_2",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -2.0308,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "rr_1_5_to_2: totalR=-2.0308 PF=0.0"
+      },
+      {
+        "name": "directional_confluence_failed",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -2.0308,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "directional_confluence_failed: totalR=-2.0308 PF=0.0"
+      },
+      {
+        "name": "secondary_setup_requirements_failed",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -2.0308,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "secondary_setup_requirements_failed: totalR=-2.0308 PF=0.0"
+      },
+      {
+        "name": "SECONDARY_SIGNAL",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -2.0308,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "SECONDARY_SIGNAL: totalR=-2.0308 PF=0.0"
+      },
+      {
+        "name": "BREAKOUT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -2.0308,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "BREAKOUT: totalR=-2.0308 PF=0.0"
+      },
+      {
+        "name": "rr_1_5_to_2",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -2.0308,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "rr_1_5_to_2: totalR=-2.0308 PF=0.0"
+      },
+      {
+        "name": "directional_confluence_failed",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -2.0308,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "directional_confluence_failed: totalR=-2.0308 PF=0.0"
+      },
+      {
+        "name": "secondary_setup_requirements_failed",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -2.0308,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "secondary_setup_requirements_failed: totalR=-2.0308 PF=0.0"
+      },
+      {
+        "name": "aligned",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 6,
+        "total_r": -2.5896,
+        "winrate": 33.33,
+        "profit_factor": 0.3526,
+        "summary": "aligned: totalR=-2.5896 PF=0.3526"
+      },
+      {
+        "name": "NEW_YORK",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -2.5896,
+        "winrate": 25.0,
+        "profit_factor": 0.1368,
+        "summary": "NEW_YORK: totalR=-2.5896 PF=0.1368"
+      },
+      {
+        "name": "rr_1_5_to_2",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -2.5896,
+        "winrate": 25.0,
+        "profit_factor": 0.1368,
+        "summary": "rr_1_5_to_2: totalR=-2.5896 PF=0.1368"
+      },
+      {
+        "name": "90+",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -2.6413,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "90+: totalR=-2.6413 PF=0.0"
+      },
+      {
+        "name": "MAIN_SIGNAL",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 5,
+        "total_r": -3.0,
+        "winrate": 20.0,
+        "profit_factor": 0.25,
+        "summary": "MAIN_SIGNAL: totalR=-3.0 PF=0.25"
+      },
+      {
+        "name": "<60",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 5,
+        "total_r": -3.0,
+        "winrate": 20.0,
+        "profit_factor": 0.25,
+        "summary": "<60: totalR=-3.0 PF=0.25"
+      },
+      {
+        "name": "NEW_YORK",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -3.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "NEW_YORK: totalR=-3.0 PF=0.0"
+      },
+      {
+        "name": "MAIN_SIGNAL",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -3.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "MAIN_SIGNAL: totalR=-3.0 PF=0.0"
+      },
+      {
+        "name": "<60",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -3.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "<60: totalR=-3.0 PF=0.0"
+      },
+      {
+        "name": "rr_1_5_to_2",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -3.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "rr_1_5_to_2: totalR=-3.0 PF=0.0"
+      },
+      {
+        "name": "aligned",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -3.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "aligned: totalR=-3.0 PF=0.0"
+      },
+      {
+        "name": "body_ratio_below_threshold",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -3.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "body_ratio_below_threshold: totalR=-3.0 PF=0.0"
+      },
+      {
+        "name": "NEW_YORK",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -3.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "NEW_YORK: totalR=-3.0 PF=0.0"
+      },
+      {
+        "name": "MAIN_SIGNAL",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -3.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "MAIN_SIGNAL: totalR=-3.0 PF=0.0"
+      },
+      {
+        "name": "<60",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -3.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "<60: totalR=-3.0 PF=0.0"
+      },
+      {
+        "name": "rr_1_5_to_2",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -3.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "rr_1_5_to_2: totalR=-3.0 PF=0.0"
+      },
+      {
+        "name": "aligned",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -3.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "aligned: totalR=-3.0 PF=0.0"
+      },
+      {
+        "name": "body_ratio_below_threshold",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 3,
+        "total_r": -3.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "body_ratio_below_threshold: totalR=-3.0 PF=0.0"
+      },
+      {
+        "name": "BREAKOUT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 7,
+        "total_r": -3.0308,
+        "winrate": 14.29,
+        "profit_factor": 0.2481,
+        "summary": "BREAKOUT: totalR=-3.0308 PF=0.2481"
+      },
+      {
+        "name": "GLOBAL",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 40,
+        "total_r": -3.5754,
+        "winrate": 32.5,
+        "profit_factor": 0.8439,
+        "summary": "GLOBAL: totalR=-3.5754 PF=0.8439"
+      },
+      {
+        "name": "entry_context=CHOPPY_RANGE",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 7,
+        "total_r": -3.5896,
+        "winrate": 28.57,
+        "profit_factor": 0.2821,
+        "summary": "entry_context=CHOPPY_RANGE: totalR=-3.5896 PF=0.2821"
+      },
+      {
+        "name": "CHOPPY_RANGE",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 7,
+        "total_r": -3.5896,
+        "winrate": 28.57,
+        "profit_factor": 0.2821,
+        "summary": "CHOPPY_RANGE: totalR=-3.5896 PF=0.2821"
+      },
+      {
+        "name": "RANGING",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 7,
+        "total_r": -3.5896,
+        "winrate": 28.57,
+        "profit_factor": 0.2821,
+        "summary": "RANGING: totalR=-3.5896 PF=0.2821"
+      },
+      {
+        "name": "UNKNOWN",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 7,
+        "total_r": -3.5896,
+        "winrate": 28.57,
+        "profit_factor": 0.2821,
+        "summary": "UNKNOWN: totalR=-3.5896 PF=0.2821"
+      },
+      {
+        "name": "market_structure_range_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 7,
+        "total_r": -3.5896,
+        "winrate": 28.57,
+        "profit_factor": 0.2821,
+        "summary": "market_structure_range_penalty:10: totalR=-3.5896 PF=0.2821"
+      },
+      {
+        "name": "market_structure_range_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 7,
+        "total_r": -3.5896,
+        "winrate": 28.57,
+        "profit_factor": 0.2821,
+        "summary": "market_structure_range_penalty: totalR=-3.5896 PF=0.2821"
+      },
+      {
+        "name": "CHOPPY_RANGE_SHORT",
+        "source": "post_consistency_edge",
+        "sample_size": 4,
+        "total_r": -4.0,
+        "winrate": 0.0,
+        "profit_factor": 0.0,
+        "summary": "n=4 totalR=-4.0 PF=0.0"
+      },
+      {
+        "name": "short",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -4.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "short: totalR=-4.0 PF=0.0"
+      },
+      {
+        "name": "entry_context=CHOPPY_RANGE",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -4.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "entry_context=CHOPPY_RANGE: totalR=-4.0 PF=0.0"
+      },
+      {
+        "name": "short",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -4.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "short: totalR=-4.0 PF=0.0"
+      },
+      {
+        "name": "CHOPPY_RANGE",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -4.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "CHOPPY_RANGE: totalR=-4.0 PF=0.0"
+      },
+      {
+        "name": "RANGING",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -4.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "RANGING: totalR=-4.0 PF=0.0"
+      },
+      {
+        "name": "UNKNOWN",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -4.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "UNKNOWN: totalR=-4.0 PF=0.0"
+      },
+      {
+        "name": "market_structure_range_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -4.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "market_structure_range_penalty:10: totalR=-4.0 PF=0.0"
+      },
+      {
+        "name": "market_structure_range_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -4.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "market_structure_range_penalty: totalR=-4.0 PF=0.0"
+      },
+      {
+        "name": "CHOPPY_RANGE_SHORT",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -4.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "CHOPPY_RANGE_SHORT: totalR=-4.0 PF=0.0"
+      },
+      {
+        "name": "entry_context=CHOPPY_RANGE",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -4.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "entry_context=CHOPPY_RANGE: totalR=-4.0 PF=0.0"
+      },
+      {
+        "name": "short",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -4.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "short: totalR=-4.0 PF=0.0"
+      },
+      {
+        "name": "CHOPPY_RANGE",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -4.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "CHOPPY_RANGE: totalR=-4.0 PF=0.0"
+      },
+      {
+        "name": "RANGING",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -4.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "RANGING: totalR=-4.0 PF=0.0"
+      },
+      {
+        "name": "UNKNOWN",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -4.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "UNKNOWN: totalR=-4.0 PF=0.0"
+      },
+      {
+        "name": "market_structure_range_penalty:10",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -4.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "market_structure_range_penalty:10: totalR=-4.0 PF=0.0"
+      },
+      {
+        "name": "market_structure_range_penalty",
+        "source": "context_toxicity.unstable_contexts",
+        "sample_size": 4,
+        "total_r": -4.0,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "market_structure_range_penalty: totalR=-4.0 PF=0.0"
+      }
+    ],
+    "possible_edge": [
+      {
+        "name": "HIGH_VOLATILITY_SHORT",
+        "source": "post_consistency_edge",
+        "sample_size": 5,
+        "total_r": 0.9202,
+        "winrate": 20.0,
+        "profit_factor": 1.4531,
+        "summary": "n=5 totalR=0.9202 PF=1.4531"
+      }
+    ],
+    "toxic_context": [
+      {
+        "name": "SHORT_ONLY",
+        "source": "context_toxicity.confirmed_toxic_contexts",
+        "sample_size": 21,
+        "total_r": -9.8004,
+        "winrate": 14.29,
+        "profit_factor": 0.3296,
+        "summary": "SHORT_ONLY: totalR=-9.8004 PF=0.3296"
+      },
+      {
+        "name": "CONTEXT_CHOPPY_RANGE",
+        "source": "post_consistency_edge",
+        "sample_size": 7,
+        "total_r": -3.5896,
+        "winrate": 28.57,
+        "profit_factor": 0.2821,
+        "summary": "n=7 totalR=-3.5896 PF=0.2821"
+      },
+      {
+        "name": "SECONDARY_SIGNAL",
+        "source": "context_toxicity.confirmed_toxic_contexts",
+        "sample_size": 5,
+        "total_r": -3.0308,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "SECONDARY_SIGNAL: totalR=-3.0308 PF=0.0"
+      },
+      {
+        "name": "directional_confluence_failed",
+        "source": "context_toxicity.confirmed_toxic_contexts",
+        "sample_size": 5,
+        "total_r": -3.0308,
+        "winrate": 0.0,
+        "profit_factor": null,
+        "summary": "directional_confluence_failed: totalR=-3.0308 PF=0.0"
+      },
+      {
+        "name": "LONDON_SHORT",
+        "source": "post_consistency_edge",
+        "sample_size": 9,
+        "total_r": -0.416,
+        "winrate": 22.22,
+        "profit_factor": 0.9145,
+        "summary": "n=9 totalR=-0.416 PF=0.9145"
+      },
+      {
+        "name": "CONTEXT_HIGH_VOLATILITY",
+        "source": "post_consistency_edge",
+        "sample_size": 8,
+        "total_r": -0.0798,
+        "winrate": 25.0,
+        "profit_factor": 0.9802,
+        "summary": "n=8 totalR=-0.0798 PF=0.9802"
+      }
+    ]
+  },
+  "experiment_tracking": {
+    "winning_experiments": [
+      {
+        "name": "SHADOW_SEND_CURRENT_REJECT",
+        "source": "shadow_current_reject",
+        "sample_size": 14,
+        "total_r": 7.3887,
+        "winrate": 57.14,
+        "profit_factor": 2.6548,
+        "summary": "Current rejects that relaxed shadow would send: totalR=7.3887 PF=2.6548"
+      }
+    ],
+    "losing_experiments": [],
+    "all_experiments": [
+      {
+        "name": "SHADOW_SEND_CURRENT_REJECT",
+        "source": "shadow_current_reject",
+        "sample_size": 14,
+        "total_r": 7.3887,
+        "winrate": 57.14,
+        "profit_factor": 2.6548,
+        "summary": "Current rejects that relaxed shadow would send: totalR=7.3887 PF=2.6548"
+      },
+      {
+        "name": "avoid_or_keep_private: body_bucket=UNKNOWN (n=9, WR=22.22%, AvgR=-0.0462, PF=0.9145)",
+        "source": "london_short_attribution",
+        "sample_size": null,
+        "total_r": 0.0,
+        "winrate": null,
+        "profit_factor": 0.0,
+        "summary": "avoid_or_keep_private: body_bucket=UNKNOWN (n=9, WR=22.22%, AvgR=-0.0462, PF=0.9145)"
+      },
+      {
+        "name": "avoid_or_keep_private: has_penalties=true (n=9, WR=22.22%, AvgR=-0.0462, PF=0.9145)",
+        "source": "london_short_attribution",
+        "sample_size": null,
+        "total_r": 0.0,
+        "winrate": null,
+        "profit_factor": 0.0,
+        "summary": "avoid_or_keep_private: has_penalties=true (n=9, WR=22.22%, AvgR=-0.0462, PF=0.9145)"
+      },
+      {
+        "name": "avoid_or_keep_private: score_bucket=<70 (n=5, WR=20.0%, AvgR=-0.1053, PF=0.8486)",
+        "source": "london_short_attribution",
+        "sample_size": null,
+        "total_r": 0.0,
+        "winrate": null,
+        "profit_factor": 0.0,
+        "summary": "avoid_or_keep_private: score_bucket=<70 (n=5, WR=20.0%, AvgR=-0.1053, PF=0.8486)"
+      },
+      {
+        "name": "avoid_or_keep_private: rr_bucket=rr_1_5_to_2 (n=5, WR=20.0%, AvgR=-0.0734, PF=0.8034)",
+        "source": "london_short_attribution",
+        "sample_size": null,
+        "total_r": 0.0,
+        "winrate": null,
+        "profit_factor": 0.0,
+        "summary": "avoid_or_keep_private: rr_bucket=rr_1_5_to_2 (n=5, WR=20.0%, AvgR=-0.0734, PF=0.8034)"
+      },
+      {
+        "name": "avoid_or_keep_private: has_secondary_setup_requirements_failed=true (n=5, WR=20.0%, AvgR=-0.0734, PF=0.8034)",
+        "source": "london_short_attribution",
+        "sample_size": null,
+        "total_r": 0.0,
+        "winrate": null,
+        "profit_factor": 0.0,
+        "summary": "avoid_or_keep_private: has_secondary_setup_requirements_failed=true (n=5, WR=20.0%, AvgR=-0.0734, PF=0.8034)"
+      }
+    ]
+  },
+  "rejection_analysis": {
+    "most_expensive_rejection_reasons": [
+      {
+        "reason": "edge_activation_requires_overlap_session",
+        "classification": "SAFE_TO_RELAX",
+        "sample_size": 8,
+        "total_r": 4.9122,
+        "winrate": 75.0,
+        "profit_factor": 5.1646,
+        "expense_type": "edge_destroyed",
+        "recommendation": "Candidate for controlled shadow/public relaxation; validate with forward sample first."
+      },
+      {
+        "reason": "breakout_bad_location",
+        "classification": "SAFE_TO_RELAX",
+        "sample_size": 5,
+        "total_r": 4.4365,
+        "winrate": 60.0,
+        "profit_factor": 3.2183,
+        "expense_type": "edge_destroyed",
+        "recommendation": "Candidate for controlled shadow/public relaxation; validate with forward sample first."
+      },
+      {
+        "reason": "against_htf",
+        "classification": "SAFE_TO_RELAX",
+        "sample_size": 7,
+        "total_r": 2.7377,
+        "winrate": 57.14,
+        "profit_factor": 2.2561,
+        "expense_type": "edge_destroyed",
+        "recommendation": "Candidate for controlled shadow/public relaxation; validate with forward sample first."
+      },
+      {
+        "reason": "market_regime_ranging",
+        "classification": "SAFE_TO_RELAX",
+        "sample_size": 7,
+        "total_r": 2.5985,
+        "winrate": 71.43,
+        "profit_factor": 2.2992,
+        "expense_type": "edge_destroyed",
+        "recommendation": "Candidate for controlled shadow/public relaxation; validate with forward sample first."
+      },
+      {
+        "reason": "edge_activation_requires_trending",
+        "classification": "SAFE_TO_RELAX",
+        "sample_size": 8,
+        "total_r": 2.419,
+        "winrate": 62.5,
+        "profit_factor": 2.1099,
+        "expense_type": "edge_destroyed",
+        "recommendation": "Candidate for controlled shadow/public relaxation; validate with forward sample first."
+      },
+      {
+        "reason": "setup_type_secondary_signal",
+        "classification": "SAFE_TO_RELAX",
+        "sample_size": 5,
+        "total_r": 2.1267,
+        "winrate": 60.0,
+        "profit_factor": 5.5735,
+        "expense_type": "edge_destroyed",
+        "recommendation": "Candidate for controlled shadow/public relaxation; validate with forward sample first."
+      },
+      {
+        "reason": "edge_activation_secondary_signal",
+        "classification": "SAFE_TO_RELAX",
+        "sample_size": 5,
+        "total_r": 2.1267,
+        "winrate": 60.0,
+        "profit_factor": 5.5735,
+        "expense_type": "edge_destroyed",
+        "recommendation": "Candidate for controlled shadow/public relaxation; validate with forward sample first."
+      },
+      {
+        "reason": "entry_context_choppy_range",
+        "classification": "NEED_MORE_DATA",
+        "sample_size": 2,
+        "total_r": 1.4104,
+        "winrate": 100.0,
+        "profit_factor": 1.4104,
+        "expense_type": "edge_destroyed",
+        "recommendation": "Keep in shadow; sample is not strong enough for production relaxation."
+      },
+      {
+        "reason": "low_volume",
+        "classification": "NEED_MORE_DATA",
+        "sample_size": 2,
+        "total_r": 1.4104,
+        "winrate": 100.0,
+        "profit_factor": 1.4104,
+        "expense_type": "edge_destroyed",
+        "recommendation": "Keep in shadow; sample is not strong enough for production relaxation."
+      },
+      {
+        "reason": "dirty_sideways_market",
+        "classification": "NEED_MORE_DATA",
+        "sample_size": 2,
+        "total_r": 1.4104,
+        "winrate": 100.0,
+        "profit_factor": 1.4104,
+        "expense_type": "edge_destroyed",
+        "recommendation": "Keep in shadow; sample is not strong enough for production relaxation."
+      }
+    ],
+    "protective_rejection_reasons": [
+      {
+        "reason": "short_shadow_mode",
+        "classification": "NEED_MORE_DATA",
+        "sample_size": 2,
+        "total_r": -1.1795,
+        "winrate": 0.0,
+        "profit_factor": 0.0,
+        "expense_type": "protective_or_unproven",
+        "recommendation": "Keep in shadow; sample is not strong enough for production relaxation."
+      },
+      {
+        "reason": "short_without_high_historical_edge",
+        "classification": "NEED_MORE_DATA",
+        "sample_size": 2,
+        "total_r": -1.1795,
+        "winrate": 0.0,
+        "profit_factor": 0.0,
+        "expense_type": "protective_or_unproven",
+        "recommendation": "Keep in shadow; sample is not strong enough for production relaxation."
+      },
+      {
+        "reason": "edge_activation_requires_long",
+        "classification": "NEED_MORE_DATA",
+        "sample_size": 2,
+        "total_r": -1.1795,
+        "winrate": 0.0,
+        "profit_factor": 0.0,
+        "expense_type": "protective_or_unproven",
+        "recommendation": "Keep in shadow; sample is not strong enough for production relaxation."
+      },
+      {
+        "reason": "market_regime_not_trending",
+        "classification": "NEED_MORE_DATA",
+        "sample_size": 1,
+        "total_r": -0.1795,
+        "winrate": 0.0,
+        "profit_factor": 0.0,
+        "expense_type": "protective_or_unproven",
+        "recommendation": "Keep in shadow; sample is not strong enough for production relaxation."
+      },
+      {
+        "reason": "trade_location_premium_zone",
+        "classification": "NEED_MORE_DATA",
+        "sample_size": 1,
+        "total_r": 0.4104,
+        "winrate": 100.0,
+        "profit_factor": 0.4104,
+        "expense_type": "edge_destroyed",
+        "recommendation": "Keep in shadow; sample is not strong enough for production relaxation."
+      },
+      {
+        "reason": "edge_activation_premium_zone",
+        "classification": "NEED_MORE_DATA",
+        "sample_size": 1,
+        "total_r": 0.4104,
+        "winrate": 100.0,
+        "profit_factor": 0.4104,
+        "expense_type": "edge_destroyed",
+        "recommendation": "Keep in shadow; sample is not strong enough for production relaxation."
+      },
+      {
+        "reason": "entry_context_choppy_range",
+        "classification": "NEED_MORE_DATA",
+        "sample_size": 2,
+        "total_r": 1.4104,
+        "winrate": 100.0,
+        "profit_factor": 1.4104,
+        "expense_type": "edge_destroyed",
+        "recommendation": "Keep in shadow; sample is not strong enough for production relaxation."
+      },
+      {
+        "reason": "low_volume",
+        "classification": "NEED_MORE_DATA",
+        "sample_size": 2,
+        "total_r": 1.4104,
+        "winrate": 100.0,
+        "profit_factor": 1.4104,
+        "expense_type": "edge_destroyed",
+        "recommendation": "Keep in shadow; sample is not strong enough for production relaxation."
+      },
+      {
+        "reason": "dirty_sideways_market",
+        "classification": "NEED_MORE_DATA",
+        "sample_size": 2,
+        "total_r": 1.4104,
+        "winrate": 100.0,
+        "profit_factor": 1.4104,
+        "expense_type": "edge_destroyed",
+        "recommendation": "Keep in shadow; sample is not strong enough for production relaxation."
+      },
+      {
+        "reason": "edge_activation_choppy_range",
+        "classification": "NEED_MORE_DATA",
+        "sample_size": 2,
+        "total_r": 1.4104,
+        "winrate": 100.0,
+        "profit_factor": 1.4104,
+        "expense_type": "edge_destroyed",
+        "recommendation": "Keep in shadow; sample is not strong enough for production relaxation."
+      }
+    ]
+  },
+  "relaxation_shadow_status": {
+    "trades_captured": 0,
+    "skips_captured": 0,
+    "last_skip_reason": "none",
+    "top_unsafe_filters": [],
+    "top_safe_filters": [],
+    "v1_too_strict": false,
+    "recommendation": "keep",
+    "sources": {
+      "data_trades_exists": false,
+      "data_skips_exists": false,
+      "report_summary_exists": true,
+      "report_skips_exists": true
+    }
+  },
+  "recommended_actions": {
+    "high_impact": [
+      {
+        "action": "Keep production defensive",
+        "rationale": "PF is below 1.0 on canonical trades.",
+        "next_step": "Do not relax public policy globally."
+      },
+      {
+        "action": "Keep blocked: SHORT_ONLY",
+        "rationale": "SHORT_ONLY: totalR=-9.8004 PF=0.3296",
+        "next_step": "Do not promote this context."
+      },
+      {
+        "action": "Keep blocked: CONTEXT_CHOPPY_RANGE",
+        "rationale": "n=7 totalR=-3.5896 PF=0.2821",
+        "next_step": "Do not promote this context."
+      },
+      {
+        "action": "Keep blocked: SECONDARY_SIGNAL",
+        "rationale": "SECONDARY_SIGNAL: totalR=-3.0308 PF=0.0",
+        "next_step": "Do not promote this context."
+      }
+    ],
+    "medium_impact": [
+      {
+        "action": "Forward-test: SHADOW_SEND_CURRENT_REJECT",
+        "rationale": "Current rejects that relaxed shadow would send: totalR=7.3887 PF=2.6548",
+        "next_step": "Track in shadow before promotion."
+      },
+      {
+        "action": "Review rejection: edge_activation_requires_overlap_session",
+        "rationale": "Destroyed 4.9122R in shadow analysis.",
+        "next_step": "Keep DEV-only until sample increases."
+      },
+      {
+        "action": "Review rejection: breakout_bad_location",
+        "rationale": "Destroyed 4.4365R in shadow analysis.",
+        "next_step": "Keep DEV-only until sample increases."
+      },
+      {
+        "action": "Review rejection: against_htf",
+        "rationale": "Destroyed 2.7377R in shadow analysis.",
+        "next_step": "Keep DEV-only until sample increases."
+      }
+    ],
+    "low_impact": [
+      {
+        "action": "Regenerate intelligence reports daily",
+        "rationale": "Audit depends on fresh reports.",
+        "next_step": "Run report generation before the audit."
+      }
+    ],
+    "tomorrow_priorities": [
+      "Keep production defensive",
+      "Keep blocked: SHORT_ONLY",
+      "Keep blocked: CONTEXT_CHOPPY_RANGE"
+    ]
+  },
+  "tomorrow_priorities": [
+    "Keep production defensive",
+    "Keep blocked: SHORT_ONLY",
+    "Keep blocked: CONTEXT_CHOPPY_RANGE"
+  ]
+}

@@ -37,6 +37,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Summary CSV: {paths['summary_csv']}")
     print(f"Skips: {paths['skips_md']}")
     print(f"Skips CSV: {paths['skips_csv']}")
+    print(f"Activation audit: {paths['activation_audit_md']}")
     return 0
 
 

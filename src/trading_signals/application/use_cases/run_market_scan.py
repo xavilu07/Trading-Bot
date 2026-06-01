@@ -17,8 +17,16 @@ from trading_signals.analysis.market_regime import analyze_market_regime
 from trading_signals.analysis.momentum import analyze_momentum
 from trading_signals.analysis.risk import analyze_risk
 from trading_signals.analysis.trend import analyze_trend
+from trading_signals.application.policies.public_safety_policy import evaluate_public_safety_policy
 from trading_signals.application.policies.public_canary_policy import PublicShortCanaryConfig, evaluate_public_short_canary
 from trading_signals.application.use_cases.analyze_symbol import analyze_symbol
+from trading_signals.application.use_cases.candidate_funnel import (
+    finalize_candidate_funnel_cycle,
+    increment_candidate_funnel,
+    new_candidate_funnel_cycle,
+    record_candidate_rejection,
+    record_relaxation_shadow_observation,
+)
 from trading_signals.application.use_cases.paper_trading import (
     build_paper_candidate_from_decision,
     build_paper_rejection_diagnostic,
@@ -35,7 +43,11 @@ from trading_signals.application.use_cases.live_trading import (
     format_public_live_trade_event_for_telegram,
     format_live_trade_event_for_telegram,
 )
-from trading_signals.notifications.telegram import send_public_signal
+from trading_signals.application.use_cases.relaxation_shadow_v1 import (
+    evaluate_relaxation_shadow_v1,
+    format_relaxation_shadow_v1_message,
+)
+from trading_signals.notifications.telegram import send_dev_signal_detail, send_public_signal
 from trading_signals.application.use_cases.modular_paper import build_modular_signal_row
 from trading_signals.application.use_cases.experimental_paper import build_experimental_signal_row
 from trading_signals.application.use_cases.shadow_paper import build_shadow_signal_row
@@ -538,6 +550,120 @@ def _relaxed_public_shadow_from_deliveries(deliveries) -> dict[str, object] | No
     return None
 
 
+def _observe_relaxation_shadow_v1(
+    *,
+    logger,
+    notifier,
+    signal: TradeSignal,
+    evaluation,
+    risk_plan,
+    analysis,
+    setup_context: dict[str, object],
+    current_policy: dict[str, object],
+    store,
+    expires_after_candles: int,
+    dry_run: bool,
+    stage: str,
+) -> dict[str, object]:
+    result = evaluate_relaxation_shadow_v1(
+        signal=signal,
+        evaluation=evaluation,
+        risk_plan=risk_plan,
+        entry_snapshot=analysis.entry_snapshot,
+        higher_snapshot=analysis.higher_snapshot,
+        setup_context=setup_context,
+        current_policy=current_policy,
+        store=store,
+        opened_at=_now_iso(),
+        expires_after_candles=expires_after_candles,
+    )
+    payload: dict[str, object] = {
+        "stage": stage,
+        "should_send_dev": result.get("should_send_dev", False),
+        "skip_reason": result.get("skip_reason", ""),
+        "filter_result": result.get("filter_result", {}),
+    }
+    if result.get("should_send_dev") and result.get("candidate") is not None:
+        candidate = result["candidate"]
+        message = format_relaxation_shadow_v1_message(candidate)
+        send_dev_signal_detail(notifier, message, dry_run=dry_run)
+        log_json(
+            logger,
+            "relaxation_shadow_v1_signal_sent_dev",
+            symbol=signal.symbol,
+            direction=signal.decision,
+            stage=stage,
+            relaxed_filters=getattr(candidate, "relaxed_filters", []),
+            original_rejection_reasons=getattr(candidate, "original_rejection_reasons", []),
+        )
+        payload.update(
+            {
+                "trade_created": True,
+                "dedupe_key": getattr(candidate, "dedupe_key", ""),
+                "relaxed_filters": getattr(candidate, "relaxed_filters", []),
+                "original_rejection_reasons": getattr(candidate, "original_rejection_reasons", []),
+            }
+        )
+    else:
+        filter_result = result.get("filter_result", {})
+        log_json(
+            logger,
+            "relaxation_shadow_v1_signal_skipped",
+            symbol=signal.symbol,
+            direction=signal.decision,
+            stage=stage,
+            reason=result.get("skip_reason", ""),
+            safe_filters=filter_result.get("safe_filters", []) if isinstance(filter_result, dict) else [],
+            unsafe_filters=filter_result.get("unsafe_filters", []) if isinstance(filter_result, dict) else [],
+        )
+        payload["trade_created"] = False
+    return payload
+
+
+def _pre_publishability_block_reasons(
+    *,
+    should_publish_decision: bool,
+    publish_filter_reason: str | None,
+    is_duplicate: bool,
+    lifecycle,
+    current_public_policy: dict[str, object],
+) -> list[str]:
+    reasons = []
+    if not should_publish_decision:
+        reasons.append("publish_decision_filtered")
+    if publish_filter_reason:
+        reasons.append(publish_filter_reason)
+    if is_duplicate:
+        reasons.append("duplicate_signal_suppressed")
+    if lifecycle is not None and not lifecycle.should_publish:
+        reasons.append(str(lifecycle.reason))
+    if not reasons and not bool(current_public_policy.get("public_allowed")):
+        reasons.extend(str(reason) for reason in current_public_policy.get("block_reasons", []) or [])
+    return list(dict.fromkeys(reason for reason in reasons if reason))
+
+
+def _funnel_publishability_reason(
+    *,
+    should_publish_decision: bool,
+    publish_filter_reason: str | None,
+    is_duplicate: bool,
+    lifecycle,
+    public_block_reason: str | None,
+) -> str | None:
+    reasons: list[str] = []
+    if not should_publish_decision:
+        reasons.append("publish_decision_filtered")
+    if publish_filter_reason:
+        reasons.append(publish_filter_reason)
+    if is_duplicate:
+        reasons.append("duplicate_signal_suppressed")
+    if lifecycle is not None and not lifecycle.should_publish:
+        reasons.append(str(lifecycle.reason))
+    if public_block_reason:
+        reasons.append(public_block_reason)
+    return "|".join(dict.fromkeys(reasons)) if reasons else None
+
+
 def _log_protection_diagnostics(logger, *, symbol: str, protection: dict[str, object]) -> None:
     if not protection.get("protection_triggered"):
         return
@@ -799,6 +925,8 @@ def run_market_scan(
     scan_repo.save_scan_run(scan_run)
     strategy = LiquiditySweepMTFV1(settings)
     results: list[dict[str, object]] = []
+    candidate_funnel = new_candidate_funnel_cycle(scan_run_id=scan_run.id, started_at=started_at)
+    candidate_funnel_report: dict[str, object] | None = None
 
     for symbol in valid_symbols:
         try:
@@ -838,6 +966,9 @@ def run_market_scan(
             scan_repo.save_snapshot(analysis.entry_snapshot)
             scan_repo.save_snapshot(analysis.higher_snapshot)
             evaluation = strategy.evaluate(analysis, evaluation_id=f"eval_{uuid4().hex[:12]}", created_at=_now_iso())
+            increment_candidate_funnel(candidate_funnel, "raw_setups_evaluated")
+            if evaluation.decision in {SignalDecision.LONG.value, SignalDecision.SHORT.value} or _candidate_setup_type(analysis, evaluation) is not None:
+                increment_candidate_funnel(candidate_funnel, "candidates_created")
             risk_plan = None
             status = SignalStatus.REJECTED.value
             if evaluation.decision in {SignalDecision.LONG.value, SignalDecision.SHORT.value}:
@@ -989,6 +1120,12 @@ def run_market_scan(
                     "trend_higher": analysis.higher_snapshot.trend,
                 }
             )
+            current_public_policy = evaluate_public_safety_policy(
+                signal=signal,
+                evaluation_or_decision=signal_decision,
+                setup_context=setup_context,
+                public_short_canary_config=_public_short_canary_config(settings),
+            )
             public_route_reason = public_routing_rejection_reason(signal, signal_decision, setup_context)
             evaluation.decision_trace.extend(
                 [
@@ -1055,6 +1192,28 @@ def run_market_scan(
                     risks=performance_gate["risks"],
                     scores=performance_gate["scores"],
                 )
+            relaxation_shadow_v1 = None
+            if (
+                status == SignalStatus.VALID.value
+                and risk_plan is not None
+                and relaxation_shadow_store is not None
+                and not bool(current_public_policy.get("public_allowed"))
+            ):
+                relaxation_shadow_v1 = _observe_relaxation_shadow_v1(
+                    logger=logger,
+                    notifier=notifier,
+                    signal=signal,
+                    evaluation=signal_decision,
+                    risk_plan=risk_plan,
+                    analysis=analysis,
+                    setup_context=setup_context,
+                    current_policy=current_public_policy,
+                    store=relaxation_shadow_store,
+                    expires_after_candles=settings.paper_trading_timeout_candles,
+                    dry_run=dry_run,
+                    stage="pre_publish_policy",
+                )
+                record_relaxation_shadow_observation(candidate_funnel, relaxation_shadow_v1)
             publish_filter_reason = None
             if status == SignalStatus.VALID.value and should_publish_decision:
                 publish_filter_reason = publish_filter_rejection_reason(
@@ -1116,6 +1275,41 @@ def run_market_scan(
                 signal.signal_type = lifecycle.signal_type
                 signal.lifecycle_reason = lifecycle.reason
                 signal_repo.save_signal(signal)
+            if (
+                relaxation_shadow_v1 is None
+                and status == SignalStatus.VALID.value
+                and risk_plan is not None
+                and relaxation_shadow_store is not None
+                and not (
+                    should_publish_after_filters
+                    and not is_duplicate
+                    and lifecycle is not None
+                    and lifecycle.should_publish
+                )
+            ):
+                post_policy_reasons = _pre_publishability_block_reasons(
+                    should_publish_decision=should_publish_decision,
+                    publish_filter_reason=publish_filter_reason,
+                    is_duplicate=is_duplicate,
+                    lifecycle=lifecycle,
+                    current_public_policy=current_public_policy,
+                )
+                if post_policy_reasons:
+                    relaxation_shadow_v1 = _observe_relaxation_shadow_v1(
+                        logger=logger,
+                        notifier=notifier,
+                        signal=signal,
+                        evaluation=signal_decision,
+                        risk_plan=risk_plan,
+                        analysis=analysis,
+                        setup_context=setup_context,
+                        current_policy={**current_public_policy, "block_reasons": post_policy_reasons},
+                        store=relaxation_shadow_store,
+                        expires_after_candles=settings.paper_trading_timeout_candles,
+                        dry_run=dry_run,
+                        stage="pre_publishability_gate",
+                    )
+                    record_relaxation_shadow_observation(candidate_funnel, relaxation_shadow_v1)
             protection_engine = evaluate_protection_engine(
                 data_path=settings.data_storage_path,
                 symbol=symbol,
@@ -1132,6 +1326,7 @@ def run_market_scan(
                 config=_public_short_canary_config(settings),
             )
             if status == SignalStatus.VALID.value and should_publish_after_filters and not is_duplicate and lifecycle and lifecycle.should_publish:
+                increment_candidate_funnel(candidate_funnel, "candidates_reaching_publish_signal")
                 deliveries = publish_signal(
                     signal_repo,
                     notifier,
@@ -1145,11 +1340,12 @@ def run_market_scan(
                     setup_context=setup_context,
                     public_block_reason=public_block_reason,
                     public_short_canary_config=_public_short_canary_config(settings),
-                    relaxation_shadow_store=relaxation_shadow_store,
+                    relaxation_shadow_store=relaxation_shadow_store if relaxation_shadow_v1 is None else None,
                     relaxation_shadow_expires_after_candles=settings.paper_trading_timeout_candles,
                 )
                 relaxed_public_shadow = _relaxed_public_shadow_from_deliveries(deliveries)
                 if any(item.status == "sent" for item in deliveries):
+                    increment_candidate_funnel(candidate_funnel, "published_signals")
                     public_published = any(item.channel == "telegram_public" and item.status == "sent" for item in deliveries)
                     signal.status = SignalStatus.PUBLISHED.value
                     signal.published_at = _now_iso()
@@ -1168,6 +1364,20 @@ def run_market_scan(
                     scan_run.signals_emitted += 1
                     metrics.increment("signals_emitted_total")
             elif status == SignalStatus.VALID.value:
+                lifecycle_reason = _funnel_publishability_reason(
+                    should_publish_decision=should_publish_decision,
+                    publish_filter_reason=publish_filter_reason,
+                    is_duplicate=is_duplicate,
+                    lifecycle=lifecycle,
+                    public_block_reason=public_block_reason,
+                )
+                if lifecycle_reason:
+                    increment_candidate_funnel(
+                        candidate_funnel,
+                        "rejected_by_lifecycle_publishability",
+                        reason=lifecycle_reason,
+                        reason_stage="lifecycle_publishability",
+                    )
                 if not should_publish_decision:
                     evaluation.rejection_reasons.append("publish_decision_filtered")
                 if publish_filter_reason is not None:
@@ -1199,6 +1409,13 @@ def run_market_scan(
                 analysis=analysis,
                 evaluation=evaluation,
             )
+            if signal.decision == SignalDecision.NO_TRADE.value and candidate_rejected is not None:
+                record_candidate_rejection(
+                    candidate_funnel,
+                    rejection_reasons=evaluation.rejection_reasons,
+                    failed_filters=evaluation.failed_filters,
+                    fallback_reason=str(candidate_rejected.get("rejection_reason", "unknown")),
+                )
             paper_trade_created = False
             paper_candidate_detected = False
             paper_rejection = None
@@ -1409,6 +1626,7 @@ def run_market_scan(
                     "paper_trade_rejection": paper_rejection,
                     "paper_trade_updates": paper_updates,
                     "relaxation_shadow_updates": relaxation_shadow_updates,
+                    "relaxation_shadow_v1": relaxation_shadow_v1,
                     "live_trade_updates": live_trade_updates,
                     "module_diagnostics": module_diagnostics,
                     "signal_decision": signal_decision.to_dict(),
@@ -1495,9 +1713,22 @@ def run_market_scan(
     scan_run.updated_at = scan_run.finished_at
     scan_repo.save_scan_run(scan_run)
     metrics.increment("scan_runs_total")
+    try:
+        candidate_funnel_report = finalize_candidate_funnel_cycle(
+            candidate_funnel,
+            data_path=settings.data_storage_path,
+        )
+    except Exception as exc:
+        log_json(
+            logging.getLogger("trading_signals"),
+            "candidate_funnel_audit_failed",
+            error_type=type(exc).__name__,
+            error_message=str(exc),
+        )
     return {
         "scan_run": asdict(scan_run),
         "results": results,
         "universe_validation": universe_validation,
         "pair_universe_filter": pair_universe_filter,
+        "candidate_funnel": candidate_funnel_report,
     }

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-28T16:01:30+00:00",
+  "generated_at": "2026-05-29T15:17:24+00:00",
   "rows_analyzed": 9,
   "closed_trades": 9,
   "allowed_rows": 9,
@@ -13,7 +13,9 @@
     "winrate": 22.22,
     "total_r": -0.416,
     "avg_r": -0.0462,
-    "profit_factor": 0.9145
+    "profit_factor": 0.9145,
+    "max_drawdown": -2.0,
+    "current_drawdown": -1.3895
   },
   "winner_profile": {
     "rows": 2,
@@ -43,8 +45,8 @@
     },
     "rejection_reasons": {
       "market_structure_range_penalty": 2,
-      "secondary_setup_requirements_failed": 1,
       "directional_confluence_failed": 1,
+      "secondary_setup_requirements_failed": 1,
       "body_ratio_below_threshold": 1
     }
   },

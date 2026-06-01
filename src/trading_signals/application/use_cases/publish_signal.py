@@ -10,9 +10,8 @@ from trading_signals.application.policies.public_canary_policy import PublicShor
 from trading_signals.application.policies.public_safety_policy import evaluate_public_safety_policy
 from trading_signals.application.policies.relaxed_public_safety_v2 import evaluate_relaxed_public_safety_v2
 from trading_signals.application.use_cases.relaxation_shadow_v1 import (
-    build_relaxation_shadow_candidate,
+    evaluate_relaxation_shadow_v1,
     format_relaxation_shadow_v1_message,
-    safe_relaxation_filter_result,
 )
 from trading_signals.domain.entities.signal_delivery import SignalDelivery
 from trading_signals.notifications.telegram import send_dev_signal_detail, send_public_signal
@@ -669,12 +668,7 @@ def _evaluate_relaxation_shadow_v1(
     store,
     expires_after_candles: int,
 ) -> dict[str, object]:
-    filter_result = safe_relaxation_filter_result(current_policy.get("block_reasons", []))
-    if store is None:
-        return {"should_send_dev": False, "skip_reason": "store_not_configured", "filter_result": filter_result}
-    if not filter_result["eligible"]:
-        return {"should_send_dev": False, "skip_reason": "unsafe_or_empty_filters", "filter_result": filter_result}
-    candidate = build_relaxation_shadow_candidate(
+    return evaluate_relaxation_shadow_v1(
         signal=signal,
         evaluation=evaluation,
         risk_plan=risk_plan,
@@ -682,20 +676,10 @@ def _evaluate_relaxation_shadow_v1(
         higher_snapshot=higher_snapshot,
         setup_context=setup_context,
         current_policy=current_policy,
+        store=store,
         opened_at=datetime.now(tz=UTC).isoformat(),
         expires_after_candles=expires_after_candles,
     )
-    if candidate is None:
-        return {"should_send_dev": False, "skip_reason": "candidate_not_created", "filter_result": filter_result}
-    created = store.upsert_candidate(candidate)
-    if not created:
-        return {"should_send_dev": False, "skip_reason": "duplicate", "filter_result": filter_result, "candidate": candidate}
-    return {
-        "should_send_dev": True,
-        "skip_reason": "",
-        "filter_result": filter_result,
-        "candidate": candidate,
-    }
 
 
 def _relaxed_shadow_result(

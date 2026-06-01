@@ -55,3 +55,13 @@ BOT_DATA_DIR: /Users/xaviestruch/Documents/Prueba Trading
 - Missing optional file: reports/controlled_experiments_report.json
 - Missing optional file: reports/london_short_analysis.json
 - Missing optional file: reports/london_short_focused_shadow.json
+
+## Relaxation Shadow Status
+
+- trades captured: 0
+- skips captured: 0
+- last skip reason: none
+- top unsafe filters: none
+- top safe filters: none
+- whether V1 is too strict: False
+- recommendation: keep

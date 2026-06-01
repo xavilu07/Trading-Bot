@@ -1,0 +1,18 @@
+reason,classification,sample_size,wins,losses,winrate,total_r,avg_r,profit_factor,impact_r,recommendation
+edge_activation_requires_overlap_session,SAFE_TO_RELAX,8,6,2,75.0,4.9122,0.614,5.1646,4.9122,Candidate for controlled shadow/public relaxation; validate with forward sample first.
+breakout_bad_location,SAFE_TO_RELAX,5,3,2,60.0,4.4365,0.8873,3.2183,4.4365,Candidate for controlled shadow/public relaxation; validate with forward sample first.
+against_htf,SAFE_TO_RELAX,7,4,3,57.14,2.7377,0.3911,2.2561,2.7377,Candidate for controlled shadow/public relaxation; validate with forward sample first.
+market_regime_ranging,SAFE_TO_RELAX,7,5,2,71.43,2.5985,0.3712,2.2992,2.5985,Candidate for controlled shadow/public relaxation; validate with forward sample first.
+edge_activation_requires_trending,SAFE_TO_RELAX,8,5,3,62.5,2.419,0.3024,2.1099,2.419,Candidate for controlled shadow/public relaxation; validate with forward sample first.
+setup_type_secondary_signal,SAFE_TO_RELAX,5,3,2,60.0,2.1267,0.4253,5.5735,2.1267,Candidate for controlled shadow/public relaxation; validate with forward sample first.
+edge_activation_secondary_signal,SAFE_TO_RELAX,5,3,2,60.0,2.1267,0.4253,5.5735,2.1267,Candidate for controlled shadow/public relaxation; validate with forward sample first.
+entry_context_choppy_range,NEED_MORE_DATA,2,2,0,100.0,1.4104,0.7052,1.4104,1.4104,Keep in shadow; sample is not strong enough for production relaxation.
+low_volume,NEED_MORE_DATA,2,2,0,100.0,1.4104,0.7052,1.4104,1.4104,Keep in shadow; sample is not strong enough for production relaxation.
+dirty_sideways_market,NEED_MORE_DATA,2,2,0,100.0,1.4104,0.7052,1.4104,1.4104,Keep in shadow; sample is not strong enough for production relaxation.
+edge_activation_choppy_range,NEED_MORE_DATA,2,2,0,100.0,1.4104,0.7052,1.4104,1.4104,Keep in shadow; sample is not strong enough for production relaxation.
+trade_location_premium_zone,NEED_MORE_DATA,1,1,0,100.0,0.4104,0.4104,0.4104,0.4104,Keep in shadow; sample is not strong enough for production relaxation.
+edge_activation_premium_zone,NEED_MORE_DATA,1,1,0,100.0,0.4104,0.4104,0.4104,0.4104,Keep in shadow; sample is not strong enough for production relaxation.
+market_regime_not_trending,NEED_MORE_DATA,1,0,1,0.0,-0.1795,-0.1795,0.0,-0.1795,Keep in shadow; sample is not strong enough for production relaxation.
+short_shadow_mode,NEED_MORE_DATA,2,0,2,0.0,-1.1795,-0.5897,0.0,-1.1795,Keep in shadow; sample is not strong enough for production relaxation.
+short_without_high_historical_edge,NEED_MORE_DATA,2,0,2,0.0,-1.1795,-0.5897,0.0,-1.1795,Keep in shadow; sample is not strong enough for production relaxation.
+edge_activation_requires_long,NEED_MORE_DATA,2,0,2,0.0,-1.1795,-0.5897,0.0,-1.1795,Keep in shadow; sample is not strong enough for production relaxation.

@@ -1,30 +1,31 @@
 {
-  "generated_at": "2026-05-28T15:28:25+00:00",
+  "generated_at": "2026-05-29T15:17:24+00:00",
   "mode": "shadow",
   "data_path": "data",
-  "trades_loaded": 45,
+  "trades_loaded": 40,
   "baseline_layer": "raw_strategy",
   "layers": [
     {
       "layer": "raw_strategy",
       "metrics": {
-        "total_r": -5.5754,
-        "winrate": 31.11,
-        "avg_r": -0.1239,
-        "profit_factor": 0.7928,
-        "max_drawdown": -9.4942,
-        "wins": 14,
-        "losses": 31,
-        "sample_size": 45,
+        "total_r": -3.5754,
+        "winrate": 32.5,
+        "avg_r": -0.0894,
+        "profit_factor": 0.8439,
+        "max_drawdown": -8.9684,
+        "current_drawdown": -4.9069,
+        "wins": 13,
+        "losses": 27,
+        "sample_size": 40,
         "confidence": "HIGH",
-        "trades_evaluated": 45,
-        "trades_accepted": 45,
+        "trades_evaluated": 40,
+        "trades_accepted": 40,
         "trades_rejected": 0,
         "rejection_reasons": {},
         "delta_total_r_vs_baseline": 0.0,
         "delta_winrate_vs_baseline": 0.0,
-        "delta_total_r_vs_current_policy": -5.5754,
-        "delta_accepted_vs_current_policy": 45,
+        "delta_total_r_vs_current_policy": -3.5754,
+        "delta_accepted_vs_current_policy": 40,
         "top_rejection_reasons": []
       },
       "top_improved_contexts": [],
@@ -33,12 +34,22 @@
         {
           "dimension": "direction",
           "value": "long",
-          "sample_size": 23,
-          "total_r": 5.225,
-          "winrate": 47.83,
-          "avg_r": 0.2272,
-          "profit_factor": 1.463,
+          "sample_size": 19,
+          "total_r": 6.225,
+          "winrate": 52.63,
+          "avg_r": 0.3276,
+          "profit_factor": 1.7513,
           "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "near_resistance",
+          "sample_size": 5,
+          "total_r": 3.1323,
+          "winrate": 60.0,
+          "avg_r": 0.6265,
+          "profit_factor": 2.5661,
+          "confidence": "LOW"
         },
         {
           "dimension": "session",
@@ -51,24 +62,14 @@
           "confidence": "MEDIUM"
         },
         {
-          "dimension": "market_regime",
-          "value": "TRENDING",
-          "sample_size": 15,
-          "total_r": 2.5167,
-          "winrate": 33.33,
-          "avg_r": 0.1678,
-          "profit_factor": 1.2998,
+          "dimension": "entry_context",
+          "value": "BREAKOUT",
+          "sample_size": 23,
+          "total_r": 0.8996,
+          "winrate": 34.78,
+          "avg_r": 0.0391,
+          "profit_factor": 1.0825,
           "confidence": "MEDIUM"
-        },
-        {
-          "dimension": "trade_location",
-          "value": "near_resistance",
-          "sample_size": 7,
-          "total_r": 1.1323,
-          "winrate": 42.86,
-          "avg_r": 0.1618,
-          "profit_factor": 1.2831,
-          "confidence": "LOW"
         },
         {
           "dimension": "setup_type",
@@ -91,56 +92,57 @@
         "avg_r": 0.0,
         "profit_factor": 0.0,
         "max_drawdown": 0.0,
+        "current_drawdown": 0.0,
         "wins": 0,
         "losses": 0,
         "sample_size": 0,
         "confidence": "LOW",
-        "trades_evaluated": 45,
+        "trades_evaluated": 40,
         "trades_accepted": 0,
-        "trades_rejected": 45,
+        "trades_rejected": 40,
         "rejection_reasons": {
-          "market_regime_ranging": 20,
+          "market_regime_ranging": 18,
           "entry_context_choppy_range": 7,
           "against_htf": 19,
           "low_volume": 5,
           "dirty_sideways_market": 6,
-          "edge_activation_requires_trending": 30,
-          "edge_activation_requires_overlap_session": 28,
+          "edge_activation_requires_trending": 26,
+          "edge_activation_requires_overlap_session": 26,
           "edge_activation_choppy_range": 7,
-          "breakout_bad_location": 14,
-          "setup_type_secondary_signal": 23,
-          "short_shadow_mode": 22,
-          "short_without_high_historical_edge": 22,
-          "edge_activation_requires_long": 22,
-          "edge_activation_secondary_signal": 23,
-          "market_regime_not_trending": 10,
-          "trade_location_premium_zone": 8,
-          "edge_activation_premium_zone": 8
+          "setup_type_secondary_signal": 18,
+          "short_shadow_mode": 21,
+          "short_without_high_historical_edge": 21,
+          "edge_activation_requires_long": 21,
+          "edge_activation_secondary_signal": 18,
+          "breakout_bad_location": 11,
+          "market_regime_not_trending": 8,
+          "trade_location_premium_zone": 7,
+          "edge_activation_premium_zone": 7
         },
-        "delta_total_r_vs_baseline": 5.5754,
-        "delta_winrate_vs_baseline": -31.11,
+        "delta_total_r_vs_baseline": 3.5754,
+        "delta_winrate_vs_baseline": -32.5,
         "delta_total_r_vs_current_policy": 0.0,
         "delta_accepted_vs_current_policy": 0,
         "top_rejection_reasons": [
           {
             "reason": "edge_activation_requires_trending",
-            "count": 30
+            "count": 26
           },
           {
             "reason": "edge_activation_requires_overlap_session",
-            "count": 28
-          },
-          {
-            "reason": "setup_type_secondary_signal",
-            "count": 23
-          },
-          {
-            "reason": "edge_activation_secondary_signal",
-            "count": 23
+            "count": 26
           },
           {
             "reason": "short_shadow_mode",
-            "count": 22
+            "count": 21
+          },
+          {
+            "reason": "short_without_high_historical_edge",
+            "count": 21
+          },
+          {
+            "reason": "edge_activation_requires_long",
+            "count": 21
           }
         ]
       },
@@ -148,41 +150,41 @@
         {
           "dimension": "direction",
           "value": "short",
-          "sample_size": 22,
-          "total_r": -10.8004,
-          "impact_r": 10.8004,
+          "sample_size": 21,
+          "total_r": -9.8004,
+          "impact_r": 9.8004,
           "confidence": "MEDIUM"
         },
         {
           "dimension": "session",
           "value": "NEW_YORK",
-          "sample_size": 14,
-          "total_r": -8.4083,
-          "impact_r": 8.4083,
+          "sample_size": 12,
+          "total_r": -6.4083,
+          "impact_r": 6.4083,
           "confidence": "MEDIUM"
         },
         {
           "dimension": "trade_location",
           "value": "premium_zone",
-          "sample_size": 8,
-          "total_r": -6.5896,
-          "impact_r": 6.5896,
+          "sample_size": 7,
+          "total_r": -5.5896,
+          "impact_r": 5.5896,
           "confidence": "LOW"
         },
         {
           "dimension": "setup_type",
           "value": "SECONDARY_SIGNAL",
-          "sample_size": 23,
-          "total_r": -6.4452,
-          "impact_r": 6.4452,
+          "sample_size": 18,
+          "total_r": -4.4452,
+          "impact_r": 4.4452,
           "confidence": "MEDIUM"
         },
         {
           "dimension": "market_regime",
           "value": "RANGING",
-          "sample_size": 20,
-          "total_r": -6.0123,
-          "impact_r": 6.0123,
+          "sample_size": 18,
+          "total_r": -4.0123,
+          "impact_r": 4.0123,
           "confidence": "MEDIUM"
         }
       ],
@@ -190,10 +192,18 @@
         {
           "dimension": "direction",
           "value": "long",
-          "sample_size": 23,
-          "total_r": 5.225,
-          "impact_r": 5.225,
+          "sample_size": 19,
+          "total_r": 6.225,
+          "impact_r": 6.225,
           "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "near_resistance",
+          "sample_size": 5,
+          "total_r": 3.1323,
+          "impact_r": 3.1323,
+          "confidence": "LOW"
         },
         {
           "dimension": "session",
@@ -204,20 +214,12 @@
           "confidence": "MEDIUM"
         },
         {
-          "dimension": "market_regime",
-          "value": "TRENDING",
-          "sample_size": 15,
-          "total_r": 2.5167,
-          "impact_r": 2.5167,
+          "dimension": "entry_context",
+          "value": "BREAKOUT",
+          "sample_size": 23,
+          "total_r": 0.8996,
+          "impact_r": 0.8996,
           "confidence": "MEDIUM"
-        },
-        {
-          "dimension": "trade_location",
-          "value": "near_resistance",
-          "sample_size": 7,
-          "total_r": 1.1323,
-          "impact_r": 1.1323,
-          "confidence": "LOW"
         },
         {
           "dimension": "setup_type",
@@ -233,51 +235,51 @@
         {
           "dimension": "direction",
           "value": "short",
-          "sample_size": 22,
-          "total_r": -10.8004,
-          "winrate": 13.64,
-          "avg_r": -0.4909,
-          "profit_factor": 0.3085,
+          "sample_size": 21,
+          "total_r": -9.8004,
+          "winrate": 14.29,
+          "avg_r": -0.4667,
+          "profit_factor": 0.3296,
           "confidence": "MEDIUM"
         },
         {
           "dimension": "session",
           "value": "NEW_YORK",
-          "sample_size": 14,
-          "total_r": -8.4083,
-          "winrate": 21.43,
-          "avg_r": -0.6006,
-          "profit_factor": 0.2356,
+          "sample_size": 12,
+          "total_r": -6.4083,
+          "winrate": 25.0,
+          "avg_r": -0.534,
+          "profit_factor": 0.288,
           "confidence": "MEDIUM"
         },
         {
           "dimension": "trade_location",
           "value": "premium_zone",
-          "sample_size": 8,
-          "total_r": -6.5896,
-          "winrate": 12.5,
-          "avg_r": -0.8237,
-          "profit_factor": 0.0586,
+          "sample_size": 7,
+          "total_r": -5.5896,
+          "winrate": 14.29,
+          "avg_r": -0.7985,
+          "profit_factor": 0.0684,
           "confidence": "LOW"
         },
         {
           "dimension": "setup_type",
           "value": "SECONDARY_SIGNAL",
-          "sample_size": 23,
-          "total_r": -6.4452,
-          "winrate": 26.09,
-          "avg_r": -0.2802,
-          "profit_factor": 0.5005,
+          "sample_size": 18,
+          "total_r": -4.4452,
+          "winrate": 27.78,
+          "avg_r": -0.247,
+          "profit_factor": 0.5007,
           "confidence": "MEDIUM"
         },
         {
           "dimension": "market_regime",
           "value": "RANGING",
-          "sample_size": 20,
-          "total_r": -6.0123,
-          "winrate": 35.0,
-          "avg_r": -0.3006,
-          "profit_factor": 0.5181,
+          "sample_size": 18,
+          "total_r": -4.0123,
+          "winrate": 38.89,
+          "avg_r": -0.2229,
+          "profit_factor": 0.6171,
           "confidence": "MEDIUM"
         }
       ]
@@ -285,233 +287,213 @@
     {
       "layer": "relaxed_public_safety_v2",
       "metrics": {
-        "total_r": 1.0,
-        "winrate": 50.0,
-        "avg_r": 0.5,
-        "profit_factor": 2.0,
-        "max_drawdown": -1.0,
-        "wins": 1,
-        "losses": 1,
-        "sample_size": 2,
-        "confidence": "LOW",
-        "trades_evaluated": 45,
-        "trades_accepted": 2,
-        "trades_rejected": 43,
+        "total_r": 7.3887,
+        "winrate": 57.14,
+        "avg_r": 0.5278,
+        "profit_factor": 2.6548,
+        "max_drawdown": -1.1795,
+        "current_drawdown": 0.0,
+        "wins": 8,
+        "losses": 6,
+        "sample_size": 14,
+        "confidence": "MEDIUM",
+        "trades_evaluated": 40,
+        "trades_accepted": 14,
+        "trades_rejected": 26,
         "rejection_reasons": {
-          "rr_below_min": 40,
-          "against_htf_without_edge": 10,
-          "short_without_demonstrated_edge": 20,
-          "high_volatility_long": 5
+          "against_htf_without_edge": 11,
+          "short_without_demonstrated_edge": 19,
+          "high_volatility_long": 3
         },
-        "delta_total_r_vs_baseline": 6.5754,
-        "delta_winrate_vs_baseline": 18.89,
-        "delta_total_r_vs_current_policy": 1.0,
-        "delta_accepted_vs_current_policy": 2,
+        "delta_total_r_vs_baseline": 10.9641,
+        "delta_winrate_vs_baseline": 24.64,
+        "delta_total_r_vs_current_policy": 7.3887,
+        "delta_accepted_vs_current_policy": 14,
         "top_rejection_reasons": [
           {
-            "reason": "rr_below_min",
-            "count": 40
-          },
-          {
             "reason": "short_without_demonstrated_edge",
-            "count": 20
+            "count": 19
           },
           {
             "reason": "against_htf_without_edge",
-            "count": 10
+            "count": 11
           },
           {
             "reason": "high_volatility_long",
-            "count": 5
+            "count": 3
           }
         ]
       },
       "top_improved_contexts": [
         {
+          "dimension": "session",
+          "value": "NEW_YORK",
+          "sample_size": 9,
+          "total_r": -9.0,
+          "impact_r": 9.0,
+          "confidence": "LOW"
+        },
+        {
           "dimension": "direction",
           "value": "short",
-          "sample_size": 22,
-          "total_r": -10.8004,
-          "impact_r": 10.8004,
+          "sample_size": 19,
+          "total_r": -8.6209,
+          "impact_r": 8.6209,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "market_regime",
+          "value": "RANGING",
+          "sample_size": 11,
+          "total_r": -6.6108,
+          "impact_r": 6.6108,
           "confidence": "MEDIUM"
         },
         {
           "dimension": "setup_type",
           "value": "SECONDARY_SIGNAL",
-          "sample_size": 21,
-          "total_r": -7.4452,
-          "impact_r": 7.4452,
-          "confidence": "MEDIUM"
-        },
-        {
-          "dimension": "session",
-          "value": "NEW_YORK",
           "sample_size": 13,
-          "total_r": -7.4083,
-          "impact_r": 7.4083,
+          "total_r": -6.5719,
+          "impact_r": 6.5719,
           "confidence": "MEDIUM"
         },
         {
           "dimension": "trade_location",
           "value": "premium_zone",
-          "sample_size": 8,
-          "total_r": -6.5896,
-          "impact_r": 6.5896,
+          "sample_size": 6,
+          "total_r": -6.0,
+          "impact_r": 6.0,
           "confidence": "LOW"
-        },
-        {
-          "dimension": "market_regime",
-          "value": "RANGING",
-          "sample_size": 19,
-          "total_r": -5.0123,
-          "impact_r": 5.0123,
-          "confidence": "MEDIUM"
         }
       ],
       "top_worsened_contexts": [
         {
-          "dimension": "direction",
-          "value": "long",
-          "sample_size": 21,
-          "total_r": 4.225,
-          "impact_r": 4.225,
-          "confidence": "MEDIUM"
+          "dimension": "trade_location",
+          "value": "near_resistance",
+          "sample_size": 2,
+          "total_r": 1.951,
+          "impact_r": 1.951,
+          "confidence": "LOW"
         },
         {
           "dimension": "session",
           "value": "LONDON",
-          "sample_size": 14,
-          "total_r": 3.084,
-          "impact_r": 3.084,
+          "sample_size": 9,
+          "total_r": 0.7635,
+          "impact_r": 0.7635,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "market_regime",
+          "value": "HIGH_VOLATILITY",
+          "sample_size": 7,
+          "total_r": 0.0997,
+          "impact_r": 0.0997,
+          "confidence": "LOW"
+        }
+      ],
+      "top_allowed_contexts": [
+        {
+          "dimension": "direction",
+          "value": "long",
+          "sample_size": 12,
+          "total_r": 8.5682,
+          "winrate": 66.67,
+          "avg_r": 0.714,
+          "profit_factor": 3.6079,
           "confidence": "MEDIUM"
         },
         {
-          "dimension": "trade_location",
-          "value": "near_resistance",
-          "sample_size": 6,
-          "total_r": 2.1323,
-          "impact_r": 2.1323,
+          "dimension": "entry_context",
+          "value": "BREAKOUT",
+          "sample_size": 9,
+          "total_r": 6.4715,
+          "winrate": 55.56,
+          "avg_r": 0.7191,
+          "profit_factor": 3.6254,
           "confidence": "LOW"
         },
         {
           "dimension": "setup_type",
           "value": "MAIN_SIGNAL",
-          "sample_size": 22,
-          "total_r": 0.8698,
-          "impact_r": 0.8698,
-          "confidence": "MEDIUM"
-        },
-        {
-          "dimension": "market_regime",
-          "value": "TRENDING",
-          "sample_size": 14,
-          "total_r": 0.5167,
-          "impact_r": 0.5167,
-          "confidence": "MEDIUM"
-        }
-      ],
-      "top_allowed_contexts": [
-        {
-          "dimension": "session",
-          "value": "OVERLAP",
-          "sample_size": 1,
-          "total_r": 2.0,
-          "winrate": 100.0,
-          "avg_r": 2.0,
-          "profit_factor": 2.0,
+          "sample_size": 9,
+          "total_r": 5.262,
+          "winrate": 55.56,
+          "avg_r": 0.5847,
+          "profit_factor": 2.3155,
           "confidence": "LOW"
         },
         {
           "dimension": "market_regime",
           "value": "TRENDING",
-          "sample_size": 1,
-          "total_r": 2.0,
-          "winrate": 100.0,
-          "avg_r": 2.0,
-          "profit_factor": 2.0,
+          "sample_size": 6,
+          "total_r": 4.9697,
+          "winrate": 50.0,
+          "avg_r": 0.8283,
+          "profit_factor": 3.1744,
           "confidence": "LOW"
         },
         {
           "dimension": "trade_location",
-          "value": "mid_range",
-          "sample_size": 1,
-          "total_r": 2.0,
-          "winrate": 100.0,
-          "avg_r": 2.0,
-          "profit_factor": 2.0,
-          "confidence": "LOW"
-        },
-        {
-          "dimension": "direction",
-          "value": "long",
-          "sample_size": 2,
-          "total_r": 1.0,
-          "winrate": 50.0,
-          "avg_r": 0.5,
-          "profit_factor": 2.0,
-          "confidence": "LOW"
-        },
-        {
-          "dimension": "setup_type",
-          "value": "SECONDARY_SIGNAL",
-          "sample_size": 2,
-          "total_r": 1.0,
-          "winrate": 50.0,
-          "avg_r": 0.5,
-          "profit_factor": 2.0,
+          "value": "near_support",
+          "sample_size": 5,
+          "total_r": 4.762,
+          "winrate": 60.0,
+          "avg_r": 0.9524,
+          "profit_factor": 3.381,
           "confidence": "LOW"
         }
       ],
       "top_blocked_contexts": [
         {
+          "dimension": "session",
+          "value": "NEW_YORK",
+          "sample_size": 9,
+          "total_r": -9.0,
+          "winrate": 0.0,
+          "avg_r": -1.0,
+          "profit_factor": 0.0,
+          "confidence": "LOW"
+        },
+        {
           "dimension": "direction",
           "value": "short",
-          "sample_size": 22,
-          "total_r": -10.8004,
-          "winrate": 13.64,
-          "avg_r": -0.4909,
-          "profit_factor": 0.3085,
+          "sample_size": 19,
+          "total_r": -8.6209,
+          "winrate": 15.79,
+          "avg_r": -0.4537,
+          "profit_factor": 0.3585,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "market_regime",
+          "value": "RANGING",
+          "sample_size": 11,
+          "total_r": -6.6108,
+          "winrate": 18.18,
+          "avg_r": -0.601,
+          "profit_factor": 0.2202,
           "confidence": "MEDIUM"
         },
         {
           "dimension": "setup_type",
           "value": "SECONDARY_SIGNAL",
-          "sample_size": 21,
-          "total_r": -7.4452,
-          "winrate": 23.81,
-          "avg_r": -0.3545,
-          "profit_factor": 0.3745,
-          "confidence": "MEDIUM"
-        },
-        {
-          "dimension": "session",
-          "value": "NEW_YORK",
           "sample_size": 13,
-          "total_r": -7.4083,
-          "winrate": 23.08,
-          "avg_r": -0.5699,
-          "profit_factor": 0.2592,
+          "total_r": -6.5719,
+          "winrate": 15.38,
+          "avg_r": -0.5055,
+          "profit_factor": 0.2212,
           "confidence": "MEDIUM"
         },
         {
           "dimension": "trade_location",
           "value": "premium_zone",
-          "sample_size": 8,
-          "total_r": -6.5896,
-          "winrate": 12.5,
-          "avg_r": -0.8237,
-          "profit_factor": 0.0586,
+          "sample_size": 6,
+          "total_r": -6.0,
+          "winrate": 0.0,
+          "avg_r": -1.0,
+          "profit_factor": 0.0,
           "confidence": "LOW"
-        },
-        {
-          "dimension": "market_regime",
-          "value": "RANGING",
-          "sample_size": 19,
-          "total_r": -5.0123,
-          "winrate": 36.84,
-          "avg_r": -0.2638,
-          "profit_factor": 0.5633,
-          "confidence": "MEDIUM"
         }
       ]
     },
@@ -523,56 +505,57 @@
         "avg_r": 0.0,
         "profit_factor": 0.0,
         "max_drawdown": 0.0,
+        "current_drawdown": 0.0,
         "wins": 0,
         "losses": 0,
         "sample_size": 0,
         "confidence": "LOW",
-        "trades_evaluated": 45,
+        "trades_evaluated": 40,
         "trades_accepted": 0,
-        "trades_rejected": 45,
+        "trades_rejected": 40,
         "rejection_reasons": {
-          "market_regime_ranging": 20,
+          "market_regime_ranging": 18,
           "entry_context_choppy_range": 7,
           "against_htf": 19,
           "low_volume": 5,
           "dirty_sideways_market": 6,
-          "edge_activation_requires_trending": 30,
-          "edge_activation_requires_overlap_session": 28,
+          "edge_activation_requires_trending": 26,
+          "edge_activation_requires_overlap_session": 26,
           "edge_activation_choppy_range": 7,
-          "breakout_bad_location": 14,
-          "setup_type_secondary_signal": 23,
-          "short_shadow_mode": 22,
-          "short_without_high_historical_edge": 22,
-          "edge_activation_requires_long": 22,
-          "edge_activation_secondary_signal": 23,
-          "market_regime_not_trending": 10,
-          "trade_location_premium_zone": 8,
-          "edge_activation_premium_zone": 8
+          "setup_type_secondary_signal": 18,
+          "short_shadow_mode": 21,
+          "short_without_high_historical_edge": 21,
+          "edge_activation_requires_long": 21,
+          "edge_activation_secondary_signal": 18,
+          "breakout_bad_location": 11,
+          "market_regime_not_trending": 8,
+          "trade_location_premium_zone": 7,
+          "edge_activation_premium_zone": 7
         },
-        "delta_total_r_vs_baseline": 5.5754,
-        "delta_winrate_vs_baseline": -31.11,
+        "delta_total_r_vs_baseline": 3.5754,
+        "delta_winrate_vs_baseline": -32.5,
         "delta_total_r_vs_current_policy": 0.0,
         "delta_accepted_vs_current_policy": 0,
         "top_rejection_reasons": [
           {
             "reason": "edge_activation_requires_trending",
-            "count": 30
+            "count": 26
           },
           {
             "reason": "edge_activation_requires_overlap_session",
-            "count": 28
-          },
-          {
-            "reason": "setup_type_secondary_signal",
-            "count": 23
-          },
-          {
-            "reason": "edge_activation_secondary_signal",
-            "count": 23
+            "count": 26
           },
           {
             "reason": "short_shadow_mode",
-            "count": 22
+            "count": 21
+          },
+          {
+            "reason": "short_without_high_historical_edge",
+            "count": 21
+          },
+          {
+            "reason": "edge_activation_requires_long",
+            "count": 21
           }
         ]
       },
@@ -580,41 +563,41 @@
         {
           "dimension": "direction",
           "value": "short",
-          "sample_size": 22,
-          "total_r": -10.8004,
-          "impact_r": 10.8004,
+          "sample_size": 21,
+          "total_r": -9.8004,
+          "impact_r": 9.8004,
           "confidence": "MEDIUM"
         },
         {
           "dimension": "session",
           "value": "NEW_YORK",
-          "sample_size": 14,
-          "total_r": -8.4083,
-          "impact_r": 8.4083,
+          "sample_size": 12,
+          "total_r": -6.4083,
+          "impact_r": 6.4083,
           "confidence": "MEDIUM"
         },
         {
           "dimension": "trade_location",
           "value": "premium_zone",
-          "sample_size": 8,
-          "total_r": -6.5896,
-          "impact_r": 6.5896,
+          "sample_size": 7,
+          "total_r": -5.5896,
+          "impact_r": 5.5896,
           "confidence": "LOW"
         },
         {
           "dimension": "setup_type",
           "value": "SECONDARY_SIGNAL",
-          "sample_size": 23,
-          "total_r": -6.4452,
-          "impact_r": 6.4452,
+          "sample_size": 18,
+          "total_r": -4.4452,
+          "impact_r": 4.4452,
           "confidence": "MEDIUM"
         },
         {
           "dimension": "market_regime",
           "value": "RANGING",
-          "sample_size": 20,
-          "total_r": -6.0123,
-          "impact_r": 6.0123,
+          "sample_size": 18,
+          "total_r": -4.0123,
+          "impact_r": 4.0123,
           "confidence": "MEDIUM"
         }
       ],
@@ -622,10 +605,18 @@
         {
           "dimension": "direction",
           "value": "long",
-          "sample_size": 23,
-          "total_r": 5.225,
-          "impact_r": 5.225,
+          "sample_size": 19,
+          "total_r": 6.225,
+          "impact_r": 6.225,
           "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "near_resistance",
+          "sample_size": 5,
+          "total_r": 3.1323,
+          "impact_r": 3.1323,
+          "confidence": "LOW"
         },
         {
           "dimension": "session",
@@ -636,20 +627,12 @@
           "confidence": "MEDIUM"
         },
         {
-          "dimension": "market_regime",
-          "value": "TRENDING",
-          "sample_size": 15,
-          "total_r": 2.5167,
-          "impact_r": 2.5167,
+          "dimension": "entry_context",
+          "value": "BREAKOUT",
+          "sample_size": 23,
+          "total_r": 0.8996,
+          "impact_r": 0.8996,
           "confidence": "MEDIUM"
-        },
-        {
-          "dimension": "trade_location",
-          "value": "near_resistance",
-          "sample_size": 7,
-          "total_r": 1.1323,
-          "impact_r": 1.1323,
-          "confidence": "LOW"
         },
         {
           "dimension": "setup_type",
@@ -665,51 +648,51 @@
         {
           "dimension": "direction",
           "value": "short",
-          "sample_size": 22,
-          "total_r": -10.8004,
-          "winrate": 13.64,
-          "avg_r": -0.4909,
-          "profit_factor": 0.3085,
+          "sample_size": 21,
+          "total_r": -9.8004,
+          "winrate": 14.29,
+          "avg_r": -0.4667,
+          "profit_factor": 0.3296,
           "confidence": "MEDIUM"
         },
         {
           "dimension": "session",
           "value": "NEW_YORK",
-          "sample_size": 14,
-          "total_r": -8.4083,
-          "winrate": 21.43,
-          "avg_r": -0.6006,
-          "profit_factor": 0.2356,
+          "sample_size": 12,
+          "total_r": -6.4083,
+          "winrate": 25.0,
+          "avg_r": -0.534,
+          "profit_factor": 0.288,
           "confidence": "MEDIUM"
         },
         {
           "dimension": "trade_location",
           "value": "premium_zone",
-          "sample_size": 8,
-          "total_r": -6.5896,
-          "winrate": 12.5,
-          "avg_r": -0.8237,
-          "profit_factor": 0.0586,
+          "sample_size": 7,
+          "total_r": -5.5896,
+          "winrate": 14.29,
+          "avg_r": -0.7985,
+          "profit_factor": 0.0684,
           "confidence": "LOW"
         },
         {
           "dimension": "setup_type",
           "value": "SECONDARY_SIGNAL",
-          "sample_size": 23,
-          "total_r": -6.4452,
-          "winrate": 26.09,
-          "avg_r": -0.2802,
-          "profit_factor": 0.5005,
+          "sample_size": 18,
+          "total_r": -4.4452,
+          "winrate": 27.78,
+          "avg_r": -0.247,
+          "profit_factor": 0.5007,
           "confidence": "MEDIUM"
         },
         {
           "dimension": "market_regime",
           "value": "RANGING",
-          "sample_size": 20,
-          "total_r": -6.0123,
-          "winrate": 35.0,
-          "avg_r": -0.3006,
-          "profit_factor": 0.5181,
+          "sample_size": 18,
+          "total_r": -4.0123,
+          "winrate": 38.89,
+          "avg_r": -0.2229,
+          "profit_factor": 0.6171,
           "confidence": "MEDIUM"
         }
       ]
@@ -719,37 +702,38 @@
       "metrics": {
         "total_r": 2.5891,
         "winrate": 33.33,
-        "avg_r": 0.1233,
-        "profit_factor": 1.2324,
-        "max_drawdown": -3.8844,
-        "wins": 7,
-        "losses": 14,
-        "sample_size": 21,
+        "avg_r": 0.1438,
+        "profit_factor": 1.2833,
+        "max_drawdown": -3.0,
+        "current_drawdown": -1.3895,
+        "wins": 6,
+        "losses": 12,
+        "sample_size": 18,
         "confidence": "MEDIUM",
-        "trades_evaluated": 45,
-        "trades_accepted": 21,
-        "trades_rejected": 24,
+        "trades_evaluated": 40,
+        "trades_accepted": 18,
+        "trades_rejected": 22,
         "rejection_reasons": {
-          "symbol_loss_cooldown": 6,
-          "toxic_context_new_york": 14,
-          "toxic_context_high_volatility_long": 5
+          "symbol_loss_cooldown": 8,
+          "toxic_context_new_york": 12,
+          "toxic_context_high_volatility_long": 3
         },
-        "delta_total_r_vs_baseline": 8.1645,
-        "delta_winrate_vs_baseline": 2.22,
+        "delta_total_r_vs_baseline": 6.1645,
+        "delta_winrate_vs_baseline": 0.83,
         "delta_total_r_vs_current_policy": 2.5891,
-        "delta_accepted_vs_current_policy": 21,
+        "delta_accepted_vs_current_policy": 18,
         "top_rejection_reasons": [
           {
             "reason": "toxic_context_new_york",
-            "count": 14
+            "count": 12
           },
           {
             "reason": "symbol_loss_cooldown",
-            "count": 6
+            "count": 8
           },
           {
             "reason": "toxic_context_high_volatility_long",
-            "count": 5
+            "count": 3
           }
         ]
       },
@@ -765,52 +749,60 @@
         {
           "dimension": "session",
           "value": "NEW_YORK",
-          "sample_size": 14,
-          "total_r": -8.4083,
-          "impact_r": 8.4083,
+          "sample_size": 12,
+          "total_r": -6.4083,
+          "impact_r": 6.4083,
           "confidence": "MEDIUM"
         },
         {
           "dimension": "trade_location",
           "value": "premium_zone",
-          "sample_size": 8,
-          "total_r": -6.5896,
-          "impact_r": 6.5896,
+          "sample_size": 7,
+          "total_r": -5.5896,
+          "impact_r": 5.5896,
           "confidence": "LOW"
         },
         {
           "dimension": "setup_type",
           "value": "SECONDARY_SIGNAL",
-          "sample_size": 13,
-          "total_r": -6.1713,
-          "impact_r": 6.1713,
+          "sample_size": 10,
+          "total_r": -3.1713,
+          "impact_r": 3.1713,
           "confidence": "MEDIUM"
         },
         {
-          "dimension": "entry_context",
-          "value": "BREAKOUT",
-          "sample_size": 14,
-          "total_r": -4.0817,
-          "impact_r": 4.0817,
+          "dimension": "setup_type",
+          "value": "MAIN_SIGNAL",
+          "sample_size": 12,
+          "total_r": -2.9932,
+          "impact_r": 2.9932,
           "confidence": "MEDIUM"
         }
       ],
       "top_worsened_contexts": [
         {
-          "dimension": "session",
-          "value": "LONDON",
-          "sample_size": 4,
-          "total_r": 3.0225,
-          "impact_r": 3.0225,
+          "dimension": "direction",
+          "value": "long",
+          "sample_size": 12,
+          "total_r": 3.313,
+          "impact_r": 3.313,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "near_resistance",
+          "sample_size": 2,
+          "total_r": 2.1813,
+          "impact_r": 2.1813,
           "confidence": "LOW"
         },
         {
-          "dimension": "direction",
-          "value": "long",
-          "sample_size": 14,
-          "total_r": 1.313,
-          "impact_r": 1.313,
-          "confidence": "MEDIUM"
+          "dimension": "session",
+          "value": "LONDON",
+          "sample_size": 5,
+          "total_r": 2.0225,
+          "impact_r": 2.0225,
+          "confidence": "LOW"
         },
         {
           "dimension": "trade_location",
@@ -819,66 +811,58 @@
           "total_r": 0.5225,
           "impact_r": 0.5225,
           "confidence": "LOW"
-        },
-        {
-          "dimension": "trade_location",
-          "value": "near_resistance",
-          "sample_size": 4,
-          "total_r": 0.1813,
-          "impact_r": 0.1813,
-          "confidence": "LOW"
         }
       ],
       "top_allowed_contexts": [
         {
-          "dimension": "direction",
-          "value": "long",
-          "sample_size": 9,
-          "total_r": 3.912,
-          "winrate": 44.44,
-          "avg_r": 0.4347,
-          "profit_factor": 1.7824,
-          "confidence": "LOW"
-        },
-        {
-          "dimension": "market_regime",
-          "value": "TRENDING",
-          "sample_size": 8,
-          "total_r": 3.8022,
-          "winrate": 37.5,
-          "avg_r": 0.4753,
-          "profit_factor": 1.9252,
-          "confidence": "LOW"
+          "dimension": "setup_type",
+          "value": "MAIN_SIGNAL",
+          "sample_size": 10,
+          "total_r": 3.863,
+          "winrate": 40.0,
+          "avg_r": 0.3863,
+          "profit_factor": 1.6438,
+          "confidence": "MEDIUM"
         },
         {
           "dimension": "entry_context",
           "value": "BREAKOUT",
-          "sample_size": 14,
+          "sample_size": 11,
           "total_r": 2.9813,
-          "winrate": 35.71,
-          "avg_r": 0.213,
-          "profit_factor": 1.4855,
+          "winrate": 36.36,
+          "avg_r": 0.271,
+          "profit_factor": 1.72,
           "confidence": "MEDIUM"
         },
         {
-          "dimension": "setup_type",
-          "value": "MAIN_SIGNAL",
-          "sample_size": 11,
-          "total_r": 2.863,
-          "winrate": 36.36,
-          "avg_r": 0.2603,
-          "profit_factor": 1.409,
-          "confidence": "MEDIUM"
+          "dimension": "direction",
+          "value": "long",
+          "sample_size": 7,
+          "total_r": 2.912,
+          "winrate": 42.86,
+          "avg_r": 0.416,
+          "profit_factor": 1.728,
+          "confidence": "LOW"
         },
         {
-          "dimension": "session",
-          "value": "OVERLAP",
-          "sample_size": 11,
-          "total_r": 2.5276,
-          "winrate": 36.36,
-          "avg_r": 0.2298,
-          "profit_factor": 1.4395,
-          "confidence": "MEDIUM"
+          "dimension": "trade_location",
+          "value": "near_support",
+          "sample_size": 8,
+          "total_r": 2.0121,
+          "winrate": 37.5,
+          "avg_r": 0.2515,
+          "profit_factor": 1.4896,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "market_regime",
+          "value": "HIGH_VOLATILITY",
+          "sample_size": 4,
+          "total_r": 1.9202,
+          "winrate": 25.0,
+          "avg_r": 0.4801,
+          "profit_factor": 2.8628,
+          "confidence": "LOW"
         }
       ],
       "top_blocked_contexts": [
@@ -895,41 +879,41 @@
         {
           "dimension": "session",
           "value": "NEW_YORK",
-          "sample_size": 14,
-          "total_r": -8.4083,
-          "winrate": 21.43,
-          "avg_r": -0.6006,
-          "profit_factor": 0.2356,
+          "sample_size": 12,
+          "total_r": -6.4083,
+          "winrate": 25.0,
+          "avg_r": -0.534,
+          "profit_factor": 0.288,
           "confidence": "MEDIUM"
         },
         {
           "dimension": "trade_location",
           "value": "premium_zone",
-          "sample_size": 8,
-          "total_r": -6.5896,
-          "winrate": 12.5,
-          "avg_r": -0.8237,
-          "profit_factor": 0.0586,
+          "sample_size": 7,
+          "total_r": -5.5896,
+          "winrate": 14.29,
+          "avg_r": -0.7985,
+          "profit_factor": 0.0684,
           "confidence": "LOW"
         },
         {
           "dimension": "setup_type",
           "value": "SECONDARY_SIGNAL",
-          "sample_size": 13,
-          "total_r": -6.1713,
-          "winrate": 23.08,
-          "avg_r": -0.4747,
-          "profit_factor": 0.2958,
+          "sample_size": 10,
+          "total_r": -3.1713,
+          "winrate": 30.0,
+          "avg_r": -0.3171,
+          "profit_factor": 0.4497,
           "confidence": "MEDIUM"
         },
         {
-          "dimension": "entry_context",
-          "value": "BREAKOUT",
-          "sample_size": 14,
-          "total_r": -4.0817,
-          "winrate": 28.57,
-          "avg_r": -0.2915,
-          "profit_factor": 0.5342,
+          "dimension": "setup_type",
+          "value": "MAIN_SIGNAL",
+          "sample_size": 12,
+          "total_r": -2.9932,
+          "winrate": 33.33,
+          "avg_r": -0.2494,
+          "profit_factor": 0.6259,
           "confidence": "MEDIUM"
         }
       ]
@@ -937,102 +921,95 @@
     {
       "layer": "pair_universe_filter_shadow",
       "metrics": {
-        "total_r": -2.0979,
-        "winrate": 33.33,
-        "avg_r": -0.0538,
-        "profit_factor": 0.9065,
-        "max_drawdown": -8.5782,
-        "wins": 13,
-        "losses": 26,
-        "sample_size": 39,
+        "total_r": -2.5754,
+        "winrate": 32.43,
+        "avg_r": -0.0696,
+        "profit_factor": 0.8768,
+        "max_drawdown": -8.5,
+        "current_drawdown": -4.4385,
+        "wins": 12,
+        "losses": 25,
+        "sample_size": 37,
         "confidence": "HIGH",
-        "trades_evaluated": 45,
-        "trades_accepted": 39,
-        "trades_rejected": 6,
+        "trades_evaluated": 40,
+        "trades_accepted": 37,
+        "trades_rejected": 3,
         "rejection_reasons": {
           "recent_performance_too_negative": 2,
-          "too_many_recent_rejections": 4
+          "too_many_recent_rejections": 1
         },
-        "delta_total_r_vs_baseline": 3.4775,
-        "delta_winrate_vs_baseline": 2.22,
-        "delta_total_r_vs_current_policy": -2.0979,
-        "delta_accepted_vs_current_policy": 39,
+        "delta_total_r_vs_baseline": 1.0,
+        "delta_winrate_vs_baseline": -0.07,
+        "delta_total_r_vs_current_policy": -2.5754,
+        "delta_accepted_vs_current_policy": 37,
         "top_rejection_reasons": [
-          {
-            "reason": "too_many_recent_rejections",
-            "count": 4
-          },
           {
             "reason": "recent_performance_too_negative",
             "count": 2
+          },
+          {
+            "reason": "too_many_recent_rejections",
+            "count": 1
           }
         ]
       },
       "top_improved_contexts": [
         {
-          "dimension": "setup_type",
-          "value": "SECONDARY_SIGNAL",
-          "sample_size": 5,
-          "total_r": -4.4775,
-          "impact_r": 4.4775,
-          "confidence": "LOW"
-        },
-        {
-          "dimension": "entry_context",
-          "value": "BREAKOUT",
-          "sample_size": 6,
-          "total_r": -3.4775,
-          "impact_r": 3.4775,
+          "dimension": "session",
+          "value": "OVERLAP",
+          "sample_size": 2,
+          "total_r": -2.0,
+          "impact_r": 2.0,
           "confidence": "LOW"
         },
         {
           "dimension": "direction",
           "value": "long",
-          "sample_size": 5,
-          "total_r": -3.0,
-          "impact_r": 3.0,
-          "confidence": "LOW"
-        },
-        {
-          "dimension": "session",
-          "value": "OVERLAP",
           "sample_size": 3,
-          "total_r": -3.0,
-          "impact_r": 3.0,
+          "total_r": -1.0,
+          "impact_r": 1.0,
           "confidence": "LOW"
         },
         {
           "dimension": "market_regime",
-          "value": "HIGH_VOLATILITY",
-          "sample_size": 4,
-          "total_r": -2.0,
-          "impact_r": 2.0,
+          "value": "RANGING",
+          "sample_size": 1,
+          "total_r": -1.0,
+          "impact_r": 1.0,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "entry_context",
+          "value": "BREAKOUT",
+          "sample_size": 3,
+          "total_r": -1.0,
+          "impact_r": 1.0,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "near_support",
+          "sample_size": 1,
+          "total_r": -1.0,
+          "impact_r": 1.0,
           "confidence": "LOW"
         }
       ],
       "top_worsened_contexts": [
         {
-          "dimension": "setup_type",
-          "value": "MAIN_SIGNAL",
+          "dimension": "session",
+          "value": "LONDON",
           "sample_size": 1,
           "total_r": 1.0,
           "impact_r": 1.0,
           "confidence": "LOW"
         },
         {
-          "dimension": "session",
-          "value": "LONDON",
-          "sample_size": 2,
-          "total_r": 0.5225,
-          "impact_r": 0.5225,
-          "confidence": "LOW"
-        },
-        {
           "dimension": "trade_location",
           "value": "discount_zone",
-          "sample_size": 2,
-          "total_r": 0.5225,
-          "impact_r": 0.5225,
+          "sample_size": 1,
+          "total_r": 1.0,
+          "impact_r": 1.0,
           "confidence": "LOW"
         }
       ],
@@ -1040,11 +1017,11 @@
         {
           "dimension": "direction",
           "value": "long",
-          "sample_size": 18,
-          "total_r": 8.225,
-          "winrate": 55.56,
-          "avg_r": 0.4569,
-          "profit_factor": 2.129,
+          "sample_size": 16,
+          "total_r": 7.225,
+          "winrate": 56.25,
+          "avg_r": 0.4516,
+          "profit_factor": 2.1495,
           "confidence": "MEDIUM"
         },
         {
@@ -1059,81 +1036,81 @@
         },
         {
           "dimension": "session",
-          "value": "OVERLAP",
-          "sample_size": 14,
-          "total_r": 2.7489,
-          "winrate": 35.71,
-          "avg_r": 0.1964,
-          "profit_factor": 1.3907,
+          "value": "LONDON",
+          "sample_size": 13,
+          "total_r": 2.084,
+          "winrate": 38.46,
+          "avg_r": 0.1603,
+          "profit_factor": 1.3552,
+          "confidence": "MEDIUM"
+        },
+        {
+          "dimension": "entry_context",
+          "value": "BREAKOUT",
+          "sample_size": 20,
+          "total_r": 1.8996,
+          "winrate": 35.0,
+          "avg_r": 0.095,
+          "profit_factor": 1.2134,
           "confidence": "MEDIUM"
         },
         {
           "dimension": "session",
-          "value": "LONDON",
+          "value": "OVERLAP",
           "sample_size": 12,
-          "total_r": 2.5615,
-          "winrate": 41.67,
-          "avg_r": 0.2135,
-          "profit_factor": 1.4753,
-          "confidence": "MEDIUM"
-        },
-        {
-          "dimension": "market_regime",
-          "value": "TRENDING",
-          "sample_size": 15,
-          "total_r": 2.5167,
+          "total_r": 1.7489,
           "winrate": 33.33,
-          "avg_r": 0.1678,
-          "profit_factor": 1.2998,
+          "avg_r": 0.1457,
+          "profit_factor": 1.2897,
           "confidence": "MEDIUM"
         }
       ],
       "top_blocked_contexts": [
         {
-          "dimension": "setup_type",
-          "value": "SECONDARY_SIGNAL",
-          "sample_size": 5,
-          "total_r": -4.4775,
-          "winrate": 0.0,
-          "avg_r": -0.8955,
-          "profit_factor": 0.0,
-          "confidence": "LOW"
-        },
-        {
-          "dimension": "entry_context",
-          "value": "BREAKOUT",
-          "sample_size": 6,
-          "total_r": -3.4775,
-          "winrate": 16.67,
-          "avg_r": -0.5796,
-          "profit_factor": 0.2233,
-          "confidence": "LOW"
-        },
-        {
           "dimension": "session",
           "value": "OVERLAP",
-          "sample_size": 3,
-          "total_r": -3.0,
+          "sample_size": 2,
+          "total_r": -2.0,
           "winrate": 0.0,
           "avg_r": -1.0,
           "profit_factor": 0.0,
           "confidence": "LOW"
         },
         {
-          "dimension": "direction",
-          "value": "long",
-          "sample_size": 5,
-          "total_r": -3.0,
-          "winrate": 20.0,
-          "avg_r": -0.6,
-          "profit_factor": 0.25,
+          "dimension": "market_regime",
+          "value": "RANGING",
+          "sample_size": 1,
+          "total_r": -1.0,
+          "winrate": 0.0,
+          "avg_r": -1.0,
+          "profit_factor": 0.0,
           "confidence": "LOW"
         },
         {
           "dimension": "trade_location",
-          "value": "near_resistance",
-          "sample_size": 2,
-          "total_r": -2.0,
+          "value": "near_support",
+          "sample_size": 1,
+          "total_r": -1.0,
+          "winrate": 0.0,
+          "avg_r": -1.0,
+          "profit_factor": 0.0,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "setup_type",
+          "value": "SECONDARY_SIGNAL",
+          "sample_size": 1,
+          "total_r": -1.0,
+          "winrate": 0.0,
+          "avg_r": -1.0,
+          "profit_factor": 0.0,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "trade_location",
+          "value": "premium_zone",
+          "sample_size": 1,
+          "total_r": -1.0,
           "winrate": 0.0,
           "avg_r": -1.0,
           "profit_factor": 0.0,
@@ -1144,34 +1121,40 @@
     {
       "layer": "kill_switch_risk_guard",
       "metrics": {
-        "total_r": 2.912,
-        "winrate": 40.0,
-        "avg_r": 0.5824,
-        "profit_factor": 1.9707,
+        "total_r": -2.0,
+        "winrate": 0.0,
+        "avg_r": -1.0,
+        "profit_factor": 0.0,
         "max_drawdown": -2.0,
-        "wins": 2,
-        "losses": 3,
-        "sample_size": 5,
+        "current_drawdown": -2.0,
+        "wins": 0,
+        "losses": 2,
+        "sample_size": 2,
         "confidence": "LOW",
-        "trades_evaluated": 45,
-        "trades_accepted": 5,
-        "trades_rejected": 40,
+        "trades_evaluated": 40,
+        "trades_accepted": 2,
+        "trades_rejected": 38,
         "rejection_reasons": {
-          "cooldown_active": 6,
-          "consecutive_losses_limit": 35
+          "daily_loss_limit": 3,
+          "consecutive_losses_limit": 38,
+          "cooldown_active": 7
         },
-        "delta_total_r_vs_baseline": 8.4874,
-        "delta_winrate_vs_baseline": 8.89,
-        "delta_total_r_vs_current_policy": 2.912,
-        "delta_accepted_vs_current_policy": 5,
+        "delta_total_r_vs_baseline": 1.5754,
+        "delta_winrate_vs_baseline": -32.5,
+        "delta_total_r_vs_current_policy": -2.0,
+        "delta_accepted_vs_current_policy": 2,
         "top_rejection_reasons": [
           {
             "reason": "consecutive_losses_limit",
-            "count": 35
+            "count": 38
           },
           {
             "reason": "cooldown_active",
-            "count": 6
+            "count": 7
+          },
+          {
+            "reason": "daily_loss_limit",
+            "count": 3
           }
         ]
       },
@@ -1179,45 +1162,53 @@
         {
           "dimension": "direction",
           "value": "short",
-          "sample_size": 21,
-          "total_r": -9.8004,
-          "impact_r": 9.8004,
+          "sample_size": 20,
+          "total_r": -8.8004,
+          "impact_r": 8.8004,
           "confidence": "MEDIUM"
         },
         {
           "dimension": "session",
           "value": "NEW_YORK",
-          "sample_size": 14,
-          "total_r": -8.4083,
-          "impact_r": 8.4083,
+          "sample_size": 12,
+          "total_r": -6.4083,
+          "impact_r": 6.4083,
           "confidence": "MEDIUM"
         },
         {
           "dimension": "trade_location",
           "value": "premium_zone",
-          "sample_size": 8,
-          "total_r": -6.5896,
-          "impact_r": 6.5896,
+          "sample_size": 7,
+          "total_r": -5.5896,
+          "impact_r": 5.5896,
           "confidence": "LOW"
         },
         {
           "dimension": "setup_type",
           "value": "SECONDARY_SIGNAL",
-          "sample_size": 22,
-          "total_r": -5.4452,
-          "impact_r": 5.4452,
+          "sample_size": 17,
+          "total_r": -3.4452,
+          "impact_r": 3.4452,
           "confidence": "MEDIUM"
         },
         {
-          "dimension": "session",
-          "value": "OVERLAP",
-          "sample_size": 14,
-          "total_r": -5.1631,
-          "impact_r": 5.1631,
-          "confidence": "MEDIUM"
+          "dimension": "entry_context",
+          "value": "CHOPPY_RANGE",
+          "sample_size": 6,
+          "total_r": -2.5896,
+          "impact_r": 2.5896,
+          "confidence": "LOW"
         }
       ],
       "top_worsened_contexts": [
+        {
+          "dimension": "direction",
+          "value": "long",
+          "sample_size": 18,
+          "total_r": 7.225,
+          "impact_r": 7.225,
+          "confidence": "MEDIUM"
+        },
         {
           "dimension": "session",
           "value": "LONDON",
@@ -1227,79 +1218,79 @@
           "confidence": "MEDIUM"
         },
         {
-          "dimension": "direction",
-          "value": "long",
-          "sample_size": 19,
-          "total_r": 1.313,
-          "impact_r": 1.313,
+          "dimension": "trade_location",
+          "value": "near_resistance",
+          "sample_size": 5,
+          "total_r": 3.1323,
+          "impact_r": 3.1323,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "entry_context",
+          "value": "BREAKOUT",
+          "sample_size": 22,
+          "total_r": 1.8996,
+          "impact_r": 1.8996,
           "confidence": "MEDIUM"
         },
         {
-          "dimension": "trade_location",
-          "value": "near_resistance",
-          "sample_size": 7,
-          "total_r": 1.1323,
-          "impact_r": 1.1323,
-          "confidence": "LOW"
-        },
-        {
-          "dimension": "trade_location",
-          "value": "discount_zone",
-          "sample_size": 5,
-          "total_r": 0.7017,
-          "impact_r": 0.7017,
-          "confidence": "LOW"
+          "dimension": "setup_type",
+          "value": "MAIN_SIGNAL",
+          "sample_size": 21,
+          "total_r": 1.8698,
+          "impact_r": 1.8698,
+          "confidence": "MEDIUM"
         }
       ],
       "top_allowed_contexts": [
         {
-          "dimension": "market_regime",
-          "value": "TRENDING",
-          "sample_size": 2,
-          "total_r": 5.912,
-          "winrate": 100.0,
-          "avg_r": 2.956,
-          "profit_factor": 5.912,
-          "confidence": "LOW"
-        },
-        {
-          "dimension": "session",
-          "value": "OVERLAP",
-          "sample_size": 3,
-          "total_r": 4.912,
-          "winrate": 66.67,
-          "avg_r": 1.6373,
-          "profit_factor": 5.912,
-          "confidence": "LOW"
-        },
-        {
           "dimension": "direction",
           "value": "long",
-          "sample_size": 4,
-          "total_r": 3.912,
-          "winrate": 50.0,
-          "avg_r": 0.978,
-          "profit_factor": 2.956,
+          "sample_size": 1,
+          "total_r": -1.0,
+          "winrate": 0.0,
+          "avg_r": -1.0,
+          "profit_factor": 0.0,
           "confidence": "LOW"
         },
         {
           "dimension": "setup_type",
           "value": "MAIN_SIGNAL",
-          "sample_size": 4,
-          "total_r": 3.912,
-          "winrate": 50.0,
-          "avg_r": 0.978,
-          "profit_factor": 2.956,
+          "sample_size": 1,
+          "total_r": -1.0,
+          "winrate": 0.0,
+          "avg_r": -1.0,
+          "profit_factor": 0.0,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "entry_context",
+          "value": "CHOPPY_RANGE",
+          "sample_size": 1,
+          "total_r": -1.0,
+          "winrate": 0.0,
+          "avg_r": -1.0,
+          "profit_factor": 0.0,
           "confidence": "LOW"
         },
         {
           "dimension": "trade_location",
           "value": "near_support",
-          "sample_size": 3,
-          "total_r": 2.2552,
-          "winrate": 33.33,
-          "avg_r": 0.7517,
-          "profit_factor": 2.1276,
+          "sample_size": 1,
+          "total_r": -1.0,
+          "winrate": 0.0,
+          "avg_r": -1.0,
+          "profit_factor": 0.0,
+          "confidence": "LOW"
+        },
+        {
+          "dimension": "direction",
+          "value": "short",
+          "sample_size": 1,
+          "total_r": -1.0,
+          "winrate": 0.0,
+          "avg_r": -1.0,
+          "profit_factor": 0.0,
           "confidence": "LOW"
         }
       ],
@@ -1307,52 +1298,52 @@
         {
           "dimension": "direction",
           "value": "short",
-          "sample_size": 21,
-          "total_r": -9.8004,
-          "winrate": 14.29,
-          "avg_r": -0.4667,
-          "profit_factor": 0.3296,
+          "sample_size": 20,
+          "total_r": -8.8004,
+          "winrate": 15.0,
+          "avg_r": -0.44,
+          "profit_factor": 0.3538,
           "confidence": "MEDIUM"
         },
         {
           "dimension": "session",
           "value": "NEW_YORK",
-          "sample_size": 14,
-          "total_r": -8.4083,
-          "winrate": 21.43,
-          "avg_r": -0.6006,
-          "profit_factor": 0.2356,
+          "sample_size": 12,
+          "total_r": -6.4083,
+          "winrate": 25.0,
+          "avg_r": -0.534,
+          "profit_factor": 0.288,
           "confidence": "MEDIUM"
         },
         {
           "dimension": "trade_location",
           "value": "premium_zone",
-          "sample_size": 8,
-          "total_r": -6.5896,
-          "winrate": 12.5,
-          "avg_r": -0.8237,
-          "profit_factor": 0.0586,
+          "sample_size": 7,
+          "total_r": -5.5896,
+          "winrate": 14.29,
+          "avg_r": -0.7985,
+          "profit_factor": 0.0684,
           "confidence": "LOW"
         },
         {
           "dimension": "setup_type",
           "value": "SECONDARY_SIGNAL",
-          "sample_size": 22,
-          "total_r": -5.4452,
-          "winrate": 27.27,
-          "avg_r": -0.2475,
-          "profit_factor": 0.5426,
+          "sample_size": 17,
+          "total_r": -3.4452,
+          "winrate": 29.41,
+          "avg_r": -0.2027,
+          "profit_factor": 0.5641,
           "confidence": "MEDIUM"
         },
         {
-          "dimension": "session",
-          "value": "OVERLAP",
-          "sample_size": 14,
-          "total_r": -5.1631,
-          "winrate": 21.43,
-          "avg_r": -0.3688,
-          "profit_factor": 0.4286,
-          "confidence": "MEDIUM"
+          "dimension": "entry_context",
+          "value": "CHOPPY_RANGE",
+          "sample_size": 6,
+          "total_r": -2.5896,
+          "winrate": 33.33,
+          "avg_r": -0.4316,
+          "profit_factor": 0.3526,
+          "confidence": "LOW"
         }
       ]
     }

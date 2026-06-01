@@ -11,10 +11,10 @@
   "data_sources": {
     "paper_trades_rows": 49,
     "live_trades_rows": 7,
-    "outcome_rows": 45,
+    "outcome_rows": 40,
     "signals_rows": 154,
-    "setup_rankings_rows": 25,
-    "edge_breakdown_rows": 32,
+    "setup_rankings_rows": 24,
+    "edge_breakdown_rows": 31,
     "warnings": [
       "Missing optional file: reports/controlled_experiments_report.json",
       "Missing optional file: reports/london_short_analysis.json",
@@ -216,5 +216,20 @@
     ],
     "current_risk": "DD actual 6.9942R",
     "main_recommendation": "No tocar produccion: mantener la validacion en observabilidad/shadow hasta tener muestra suficiente."
+  },
+  "relaxation_shadow_status": {
+    "trades_captured": 0,
+    "skips_captured": 0,
+    "last_skip_reason": "none",
+    "top_unsafe_filters": [],
+    "top_safe_filters": [],
+    "v1_too_strict": false,
+    "recommendation": "keep",
+    "sources": {
+      "data_trades_exists": false,
+      "data_skips_exists": false,
+      "report_summary_exists": true,
+      "report_skips_exists": true
+    }
   }
 }
