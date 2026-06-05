@@ -1225,6 +1225,15 @@ def run_market_scan(
                     evaluation_or_decision=signal_decision,
                 )
                 if publish_filter_reason is not None:
+                    if publish_filter_reason == "bullish_sweep_blocked":
+                        evaluation.decision_trace.append("bullish_sweep_blocked=true")
+                        log_json(
+                            logger,
+                            "bullish_sweep_blocked",
+                            symbol=symbol,
+                            direction=evaluation.decision,
+                            setup_context=setup_context,
+                        )
                     log_json(
                         logger,
                         "publish_signal_blocked",

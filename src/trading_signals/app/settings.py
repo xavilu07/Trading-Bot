@@ -61,6 +61,7 @@ class Settings:
     meta_decision_filter_enabled: bool = field(default_factory=lambda: _bool_env("META_DECISION_FILTER_ENABLED", "false"))
     edge_activation_mode: bool = field(default_factory=lambda: _bool_env("EDGE_ACTIVATION_MODE", "true"))
     short_shadow_mode: bool = field(default_factory=lambda: _bool_env("SHORT_SHADOW_MODE", "true"))
+    bullish_sweep_block_enabled: bool = field(default_factory=lambda: _bool_env("BULLISH_SWEEP_BLOCK_ENABLED", "false"))
     public_short_canary_enabled: bool = field(default_factory=lambda: _bool_env("PUBLIC_SHORT_CANARY_ENABLED", "false"))
     public_short_canary_session: str = field(default_factory=lambda: os.getenv("PUBLIC_SHORT_CANARY_SESSION", "LONDON"))
     public_short_canary_direction: str = field(default_factory=lambda: os.getenv("PUBLIC_SHORT_CANARY_DIRECTION", "SHORT"))

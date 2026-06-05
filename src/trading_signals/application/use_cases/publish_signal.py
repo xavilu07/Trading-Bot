@@ -179,6 +179,7 @@ def publish_filter_rejection_reason(
     session_allowed = _allowed(settings.publish_allowed_sessions, str(setup_context.get("session", "")).upper())
     hour_allowed = _allowed(settings.publish_allowed_hours_utc, str(_hour_utc(opened_at)))
     symbol_allowed = _allowed(settings.publish_symbol_whitelist, symbol.upper())
+    bullish_sweep_reason = bullish_sweep_block_rejection_reason(settings=settings, setup_context=setup_context)
     if not direction_allowed:
         return "publish_filter_direction"
     if not session_allowed:
@@ -187,6 +188,8 @@ def publish_filter_rejection_reason(
         return "publish_filter_hour_utc"
     if not symbol_allowed:
         return "publish_filter_symbol_whitelist"
+    if bullish_sweep_reason is not None:
+        return bullish_sweep_reason
     filter_tokens = _publish_filter_tokens(setup_context=setup_context, evaluation_or_decision=evaluation_or_decision)
     blocked_warning = _first_configured_match(settings.publish_blocked_warnings, filter_tokens)
     if blocked_warning is not None:
@@ -198,6 +201,16 @@ def publish_filter_rejection_reason(
         harmful_filter = _first_configured_match(list(HARMFUL_PUBLISH_FILTERS), filter_tokens)
         if harmful_filter is not None:
             return f"publish_filter_harmful_filter:{harmful_filter}"
+    return None
+
+
+def bullish_sweep_block_rejection_reason(*, settings, setup_context: dict[str, object]) -> str | None:
+    if not getattr(settings, "bullish_sweep_block_enabled", False):
+        return None
+    liquidity_context = str(setup_context.get("liquidity_context", "")).lower()
+    liquidity_sweep = str(setup_context.get("liquidity_sweep", "")).lower()
+    if "sweep:bullish_sweep" in liquidity_context or liquidity_sweep == "bullish_sweep":
+        return "bullish_sweep_blocked"
     return None
 
 
