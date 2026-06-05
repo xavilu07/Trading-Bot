@@ -265,6 +265,64 @@ def test_publish_filter_empty_config_does_not_restrict() -> None:
     assert reason is None
 
 
+def test_bullish_sweep_block_disabled_does_not_block_publication() -> None:
+    reason = publish_filter_rejection_reason(
+        settings=Settings(bullish_sweep_block_enabled=False),
+        symbol="BTCUSDT",
+        direction="long",
+        setup_context={"session": "LONDON", "liquidity_sweep": "bullish_sweep"},
+        opened_at="2026-05-07T11:30:00+00:00",
+    )
+
+    assert reason is None
+
+
+def test_bullish_sweep_block_enabled_blocks_bullish_sweep() -> None:
+    reason = publish_filter_rejection_reason(
+        settings=Settings(bullish_sweep_block_enabled=True),
+        symbol="BTCUSDT",
+        direction="long",
+        setup_context={"session": "LONDON", "liquidity_sweep": "bullish_sweep"},
+        opened_at="2026-05-07T11:30:00+00:00",
+    )
+
+    assert reason == "bullish_sweep_blocked"
+
+
+def test_bullish_sweep_block_enabled_blocks_bullish_sweep_context() -> None:
+    reason = publish_filter_rejection_reason(
+        settings=Settings(bullish_sweep_block_enabled=True),
+        symbol="BTCUSDT",
+        direction="long",
+        setup_context={"session": "LONDON", "liquidity_context": "sweep:bullish_sweep"},
+        opened_at="2026-05-07T11:30:00+00:00",
+    )
+
+    assert reason == "bullish_sweep_blocked"
+
+
+def test_bullish_sweep_block_does_not_block_bearish_or_non_sweep() -> None:
+    settings = Settings(bullish_sweep_block_enabled=True)
+
+    bearish_reason = publish_filter_rejection_reason(
+        settings=settings,
+        symbol="BTCUSDT",
+        direction="short",
+        setup_context={"session": "LONDON", "liquidity_sweep": "bearish_sweep"},
+        opened_at="2026-05-07T11:30:00+00:00",
+    )
+    non_sweep_reason = publish_filter_rejection_reason(
+        settings=settings,
+        symbol="BTCUSDT",
+        direction="long",
+        setup_context={"session": "LONDON", "liquidity_context": "nearest_liquidity"},
+        opened_at="2026-05-07T11:30:00+00:00",
+    )
+
+    assert bearish_reason is None
+    assert non_sweep_reason is None
+
+
 def test_publish_filter_rejects_blocked_warning_from_context() -> None:
     reason = publish_filter_rejection_reason(
         settings=Settings(publish_blocked_warnings=["dirty_sideways_market"]),
