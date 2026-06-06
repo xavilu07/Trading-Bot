@@ -99,8 +99,11 @@ def write_against_htf_breakout_shadow_rows(records: list[dict[str, Any]], data_p
 
 def write_against_htf_breakout_shadow_report(result: dict[str, Any], reports_path: Path) -> Path:
     reports_path.mkdir(parents=True, exist_ok=True)
-    path = reports_path / "against_htf_breakout_shadow_block.md"
-    path.write_text(format_against_htf_breakout_shadow_markdown(result), encoding="utf-8")
+    content = format_against_htf_breakout_shadow_markdown(result)
+    path = reports_path / "against_htf_breakout_block_report.md"
+    path.write_text(content, encoding="utf-8")
+    legacy_path = reports_path / "against_htf_breakout_shadow_block.md"
+    legacy_path.write_text(content, encoding="utf-8")
     return path
 
 

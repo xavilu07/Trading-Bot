@@ -323,6 +323,66 @@ def test_bullish_sweep_block_does_not_block_bearish_or_non_sweep() -> None:
     assert non_sweep_reason is None
 
 
+def test_against_htf_breakout_block_disabled_does_not_block_publication() -> None:
+    reason = publish_filter_rejection_reason(
+        settings=Settings(against_htf_breakout_block_enabled=False),
+        symbol="BTCUSDT",
+        direction="long",
+        setup_context={"session": "LONDON", "entry_context": "BREAKOUT", "warnings": ["against_htf"]},
+        opened_at="2026-05-07T11:30:00+00:00",
+    )
+
+    assert reason is None
+
+
+def test_against_htf_breakout_block_enabled_blocks_against_htf_breakout() -> None:
+    reason = publish_filter_rejection_reason(
+        settings=Settings(against_htf_breakout_block_enabled=True),
+        symbol="BTCUSDT",
+        direction="long",
+        setup_context={"session": "LONDON", "entry_context": "BREAKOUT", "warnings": ["against_htf"]},
+        opened_at="2026-05-07T11:30:00+00:00",
+    )
+
+    assert reason == "against_htf_breakout_blocked"
+
+
+def test_against_htf_breakout_block_enabled_blocks_derived_htf_alignment() -> None:
+    reason = publish_filter_rejection_reason(
+        settings=Settings(against_htf_breakout_block_enabled=True),
+        symbol="BTCUSDT",
+        direction="long",
+        setup_context={"session": "LONDON", "entry_context": "BREAKOUT", "htf_alignment": "against_htf"},
+        opened_at="2026-05-07T11:30:00+00:00",
+    )
+
+    assert reason == "against_htf_breakout_blocked"
+
+
+def test_against_htf_breakout_block_does_not_block_against_htf_pullback() -> None:
+    reason = publish_filter_rejection_reason(
+        settings=Settings(against_htf_breakout_block_enabled=True),
+        symbol="BTCUSDT",
+        direction="long",
+        setup_context={"session": "LONDON", "entry_context": "PULLBACK", "warnings": ["against_htf"]},
+        opened_at="2026-05-07T11:30:00+00:00",
+    )
+
+    assert reason is None
+
+
+def test_against_htf_breakout_block_does_not_block_clean_breakout() -> None:
+    reason = publish_filter_rejection_reason(
+        settings=Settings(against_htf_breakout_block_enabled=True),
+        symbol="BTCUSDT",
+        direction="long",
+        setup_context={"session": "LONDON", "entry_context": "BREAKOUT", "warnings": ["volume_ok"]},
+        opened_at="2026-05-07T11:30:00+00:00",
+    )
+
+    assert reason is None
+
+
 def test_publish_filter_rejects_blocked_warning_from_context() -> None:
     reason = publish_filter_rejection_reason(
         settings=Settings(publish_blocked_warnings=["dirty_sideways_market"]),

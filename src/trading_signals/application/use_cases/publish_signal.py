@@ -180,6 +180,12 @@ def publish_filter_rejection_reason(
     hour_allowed = _allowed(settings.publish_allowed_hours_utc, str(_hour_utc(opened_at)))
     symbol_allowed = _allowed(settings.publish_symbol_whitelist, symbol.upper())
     bullish_sweep_reason = bullish_sweep_block_rejection_reason(settings=settings, setup_context=setup_context)
+    against_htf_breakout_reason = against_htf_breakout_block_rejection_reason(
+        settings=settings,
+        direction=direction,
+        setup_context=setup_context,
+        evaluation_or_decision=evaluation_or_decision,
+    )
     if not direction_allowed:
         return "publish_filter_direction"
     if not session_allowed:
@@ -190,6 +196,8 @@ def publish_filter_rejection_reason(
         return "publish_filter_symbol_whitelist"
     if bullish_sweep_reason is not None:
         return bullish_sweep_reason
+    if against_htf_breakout_reason is not None:
+        return against_htf_breakout_reason
     filter_tokens = _publish_filter_tokens(setup_context=setup_context, evaluation_or_decision=evaluation_or_decision)
     blocked_warning = _first_configured_match(settings.publish_blocked_warnings, filter_tokens)
     if blocked_warning is not None:
@@ -201,6 +209,30 @@ def publish_filter_rejection_reason(
         harmful_filter = _first_configured_match(list(HARMFUL_PUBLISH_FILTERS), filter_tokens)
         if harmful_filter is not None:
             return f"publish_filter_harmful_filter:{harmful_filter}"
+    return None
+
+
+def against_htf_breakout_block_rejection_reason(
+    *,
+    settings,
+    direction: str,
+    setup_context: dict[str, object],
+    evaluation_or_decision=None,
+) -> str | None:
+    if not getattr(settings, "against_htf_breakout_block_enabled", False):
+        return None
+    if str(setup_context.get("entry_context", "")).upper() != "BREAKOUT":
+        return None
+    tokens = _publish_filter_tokens(setup_context=setup_context, evaluation_or_decision=evaluation_or_decision)
+    htf_alignment = str(setup_context.get("htf_alignment") or "").lower()
+    trend_higher = str(
+        setup_context.get("trend_higher")
+        or setup_context.get("trend_higher_timeframe")
+        or setup_context.get("trend_4h")
+        or ""
+    ).lower()
+    if "against_htf" in tokens or htf_alignment == "against_htf" or _htf_contradicts(direction.lower(), trend_higher):
+        return "against_htf_breakout_blocked"
     return None
 
 

@@ -1234,6 +1234,15 @@ def run_market_scan(
                             direction=evaluation.decision,
                             setup_context=setup_context,
                         )
+                    if publish_filter_reason == "against_htf_breakout_blocked":
+                        evaluation.decision_trace.append("against_htf_breakout_blocked=true")
+                        log_json(
+                            logger,
+                            "against_htf_breakout_blocked",
+                            symbol=symbol,
+                            direction=evaluation.decision,
+                            setup_context=setup_context,
+                        )
                     log_json(
                         logger,
                         "publish_signal_blocked",
