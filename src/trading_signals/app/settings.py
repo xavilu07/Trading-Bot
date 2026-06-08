@@ -65,6 +65,27 @@ class Settings:
     against_htf_breakout_block_enabled: bool = field(
         default_factory=lambda: _bool_env("AGAINST_HTF_BREAKOUT_BLOCK_ENABLED", "false")
     )
+    adaptive_filter_enabled: bool = field(default_factory=lambda: _bool_env("ADAPTIVE_FILTER_ENABLED", "false"))
+    adaptive_filter_mode: str = field(default_factory=lambda: os.getenv("ADAPTIVE_FILTER_MODE", "observe"))
+    adaptive_filter_min_closed: int = field(default_factory=lambda: int(os.getenv("ADAPTIVE_FILTER_MIN_CLOSED", "30")))
+    adaptive_filter_block_pf_threshold: float = field(
+        default_factory=lambda: float(os.getenv("ADAPTIVE_FILTER_BLOCK_PF_THRESHOLD", "0.75"))
+    )
+    adaptive_filter_block_total_r_threshold: float = field(
+        default_factory=lambda: float(os.getenv("ADAPTIVE_FILTER_BLOCK_TOTAL_R_THRESHOLD", "-5"))
+    )
+    adaptive_filter_unblock_pf_threshold: float = field(
+        default_factory=lambda: float(os.getenv("ADAPTIVE_FILTER_UNBLOCK_PF_THRESHOLD", "1.20"))
+    )
+    adaptive_filter_unblock_total_r_threshold: float = field(
+        default_factory=lambda: float(os.getenv("ADAPTIVE_FILTER_UNBLOCK_TOTAL_R_THRESHOLD", "5"))
+    )
+    adaptive_filter_allowed_contexts: list[str] = field(
+        default_factory=lambda: _csv_env("ADAPTIVE_FILTER_ALLOWED_CONTEXTS", "bullish_sweep,against_htf_breakout")
+    )
+    adaptive_filter_require_human_approval: bool = field(
+        default_factory=lambda: _bool_env("ADAPTIVE_FILTER_REQUIRE_HUMAN_APPROVAL", "true")
+    )
     public_short_canary_enabled: bool = field(default_factory=lambda: _bool_env("PUBLIC_SHORT_CANARY_ENABLED", "false"))
     public_short_canary_session: str = field(default_factory=lambda: os.getenv("PUBLIC_SHORT_CANARY_SESSION", "LONDON"))
     public_short_canary_direction: str = field(default_factory=lambda: os.getenv("PUBLIC_SHORT_CANARY_DIRECTION", "SHORT"))
