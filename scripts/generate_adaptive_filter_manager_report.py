@@ -17,17 +17,33 @@ from trading_signals.research.adaptive_filter_manager import (  # noqa: E402
 )
 
 
+def load_dotenv(path: Path) -> None:
+    if not path.exists():
+        return
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        if key and key not in os.environ:
+            os.environ[key] = value
+
+
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(prog="adaptive-filter-manager")
     bot_data_dir = Path(os.getenv("BOT_DATA_DIR", "."))
     parser.add_argument("--data-path", default=str(bot_data_dir / "data"))
     parser.add_argument("--reports-path", default=str(bot_data_dir / "reports"))
     parser.add_argument("--runtime-path", default=str(bot_data_dir / "data" / "runtime"))
+    parser.add_argument("--env-file", default=str(bot_data_dir / ".env"))
     return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
+    load_dotenv(Path(args.env_file))
     settings = load_settings()
     config = config_from_settings(settings)
     result = generate_adaptive_filter_manager_report(

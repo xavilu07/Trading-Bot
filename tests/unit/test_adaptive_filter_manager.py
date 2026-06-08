@@ -9,6 +9,7 @@ from pathlib import Path
 from trading_signals.research.adaptive_filter_manager import (
     AdaptiveFilterConfig,
     analyze_adaptive_filter_manager,
+    config_from_settings,
     generate_adaptive_filter_manager_report,
     should_block_by_adaptive_filter,
 )
@@ -113,6 +114,90 @@ def test_bullish_sweep_toxic_context_recommends_promote_to_block(tmp_path: Path)
     result = analyze_adaptive_filter_manager(data_path=data_path, config=AdaptiveFilterConfig(), now=NOW)
 
     assert result["contexts"]["bullish_sweep"]["recommendation"] == "PROMOTE_TO_BLOCK"
+
+
+def test_env_bullish_sweep_true_marks_bullish_sweep_blocked(monkeypatch) -> None:
+    monkeypatch.setenv("BULLISH_SWEEP_BLOCK_ENABLED", "true")
+    monkeypatch.setenv("AGAINST_HTF_BREAKOUT_BLOCK_ENABLED", "false")
+
+    from trading_signals.app.settings import Settings
+
+    config = config_from_settings(Settings())
+
+    assert "bullish_sweep" in config.current_blocks
+    assert "against_htf_breakout" not in config.current_blocks
+
+
+def test_env_against_htf_breakout_true_marks_against_htf_breakout_blocked(monkeypatch) -> None:
+    monkeypatch.setenv("BULLISH_SWEEP_BLOCK_ENABLED", "false")
+    monkeypatch.setenv("AGAINST_HTF_BREAKOUT_BLOCK_ENABLED", "true")
+
+    from trading_signals.app.settings import Settings
+
+    config = config_from_settings(Settings())
+
+    assert "against_htf_breakout" in config.current_blocks
+    assert "bullish_sweep" not in config.current_blocks
+
+
+def test_blocked_toxic_context_returns_keep_blocked(tmp_path: Path) -> None:
+    data_path = tmp_path / "data"
+    _write_csv(data_path / "paper_trading" / "trades.csv", _toxic_bullish_sweep_rows(30))
+
+    result = analyze_adaptive_filter_manager(
+        data_path=data_path,
+        config=AdaptiveFilterConfig(current_blocks=("bullish_sweep",)),
+        now=NOW,
+    )
+
+    assert result["contexts"]["bullish_sweep"]["current_state"] == "blocked"
+    assert result["contexts"]["bullish_sweep"]["recommendation"] == "KEEP_BLOCKED"
+
+
+def test_active_blocks_populated_from_current_production_blocks(tmp_path: Path) -> None:
+    data_path = tmp_path / "data"
+    _write_csv(data_path / "paper_trading" / "trades.csv", _toxic_bullish_sweep_rows(1))
+
+    result = analyze_adaptive_filter_manager(
+        data_path=data_path,
+        config=AdaptiveFilterConfig(current_blocks=("bullish_sweep", "against_htf_breakout")),
+        now=NOW,
+    )
+
+    assert result["adaptive_state"]["active_blocks"] == ["against_htf_breakout", "bullish_sweep"]
+    assert result["contexts"]["bullish_sweep"]["current_state"] == "blocked"
+    assert result["contexts"]["against_htf_breakout"]["current_state"] == "blocked"
+
+
+def test_production_block_status_appears_in_markdown_and_json(tmp_path: Path) -> None:
+    data_path = tmp_path / "data"
+    _write_csv(data_path / "paper_trading" / "trades.csv", _toxic_bullish_sweep_rows(1))
+
+    result = generate_adaptive_filter_manager_report(
+        data_path=data_path,
+        reports_path=tmp_path / "reports",
+        runtime_path=tmp_path / "data" / "runtime",
+        config=AdaptiveFilterConfig(current_blocks=("bullish_sweep",)),
+        now=NOW,
+    )
+
+    markdown = Path(result["report_path"]).read_text(encoding="utf-8")
+    payload = json.loads(Path(result["json_report_path"]).read_text(encoding="utf-8"))
+    assert "## Production Block Status" in markdown
+    assert "- bullish_sweep: enabled" in markdown
+    assert "- against_htf_breakout: disabled" in markdown
+    assert payload["production_block_status"] == {"bullish_sweep": "enabled", "against_htf_breakout": "disabled"}
+
+
+def test_regime_shift_warning_appears_when_known_toxic_context_becomes_keep_allowed(tmp_path: Path) -> None:
+    data_path = tmp_path / "data"
+    rows = [_trade(index, 1.0, direction="short", score=95) for index in range(30)]
+    _write_csv(data_path / "paper_trading" / "trades.csv", rows)
+
+    result = analyze_adaptive_filter_manager(data_path=data_path, config=AdaptiveFilterConfig(), now=NOW)
+
+    assert result["contexts"]["short_only"]["recommendation"] == "KEEP_ALLOWED"
+    assert "context_regime_shift_detected:short_only" in result["adaptive_state"]["safety_warnings"]
 
 
 def test_profitable_context_recommends_keep_allowed(tmp_path: Path) -> None:

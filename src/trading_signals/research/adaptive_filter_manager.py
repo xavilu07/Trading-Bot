@@ -93,7 +93,8 @@ def analyze_adaptive_filter_manager(
     proposed_blocks = [name for name, payload in contexts.items() if payload["recommendation"] == "PROMOTE_TO_BLOCK"]
     proposed_unblocks = [name for name, payload in contexts.items() if payload["recommendation"] == "UNBLOCK_CANDIDATE"]
     active_blocks = _active_blocks_for_mode(config=config, mode=mode, proposed_blocks=proposed_blocks, proposed_unblocks=proposed_unblocks)
-    safety_warnings = _safety_warnings(config=config, mode=mode, proposed_blocks=proposed_blocks)
+    production_block_status = _production_block_status(config)
+    safety_warnings = _safety_warnings(config=config, mode=mode, proposed_blocks=proposed_blocks, contexts=contexts)
     state = {
         "generated_at": now_dt.isoformat(timespec="seconds"),
         "mode": mode,
@@ -104,6 +105,7 @@ def analyze_adaptive_filter_manager(
         "contexts": contexts,
         "safety_warnings": safety_warnings,
         "human_approval_required": bool(config.require_human_approval),
+        "production_block_status": production_block_status,
     }
     return {
         "scope": "ADAPTIVE_FILTER_MANAGER",
@@ -121,6 +123,7 @@ def analyze_adaptive_filter_manager(
             "require_human_approval": config.require_human_approval,
             "current_blocks": list(config.current_blocks),
         },
+        "production_block_status": production_block_status,
         "contexts": contexts,
         "adaptive_state": state,
     }
@@ -218,9 +221,19 @@ def format_adaptive_filter_manager_markdown(result: dict[str, Any]) -> str:
         f"- Proposed blocks: {', '.join(state.get('proposed_blocks', [])) or 'none'}",
         f"- Proposed unblocks: {', '.join(state.get('proposed_unblocks', [])) or 'none'}",
         "",
-        "## Safety Warnings",
+        "## Production Block Status",
         "",
     ]
+    production_status = result.get("production_block_status", {})
+    for context in ("bullish_sweep", "against_htf_breakout"):
+        lines.append(f"- {context}: {production_status.get(context, 'disabled')}")
+    lines.extend(
+        [
+            "",
+        "## Safety Warnings",
+        "",
+        ]
+    )
     warnings = state.get("safety_warnings", [])
     if warnings:
         lines.extend(f"- {warning}" for warning in warnings)
@@ -296,16 +309,6 @@ def _recommendation(
     last_30d_pf = _pf_float(last_30d.get("profit_factor"))
     currently_blocked = current_state in {"blocked", "shadow_blocked"}
     if (
-        closed >= config.min_closed
-        and pf <= config.block_pf_threshold
-        and total_r <= config.block_total_r_threshold
-        and (last_7d_pf <= 0.90 or last_30d_pf <= 0.90)
-        and not bool(survivor.get("exists"))
-    ):
-        return "PROMOTE_TO_BLOCK"
-    if currently_blocked and (pf < 1.0 or total_r < 0):
-        return "KEEP_BLOCKED"
-    if (
         currently_blocked
         and closed >= config.min_closed
         and pf >= config.unblock_pf_threshold
@@ -313,6 +316,18 @@ def _recommendation(
         and (last_7d_pf >= 1.0 or last_30d_pf >= 1.0)
     ):
         return "UNBLOCK_CANDIDATE"
+    if currently_blocked and (pf < 1.0 or total_r < 0):
+        return "KEEP_BLOCKED"
+    if (
+        not currently_blocked
+        and
+        closed >= config.min_closed
+        and pf <= config.block_pf_threshold
+        and total_r <= config.block_total_r_threshold
+        and (last_7d_pf <= 0.90 or last_30d_pf <= 0.90)
+        and not bool(survivor.get("exists"))
+    ):
+        return "PROMOTE_TO_BLOCK"
     if closed >= config.min_closed and pf >= 1.10 and total_r > 0:
         return "KEEP_ALLOWED"
     return "WATCH"
@@ -335,7 +350,13 @@ def _active_blocks_for_mode(
     return sorted(active)
 
 
-def _safety_warnings(*, config: AdaptiveFilterConfig, mode: str, proposed_blocks: list[str]) -> list[str]:
+def _safety_warnings(
+    *,
+    config: AdaptiveFilterConfig,
+    mode: str,
+    proposed_blocks: list[str],
+    contexts: dict[str, dict[str, Any]],
+) -> list[str]:
     warnings = []
     if not config.enabled:
         warnings.append("adaptive_filter_disabled")
@@ -346,7 +367,18 @@ def _safety_warnings(*, config: AdaptiveFilterConfig, mode: str, proposed_blocks
         warnings.append(f"proposals_outside_allowed_contexts:{','.join(disallowed)}")
     if mode not in ALLOWED_MODES:
         warnings.append("invalid_mode_fell_back_to_observe")
+    for context in ("short_only", "secondary_signal", "directional_confluence_failed"):
+        if contexts.get(context, {}).get("recommendation") == "KEEP_ALLOWED":
+            warnings.append(f"context_regime_shift_detected:{context}")
     return warnings
+
+
+def _production_block_status(config: AdaptiveFilterConfig) -> dict[str, str]:
+    current = set(_normalize_contexts(config.current_blocks))
+    return {
+        "bullish_sweep": "enabled" if "bullish_sweep" in current else "disabled",
+        "against_htf_breakout": "enabled" if "against_htf_breakout" in current else "disabled",
+    }
 
 
 def _survivor_subgroup(rows: list[dict[str, Any]]) -> dict[str, Any]:
