@@ -189,6 +189,9 @@ class Settings:
     elite_profile_c_dev_note_enabled: bool = field(
         default_factory=lambda: _bool_env("ELITE_PROFILE_C_DEV_NOTE_ENABLED", "false")
     )
+    elite_subprofile_dev_note_enabled: bool = field(
+        default_factory=lambda: _bool_env("ELITE_SUBPROFILE_DEV_NOTE_ENABLED", "false")
+    )
     private_runtime_report_enabled: bool = field(
         default_factory=lambda: _bool_env("PRIVATE_RUNTIME_REPORT_ENABLED", "true")
     )

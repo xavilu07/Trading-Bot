@@ -31,6 +31,10 @@ from trading_signals.application.use_cases.elite_profile_c_dev_tag import (
     apply_elite_profile_c_dev_tag,
     format_elite_profile_c_dev_note,
 )
+from trading_signals.application.use_cases.elite_subprofile_dev_tag import (
+    apply_elite_subprofile_dev_tag,
+    format_elite_subprofile_dev_note,
+)
 from trading_signals.application.use_cases.paper_trading import (
     build_paper_candidate_from_decision,
     build_paper_rejection_diagnostic,
@@ -1161,6 +1165,48 @@ def run_market_scan(
                     "trend_higher": analysis.higher_snapshot.trend,
                 }
             )
+            elite_subprofile = apply_elite_subprofile_dev_tag(
+                evaluation,
+                setup_type=_signal_setup_type(evaluation)
+                if evaluation.decision != SignalDecision.NO_TRADE.value
+                else (_candidate_setup_type(analysis, evaluation) or _signal_setup_type(evaluation)),
+                direction=evaluation.decision if evaluation.decision != SignalDecision.NO_TRADE.value else _candidate_direction(analysis),
+                higher_trend=analysis.higher_snapshot.trend,
+                session=setup_context.get("session"),
+                market_regime=setup_context.get("market_regime"),
+                trade_location=setup_context.get("trade_location"),
+            )
+            if elite_subprofile.matched:
+                log_json(
+                    logger,
+                    "elite_subprofile_dev_tag",
+                    symbol=symbol,
+                    profiles=list(elite_subprofile.matched_profiles),
+                    direction=elite_subprofile.direction,
+                    setup_type=elite_subprofile.setup_type,
+                    score=evaluation.setup_score,
+                    score_bucket=elite_subprofile.score_bucket,
+                    htf_alignment=elite_subprofile.htf_alignment,
+                    session=elite_subprofile.session,
+                    market_regime=elite_subprofile.market_regime,
+                    trade_location=elite_subprofile.trade_location,
+                    dev_note_enabled=settings.elite_subprofile_dev_note_enabled,
+                )
+                if settings.elite_subprofile_dev_note_enabled:
+                    send_dev_message(
+                        notifier,
+                        format_elite_subprofile_dev_note(
+                            symbol=symbol,
+                            profiles=elite_subprofile.matched_profiles,
+                            direction=elite_subprofile.direction,
+                            score=evaluation.setup_score,
+                            session=elite_subprofile.session,
+                            market_regime=elite_subprofile.market_regime,
+                            trade_location=elite_subprofile.trade_location,
+                            setup_type=elite_subprofile.setup_type,
+                        ),
+                        dry_run=dry_run,
+                    )
             current_public_policy = evaluate_public_safety_policy(
                 signal=signal,
                 evaluation_or_decision=signal_decision,
