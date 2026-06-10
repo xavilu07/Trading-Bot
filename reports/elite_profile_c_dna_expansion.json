@@ -1,0 +1,164 @@
+{
+  "baseline": {
+    "avg_r": -0.4651,
+    "losses": 3,
+    "profit_factor": 0.0,
+    "total_r": -1.3953,
+    "trades": 3,
+    "winrate": 0.0,
+    "wins": 0
+  },
+  "data_path": "data",
+  "definition": {
+    "htf_alignment": "aligned_with_htf",
+    "score": ">=90",
+    "setup_type": "SECONDARY_SIGNAL"
+  },
+  "factor_breakdowns": {
+    "direction": [
+      {
+        "classification": "NOISE",
+        "dimension": "direction",
+        "metrics": {
+          "avg_r": -0.2855,
+          "losses": 1,
+          "profit_factor": 0.0,
+          "total_r": -0.2855,
+          "trades": 1,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "value": "long"
+      },
+      {
+        "classification": "NOISE",
+        "dimension": "direction",
+        "metrics": {
+          "avg_r": -0.5549,
+          "losses": 2,
+          "profit_factor": 0.0,
+          "total_r": -1.1098,
+          "trades": 2,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "value": "short"
+      }
+    ],
+    "entry_context": [
+      {
+        "classification": "NOISE",
+        "dimension": "entry_context",
+        "metrics": {
+          "avg_r": -0.4651,
+          "losses": 3,
+          "profit_factor": 0.0,
+          "total_r": -1.3953,
+          "trades": 3,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "value": "BREAKOUT"
+      }
+    ],
+    "liquidity_sweep": [
+      {
+        "classification": "NOISE",
+        "dimension": "liquidity_sweep",
+        "metrics": {
+          "avg_r": -0.4651,
+          "losses": 3,
+          "profit_factor": 0.0,
+          "total_r": -1.3953,
+          "trades": 3,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "value": "none"
+      }
+    ],
+    "market_regime": [
+      {
+        "classification": "NOISE",
+        "dimension": "market_regime",
+        "metrics": {
+          "avg_r": -0.4651,
+          "losses": 3,
+          "profit_factor": 0.0,
+          "total_r": -1.3953,
+          "trades": 3,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "value": "TRENDING"
+      }
+    ],
+    "session": [
+      {
+        "classification": "NOISE",
+        "dimension": "session",
+        "metrics": {
+          "avg_r": -0.4651,
+          "losses": 3,
+          "profit_factor": 0.0,
+          "total_r": -1.3953,
+          "trades": 3,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "value": "OVERLAP"
+      }
+    ],
+    "trade_location": [
+      {
+        "classification": "NOISE",
+        "dimension": "trade_location",
+        "metrics": {
+          "avg_r": -0.2855,
+          "losses": 1,
+          "profit_factor": 0.0,
+          "total_r": -0.2855,
+          "trades": 1,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "value": "mid_range"
+      },
+      {
+        "classification": "NOISE",
+        "dimension": "trade_location",
+        "metrics": {
+          "avg_r": -0.5549,
+          "losses": 2,
+          "profit_factor": 0.0,
+          "total_r": -1.1098,
+          "trades": 2,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "value": "near_support"
+      }
+    ]
+  },
+  "final_answer": {
+    "best_direction": "direction=long (trades=1, WR=0.0%, PF=0.0, TotalR=-0.2855, AvgR=-0.2855, class=NOISE)",
+    "best_market_regime": "market_regime=TRENDING (trades=3, WR=0.0%, PF=0.0, TotalR=-1.3953, AvgR=-0.4651, class=NOISE)",
+    "best_session": "session=OVERLAP (trades=3, WR=0.0%, PF=0.0, TotalR=-1.3953, AvgR=-0.4651, class=NOISE)",
+    "best_trade_location": "trade_location=mid_range (trades=1, WR=0.0%, PF=0.0, TotalR=-0.2855, AvgR=-0.2855, class=NOISE)",
+    "highest_pf_elite_dna": "none",
+    "highest_total_r_elite_dna": "none",
+    "recommendation": "NEED_MORE_DATA",
+    "safest_elite_dna": "none",
+    "strongest_elite_dna": "none"
+  },
+  "generated_at": "2026-06-10T17:17:01+00:00",
+  "minimum_combo_trades": 5,
+  "multi_factor_combinations": [],
+  "rankings": {
+    "BEST_PF_COMBINATIONS": [],
+    "BEST_TOTAL_R_COMBINATIONS": [],
+    "BEST_WINRATE_COMBINATIONS": []
+  },
+  "recommendation": "NEED_MORE_DATA",
+  "scope": "ELITE_PROFILE_C_DNA_EXPANSION"
+}
