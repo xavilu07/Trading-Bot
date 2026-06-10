@@ -186,6 +186,9 @@ class Settings:
     )
     bot_health_telegram_enabled: bool = field(default_factory=lambda: _bool_env("BOT_HEALTH_TELEGRAM_ENABLED", "true"))
     bot_health_min_score: float = field(default_factory=lambda: float(os.getenv("BOT_HEALTH_MIN_SCORE", "70")))
+    elite_profile_c_dev_note_enabled: bool = field(
+        default_factory=lambda: _bool_env("ELITE_PROFILE_C_DEV_NOTE_ENABLED", "false")
+    )
     scheduler_diagnostic_state_file: Path = field(
         default_factory=lambda: Path(os.getenv("SCHEDULER_DIAGNOSTIC_STATE_FILE", "./data/scheduler_diagnostic_window.json"))
     )

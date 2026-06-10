@@ -27,6 +27,10 @@ from trading_signals.application.use_cases.candidate_funnel import (
     record_candidate_rejection,
     record_relaxation_shadow_observation,
 )
+from trading_signals.application.use_cases.elite_profile_c_dev_tag import (
+    apply_elite_profile_c_dev_tag,
+    format_elite_profile_c_dev_note,
+)
 from trading_signals.application.use_cases.paper_trading import (
     build_paper_candidate_from_decision,
     build_paper_rejection_diagnostic,
@@ -47,7 +51,7 @@ from trading_signals.application.use_cases.relaxation_shadow_v1 import (
     evaluate_relaxation_shadow_v1,
     format_relaxation_shadow_v1_message,
 )
-from trading_signals.notifications.telegram import send_dev_signal_detail, send_public_signal
+from trading_signals.notifications.telegram import send_dev_message, send_dev_signal_detail, send_public_signal
 from trading_signals.application.use_cases.modular_paper import build_modular_signal_row
 from trading_signals.application.use_cases.experimental_paper import build_experimental_signal_row
 from trading_signals.application.use_cases.shadow_paper import build_shadow_signal_row
@@ -966,6 +970,36 @@ def run_market_scan(
             scan_repo.save_snapshot(analysis.entry_snapshot)
             scan_repo.save_snapshot(analysis.higher_snapshot)
             evaluation = strategy.evaluate(analysis, evaluation_id=f"eval_{uuid4().hex[:12]}", created_at=_now_iso())
+            elite_profile_c = apply_elite_profile_c_dev_tag(
+                evaluation,
+                setup_type=_signal_setup_type(evaluation)
+                if evaluation.decision != SignalDecision.NO_TRADE.value
+                else (_candidate_setup_type(analysis, evaluation) or _signal_setup_type(evaluation)),
+                direction=evaluation.decision if evaluation.decision != SignalDecision.NO_TRADE.value else _candidate_direction(analysis),
+                higher_trend=analysis.higher_snapshot.trend,
+            )
+            if elite_profile_c.matched:
+                log_json(
+                    logger,
+                    "elite_profile_c_dev_tag",
+                    symbol=symbol,
+                    direction=evaluation.decision if evaluation.decision != SignalDecision.NO_TRADE.value else _candidate_direction(analysis),
+                    setup_type=elite_profile_c.setup_type,
+                    score=evaluation.setup_score,
+                    score_bucket=elite_profile_c.score_bucket,
+                    htf_alignment=elite_profile_c.htf_alignment,
+                    dev_note_enabled=settings.elite_profile_c_dev_note_enabled,
+                )
+                if settings.elite_profile_c_dev_note_enabled:
+                    send_dev_message(
+                        notifier,
+                        format_elite_profile_c_dev_note(
+                            symbol=symbol,
+                            direction=evaluation.decision if evaluation.decision != SignalDecision.NO_TRADE.value else _candidate_direction(analysis),
+                            score=evaluation.setup_score,
+                        ),
+                        dry_run=dry_run,
+                    )
             increment_candidate_funnel(candidate_funnel, "raw_setups_evaluated")
             if evaluation.decision in {SignalDecision.LONG.value, SignalDecision.SHORT.value} or _candidate_setup_type(analysis, evaluation) is not None:
                 increment_candidate_funnel(candidate_funnel, "candidates_created")
