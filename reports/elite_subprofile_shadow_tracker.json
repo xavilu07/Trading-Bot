@@ -1,0 +1,81 @@
+{
+  "data_path": "data",
+  "elite_profile_c_baseline": {
+    "avg_r": -0.4651,
+    "losses": 3,
+    "profit_factor": 0.0,
+    "total_r": -1.3953,
+    "trades": 3,
+    "winrate": 0.0,
+    "wins": 0
+  },
+  "generated_at": "2026-06-10T17:28:58+00:00",
+  "mode": "offline_shadow_only",
+  "profiles": [
+    {
+      "by_regime": {},
+      "by_session": {},
+      "by_symbol": {},
+      "closed": 0,
+      "deltas_vs_elite_c": {
+        "pf_delta": 0.0,
+        "total_r_delta": 1.3953,
+        "wr_delta": 0.0
+      },
+      "description": "Elite C + long + OVERLAP + near_resistance",
+      "metrics": {
+        "avg_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "trades": 0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "profile": "PROFILE_G",
+      "recommendation": "KEEP_SHADOW",
+      "rules": {
+        "direction": "long",
+        "htf_alignment": "aligned_with_htf",
+        "score": ">=90",
+        "session": "OVERLAP",
+        "setup_type": "SECONDARY_SIGNAL",
+        "trade_location": "near_resistance"
+      },
+      "tracked": 0
+    },
+    {
+      "by_regime": {},
+      "by_session": {},
+      "by_symbol": {},
+      "closed": 0,
+      "deltas_vs_elite_c": {
+        "pf_delta": 0.0,
+        "total_r_delta": 1.3953,
+        "wr_delta": 0.0
+      },
+      "description": "Elite C + long + HIGH_VOLATILITY",
+      "metrics": {
+        "avg_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "trades": 0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "profile": "PROFILE_H",
+      "recommendation": "KEEP_SHADOW",
+      "rules": {
+        "direction": "long",
+        "htf_alignment": "aligned_with_htf",
+        "market_regime": "HIGH_VOLATILITY",
+        "score": ">=90",
+        "setup_type": "SECONDARY_SIGNAL"
+      },
+      "tracked": 0
+    }
+  ],
+  "recommendation_summary": "KEEP_SHADOW",
+  "scope": "ELITE_SUBPROFILE_SHADOW_TRACKER"
+}
