@@ -189,6 +189,15 @@ class Settings:
     elite_profile_c_dev_note_enabled: bool = field(
         default_factory=lambda: _bool_env("ELITE_PROFILE_C_DEV_NOTE_ENABLED", "false")
     )
+    private_runtime_report_enabled: bool = field(
+        default_factory=lambda: _bool_env("PRIVATE_RUNTIME_REPORT_ENABLED", "true")
+    )
+    private_runtime_report_every_cycles: int = field(
+        default_factory=lambda: int(os.getenv("PRIVATE_RUNTIME_REPORT_EVERY_CYCLES", "5"))
+    )
+    private_runtime_report_state_file: Path = field(
+        default_factory=lambda: Path(os.getenv("PRIVATE_RUNTIME_REPORT_STATE_FILE", "./data/runtime/private_runtime_report_state.json"))
+    )
     scheduler_diagnostic_state_file: Path = field(
         default_factory=lambda: Path(os.getenv("SCHEDULER_DIAGNOSTIC_STATE_FILE", "./data/scheduler_diagnostic_window.json"))
     )

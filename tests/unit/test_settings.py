@@ -23,6 +23,28 @@ def test_telegram_diagnostic_summary_settings_are_configurable(monkeypatch) -> N
     assert settings.telegram_allowed_private_chat_ids == ["dev-chat"]
 
 
+def test_private_runtime_report_settings_defaults_and_env(monkeypatch) -> None:
+    monkeypatch.delenv("PRIVATE_RUNTIME_REPORT_ENABLED", raising=False)
+    monkeypatch.delenv("PRIVATE_RUNTIME_REPORT_EVERY_CYCLES", raising=False)
+    monkeypatch.delenv("PRIVATE_RUNTIME_REPORT_STATE_FILE", raising=False)
+
+    settings = Settings()
+
+    assert settings.private_runtime_report_enabled is True
+    assert settings.private_runtime_report_every_cycles == 5
+    assert str(settings.private_runtime_report_state_file) == "data/runtime/private_runtime_report_state.json"
+
+    monkeypatch.setenv("PRIVATE_RUNTIME_REPORT_ENABLED", "false")
+    monkeypatch.setenv("PRIVATE_RUNTIME_REPORT_EVERY_CYCLES", "3")
+    monkeypatch.setenv("PRIVATE_RUNTIME_REPORT_STATE_FILE", "./data/runtime/custom_private_report.json")
+
+    settings = Settings()
+
+    assert settings.private_runtime_report_enabled is False
+    assert settings.private_runtime_report_every_cycles == 3
+    assert str(settings.private_runtime_report_state_file) == "data/runtime/custom_private_report.json"
+
+
 def test_telegram_dev_chat_id_supports_multiple_ids(monkeypatch) -> None:
     monkeypatch.setenv("TELEGRAM_DEV_CHAT_ID", "7437028098,1979812925")
 

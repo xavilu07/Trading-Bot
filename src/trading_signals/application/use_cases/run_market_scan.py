@@ -718,6 +718,8 @@ def _signal_activity_entry(
     experimental_signal_saved: bool,
     publish_filter_reason: str | None,
     paper_rejection: dict[str, object] | None,
+    public_published: bool = False,
+    public_block_reason: str | None = None,
     public_canary: dict[str, object] | None = None,
     relaxed_public_shadow: dict[str, object] | None = None,
 ) -> dict[str, object]:
@@ -762,6 +764,8 @@ def _signal_activity_entry(
         "market_regime": setup_context.get("market_regime"),
         "entry_context": setup_context.get("entry_context"),
         "source_engine": getattr(signal_decision, "source_engine", selected_engine),
+        "public_published": public_published,
+        "public_block_reason": public_block_reason,
         "public_canary_decision": (public_canary or {}).get("public_canary_decision"),
         "public_canary_match": (public_canary or {}).get("public_canary_match"),
         "public_canary_reason": (public_canary or {}).get("public_canary_reason"),
@@ -782,6 +786,8 @@ def _signal_activity_entry(
             "paper_trade_created": paper_trade_created,
             "experimental_signal_saved": experimental_signal_saved,
             "publish_filter_reason": publish_filter_reason,
+            "public_published": public_published,
+            "public_block_reason": public_block_reason,
             "public_canary_decision": (public_canary or {}).get("public_canary_decision"),
             "public_canary_match": (public_canary or {}).get("public_canary_match"),
             "public_canary_reason": (public_canary or {}).get("public_canary_reason"),
@@ -1133,6 +1139,7 @@ def run_market_scan(
             signal_repo.save_signal(signal)
             deliveries = []
             relaxed_public_shadow = None
+            public_published = False
             should_publish_decision = signal.decision in settings.publish_signal_decisions
             is_duplicate = signal_repo.has_published_dedupe_key(signal.dedupe_key)
             lifecycle = None
@@ -1614,6 +1621,8 @@ def run_market_scan(
                     experimental_signal_saved=experimental_signal_saved,
                     publish_filter_reason=publish_filter_reason,
                     paper_rejection=paper_rejection,
+                    public_published=public_published,
+                    public_block_reason=public_block_reason,
                     public_canary=public_canary,
                     relaxed_public_shadow=relaxed_public_shadow,
                 )

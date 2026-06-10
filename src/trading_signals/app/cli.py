@@ -19,6 +19,13 @@ from trading_signals.application.use_cases.live_trading import (
     now_utc_date_key as live_now_utc_date_key,
 )
 from trading_signals.application.use_cases.paper_trading import format_paper_daily_summary_for_telegram, now_utc_date_key
+from trading_signals.application.use_cases.private_runtime_report import (
+    build_private_runtime_report,
+    format_private_runtime_report_for_telegram,
+    load_private_runtime_report_state,
+    save_private_runtime_report_state,
+    should_send_private_runtime_report,
+)
 from trading_signals.application.use_cases.run_market_scan import run_market_scan
 from trading_signals.infrastructure.logging.logger import log_json
 
@@ -911,6 +918,43 @@ def main(argv: list[str] | None = None) -> int:
                     "last_error": None,
                 }
                 try_save_scheduler_heartbeat(logger, settings.scheduler_heartbeat_file, heartbeat)
+                private_runtime_state = load_private_runtime_report_state(settings.private_runtime_report_state_file)
+                if should_send_private_runtime_report(
+                    enabled=settings.private_runtime_report_enabled,
+                    cycle_number=cycle_number,
+                    every_cycles=settings.private_runtime_report_every_cycles,
+                    state=private_runtime_state,
+                ):
+                    try:
+                        private_runtime_report, next_private_runtime_state = build_private_runtime_report(
+                            data_path=settings.data_storage_path,
+                            state=private_runtime_state,
+                            cycle_number=cycle_number,
+                            last_cycle_duration_seconds=heartbeat.get("last_cycle_duration_seconds"),
+                            scheduler_status=str(heartbeat.get("status") or "unknown"),
+                        )
+                        container["notifier"].publish(
+                            format_private_runtime_report_for_telegram(private_runtime_report),
+                            dry_run=args.dry_run,
+                        )
+                        save_private_runtime_report_state(settings.private_runtime_report_state_file, next_private_runtime_state)
+                        log_json(
+                            logger,
+                            "private_runtime_report_sent",
+                            cycle_number=cycle_number,
+                            new_paper_trades=private_runtime_report.get("new_paper_trades_count"),
+                            closed_paper_trades=private_runtime_report.get("closed_paper_trades_count"),
+                            public_signals_sent=private_runtime_report.get("public_signals_sent"),
+                            blocked_public_signals=private_runtime_report.get("blocked_public_signals"),
+                        )
+                    except Exception as exc:  # pragma: no cover - defensive scheduler path
+                        log_json(
+                            logger,
+                            "private_runtime_report_error",
+                            cycle_number=cycle_number,
+                            error_type=type(exc).__name__,
+                            error_message=str(exc),
+                        )
                 time.sleep(interval)
             except Exception as exc:  # pragma: no cover - defensive loop
                 cycle_finished_at = datetime.now(tz=UTC)
