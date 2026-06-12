@@ -1,0 +1,115 @@
+{
+  "data_path": "data",
+  "generated_at": "2026-06-12T15:10:06+00:00",
+  "mode": "offline_shadow_only",
+  "profiles": [
+    {
+      "description": "secondary_setup_requirements_failed + short",
+      "metrics": {
+        "avg_r": -0.1681,
+        "closed_trades": 6,
+        "gross_loss_r": 2.5083,
+        "gross_win_r": 1.5,
+        "losses": 5,
+        "profit_factor": 0.598,
+        "total_r": -1.0083,
+        "trades": 7,
+        "winrate": 16.6667,
+        "wins": 1
+      },
+      "profile": "BASE",
+      "recommendation": "INSUFFICIENT_DATA",
+      "rules": {
+        "contains": "secondary_setup_requirements_failed",
+        "direction": "short"
+      }
+    },
+    {
+      "description": "BASE + trade_location == mid_range",
+      "metrics": {
+        "avg_r": -0.605,
+        "closed_trades": 2,
+        "gross_loss_r": 1.21,
+        "gross_win_r": 0.0,
+        "losses": 2,
+        "profit_factor": 0.0,
+        "total_r": -1.21,
+        "trades": 2,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "profile": "PROFILE_A",
+      "recommendation": "INSUFFICIENT_DATA",
+      "rules": {
+        "trade_location": "mid_range"
+      }
+    },
+    {
+      "description": "BASE + session == LONDON + market_regime == RANGING",
+      "metrics": {
+        "avg_r": 0.5112,
+        "closed_trades": 2,
+        "gross_loss_r": 0.4775,
+        "gross_win_r": 1.5,
+        "losses": 1,
+        "profit_factor": 3.1414,
+        "total_r": 1.0225,
+        "trades": 2,
+        "winrate": 50.0,
+        "wins": 1
+      },
+      "profile": "PROFILE_B",
+      "recommendation": "INSUFFICIENT_DATA",
+      "rules": {
+        "market_regime": "RANGING",
+        "session": "LONDON"
+      }
+    },
+    {
+      "description": "BASE + session == ASIA + trade_location == mid_range",
+      "metrics": {
+        "avg_r": 0.0,
+        "closed_trades": 0,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "trades": 0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "profile": "PROFILE_C",
+      "recommendation": "INSUFFICIENT_DATA",
+      "rules": {
+        "session": "ASIA",
+        "trade_location": "mid_range"
+      }
+    },
+    {
+      "description": "BASE + market_regime == HIGH_VOLATILITY + trade_location == mid_range",
+      "metrics": {
+        "avg_r": -0.605,
+        "closed_trades": 2,
+        "gross_loss_r": 1.21,
+        "gross_win_r": 0.0,
+        "losses": 2,
+        "profit_factor": 0.0,
+        "total_r": -1.21,
+        "trades": 2,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "profile": "PROFILE_D",
+      "recommendation": "INSUFFICIENT_DATA",
+      "rules": {
+        "market_regime": "HIGH_VOLATILITY",
+        "trade_location": "mid_range"
+      }
+    }
+  ],
+  "recommendation_summary": "INSUFFICIENT_DATA",
+  "scope": "SECONDARY_FAILED_SHORT_EDGE_TRACKER",
+  "target_reason": "secondary_setup_requirements_failed",
+  "trades_file": "data/paper_trading/trades.csv"
+}
