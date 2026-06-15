@@ -1,0 +1,98 @@
+{
+  "data_path": "data",
+  "generated_at": "2026-06-15T14:48:46+00:00",
+  "lookback_days": 7,
+  "lookback_since": "2026-06-08T14:48:46+00:00",
+  "profiles": [
+    {
+      "metrics": {
+        "avg_r": -0.4651,
+        "closed_trades": 3,
+        "losses": 3,
+        "profit_factor": 0.0,
+        "total_r": -1.3953,
+        "trades": 3,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "new_trades_last_7d": 0,
+      "profile": "Elite Profile C",
+      "recommendation": "KEEP_SHADOW",
+      "source": "canonical_closed_trades"
+    },
+    {
+      "metrics": {
+        "avg_r": 0.0,
+        "closed_trades": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "trades": 0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "new_trades_last_7d": 0,
+      "profile": "Profile G",
+      "recommendation": "KEEP_SHADOW",
+      "source": "canonical_closed_trades"
+    },
+    {
+      "metrics": {
+        "avg_r": 0.0,
+        "closed_trades": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "trades": 0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "new_trades_last_7d": 0,
+      "profile": "Profile H",
+      "recommendation": "KEEP_SHADOW",
+      "source": "canonical_closed_trades"
+    },
+    {
+      "metrics": {
+        "avg_r": -0.605,
+        "closed_trades": 2,
+        "losses": 2,
+        "profit_factor": 0.0,
+        "total_r": -1.21,
+        "trades": 2,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "new_trades_last_7d": 0,
+      "profile": "Secondary Failed Profile A",
+      "recommendation": "INSUFFICIENT_DATA",
+      "source": "paper_trading_trades_csv"
+    },
+    {
+      "metrics": {
+        "avg_r": -0.605,
+        "closed_trades": 2,
+        "losses": 2,
+        "profit_factor": 0.0,
+        "total_r": -1.21,
+        "trades": 2,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "new_trades_last_7d": 0,
+      "profile": "Secondary Failed Profile E",
+      "recommendation": "INSUFFICIENT_DATA",
+      "source": "paper_trading_trades_csv"
+    }
+  ],
+  "scope": "WEEKLY_EDGE_INTELLIGENCE",
+  "summary": {
+    "KEEP_SHADOW": [
+      "Elite Profile C",
+      "Profile G",
+      "Profile H"
+    ],
+    "PROMOTE_TO_PRIORITY": [],
+    "REJECT_PROFILE": []
+  }
+}
