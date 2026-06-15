@@ -40,6 +40,12 @@ PROFILE_DEFINITIONS = (
         "rules": {"market_regime": "HIGH_VOLATILITY", "trade_location": "mid_range"},
         "predicate": lambda row: is_secondary_failed_short(row) and _market_regime(row) == "HIGH_VOLATILITY" and _trade_location(row) == "mid_range",
     },
+    {
+        "profile": "PROFILE_E",
+        "description": "BASE + trade_location == mid_range + entry_context == BREAKOUT",
+        "rules": {"trade_location": "mid_range", "entry_context": "BREAKOUT"},
+        "predicate": lambda row: is_secondary_failed_short(row) and _trade_location(row) == "mid_range" and _entry_context(row) == "BREAKOUT",
+    },
 )
 
 
@@ -220,6 +226,10 @@ def _session(row: dict[str, Any]) -> str:
 
 def _market_regime(row: dict[str, Any]) -> str:
     return str(row.get("market_regime") or "UNKNOWN").strip().upper()
+
+
+def _entry_context(row: dict[str, Any]) -> str:
+    return str(row.get("entry_context") or "UNKNOWN").strip().upper()
 
 
 def _float(value: object) -> float | None:

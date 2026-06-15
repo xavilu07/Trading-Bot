@@ -80,6 +80,34 @@ def test_profiles_c_and_d_are_evaluated(tmp_path: Path) -> None:
     assert _profile(result, "PROFILE_D")["recommendation"] == "KEEP_SHADOW"
 
 
+def test_profile_e_tracks_mid_range_breakout_subset(tmp_path: Path) -> None:
+    data_path = tmp_path / "data"
+    rows = [
+        _trade(index, "DOGEUSDT", "short", 1.0, location="mid_range", entry_context="BREAKOUT")
+        for index in range(5)
+    ]
+    rows.extend(
+        _trade(index + 10, "AVAXUSDT", "short", -1.0, location="mid_range", entry_context="PULLBACK")
+        for index in range(3)
+    )
+    rows.extend(
+        _trade(index + 20, "BNBUSDT", "short", 1.0, location="near_support", entry_context="BREAKOUT")
+        for index in range(2)
+    )
+    _write_csv(data_path / "paper_trading" / "trades.csv", rows)
+
+    result = analyze_secondary_failed_short_edge_tracker(data_path=data_path)
+    profile_a = _profile(result, "PROFILE_A")
+    profile_e = _profile(result, "PROFILE_E")
+
+    assert profile_a["metrics"]["trades"] == 8
+    assert profile_e["description"] == "BASE + trade_location == mid_range + entry_context == BREAKOUT"
+    assert profile_e["metrics"]["trades"] == 5
+    assert profile_e["metrics"]["wins"] == 5
+    assert profile_e["metrics"]["total_r"] == 5.0
+    assert profile_e["recommendation"] == "KEEP_SHADOW"
+
+
 def test_recommendation_rules() -> None:
     assert recommend_profile({"trades": 20, "total_r": 5, "profit_factor": 1.5, "winrate": 50}) == "PROMOTE_TO_PRIORITY"
     assert recommend_profile({"trades": 5, "total_r": 1, "profit_factor": 1.1, "winrate": 40}) == "KEEP_SHADOW"
@@ -117,6 +145,7 @@ def _trade(
     location: str = "mid_range",
     session: str = "LONDON",
     regime: str = "RANGING",
+    entry_context: str = "BREAKOUT",
     conditions_failed: str = "secondary_setup_requirements_failed",
 ) -> dict[str, object]:
     return {
@@ -136,6 +165,7 @@ def _trade(
         "session": session,
         "market_regime": regime,
         "trade_location": location,
+        "entry_context": entry_context,
     }
 
 

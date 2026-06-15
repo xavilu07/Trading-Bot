@@ -1,6 +1,6 @@
 # SECONDARY_FAILED_SHORT_EDGE_TRACKER
 
-Generated at: 2026-06-12T15:10:06+00:00
+Generated at: 2026-06-15T14:34:37+00:00
 Data path: data
 Trades file: data/paper_trading/trades.csv
 Mode: offline/shadow only
@@ -16,6 +16,7 @@ Recommendation summary: INSUFFICIENT_DATA
 | PROFILE_B | BASE + session == LONDON + market_regime == RANGING | 2 | 2 | 1 | 1 | 50.0% | 1.5 | 0.4775 | 3.1414 | 1.0225 | 0.5112 | INSUFFICIENT_DATA |
 | PROFILE_C | BASE + session == ASIA + trade_location == mid_range | 0 | 0 | 0 | 0 | 0.0% | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 | INSUFFICIENT_DATA |
 | PROFILE_D | BASE + market_regime == HIGH_VOLATILITY + trade_location == mid_range | 2 | 2 | 0 | 2 | 0.0% | 0.0 | 1.21 | 0.0 | -1.21 | -0.605 | INSUFFICIENT_DATA |
+| PROFILE_E | BASE + trade_location == mid_range + entry_context == BREAKOUT | 2 | 2 | 0 | 2 | 0.0% | 0.0 | 1.21 | 0.0 | -1.21 | -0.605 | INSUFFICIENT_DATA |
 
 ## Profile Rules
 
@@ -47,4 +48,10 @@ Recommendation summary: INSUFFICIENT_DATA
 
 - Description: BASE + market_regime == HIGH_VOLATILITY + trade_location == mid_range
 - Rules: {"market_regime": "HIGH_VOLATILITY", "trade_location": "mid_range"}
+- Recommendation: INSUFFICIENT_DATA
+
+### PROFILE_E
+
+- Description: BASE + trade_location == mid_range + entry_context == BREAKOUT
+- Rules: {"entry_context": "BREAKOUT", "trade_location": "mid_range"}
 - Recommendation: INSUFFICIENT_DATA

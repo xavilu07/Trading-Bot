@@ -1,6 +1,6 @@
 {
   "data_path": "data",
-  "generated_at": "2026-06-12T15:10:06+00:00",
+  "generated_at": "2026-06-15T14:34:37+00:00",
   "mode": "offline_shadow_only",
   "profiles": [
     {
@@ -104,6 +104,27 @@
       "recommendation": "INSUFFICIENT_DATA",
       "rules": {
         "market_regime": "HIGH_VOLATILITY",
+        "trade_location": "mid_range"
+      }
+    },
+    {
+      "description": "BASE + trade_location == mid_range + entry_context == BREAKOUT",
+      "metrics": {
+        "avg_r": -0.605,
+        "closed_trades": 2,
+        "gross_loss_r": 1.21,
+        "gross_win_r": 0.0,
+        "losses": 2,
+        "profit_factor": 0.0,
+        "total_r": -1.21,
+        "trades": 2,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "profile": "PROFILE_E",
+      "recommendation": "INSUFFICIENT_DATA",
+      "rules": {
+        "entry_context": "BREAKOUT",
         "trade_location": "mid_range"
       }
     }
