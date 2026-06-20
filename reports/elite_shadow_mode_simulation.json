@@ -1,0 +1,179 @@
+{
+  "answers": {
+    "best_pf_enough_trades_profile": "none",
+    "max_pf_profile": "PROFILE_C (trades=3, WR=0.0%, PF=0.0, TotalR=-1.3953, AvgR=-0.4651, class=NO_EDGE, trade_reduction=90.625%, PF improvement=-100.0%, R improvement=69.2976%)",
+    "max_total_r_profile": "PROFILE_C (trades=3, WR=0.0%, PF=0.0, TotalR=-1.3953, AvgR=-0.4651, class=NO_EDGE, trade_reduction=90.625%, PF improvement=-100.0%, R improvement=69.2976%)",
+    "production_only_elite_impact": "No profile has enough trades.",
+    "recommended_action": "KEEP_BASELINE",
+    "worth_shadow_testing": "NO"
+  },
+  "baseline_after_production_blocks": {
+    "avg_r": -0.142,
+    "losses": 22,
+    "profit_factor": 0.7713,
+    "total_r": -4.5446,
+    "trades": 32,
+    "winrate": 31.25,
+    "wins": 10
+  },
+  "data_path": "data",
+  "excluded_metrics": {
+    "avg_r": 0.1212,
+    "losses": 5,
+    "profit_factor": 1.3198,
+    "total_r": 0.9692,
+    "trades": 8,
+    "winrate": 37.5,
+    "wins": 3
+  },
+  "excluded_production_blocks": [
+    "bullish_sweep",
+    "against_htf+BREAKOUT"
+  ],
+  "generated_at": "2026-06-09T18:30:59+00:00",
+  "method": "Simulate PROFILE_A-F over canonical closed trades after excluding bullish_sweep and against_htf+BREAKOUT production blocks.",
+  "profiles": [
+    {
+      "classification": "NO_EDGE",
+      "factors": [
+        "score_bucket=90+"
+      ],
+      "metrics": {
+        "avg_r": -0.5988,
+        "losses": 4,
+        "profit_factor": 0.0,
+        "total_r": -2.3953,
+        "trades": 4,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "pf_delta": -0.7713,
+      "pf_improvement_pct": -100.0,
+      "profile": "PROFILE_A",
+      "r_delta": 2.1493,
+      "r_improvement_pct": 47.2935,
+      "trade_reduction_pct": 87.5
+    },
+    {
+      "classification": "NO_EDGE",
+      "factors": [
+        "score_bucket=90+",
+        "htf_alignment=aligned_with_htf"
+      ],
+      "metrics": {
+        "avg_r": -0.5988,
+        "losses": 4,
+        "profit_factor": 0.0,
+        "total_r": -2.3953,
+        "trades": 4,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "pf_delta": -0.7713,
+      "pf_improvement_pct": -100.0,
+      "profile": "PROFILE_B",
+      "r_delta": 2.1493,
+      "r_improvement_pct": 47.2935,
+      "trade_reduction_pct": 87.5
+    },
+    {
+      "classification": "NO_EDGE",
+      "factors": [
+        "score_bucket=90+",
+        "htf_alignment=aligned_with_htf",
+        "setup_type=SECONDARY_SIGNAL"
+      ],
+      "metrics": {
+        "avg_r": -0.4651,
+        "losses": 3,
+        "profit_factor": 0.0,
+        "total_r": -1.3953,
+        "trades": 3,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "pf_delta": -0.7713,
+      "pf_improvement_pct": -100.0,
+      "profile": "PROFILE_C",
+      "r_delta": 3.1493,
+      "r_improvement_pct": 69.2976,
+      "trade_reduction_pct": 90.625
+    },
+    {
+      "classification": "NO_EDGE",
+      "factors": [
+        "score_bucket=90+",
+        "htf_alignment=aligned_with_htf",
+        "setup_type=SECONDARY_SIGNAL",
+        "liquidity_sweep=bearish_sweep"
+      ],
+      "metrics": {
+        "avg_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "trades": 0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "pf_delta": -0.7713,
+      "pf_improvement_pct": -100.0,
+      "profile": "PROFILE_D",
+      "r_delta": 4.5446,
+      "r_improvement_pct": 100.0,
+      "trade_reduction_pct": 100.0
+    },
+    {
+      "classification": "NO_EDGE",
+      "factors": [
+        "score_bucket=90+",
+        "htf_alignment=aligned_with_htf",
+        "setup_type=SECONDARY_SIGNAL",
+        "liquidity_sweep=bearish_sweep",
+        "session=LONDON"
+      ],
+      "metrics": {
+        "avg_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "trades": 0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "pf_delta": -0.7713,
+      "pf_improvement_pct": -100.0,
+      "profile": "PROFILE_E",
+      "r_delta": 4.5446,
+      "r_improvement_pct": 100.0,
+      "trade_reduction_pct": 100.0
+    },
+    {
+      "classification": "NO_EDGE",
+      "factors": [
+        "score_bucket=90+",
+        "htf_alignment=aligned_with_htf",
+        "setup_type=SECONDARY_SIGNAL",
+        "liquidity_sweep=bearish_sweep",
+        "market_regime=HIGH_VOLATILITY"
+      ],
+      "metrics": {
+        "avg_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "trades": 0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "pf_delta": -0.7713,
+      "pf_improvement_pct": -100.0,
+      "profile": "PROFILE_F",
+      "r_delta": 4.5446,
+      "r_improvement_pct": 100.0,
+      "trade_reduction_pct": 100.0
+    }
+  ],
+  "recommended_action": "KEEP_BASELINE",
+  "scope": "ELITE_SHADOW_MODE_SIMULATION"
+}

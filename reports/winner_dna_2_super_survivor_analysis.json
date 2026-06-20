@@ -1,0 +1,863 @@
+{
+  "answers": {
+    "baseline_after_blocks": "trades=32, WR=31.25%, PF=0.7713, TotalR=-4.5446, AvgR=-0.142",
+    "elite_version_of_bot": "Prioritize trade_location=near_support + liquidity_sweep=none with trades=13, WR=38.4615%, PF=1.2136, TotalR=1.5189, AvgR=0.1168.",
+    "most_profitable_factor": "direction=LONG (trades=15, WR=46.6667%, PF=1.4427, TotalR=3.225, AvgR=0.215, class=STRONG)",
+    "near_resistance_edge": "NO",
+    "recommended_action": "PRIORITIZE_ELITE_CONTEXTS",
+    "repeated_winner_factors": "trade_location=near_support, direction=LONG, session=OVERLAP, liquidity_sweep=none",
+    "score_90_plus_confirmed_edge": "NO",
+    "secondary_signal_superior": "NO",
+    "strongest_trading_dna": "trade_location=near_support + liquidity_sweep=none (trades=13, WR=38.4615%, PF=1.2136, TotalR=1.5189, AvgR=0.1168, class=PROMISING)"
+  },
+  "baseline_after_production_blocks": {
+    "avg_r": -0.142,
+    "losses": 22,
+    "profit_factor": 0.7713,
+    "total_r": -4.5446,
+    "trades": 32,
+    "winrate": 31.25,
+    "wins": 10
+  },
+  "breakdowns": {
+    "direction": {
+      "LONG": {
+        "classification": "STRONG",
+        "metrics": {
+          "avg_r": 0.215,
+          "losses": 8,
+          "profit_factor": 1.4427,
+          "total_r": 3.225,
+          "trades": 15,
+          "winrate": 46.6667,
+          "wins": 7
+        },
+        "stability_score": 34.0999
+      },
+      "SHORT": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.457,
+          "losses": 14,
+          "profit_factor": 0.3827,
+          "total_r": -7.7696,
+          "trades": 17,
+          "winrate": 17.6471,
+          "wins": 3
+        },
+        "stability_score": 12.6381
+      }
+    },
+    "entry_context": {
+      "BREAKOUT": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.0046,
+          "losses": 10,
+          "profit_factor": 0.9912,
+          "total_r": -0.0696,
+          "trades": 15,
+          "winrate": 33.3333,
+          "wins": 5
+        },
+        "stability_score": 22.5963
+      },
+      "CHOPPY_RANGE": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.5128,
+          "losses": 5,
+          "profit_factor": 0.2821,
+          "total_r": -3.5896,
+          "trades": 7,
+          "winrate": 28.5714,
+          "wins": 2
+        },
+        "stability_score": 13.6568
+      },
+      "EXHAUSTION": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.1144,
+          "losses": 2,
+          "profit_factor": 0.8284,
+          "total_r": -0.3432,
+          "trades": 3,
+          "winrate": 33.3333,
+          "wins": 1
+        },
+        "stability_score": 18.8939
+      },
+      "PULLBACK": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.0775,
+          "losses": 5,
+          "profit_factor": 0.8916,
+          "total_r": -0.5422,
+          "trades": 7,
+          "winrate": 28.5714,
+          "wins": 2
+        },
+        "stability_score": 18.5328
+      }
+    },
+    "htf_alignment": {
+      "against_htf": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.0432,
+          "losses": 7,
+          "profit_factor": 0.9321,
+          "total_r": -0.475,
+          "trades": 11,
+          "winrate": 36.3636,
+          "wins": 4
+        },
+        "stability_score": 22.3841
+      },
+      "aligned_with_htf": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.1938,
+          "losses": 15,
+          "profit_factor": 0.6839,
+          "total_r": -4.0696,
+          "trades": 21,
+          "winrate": 28.5714,
+          "wins": 6
+        },
+        "stability_score": 19.6712
+      }
+    },
+    "liquidity_sweep": {
+      "none": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.142,
+          "losses": 22,
+          "profit_factor": 0.7713,
+          "total_r": -4.5446,
+          "trades": 32,
+          "winrate": 31.25,
+          "wins": 10
+        },
+        "stability_score": 23.5079
+      }
+    },
+    "market_regime": {
+      "HIGH_VOLATILITY": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": 0.317,
+          "losses": 2,
+          "profit_factor": 1.4755,
+          "total_r": 0.951,
+          "trades": 3,
+          "winrate": 33.3333,
+          "wins": 1
+        },
+        "stability_score": 28.8257
+      },
+      "RANGING": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.1772,
+          "losses": 10,
+          "profit_factor": 0.6822,
+          "total_r": -3.0123,
+          "trades": 17,
+          "winrate": 41.1765,
+          "wins": 7
+        },
+        "stability_score": 23.2694
+      },
+      "TRENDING": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.2069,
+          "losses": 10,
+          "profit_factor": 0.7042,
+          "total_r": -2.4833,
+          "trades": 12,
+          "winrate": 16.6667,
+          "wins": 2
+        },
+        "stability_score": 13.8669
+      }
+    },
+    "penalty": {
+      "none": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.142,
+          "losses": 22,
+          "profit_factor": 0.7713,
+          "total_r": -4.5446,
+          "trades": 32,
+          "winrate": 31.25,
+          "wins": 10
+        },
+        "stability_score": 23.5079
+      }
+    },
+    "score_bucket": {
+      "60-69": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": 0.096,
+          "losses": 6,
+          "profit_factor": 1.16,
+          "total_r": 0.96,
+          "trades": 10,
+          "winrate": 40.0,
+          "wins": 4
+        },
+        "stability_score": 26.72
+      },
+      "70-79": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": 1.0,
+          "losses": 0,
+          "profit_factor": "inf",
+          "total_r": 1.0,
+          "trades": 1,
+          "winrate": 100.0,
+          "wins": 1
+        },
+        "stability_score": 90.2
+      },
+      "80-89": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": 0.3035,
+          "losses": 1,
+          "profit_factor": 1.9104,
+          "total_r": 0.9104,
+          "trades": 3,
+          "winrate": 66.6667,
+          "wins": 2
+        },
+        "stability_score": 43.769
+      },
+      "90+": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.5988,
+          "losses": 4,
+          "profit_factor": 0.0,
+          "total_r": -2.3953,
+          "trades": 4,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "stability_score": 0.8
+      },
+      "<60": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.3586,
+          "losses": 11,
+          "profit_factor": 0.5209,
+          "total_r": -5.0197,
+          "trades": 14,
+          "winrate": 21.4286,
+          "wins": 3
+        },
+        "stability_score": 14.4672
+      }
+    },
+    "session": {
+      "LONDON": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": 0.2193,
+          "losses": 5,
+          "profit_factor": 1.4408,
+          "total_r": 1.9735,
+          "trades": 9,
+          "winrate": 44.4444,
+          "wins": 4
+        },
+        "stability_score": 32.1714
+      },
+      "NEW_YORK": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.7189,
+          "losses": 9,
+          "profit_factor": 0.1213,
+          "total_r": -7.9083,
+          "trades": 11,
+          "winrate": 18.1818,
+          "wins": 2
+        },
+        "stability_score": 9.534
+      },
+      "OVERLAP": {
+        "classification": "PROMISING",
+        "metrics": {
+          "avg_r": 0.1159,
+          "losses": 8,
+          "profit_factor": 1.2174,
+          "total_r": 1.3902,
+          "trades": 12,
+          "winrate": 33.3333,
+          "wins": 4
+        },
+        "stability_score": 25.5444
+      }
+    },
+    "setup_type": {
+      "MAIN_SIGNAL": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.0332,
+          "losses": 13,
+          "profit_factor": 0.9515,
+          "total_r": -0.6302,
+          "trades": 19,
+          "winrate": 31.5789,
+          "wins": 6
+        },
+        "stability_score": 22.4646
+      },
+      "SECONDARY_SIGNAL": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.3011,
+          "losses": 9,
+          "profit_factor": 0.4305,
+          "total_r": -3.9144,
+          "trades": 13,
+          "winrate": 30.7692,
+          "wins": 4
+        },
+        "stability_score": 16.8132
+      }
+    },
+    "symbol": {
+      "APEUSDT": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -1.0,
+          "losses": 1,
+          "profit_factor": 0.0,
+          "total_r": -1.0,
+          "trades": 1,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "stability_score": 0.2
+      },
+      "ATOMUSDT": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -1.0,
+          "losses": 1,
+          "profit_factor": 0.0,
+          "total_r": -1.0,
+          "trades": 1,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "stability_score": 0.2
+      },
+      "AVAXUSDT": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": 0.3057,
+          "losses": 1,
+          "profit_factor": 1.9172,
+          "total_r": 0.9172,
+          "trades": 3,
+          "winrate": 66.6667,
+          "wins": 2
+        },
+        "stability_score": 43.8564
+      },
+      "BNBUSDT": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.2267,
+          "losses": 3,
+          "profit_factor": 0.6222,
+          "total_r": -1.1333,
+          "trades": 5,
+          "winrate": 40.0,
+          "wins": 2
+        },
+        "stability_score": 19.9776
+      },
+      "BTCUSDT": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": 1.4184,
+          "losses": 1,
+          "profit_factor": 5.2552,
+          "total_r": 4.2552,
+          "trades": 3,
+          "winrate": 66.6667,
+          "wins": 2
+        },
+        "stability_score": 85.2093
+      },
+      "DOGEUSDT": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": 0.3573,
+          "losses": 1,
+          "profit_factor": 3.5026,
+          "total_r": 0.7145,
+          "trades": 2,
+          "winrate": 50.0,
+          "wins": 1
+        },
+        "stability_score": 51.2803
+      },
+      "ETCUSDT": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -1.0,
+          "losses": 1,
+          "profit_factor": 0.0,
+          "total_r": -1.0,
+          "trades": 1,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "stability_score": 0.2
+      },
+      "ETHUSDT": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": 0.0845,
+          "losses": 2,
+          "profit_factor": 1.169,
+          "total_r": 0.3381,
+          "trades": 4,
+          "winrate": 50.0,
+          "wins": 2
+        },
+        "stability_score": 28.9195
+      },
+      "ICPUSDT": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -1.0,
+          "losses": 1,
+          "profit_factor": 0.0,
+          "total_r": -1.0,
+          "trades": 1,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "stability_score": 0.2
+      },
+      "INJUSDT": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": 2.951,
+          "losses": 0,
+          "profit_factor": "inf",
+          "total_r": 2.951,
+          "trades": 1,
+          "winrate": 100.0,
+          "wins": 1
+        },
+        "stability_score": 100.0
+      },
+      "SANDUSDT": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -1.0,
+          "losses": 1,
+          "profit_factor": 0.0,
+          "total_r": -1.0,
+          "trades": 1,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "stability_score": 0.2
+      },
+      "SOLUSDT": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -1.0,
+          "losses": 3,
+          "profit_factor": 0.0,
+          "total_r": -3.0,
+          "trades": 3,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "stability_score": 0.6
+      },
+      "SUIUSDT": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -1.0,
+          "losses": 1,
+          "profit_factor": 0.0,
+          "total_r": -1.0,
+          "trades": 1,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "stability_score": 0.2
+      },
+      "TRXUSDT": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -1.0,
+          "losses": 1,
+          "profit_factor": 0.0,
+          "total_r": -1.0,
+          "trades": 1,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "stability_score": 0.2
+      },
+      "UNIUSDT": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -1.0,
+          "losses": 1,
+          "profit_factor": 0.0,
+          "total_r": -1.0,
+          "trades": 1,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "stability_score": 0.2
+      },
+      "XRPUSDT": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.5291,
+          "losses": 3,
+          "profit_factor": 0.0,
+          "total_r": -1.5873,
+          "trades": 3,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "stability_score": 0.6
+      }
+    },
+    "trade_location": {
+      "discount_zone": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.1592,
+          "losses": 2,
+          "profit_factor": 0.6768,
+          "total_r": -0.4775,
+          "trades": 3,
+          "winrate": 33.3333,
+          "wins": 1
+        },
+        "stability_score": 17.6811
+      },
+      "mid_range": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.3257,
+          "losses": 4,
+          "profit_factor": 0.5043,
+          "total_r": -1.6287,
+          "trades": 5,
+          "winrate": 20.0,
+          "wins": 1
+        },
+        "stability_score": 12.0344
+      },
+      "near_resistance": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": 0.4081,
+          "losses": 2,
+          "profit_factor": 1.8161,
+          "total_r": 1.6323,
+          "trades": 4,
+          "winrate": 50.0,
+          "wins": 2
+        },
+        "stability_score": 38.9503
+      },
+      "near_support": {
+        "classification": "PROMISING",
+        "metrics": {
+          "avg_r": 0.1168,
+          "losses": 8,
+          "profit_factor": 1.2136,
+          "total_r": 1.5189,
+          "trades": 13,
+          "winrate": 38.4615,
+          "wins": 5
+        },
+        "stability_score": 27.5223
+      },
+      "premium_zone": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.7985,
+          "losses": 6,
+          "profit_factor": 0.0684,
+          "total_r": -5.5896,
+          "trades": 7,
+          "winrate": 14.2857,
+          "wins": 1
+        },
+        "stability_score": 6.9472
+      }
+    },
+    "trend_alignment": {
+      "aligned_bearish": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.2098,
+          "losses": 10,
+          "profit_factor": 0.6336,
+          "total_r": -3.1466,
+          "trades": 15,
+          "winrate": 33.3333,
+          "wins": 5
+        },
+        "stability_score": 19.7355
+      },
+      "aligned_bullish": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": 0.0347,
+          "losses": 6,
+          "profit_factor": 1.0656,
+          "total_r": 0.3468,
+          "trades": 10,
+          "winrate": 40.0,
+          "wins": 4
+        },
+        "stability_score": 25.0453
+      },
+      "mixed_bearish_vs_bullish": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": 1.6276,
+          "losses": 1,
+          "profit_factor": 4.2552,
+          "total_r": 3.2552,
+          "trades": 2,
+          "winrate": 50.0,
+          "wins": 1
+        },
+        "stability_score": 76.3556
+      },
+      "mixed_bullish_vs_bearish": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -1.0,
+          "losses": 5,
+          "profit_factor": 0.0,
+          "total_r": -5.0,
+          "trades": 5,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "stability_score": 1.0
+      }
+    },
+    "warning": {
+      "against_htf": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.0432,
+          "losses": 7,
+          "profit_factor": 0.9321,
+          "total_r": -0.475,
+          "trades": 11,
+          "winrate": 36.3636,
+          "wins": 4
+        },
+        "stability_score": 22.3841
+      },
+      "dirty_sideways_market": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.4316,
+          "losses": 4,
+          "profit_factor": 0.3526,
+          "total_r": -2.5896,
+          "trades": 6,
+          "winrate": 33.3333,
+          "wins": 2
+        },
+        "stability_score": 15.6875
+      },
+      "explosive_candle_without_pullback": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.5067,
+          "losses": 2,
+          "profit_factor": 0.0,
+          "total_r": -1.0133,
+          "trades": 2,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "stability_score": 0.4
+      },
+      "low_volume": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.1474,
+          "losses": 2,
+          "profit_factor": 0.7052,
+          "total_r": -0.5896,
+          "trades": 4,
+          "winrate": 50.0,
+          "wins": 2
+        },
+        "stability_score": 23.9416
+      },
+      "none": {
+        "classification": "NO_EDGE",
+        "metrics": {
+          "avg_r": -0.1285,
+          "losses": 11,
+          "profit_factor": 0.7914,
+          "total_r": -2.0563,
+          "trades": 16,
+          "winrate": 31.25,
+          "wins": 5
+        },
+        "stability_score": 20.4687
+      }
+    }
+  },
+  "classification": "NO_EDGE",
+  "data_path": "data",
+  "excluded_metrics": {
+    "avg_r": 0.1212,
+    "losses": 5,
+    "profit_factor": 1.3198,
+    "total_r": 0.9692,
+    "trades": 8,
+    "winrate": 37.5,
+    "wins": 3
+  },
+  "excluded_production_blocks": [
+    "bullish_sweep",
+    "against_htf+BREAKOUT"
+  ],
+  "generated_at": "2026-06-09T18:20:44+00:00",
+  "method": "Analyze canonical closed trades after excluding existing production blocks: bullish_sweep and against_htf+BREAKOUT.",
+  "multi_factor_dna_top_20": [
+    {
+      "classification": "PROMISING",
+      "combination": "trade_location=near_support + liquidity_sweep=none",
+      "factors": [
+        {
+          "dimension": "trade_location",
+          "value": "near_support"
+        },
+        {
+          "dimension": "liquidity_sweep",
+          "value": "none"
+        }
+      ],
+      "metrics": {
+        "avg_r": 0.1168,
+        "losses": 8,
+        "profit_factor": 1.2136,
+        "total_r": 1.5189,
+        "trades": 13,
+        "winrate": 38.4615,
+        "wins": 5
+      },
+      "stability_score": 27.5223
+    }
+  ],
+  "recommended_action": "PRIORITIZE_ELITE_CONTEXTS",
+  "scope": "WINNER_DNA_2_0_SUPER_SURVIVOR_ANALYSIS",
+  "super_survivors": [
+    {
+      "classification": "STRONG",
+      "dimension": "direction",
+      "metrics": {
+        "avg_r": 0.215,
+        "losses": 8,
+        "profit_factor": 1.4427,
+        "total_r": 3.225,
+        "trades": 15,
+        "winrate": 46.6667,
+        "wins": 7
+      },
+      "stability_score": 34.0999,
+      "survivor_classification": "STRONG",
+      "value": "LONG"
+    },
+    {
+      "classification": "PROMISING",
+      "dimension": "session",
+      "metrics": {
+        "avg_r": 0.1159,
+        "losses": 8,
+        "profit_factor": 1.2174,
+        "total_r": 1.3902,
+        "trades": 12,
+        "winrate": 33.3333,
+        "wins": 4
+      },
+      "stability_score": 25.5444,
+      "survivor_classification": "PROMISING",
+      "value": "OVERLAP"
+    },
+    {
+      "classification": "PROMISING",
+      "dimension": "trade_location",
+      "metrics": {
+        "avg_r": 0.1168,
+        "losses": 8,
+        "profit_factor": 1.2136,
+        "total_r": 1.5189,
+        "trades": 13,
+        "winrate": 38.4615,
+        "wins": 5
+      },
+      "stability_score": 27.5223,
+      "survivor_classification": "PROMISING",
+      "value": "near_support"
+    }
+  ],
+  "what_if_analysis": {
+    "only_elite": {
+      "avg_r": 0.0,
+      "losses": 0,
+      "profit_factor": 0.0,
+      "total_r": 0.0,
+      "trades": 0,
+      "winrate": 0.0,
+      "wins": 0
+    },
+    "only_elite_and_strong": {
+      "avg_r": 0.215,
+      "losses": 8,
+      "profit_factor": 1.4427,
+      "total_r": 3.225,
+      "trades": 15,
+      "winrate": 46.6667,
+      "wins": 7
+    },
+    "only_top_20_percent_contexts": {
+      "avg_r": 0.215,
+      "losses": 8,
+      "profit_factor": 1.4427,
+      "total_r": 3.225,
+      "trades": 15,
+      "winrate": 46.6667,
+      "wins": 7
+    }
+  }
+}

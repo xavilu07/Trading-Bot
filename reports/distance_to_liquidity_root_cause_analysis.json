@@ -1,0 +1,928 @@
+{
+  "answers": {
+    "best_partial_rule": "distance_to_liquidity_penalty + MAIN_SIGNAL (removed=12, PF=0.8236, TotalR=-1.588, R improvement=1.588, class=IMPORTANT)",
+    "best_survivor": "direction=long (trades=10, PF=1.5312, TotalR=2.8078, class=NOISE)",
+    "blocking_improves_pf": "YES",
+    "blocking_improves_pf_after_existing_blocks": "YES",
+    "liquidity_distance_itself_toxic": "YES",
+    "partial_rule_better_than_full_block": "YES",
+    "recommended_action": "REDEFINE_ENTRY",
+    "root_cause_or_correlated": "mixed_signal_symptom_requires_entry_redefinition",
+    "toxicity_remains_after_existing_blocks": "YES"
+  },
+  "baseline_metrics": {
+    "avg_r": -0.0894,
+    "losses": 27,
+    "profit_factor": 0.8439,
+    "total_r": -3.5754,
+    "trades": 40,
+    "winrate": 32.5,
+    "wins": 13
+  },
+  "breakdowns": {
+    "direction": {
+      "long": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.2808,
+          "losses": 6,
+          "profit_factor": 1.5312,
+          "total_r": 2.8078,
+          "trades": 10,
+          "winrate": 40.0,
+          "wins": 4
+        }
+      },
+      "short": {
+        "classification": "IMPORTANT",
+        "metrics": {
+          "avg_r": -0.7473,
+          "losses": 10,
+          "profit_factor": 0.0427,
+          "total_r": -8.2206,
+          "trades": 11,
+          "winrate": 9.0909,
+          "wins": 1
+        }
+      }
+    },
+    "htf_alignment": {
+      "against_htf": {
+        "classification": "WATCH",
+        "metrics": {
+          "avg_r": -0.2633,
+          "losses": 5,
+          "profit_factor": 0.6314,
+          "total_r": -1.8432,
+          "trades": 7,
+          "winrate": 28.5714,
+          "wins": 2
+        }
+      },
+      "aligned_with_htf": {
+        "classification": "IMPORTANT",
+        "metrics": {
+          "avg_r": -0.255,
+          "losses": 11,
+          "profit_factor": 0.5977,
+          "total_r": -3.5696,
+          "trades": 14,
+          "winrate": 21.4286,
+          "wins": 3
+        }
+      }
+    },
+    "liquidity_sweep": {
+      "none": {
+        "classification": "IMPORTANT",
+        "metrics": {
+          "avg_r": -0.2578,
+          "losses": 16,
+          "profit_factor": 0.6098,
+          "total_r": -5.4128,
+          "trades": 21,
+          "winrate": 23.8095,
+          "wins": 5
+        }
+      }
+    },
+    "market_regime": {
+      "HIGH_VOLATILITY": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": -1.0,
+          "losses": 1,
+          "profit_factor": 0.0,
+          "total_r": -1.0,
+          "trades": 1,
+          "winrate": 0.0,
+          "wins": 0
+        }
+      },
+      "RANGING": {
+        "classification": "WATCH",
+        "metrics": {
+          "avg_r": -0.6033,
+          "losses": 7,
+          "profit_factor": 0.1618,
+          "total_r": -5.4295,
+          "trades": 9,
+          "winrate": 22.2222,
+          "wins": 2
+        }
+      },
+      "TRENDING": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.0924,
+          "losses": 8,
+          "profit_factor": 1.159,
+          "total_r": 1.0167,
+          "trades": 11,
+          "winrate": 27.2727,
+          "wins": 3
+        }
+      }
+    },
+    "score_bucket": {
+      "60-69": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.2178,
+          "losses": 5,
+          "profit_factor": 1.392,
+          "total_r": 1.96,
+          "trades": 9,
+          "winrate": 44.4444,
+          "wins": 4
+        }
+      },
+      "90+": {
+        "classification": "WATCH",
+        "metrics": {
+          "avg_r": -0.4651,
+          "losses": 3,
+          "profit_factor": 0.0,
+          "total_r": -1.3953,
+          "trades": 3,
+          "winrate": 0.0,
+          "wins": 0
+        }
+      },
+      "<60": {
+        "classification": "WATCH",
+        "metrics": {
+          "avg_r": -0.6642,
+          "losses": 8,
+          "profit_factor": 0.2006,
+          "total_r": -5.9775,
+          "trades": 9,
+          "winrate": 11.1111,
+          "wins": 1
+        }
+      }
+    },
+    "session": {
+      "LONDON": {
+        "classification": "WATCH",
+        "metrics": {
+          "avg_r": -0.4963,
+          "losses": 5,
+          "profit_factor": 0.335,
+          "total_r": -2.9775,
+          "trades": 6,
+          "winrate": 16.6667,
+          "wins": 1
+        }
+      },
+      "NEW_YORK": {
+        "classification": "WATCH",
+        "metrics": {
+          "avg_r": -0.6637,
+          "losses": 4,
+          "profit_factor": 0.1703,
+          "total_r": -3.3187,
+          "trades": 5,
+          "winrate": 20.0,
+          "wins": 1
+        }
+      },
+      "OVERLAP": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.0883,
+          "losses": 7,
+          "profit_factor": 1.1637,
+          "total_r": 0.8834,
+          "trades": 10,
+          "winrate": 30.0,
+          "wins": 3
+        }
+      }
+    },
+    "setup_type": {
+      "MAIN_SIGNAL": {
+        "classification": "IMPORTANT",
+        "metrics": {
+          "avg_r": -0.1323,
+          "losses": 9,
+          "profit_factor": 0.8236,
+          "total_r": -1.588,
+          "trades": 12,
+          "winrate": 25.0,
+          "wins": 3
+        }
+      },
+      "SECONDARY_SIGNAL": {
+        "classification": "WATCH",
+        "metrics": {
+          "avg_r": -0.425,
+          "losses": 7,
+          "profit_factor": 0.2151,
+          "total_r": -3.8248,
+          "trades": 9,
+          "winrate": 22.2222,
+          "wins": 2
+        }
+      }
+    },
+    "symbol": {
+      "AVAXUSDT": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": -1.0,
+          "losses": 1,
+          "profit_factor": 0.0,
+          "total_r": -1.0,
+          "trades": 1,
+          "winrate": 0.0,
+          "wins": 0
+        }
+      },
+      "BNBUSDT": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.2889,
+          "losses": 1,
+          "profit_factor": 1.8667,
+          "total_r": 0.8667,
+          "trades": 3,
+          "winrate": 66.6667,
+          "wins": 2
+        }
+      },
+      "BTCUSDT": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 1.6276,
+          "losses": 1,
+          "profit_factor": 4.2552,
+          "total_r": 3.2552,
+          "trades": 2,
+          "winrate": 50.0,
+          "wins": 1
+        }
+      },
+      "DOGEUSDT": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": -0.2855,
+          "losses": 1,
+          "profit_factor": 0.0,
+          "total_r": -0.2855,
+          "trades": 1,
+          "winrate": 0.0,
+          "wins": 0
+        }
+      },
+      "ETHUSDT": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.0845,
+          "losses": 2,
+          "profit_factor": 1.169,
+          "total_r": 0.3381,
+          "trades": 4,
+          "winrate": 50.0,
+          "wins": 2
+        }
+      },
+      "ICPUSDT": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": -1.0,
+          "losses": 1,
+          "profit_factor": 0.0,
+          "total_r": -1.0,
+          "trades": 1,
+          "winrate": 0.0,
+          "wins": 0
+        }
+      },
+      "SANDUSDT": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": -1.0,
+          "losses": 1,
+          "profit_factor": 0.0,
+          "total_r": -1.0,
+          "trades": 1,
+          "winrate": 0.0,
+          "wins": 0
+        }
+      },
+      "SOLUSDT": {
+        "classification": "WATCH",
+        "metrics": {
+          "avg_r": -1.0,
+          "losses": 3,
+          "profit_factor": 0.0,
+          "total_r": -3.0,
+          "trades": 3,
+          "winrate": 0.0,
+          "wins": 0
+        }
+      },
+      "TRXUSDT": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": -1.0,
+          "losses": 1,
+          "profit_factor": 0.0,
+          "total_r": -1.0,
+          "trades": 1,
+          "winrate": 0.0,
+          "wins": 0
+        }
+      },
+      "XRPUSDT": {
+        "classification": "WATCH",
+        "metrics": {
+          "avg_r": -0.6468,
+          "losses": 4,
+          "profit_factor": 0.0,
+          "total_r": -2.5873,
+          "trades": 4,
+          "winrate": 0.0,
+          "wins": 0
+        }
+      }
+    },
+    "trade_location": {
+      "discount_zone": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": -0.7388,
+          "losses": 2,
+          "profit_factor": 0.0,
+          "total_r": -1.4775,
+          "trades": 2,
+          "winrate": 0.0,
+          "wins": 0
+        }
+      },
+      "mid_range": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.6857,
+          "losses": 1,
+          "profit_factor": 5.8032,
+          "total_r": 1.3713,
+          "trades": 2,
+          "winrate": 50.0,
+          "wins": 1
+        }
+      },
+      "near_resistance": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.0453,
+          "losses": 2,
+          "profit_factor": 1.0907,
+          "total_r": 0.1813,
+          "trades": 4,
+          "winrate": 50.0,
+          "wins": 2
+        }
+      },
+      "near_support": {
+        "classification": "WATCH",
+        "metrics": {
+          "avg_r": -0.1653,
+          "losses": 7,
+          "profit_factor": 0.7565,
+          "total_r": -1.4879,
+          "trades": 9,
+          "winrate": 22.2222,
+          "wins": 2
+        }
+      },
+      "premium_zone": {
+        "classification": "WATCH",
+        "metrics": {
+          "avg_r": -1.0,
+          "losses": 4,
+          "profit_factor": 0.0,
+          "total_r": -4.0,
+          "trades": 4,
+          "winrate": 0.0,
+          "wins": 0
+        }
+      }
+    },
+    "trend_alignment": {
+      "aligned_bearish": {
+        "classification": "IMPORTANT",
+        "metrics": {
+          "avg_r": -0.4564,
+          "losses": 8,
+          "profit_factor": 0.3072,
+          "total_r": -4.5638,
+          "trades": 10,
+          "winrate": 20.0,
+          "wins": 2
+        }
+      },
+      "aligned_bullish": {
+        "classification": "WATCH",
+        "metrics": {
+          "avg_r": -0.5208,
+          "losses": 4,
+          "profit_factor": 0.2074,
+          "total_r": -2.6042,
+          "trades": 5,
+          "winrate": 20.0,
+          "wins": 1
+        }
+      },
+      "mixed_bearish_vs_bullish": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 1.6276,
+          "losses": 1,
+          "profit_factor": 4.2552,
+          "total_r": 3.2552,
+          "trades": 2,
+          "winrate": 50.0,
+          "wins": 1
+        }
+      },
+      "mixed_bullish_vs_bearish": {
+        "classification": "WATCH",
+        "metrics": {
+          "avg_r": -0.375,
+          "losses": 3,
+          "profit_factor": 0.5,
+          "total_r": -1.5,
+          "trades": 4,
+          "winrate": 25.0,
+          "wins": 1
+        }
+      }
+    }
+  },
+  "classification": "IMPORTANT",
+  "counterfactuals": {
+    "without_distance_to_liquidity_penalty": {
+      "current_metrics": {
+        "avg_r": -0.0894,
+        "losses": 27,
+        "profit_factor": 0.8439,
+        "total_r": -3.5754,
+        "trades": 40,
+        "winrate": 32.5,
+        "wins": 13
+      },
+      "pf_after": 1.2035,
+      "pf_before": 0.8439,
+      "pf_improvement": 0.3596,
+      "r_improvement": 5.4128,
+      "removed_metrics": {
+        "avg_r": -0.2578,
+        "losses": 16,
+        "profit_factor": 0.6098,
+        "total_r": -5.4128,
+        "trades": 21,
+        "winrate": 23.8095,
+        "wins": 5
+      },
+      "removed_trades": 21,
+      "total_r_after": 1.8374,
+      "total_r_before": -3.5754,
+      "winrate_delta": 9.6053,
+      "without_metrics": {
+        "avg_r": 0.0967,
+        "losses": 11,
+        "profit_factor": 1.2035,
+        "total_r": 1.8374,
+        "trades": 19,
+        "winrate": 42.1053,
+        "wins": 8
+      }
+    },
+    "without_distance_to_liquidity_penalty_after_existing_blocks": {
+      "current_metrics": {
+        "avg_r": -0.142,
+        "losses": 22,
+        "profit_factor": 0.7713,
+        "total_r": -4.5446,
+        "trades": 32,
+        "winrate": 31.25,
+        "wins": 10
+      },
+      "pf_after": 1.1955,
+      "pf_before": 0.7713,
+      "pf_improvement": 0.4242,
+      "r_improvement": 5.9128,
+      "removed_metrics": {
+        "avg_r": -0.3112,
+        "losses": 15,
+        "profit_factor": 0.5407,
+        "total_r": -5.9128,
+        "trades": 19,
+        "winrate": 21.0526,
+        "wins": 4
+      },
+      "removed_trades": 19,
+      "total_r_after": 1.3682,
+      "total_r_before": -4.5446,
+      "winrate_delta": 14.9038,
+      "without_metrics": {
+        "avg_r": 0.1052,
+        "losses": 7,
+        "profit_factor": 1.1955,
+        "total_r": 1.3682,
+        "trades": 13,
+        "winrate": 46.1538,
+        "wins": 6
+      }
+    },
+    "without_existing_production_blocks": {
+      "current_metrics": {
+        "avg_r": -0.0894,
+        "losses": 27,
+        "profit_factor": 0.8439,
+        "total_r": -3.5754,
+        "trades": 40,
+        "winrate": 32.5,
+        "wins": 13
+      },
+      "pf_after": 0.7713,
+      "pf_before": 0.8439,
+      "pf_improvement": -0.0726,
+      "r_improvement": -0.9692,
+      "removed_metrics": {
+        "avg_r": 0.1212,
+        "losses": 5,
+        "profit_factor": 1.3198,
+        "total_r": 0.9692,
+        "trades": 8,
+        "winrate": 37.5,
+        "wins": 3
+      },
+      "removed_trades": 8,
+      "total_r_after": -4.5446,
+      "total_r_before": -3.5754,
+      "winrate_delta": -1.25,
+      "without_metrics": {
+        "avg_r": -0.142,
+        "losses": 22,
+        "profit_factor": 0.7713,
+        "total_r": -4.5446,
+        "trades": 32,
+        "winrate": 31.25,
+        "wins": 10
+      }
+    }
+  },
+  "data_path": "data",
+  "distance_to_liquidity_penalty_after_existing_blocks_metrics": {
+    "avg_r": -0.3112,
+    "losses": 15,
+    "profit_factor": 0.5407,
+    "total_r": -5.9128,
+    "trades": 19,
+    "winrate": 21.0526,
+    "wins": 4
+  },
+  "distance_to_liquidity_penalty_metrics": {
+    "avg_r": -0.2578,
+    "losses": 16,
+    "profit_factor": 0.6098,
+    "total_r": -5.4128,
+    "trades": 21,
+    "winrate": 23.8095,
+    "wins": 5
+  },
+  "generated_at": "2026-06-09T18:01:21+00:00",
+  "method": "Analyze canonical closed trades tagged with distance_to_liquidity_penalty, including counterfactual removal before and after already-blocked bullish_sweep and against_htf+BREAKOUT contexts.",
+  "recommended_action": "REDEFINE_ENTRY",
+  "scope": "DISTANCE_TO_LIQUIDITY_ROOT_CAUSE_ANALYSIS",
+  "survivors": [
+    {
+      "classification": "NOISE",
+      "dimension": "direction",
+      "metrics": {
+        "avg_r": 0.2808,
+        "losses": 6,
+        "profit_factor": 1.5312,
+        "total_r": 2.8078,
+        "trades": 10,
+        "winrate": 40.0,
+        "wins": 4
+      },
+      "value": "long"
+    },
+    {
+      "classification": "NOISE",
+      "dimension": "market_regime",
+      "metrics": {
+        "avg_r": 0.0924,
+        "losses": 8,
+        "profit_factor": 1.159,
+        "total_r": 1.0167,
+        "trades": 11,
+        "winrate": 27.2727,
+        "wins": 3
+      },
+      "value": "TRENDING"
+    },
+    {
+      "classification": "NOISE",
+      "dimension": "session",
+      "metrics": {
+        "avg_r": 0.0883,
+        "losses": 7,
+        "profit_factor": 1.1637,
+        "total_r": 0.8834,
+        "trades": 10,
+        "winrate": 30.0,
+        "wins": 3
+      },
+      "value": "OVERLAP"
+    }
+  ],
+  "target_token": "distance_to_liquidity_penalty",
+  "toxic_combinations": [
+    {
+      "classification": "WATCH",
+      "factors": [
+        "distance_to_liquidity_penalty",
+        "RANGING"
+      ],
+      "losing_trades_removed": 7,
+      "name": "distance_to_liquidity_penalty + RANGING",
+      "pf_after": 1.1129,
+      "pf_before": 0.8439,
+      "pf_improvement": 0.269,
+      "profitable_trades_lost": 2,
+      "r_improvement": 5.4295,
+      "removed_metrics": {
+        "avg_r": -0.6033,
+        "losses": 7,
+        "profit_factor": 0.1618,
+        "total_r": -5.4295,
+        "trades": 9,
+        "winrate": 22.2222,
+        "wins": 2
+      },
+      "removed_trades": 9,
+      "total_r_after": 1.8541,
+      "total_r_before": -3.5754
+    },
+    {
+      "classification": "WATCH",
+      "factors": [
+        "distance_to_liquidity_penalty",
+        "NEW_YORK"
+      ],
+      "losing_trades_removed": 4,
+      "name": "distance_to_liquidity_penalty + NEW_YORK",
+      "pf_after": 0.9864,
+      "pf_before": 0.8439,
+      "pf_improvement": 0.1425,
+      "profitable_trades_lost": 1,
+      "r_improvement": 3.3187,
+      "removed_metrics": {
+        "avg_r": -0.6637,
+        "losses": 4,
+        "profit_factor": 0.1703,
+        "total_r": -3.3187,
+        "trades": 5,
+        "winrate": 20.0,
+        "wins": 1
+      },
+      "removed_trades": 5,
+      "total_r_after": -0.2567,
+      "total_r_before": -3.5754
+    },
+    {
+      "classification": "WATCH",
+      "factors": [
+        "distance_to_liquidity_penalty",
+        "against_htf"
+      ],
+      "losing_trades_removed": 5,
+      "name": "distance_to_liquidity_penalty + against_htf",
+      "pf_after": 0.9032,
+      "pf_before": 0.8439,
+      "pf_improvement": 0.0593,
+      "profitable_trades_lost": 2,
+      "r_improvement": 1.8432,
+      "removed_metrics": {
+        "avg_r": -0.2633,
+        "losses": 5,
+        "profit_factor": 0.6314,
+        "total_r": -1.8432,
+        "trades": 7,
+        "winrate": 28.5714,
+        "wins": 2
+      },
+      "removed_trades": 7,
+      "total_r_after": -1.7322,
+      "total_r_before": -3.5754
+    },
+    {
+      "classification": "IMPORTANT",
+      "factors": [
+        "distance_to_liquidity_penalty",
+        "MAIN_SIGNAL"
+      ],
+      "losing_trades_removed": 9,
+      "name": "distance_to_liquidity_penalty + MAIN_SIGNAL",
+      "pf_after": 0.8571,
+      "pf_before": 0.8439,
+      "pf_improvement": 0.0132,
+      "profitable_trades_lost": 3,
+      "r_improvement": 1.588,
+      "removed_metrics": {
+        "avg_r": -0.1323,
+        "losses": 9,
+        "profit_factor": 0.8236,
+        "total_r": -1.588,
+        "trades": 12,
+        "winrate": 25.0,
+        "wins": 3
+      },
+      "removed_trades": 12,
+      "total_r_after": -1.9874,
+      "total_r_before": -3.5754
+    },
+    {
+      "classification": "NOISE",
+      "factors": [
+        "distance_to_liquidity_penalty",
+        "HIGH_VOLATILITY"
+      ],
+      "losing_trades_removed": 1,
+      "name": "distance_to_liquidity_penalty + HIGH_VOLATILITY",
+      "pf_after": 0.8824,
+      "pf_before": 0.8439,
+      "pf_improvement": 0.0385,
+      "profitable_trades_lost": 0,
+      "r_improvement": 1.0,
+      "removed_metrics": {
+        "avg_r": -1.0,
+        "losses": 1,
+        "profit_factor": 0.0,
+        "total_r": -1.0,
+        "trades": 1,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "removed_trades": 1,
+      "total_r_after": -2.5754,
+      "total_r_before": -3.5754
+    },
+    {
+      "classification": "NOISE",
+      "factors": [
+        "distance_to_liquidity_penalty",
+        "bullish_sweep"
+      ],
+      "losing_trades_removed": 0,
+      "name": "distance_to_liquidity_penalty + bullish_sweep",
+      "pf_after": 0.8439,
+      "pf_before": 0.8439,
+      "pf_improvement": 0.0,
+      "profitable_trades_lost": 0,
+      "r_improvement": 0.0,
+      "removed_metrics": {
+        "avg_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "trades": 0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "removed_trades": 0,
+      "total_r_after": -3.5754,
+      "total_r_before": -3.5754
+    },
+    {
+      "classification": "WATCH",
+      "factors": [
+        "distance_to_liquidity_penalty",
+        "OVERLAP"
+      ],
+      "losing_trades_removed": 7,
+      "name": "distance_to_liquidity_penalty + OVERLAP",
+      "pf_after": 0.7453,
+      "pf_before": 0.8439,
+      "pf_improvement": -0.0986,
+      "profitable_trades_lost": 3,
+      "r_improvement": -0.8834,
+      "removed_metrics": {
+        "avg_r": 0.0883,
+        "losses": 7,
+        "profit_factor": 1.1637,
+        "total_r": 0.8834,
+        "trades": 10,
+        "winrate": 30.0,
+        "wins": 3
+      },
+      "removed_trades": 10,
+      "total_r_after": -4.4588,
+      "total_r_before": -3.5754
+    },
+    {
+      "classification": "WATCH",
+      "factors": [
+        "distance_to_liquidity_penalty",
+        "LONG"
+      ],
+      "losing_trades_removed": 6,
+      "name": "distance_to_liquidity_penalty + LONG",
+      "pf_after": 0.6377,
+      "pf_before": 0.8439,
+      "pf_improvement": -0.2062,
+      "profitable_trades_lost": 4,
+      "r_improvement": -2.8078,
+      "removed_metrics": {
+        "avg_r": 0.2808,
+        "losses": 6,
+        "profit_factor": 1.5312,
+        "total_r": 2.8078,
+        "trades": 10,
+        "winrate": 40.0,
+        "wins": 4
+      },
+      "removed_trades": 10,
+      "total_r_after": -6.3832,
+      "total_r_before": -3.5754
+    }
+  ],
+  "toxic_subgroups": [
+    {
+      "classification": "IMPORTANT",
+      "dimension": "direction",
+      "metrics": {
+        "avg_r": -0.7473,
+        "losses": 10,
+        "profit_factor": 0.0427,
+        "total_r": -8.2206,
+        "trades": 11,
+        "winrate": 9.0909,
+        "wins": 1
+      },
+      "value": "short"
+    },
+    {
+      "classification": "IMPORTANT",
+      "dimension": "liquidity_sweep",
+      "metrics": {
+        "avg_r": -0.2578,
+        "losses": 16,
+        "profit_factor": 0.6098,
+        "total_r": -5.4128,
+        "trades": 21,
+        "winrate": 23.8095,
+        "wins": 5
+      },
+      "value": "none"
+    },
+    {
+      "classification": "IMPORTANT",
+      "dimension": "trend_alignment",
+      "metrics": {
+        "avg_r": -0.4564,
+        "losses": 8,
+        "profit_factor": 0.3072,
+        "total_r": -4.5638,
+        "trades": 10,
+        "winrate": 20.0,
+        "wins": 2
+      },
+      "value": "aligned_bearish"
+    },
+    {
+      "classification": "IMPORTANT",
+      "dimension": "htf_alignment",
+      "metrics": {
+        "avg_r": -0.255,
+        "losses": 11,
+        "profit_factor": 0.5977,
+        "total_r": -3.5696,
+        "trades": 14,
+        "winrate": 21.4286,
+        "wins": 3
+      },
+      "value": "aligned_with_htf"
+    },
+    {
+      "classification": "IMPORTANT",
+      "dimension": "setup_type",
+      "metrics": {
+        "avg_r": -0.1323,
+        "losses": 9,
+        "profit_factor": 0.8236,
+        "total_r": -1.588,
+        "trades": 12,
+        "winrate": 25.0,
+        "wins": 3
+      },
+      "value": "MAIN_SIGNAL"
+    }
+  ]
+}

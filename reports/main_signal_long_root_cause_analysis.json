@@ -1,0 +1,1859 @@
+{
+  "answers": {
+    "best_multi_factor_root_cause": "none",
+    "best_single_root_cause": "none",
+    "best_survivor": "liquidity_sweep=none (trades=14, PF=1.7027, TotalR=4.9188, class=NOISE)",
+    "block_redefine_or_keep": "KEEP",
+    "dominant_issue": "liquidity_sweep",
+    "globally_toxic": "NO",
+    "next_best_non_overlapping_root_cause": "none",
+    "recommended_action": "KEEP",
+    "remaining_toxicity_after_existing_blocks": "trades=11, WR=45.4545%, PF=1.5698, TotalR=3.4188, AvgR=0.3108",
+    "smallest_rule_least_collateral": "none",
+    "still_toxic_after_existing_blocks": "NO",
+    "tiny_promising_survivor": "rr_bucket=rr_1_5_to_2 (trades=6, PF=6.6636, TotalR=5.6636, class=NOISE)",
+    "toxicity_already_covered_by_existing_blocks": "MAIN_SIGNAL_LONG is not net-negative in this dataset."
+  },
+  "baseline_metrics": {
+    "avg_r": -0.0894,
+    "losses": 27,
+    "profit_factor": 0.8439,
+    "total_r": -3.5754,
+    "trades": 40,
+    "winrate": 32.5,
+    "wins": 13
+  },
+  "breakdowns": {
+    "body_ratio_bucket": {
+      "UNKNOWN": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.3513,
+          "losses": 7,
+          "profit_factor": 1.7027,
+          "total_r": 4.9188,
+          "trades": 14,
+          "winrate": 50.0,
+          "wins": 7
+        }
+      }
+    },
+    "condition_failed": {
+      "body_ratio_below_threshold": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.3805,
+          "losses": 3,
+          "profit_factor": 1.8879,
+          "total_r": 2.6636,
+          "trades": 7,
+          "winrate": 57.1429,
+          "wins": 4
+        }
+      },
+      "directional_confluence_failed": {
+        "classification": "WATCH",
+        "metrics": {
+          "avg_r": -0.5,
+          "losses": 3,
+          "profit_factor": 0.3333,
+          "total_r": -2.0,
+          "trades": 4,
+          "winrate": 25.0,
+          "wins": 1
+        }
+      },
+      "distance_to_liquidity_penalty": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.4874,
+          "losses": 4,
+          "profit_factor": 1.853,
+          "total_r": 3.412,
+          "trades": 7,
+          "winrate": 42.8571,
+          "wins": 3
+        }
+      },
+      "higher_timeframe_contradicts_long": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 1.0,
+          "losses": 0,
+          "profit_factor": "inf",
+          "total_r": 1.0,
+          "trades": 1,
+          "winrate": 100.0,
+          "wins": 1
+        }
+      },
+      "higher_timeframe_contradicts_short": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 1.6276,
+          "losses": 1,
+          "profit_factor": 4.2552,
+          "total_r": 3.2552,
+          "trades": 2,
+          "winrate": 50.0,
+          "wins": 1
+        }
+      },
+      "market_structure_range_penalty": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.2153,
+          "losses": 3,
+          "profit_factor": 1.5023,
+          "total_r": 1.5068,
+          "trades": 7,
+          "winrate": 57.1429,
+          "wins": 4
+        }
+      },
+      "timeframe_alignment_penalty": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 1.4388,
+          "losses": 1,
+          "profit_factor": 6.7552,
+          "total_r": 5.7552,
+          "trades": 4,
+          "winrate": 75.0,
+          "wins": 3
+        }
+      }
+    },
+    "distance_to_liquidity_bucket": {
+      "distance_close": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.2262,
+          "losses": 6,
+          "profit_factor": 1.377,
+          "total_r": 2.262,
+          "trades": 10,
+          "winrate": 40.0,
+          "wins": 4
+        }
+      },
+      "distance_valid": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.6642,
+          "losses": 1,
+          "profit_factor": 3.6568,
+          "total_r": 2.6568,
+          "trades": 4,
+          "winrate": 75.0,
+          "wins": 3
+        }
+      }
+    },
+    "entry_context": {
+      "BREAKOUT": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.6793,
+          "losses": 3,
+          "profit_factor": 2.5851,
+          "total_r": 4.7552,
+          "trades": 7,
+          "winrate": 57.1429,
+          "wins": 4
+        }
+      },
+      "CHOPPY_RANGE": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.0,
+          "losses": 1,
+          "profit_factor": 1.0,
+          "total_r": 0.0,
+          "trades": 2,
+          "winrate": 50.0,
+          "wins": 1
+        }
+      },
+      "EXHAUSTION": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.3284,
+          "losses": 1,
+          "profit_factor": 1.6568,
+          "total_r": 0.6568,
+          "trades": 2,
+          "winrate": 50.0,
+          "wins": 1
+        }
+      },
+      "PULLBACK": {
+        "classification": "WATCH",
+        "metrics": {
+          "avg_r": -0.1644,
+          "losses": 2,
+          "profit_factor": 0.7534,
+          "total_r": -0.4932,
+          "trades": 3,
+          "winrate": 33.3333,
+          "wins": 1
+        }
+      }
+    },
+    "failed_filter": {
+      "none": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.3513,
+          "losses": 7,
+          "profit_factor": 1.7027,
+          "total_r": 4.9188,
+          "trades": 14,
+          "winrate": 50.0,
+          "wins": 7
+        }
+      }
+    },
+    "htf_alignment": {
+      "against_htf": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.0737,
+          "losses": 5,
+          "profit_factor": 1.1327,
+          "total_r": 0.6636,
+          "trades": 9,
+          "winrate": 44.4444,
+          "wins": 4
+        }
+      },
+      "aligned_with_htf": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.851,
+          "losses": 2,
+          "profit_factor": 3.1276,
+          "total_r": 4.2552,
+          "trades": 5,
+          "winrate": 60.0,
+          "wins": 3
+        }
+      }
+    },
+    "liquidity_sweep": {
+      "none": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.3513,
+          "losses": 7,
+          "profit_factor": 1.7027,
+          "total_r": 4.9188,
+          "trades": 14,
+          "winrate": 50.0,
+          "wins": 7
+        }
+      }
+    },
+    "market_regime": {
+      "HIGH_VOLATILITY": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.0,
+          "losses": 1,
+          "profit_factor": 1.0,
+          "total_r": 0.0,
+          "trades": 2,
+          "winrate": 50.0,
+          "wins": 1
+        }
+      },
+      "RANGING": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.0845,
+          "losses": 3,
+          "profit_factor": 1.1689,
+          "total_r": 0.5068,
+          "trades": 6,
+          "winrate": 50.0,
+          "wins": 3
+        }
+      },
+      "TRENDING": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.7353,
+          "losses": 3,
+          "profit_factor": 2.4707,
+          "total_r": 4.412,
+          "trades": 6,
+          "winrate": 50.0,
+          "wins": 3
+        }
+      }
+    },
+    "penalty": {
+      "none": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.3513,
+          "losses": 7,
+          "profit_factor": 1.7027,
+          "total_r": 4.9188,
+          "trades": 14,
+          "winrate": 50.0,
+          "wins": 7
+        }
+      }
+    },
+    "rejection_reason": {
+      "body_ratio_below_threshold": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.3805,
+          "losses": 3,
+          "profit_factor": 1.8879,
+          "total_r": 2.6636,
+          "trades": 7,
+          "winrate": 57.1429,
+          "wins": 4
+        }
+      },
+      "directional_confluence_failed": {
+        "classification": "WATCH",
+        "metrics": {
+          "avg_r": -0.5,
+          "losses": 3,
+          "profit_factor": 0.3333,
+          "total_r": -2.0,
+          "trades": 4,
+          "winrate": 25.0,
+          "wins": 1
+        }
+      },
+      "distance_to_liquidity_penalty": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.4874,
+          "losses": 4,
+          "profit_factor": 1.853,
+          "total_r": 3.412,
+          "trades": 7,
+          "winrate": 42.8571,
+          "wins": 3
+        }
+      },
+      "higher_timeframe_contradicts_long": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 1.0,
+          "losses": 0,
+          "profit_factor": "inf",
+          "total_r": 1.0,
+          "trades": 1,
+          "winrate": 100.0,
+          "wins": 1
+        }
+      },
+      "higher_timeframe_contradicts_short": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 1.6276,
+          "losses": 1,
+          "profit_factor": 4.2552,
+          "total_r": 3.2552,
+          "trades": 2,
+          "winrate": 50.0,
+          "wins": 1
+        }
+      },
+      "market_structure_range_penalty": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.2153,
+          "losses": 3,
+          "profit_factor": 1.5023,
+          "total_r": 1.5068,
+          "trades": 7,
+          "winrate": 57.1429,
+          "wins": 4
+        }
+      },
+      "timeframe_alignment_penalty": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 1.4388,
+          "losses": 1,
+          "profit_factor": 6.7552,
+          "total_r": 5.7552,
+          "trades": 4,
+          "winrate": 75.0,
+          "wins": 3
+        }
+      }
+    },
+    "rr_bucket": {
+      "rr_1_5_to_2": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.9439,
+          "losses": 1,
+          "profit_factor": 6.6636,
+          "total_r": 5.6636,
+          "trades": 6,
+          "winrate": 83.3333,
+          "wins": 5
+        }
+      },
+      "rr_2_plus": {
+        "classification": "WATCH",
+        "metrics": {
+          "avg_r": -0.0931,
+          "losses": 6,
+          "profit_factor": 0.8759,
+          "total_r": -0.7448,
+          "trades": 8,
+          "winrate": 25.0,
+          "wins": 2
+        }
+      }
+    },
+    "score_bucket": {
+      "60-69": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.9824,
+          "losses": 2,
+          "profit_factor": 3.456,
+          "total_r": 4.912,
+          "trades": 5,
+          "winrate": 60.0,
+          "wins": 3
+        }
+      },
+      "70-79": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 1.0,
+          "losses": 0,
+          "profit_factor": "inf",
+          "total_r": 1.0,
+          "trades": 1,
+          "winrate": 100.0,
+          "wins": 1
+        }
+      },
+      "80-89": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": -1.0,
+          "losses": 1,
+          "profit_factor": 0.0,
+          "total_r": -1.0,
+          "trades": 1,
+          "winrate": 0.0,
+          "wins": 0
+        }
+      },
+      "90+": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": -1.0,
+          "losses": 1,
+          "profit_factor": 0.0,
+          "total_r": -1.0,
+          "trades": 1,
+          "winrate": 0.0,
+          "wins": 0
+        }
+      },
+      "<60": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.1678,
+          "losses": 3,
+          "profit_factor": 1.3356,
+          "total_r": 1.0068,
+          "trades": 6,
+          "winrate": 50.0,
+          "wins": 3
+        }
+      }
+    },
+    "session": {
+      "LONDON": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.7,
+          "losses": 1,
+          "profit_factor": 4.5,
+          "total_r": 3.5,
+          "trades": 5,
+          "winrate": 80.0,
+          "wins": 4
+        }
+      },
+      "NEW_YORK": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": -1.0,
+          "losses": 1,
+          "profit_factor": 0.0,
+          "total_r": -1.0,
+          "trades": 1,
+          "winrate": 0.0,
+          "wins": 0
+        }
+      },
+      "OVERLAP": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.3024,
+          "losses": 5,
+          "profit_factor": 1.4838,
+          "total_r": 2.4188,
+          "trades": 8,
+          "winrate": 37.5,
+          "wins": 3
+        }
+      }
+    },
+    "symbol": {
+      "APEUSDT": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": -1.0,
+          "losses": 1,
+          "profit_factor": 0.0,
+          "total_r": -1.0,
+          "trades": 1,
+          "winrate": 0.0,
+          "wins": 0
+        }
+      },
+      "AVAXUSDT": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 1.5068,
+          "losses": 0,
+          "profit_factor": "inf",
+          "total_r": 1.5068,
+          "trades": 1,
+          "winrate": 100.0,
+          "wins": 1
+        }
+      },
+      "BNBUSDT": {
+        "classification": "WATCH",
+        "metrics": {
+          "avg_r": -0.1667,
+          "losses": 2,
+          "profit_factor": 0.75,
+          "total_r": -0.5,
+          "trades": 3,
+          "winrate": 33.3333,
+          "wins": 1
+        }
+      },
+      "BTCUSDT": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 1.4184,
+          "losses": 1,
+          "profit_factor": 5.2552,
+          "total_r": 4.2552,
+          "trades": 3,
+          "winrate": 66.6667,
+          "wins": 2
+        }
+      },
+      "DOGEUSDT": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 1.0,
+          "losses": 0,
+          "profit_factor": "inf",
+          "total_r": 1.0,
+          "trades": 1,
+          "winrate": 100.0,
+          "wins": 1
+        }
+      },
+      "ETHUSDT": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 1.6568,
+          "losses": 0,
+          "profit_factor": "inf",
+          "total_r": 1.6568,
+          "trades": 1,
+          "winrate": 100.0,
+          "wins": 1
+        }
+      },
+      "SOLUSDT": {
+        "classification": "WATCH",
+        "metrics": {
+          "avg_r": -0.3333,
+          "losses": 2,
+          "profit_factor": 0.5,
+          "total_r": -1.0,
+          "trades": 3,
+          "winrate": 33.3333,
+          "wins": 1
+        }
+      },
+      "XRPUSDT": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": -1.0,
+          "losses": 1,
+          "profit_factor": 0.0,
+          "total_r": -1.0,
+          "trades": 1,
+          "winrate": 0.0,
+          "wins": 0
+        }
+      }
+    },
+    "trade_location": {
+      "discount_zone": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 1.0,
+          "losses": 0,
+          "profit_factor": "inf",
+          "total_r": 2.0,
+          "trades": 2,
+          "winrate": 100.0,
+          "wins": 2
+        }
+      },
+      "mid_range": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.3284,
+          "losses": 1,
+          "profit_factor": 1.6568,
+          "total_r": 0.6568,
+          "trades": 2,
+          "winrate": 50.0,
+          "wins": 1
+        }
+      },
+      "near_resistance": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 1.5,
+          "losses": 0,
+          "profit_factor": "inf",
+          "total_r": 1.5,
+          "trades": 1,
+          "winrate": 100.0,
+          "wins": 1
+        }
+      },
+      "near_support": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.0847,
+          "losses": 6,
+          "profit_factor": 1.127,
+          "total_r": 0.762,
+          "trades": 9,
+          "winrate": 33.3333,
+          "wins": 3
+        }
+      }
+    },
+    "trend_alignment": {
+      "aligned_bearish": {
+        "classification": "WATCH",
+        "metrics": {
+          "avg_r": -0.2623,
+          "losses": 5,
+          "profit_factor": 0.6327,
+          "total_r": -1.8364,
+          "trades": 7,
+          "winrate": 28.5714,
+          "wins": 2
+        }
+      },
+      "aligned_bullish": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.3333,
+          "losses": 1,
+          "profit_factor": 2.0,
+          "total_r": 1.0,
+          "trades": 3,
+          "winrate": 66.6667,
+          "wins": 2
+        }
+      },
+      "mixed_bearish_vs_bullish": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 1.6276,
+          "losses": 1,
+          "profit_factor": 4.2552,
+          "total_r": 3.2552,
+          "trades": 2,
+          "winrate": 50.0,
+          "wins": 1
+        }
+      },
+      "mixed_bullish_vs_bearish": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 1.25,
+          "losses": 0,
+          "profit_factor": "inf",
+          "total_r": 2.5,
+          "trades": 2,
+          "winrate": 100.0,
+          "wins": 2
+        }
+      }
+    },
+    "volume_ratio_bucket": {
+      "volume_high": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.4412,
+          "losses": 5,
+          "profit_factor": 1.8824,
+          "total_r": 4.412,
+          "trades": 10,
+          "winrate": 50.0,
+          "wins": 5
+        }
+      },
+      "volume_low": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.0,
+          "losses": 1,
+          "profit_factor": 1.0,
+          "total_r": 0.0,
+          "trades": 2,
+          "winrate": 50.0,
+          "wins": 1
+        }
+      },
+      "volume_mid": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.2534,
+          "losses": 1,
+          "profit_factor": 1.5068,
+          "total_r": 0.5068,
+          "trades": 2,
+          "winrate": 50.0,
+          "wins": 1
+        }
+      }
+    },
+    "warning": {
+      "against_htf": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.0737,
+          "losses": 5,
+          "profit_factor": 1.1327,
+          "total_r": 0.6636,
+          "trades": 9,
+          "winrate": 44.4444,
+          "wins": 4
+        }
+      },
+      "dirty_sideways_market": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.0,
+          "losses": 1,
+          "profit_factor": 1.0,
+          "total_r": 0.0,
+          "trades": 2,
+          "winrate": 50.0,
+          "wins": 1
+        }
+      },
+      "low_volume": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.0,
+          "losses": 1,
+          "profit_factor": 1.0,
+          "total_r": 0.0,
+          "trades": 2,
+          "winrate": 50.0,
+          "wins": 1
+        }
+      },
+      "none": {
+        "classification": "NOISE",
+        "metrics": {
+          "avg_r": 0.8138,
+          "losses": 2,
+          "profit_factor": 2.6276,
+          "total_r": 3.2552,
+          "trades": 4,
+          "winrate": 50.0,
+          "wins": 2
+        }
+      }
+    }
+  },
+  "classification": "NOISE",
+  "comparisons": {
+    "MAIN_SIGNAL_LONG": {
+      "metrics": {
+        "avg_r": 0.3513,
+        "losses": 7,
+        "profit_factor": 1.7027,
+        "total_r": 4.9188,
+        "trades": 14,
+        "winrate": 50.0,
+        "wins": 7
+      },
+      "top_entry_context": "BREAKOUT (50.0%)",
+      "top_htf": "against_htf (64.2857%)",
+      "top_liquidity": "none (100.0%)",
+      "top_regime": "RANGING (42.8571%)",
+      "top_session": "OVERLAP (57.1429%)",
+      "top_symbol": "SOLUSDT (21.4286%)"
+    },
+    "MAIN_SIGNAL_SHORT": {
+      "metrics": {
+        "avg_r": -0.5061,
+        "losses": 7,
+        "profit_factor": 0.4216,
+        "total_r": -4.049,
+        "trades": 8,
+        "winrate": 12.5,
+        "wins": 1
+      },
+      "top_entry_context": "PULLBACK (50.0%)",
+      "top_htf": "against_htf (50.0%)",
+      "top_liquidity": "none (100.0%)",
+      "top_regime": "RANGING (50.0%)",
+      "top_session": "NEW_YORK (62.5%)",
+      "top_symbol": "ETHUSDT (12.5%)"
+    },
+    "NON_MAIN_SIGNAL_LONG": {
+      "metrics": {
+        "avg_r": -0.3267,
+        "losses": 20,
+        "profit_factor": 0.4659,
+        "total_r": -8.4942,
+        "trades": 26,
+        "winrate": 23.0769,
+        "wins": 6
+      },
+      "top_entry_context": "BREAKOUT (61.5385%)",
+      "top_htf": "aligned_with_htf (61.5385%)",
+      "top_liquidity": "none (100.0%)",
+      "top_regime": "RANGING (46.1538%)",
+      "top_session": "NEW_YORK (42.3077%)",
+      "top_symbol": "DOGEUSDT (15.3846%)"
+    },
+    "SECONDARY_SIGNAL_LONG": {
+      "metrics": {
+        "avg_r": 0.2612,
+        "losses": 2,
+        "profit_factor": 2.0161,
+        "total_r": 1.3062,
+        "trades": 5,
+        "winrate": 60.0,
+        "wins": 3
+      },
+      "top_entry_context": "BREAKOUT (80.0%)",
+      "top_htf": "aligned_with_htf (60.0%)",
+      "top_liquidity": "none (100.0%)",
+      "top_regime": "TRENDING (40.0%)",
+      "top_session": "NEW_YORK (60.0%)",
+      "top_symbol": "ETHUSDT (40.0%)"
+    }
+  },
+  "counterfactuals": {
+    "current_global": {
+      "avg_r": -0.0894,
+      "losses": 27,
+      "profit_factor": 0.8439,
+      "total_r": -3.5754,
+      "trades": 40,
+      "winrate": 32.5,
+      "wins": 13
+    },
+    "main_signal_long_existing_block_overlap": {
+      "covered_metrics": {
+        "avg_r": 0.5,
+        "losses": 1,
+        "profit_factor": 2.5,
+        "total_r": 1.5,
+        "trades": 3,
+        "winrate": 66.6667,
+        "wins": 2
+      },
+      "covered_share_pct": 21.4286,
+      "remaining_metrics": {
+        "avg_r": 0.3108,
+        "losses": 6,
+        "profit_factor": 1.5698,
+        "total_r": 3.4188,
+        "trades": 11,
+        "winrate": 45.4545,
+        "wins": 5
+      }
+    },
+    "without_against_htf_breakout_already_blocked_contexts": {
+      "pf_after": 0.7713,
+      "pf_before": 0.8439,
+      "r_improvement": -0.9692,
+      "removed_metrics": {
+        "avg_r": 0.1212,
+        "losses": 5,
+        "profit_factor": 1.3198,
+        "total_r": 0.9692,
+        "trades": 8,
+        "winrate": 37.5,
+        "wins": 3
+      },
+      "removed_trades": 8,
+      "total_r_after": -4.5446,
+      "total_r_before": -3.5754,
+      "winrate_delta": -1.25,
+      "without_metrics": {
+        "avg_r": -0.142,
+        "losses": 22,
+        "profit_factor": 0.7713,
+        "total_r": -4.5446,
+        "trades": 32,
+        "winrate": 31.25,
+        "wins": 10
+      }
+    },
+    "without_all_main_signal_long": {
+      "pf_after": 0.4659,
+      "pf_before": 0.8439,
+      "r_improvement": -4.9188,
+      "removed_metrics": {
+        "avg_r": 0.3513,
+        "losses": 7,
+        "profit_factor": 1.7027,
+        "total_r": 4.9188,
+        "trades": 14,
+        "winrate": 50.0,
+        "wins": 7
+      },
+      "removed_trades": 14,
+      "total_r_after": -8.4942,
+      "total_r_before": -3.5754,
+      "winrate_delta": -9.4231,
+      "without_metrics": {
+        "avg_r": -0.3267,
+        "losses": 20,
+        "profit_factor": 0.4659,
+        "total_r": -8.4942,
+        "trades": 26,
+        "winrate": 23.0769,
+        "wins": 6
+      }
+    },
+    "without_bullish_sweep_already_blocked_contexts": {
+      "pf_after": 0.8439,
+      "pf_before": 0.8439,
+      "r_improvement": 0.0,
+      "removed_metrics": {
+        "avg_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "trades": 0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "removed_trades": 0,
+      "total_r_after": -3.5754,
+      "total_r_before": -3.5754,
+      "winrate_delta": 0.0,
+      "without_metrics": {
+        "avg_r": -0.0894,
+        "losses": 27,
+        "profit_factor": 0.8439,
+        "total_r": -3.5754,
+        "trades": 40,
+        "winrate": 32.5,
+        "wins": 13
+      }
+    },
+    "without_existing_production_blocks": {
+      "pf_after": 0.7713,
+      "pf_before": 0.8439,
+      "r_improvement": -0.9692,
+      "removed_metrics": {
+        "avg_r": 0.1212,
+        "losses": 5,
+        "profit_factor": 1.3198,
+        "total_r": 0.9692,
+        "trades": 8,
+        "winrate": 37.5,
+        "wins": 3
+      },
+      "removed_trades": 8,
+      "total_r_after": -4.5446,
+      "total_r_before": -3.5754,
+      "winrate_delta": -1.25,
+      "without_metrics": {
+        "avg_r": -0.142,
+        "losses": 22,
+        "profit_factor": 0.7713,
+        "total_r": -4.5446,
+        "trades": 32,
+        "winrate": 31.25,
+        "wins": 10
+      }
+    },
+    "without_remaining_toxic_main_signal_long_after_existing_blocks": {
+      "pf_after": 0.5862,
+      "pf_before": 0.8439,
+      "r_improvement": -3.4188,
+      "removed_metrics": {
+        "avg_r": 0.3108,
+        "losses": 6,
+        "profit_factor": 1.5698,
+        "total_r": 3.4188,
+        "trades": 11,
+        "winrate": 45.4545,
+        "wins": 5
+      },
+      "removed_trades": 11,
+      "total_r_after": -6.9942,
+      "total_r_before": -3.5754,
+      "winrate_delta": -4.9138,
+      "without_metrics": {
+        "avg_r": -0.2412,
+        "losses": 21,
+        "profit_factor": 0.5862,
+        "total_r": -6.9942,
+        "trades": 29,
+        "winrate": 27.5862,
+        "wins": 8
+      }
+    },
+    "without_worst_multi_factor_root_cause": {
+      "name": "none",
+      "pf_after": 0.8439,
+      "pf_before": 0.8439,
+      "r_improvement": 0.0,
+      "removed_metrics": {
+        "avg_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "trades": 0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "removed_trades": 0,
+      "total_r_after": -3.5754,
+      "total_r_before": -3.5754,
+      "winrate_delta": 0.0,
+      "without_metrics": {
+        "avg_r": -0.0894,
+        "losses": 27,
+        "profit_factor": 0.8439,
+        "total_r": -3.5754,
+        "trades": 40,
+        "winrate": 32.5,
+        "wins": 13
+      }
+    },
+    "without_worst_single_root_cause": {
+      "name": "none",
+      "pf_after": 0.8439,
+      "pf_before": 0.8439,
+      "r_improvement": 0.0,
+      "removed_metrics": {
+        "avg_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "trades": 0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "removed_trades": 0,
+      "total_r_after": -3.5754,
+      "total_r_before": -3.5754,
+      "winrate_delta": 0.0,
+      "without_metrics": {
+        "avg_r": -0.0894,
+        "losses": 27,
+        "profit_factor": 0.8439,
+        "total_r": -3.5754,
+        "trades": 40,
+        "winrate": 32.5,
+        "wins": 13
+      }
+    }
+  },
+  "data_path": "data",
+  "existing_production_blocks": {
+    "covered_metrics": {
+      "avg_r": 0.5,
+      "losses": 1,
+      "profit_factor": 2.5,
+      "total_r": 1.5,
+      "trades": 3,
+      "winrate": 66.6667,
+      "wins": 2
+    },
+    "remaining_after_existing_blocks": {
+      "avg_r": 0.3108,
+      "losses": 6,
+      "profit_factor": 1.5698,
+      "total_r": 3.4188,
+      "trades": 11,
+      "winrate": 45.4545,
+      "wins": 5
+    },
+    "remaining_toxic_r": 0.0,
+    "rules": [
+      "bullish_sweep",
+      "against_htf + BREAKOUT"
+    ],
+    "toxicity_covered_r": 0.0
+  },
+  "generated_at": "2026-06-09T17:46:20+00:00",
+  "main_signal_long_baseline": {
+    "avg_r": 0.3513,
+    "losses": 7,
+    "profit_factor": 1.7027,
+    "total_r": 4.9188,
+    "trades": 14,
+    "winrate": 50.0,
+    "wins": 7
+  },
+  "method": "Analyze canonical closed trades where setup_type=MAIN_SIGNAL and direction=long, then discount already blocked bullish_sweep and against_htf+BREAKOUT contexts.",
+  "recommended_action": "KEEP",
+  "scope": "MAIN_SIGNAL_LONG_ROOT_CAUSE_ANALYSIS",
+  "survivor_longs": [
+    {
+      "classification": "NOISE",
+      "dimension": "liquidity_sweep",
+      "metrics": {
+        "avg_r": 0.3513,
+        "losses": 7,
+        "profit_factor": 1.7027,
+        "total_r": 4.9188,
+        "trades": 14,
+        "winrate": 50.0,
+        "wins": 7
+      },
+      "value": "none"
+    },
+    {
+      "classification": "NOISE",
+      "dimension": "body_ratio_bucket",
+      "metrics": {
+        "avg_r": 0.3513,
+        "losses": 7,
+        "profit_factor": 1.7027,
+        "total_r": 4.9188,
+        "trades": 14,
+        "winrate": 50.0,
+        "wins": 7
+      },
+      "value": "UNKNOWN"
+    },
+    {
+      "classification": "NOISE",
+      "dimension": "penalty",
+      "metrics": {
+        "avg_r": 0.3513,
+        "losses": 7,
+        "profit_factor": 1.7027,
+        "total_r": 4.9188,
+        "trades": 14,
+        "winrate": 50.0,
+        "wins": 7
+      },
+      "value": "none"
+    },
+    {
+      "classification": "NOISE",
+      "dimension": "failed_filter",
+      "metrics": {
+        "avg_r": 0.3513,
+        "losses": 7,
+        "profit_factor": 1.7027,
+        "total_r": 4.9188,
+        "trades": 14,
+        "winrate": 50.0,
+        "wins": 7
+      },
+      "value": "none"
+    },
+    {
+      "classification": "NOISE",
+      "dimension": "volume_ratio_bucket",
+      "metrics": {
+        "avg_r": 0.4412,
+        "losses": 5,
+        "profit_factor": 1.8824,
+        "total_r": 4.412,
+        "trades": 10,
+        "winrate": 50.0,
+        "wins": 5
+      },
+      "value": "volume_high"
+    },
+    {
+      "classification": "NOISE",
+      "dimension": "distance_to_liquidity_bucket",
+      "metrics": {
+        "avg_r": 0.2262,
+        "losses": 6,
+        "profit_factor": 1.377,
+        "total_r": 2.262,
+        "trades": 10,
+        "winrate": 40.0,
+        "wins": 4
+      },
+      "value": "distance_close"
+    }
+  ],
+  "tested_root_causes": [
+    {
+      "classification": "WATCH",
+      "factors": [
+        "against_htf",
+        "near_support"
+      ],
+      "losing_trades_removed": 4,
+      "name": "MAIN_SIGNAL LONG + against_htf + near_support",
+      "pf_after": 0.9428,
+      "pf_before": 0.8439,
+      "pf_improvement": 0.0989,
+      "profitable_trades_lost": 1,
+      "r_improvement": 2.4932,
+      "removed_metrics": {
+        "avg_r": -0.4986,
+        "losses": 4,
+        "profit_factor": 0.3767,
+        "total_r": -2.4932,
+        "trades": 5,
+        "winrate": 20.0,
+        "wins": 1
+      },
+      "removed_trades": 5,
+      "total_r_after": -1.0822,
+      "total_r_before": -3.5754
+    },
+    {
+      "classification": "NOISE",
+      "factors": [
+        "directional_confluence_failed"
+      ],
+      "losing_trades_removed": 3,
+      "name": "MAIN_SIGNAL LONG + directional_confluence_failed",
+      "pf_after": 0.9208,
+      "pf_before": 0.8439,
+      "pf_improvement": 0.0769,
+      "profitable_trades_lost": 1,
+      "r_improvement": 2.0,
+      "removed_metrics": {
+        "avg_r": -0.5,
+        "losses": 3,
+        "profit_factor": 0.3333,
+        "total_r": -2.0,
+        "trades": 4,
+        "winrate": 25.0,
+        "wins": 1
+      },
+      "removed_trades": 4,
+      "total_r_after": -1.5754,
+      "total_r_before": -3.5754
+    },
+    {
+      "classification": "NOISE",
+      "factors": [
+        "HIGH_VOLATILITY",
+        "near_support"
+      ],
+      "losing_trades_removed": 1,
+      "name": "MAIN_SIGNAL LONG + HIGH_VOLATILITY + near_support",
+      "pf_after": 0.8824,
+      "pf_before": 0.8439,
+      "pf_improvement": 0.0385,
+      "profitable_trades_lost": 0,
+      "r_improvement": 1.0,
+      "removed_metrics": {
+        "avg_r": -1.0,
+        "losses": 1,
+        "profit_factor": 0.0,
+        "total_r": -1.0,
+        "trades": 1,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "removed_trades": 1,
+      "total_r_after": -2.5754,
+      "total_r_before": -3.5754
+    },
+    {
+      "classification": "NOISE",
+      "factors": [
+        "score_bucket 90+"
+      ],
+      "losing_trades_removed": 1,
+      "name": "MAIN_SIGNAL LONG + score_bucket 90+",
+      "pf_after": 0.8824,
+      "pf_before": 0.8439,
+      "pf_improvement": 0.0385,
+      "profitable_trades_lost": 0,
+      "r_improvement": 1.0,
+      "removed_metrics": {
+        "avg_r": -1.0,
+        "losses": 1,
+        "profit_factor": 0.0,
+        "total_r": -1.0,
+        "trades": 1,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "removed_trades": 1,
+      "total_r_after": -2.5754,
+      "total_r_before": -3.5754
+    },
+    {
+      "classification": "NOISE",
+      "factors": [
+        "bullish_sweep"
+      ],
+      "losing_trades_removed": 0,
+      "name": "MAIN_SIGNAL LONG + bullish_sweep",
+      "pf_after": 0.8439,
+      "pf_before": 0.8439,
+      "pf_improvement": 0.0,
+      "profitable_trades_lost": 0,
+      "r_improvement": 0.0,
+      "removed_metrics": {
+        "avg_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "trades": 0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "removed_trades": 0,
+      "total_r_after": -3.5754,
+      "total_r_before": -3.5754
+    },
+    {
+      "classification": "NOISE",
+      "factors": [
+        "bullish_sweep",
+        "against_htf"
+      ],
+      "losing_trades_removed": 0,
+      "name": "MAIN_SIGNAL LONG + bullish_sweep + against_htf",
+      "pf_after": 0.8439,
+      "pf_before": 0.8439,
+      "pf_improvement": 0.0,
+      "profitable_trades_lost": 0,
+      "r_improvement": 0.0,
+      "removed_metrics": {
+        "avg_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "trades": 0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "removed_trades": 0,
+      "total_r_after": -3.5754,
+      "total_r_before": -3.5754
+    },
+    {
+      "classification": "NOISE",
+      "factors": [
+        "bullish_sweep",
+        "near_support"
+      ],
+      "losing_trades_removed": 0,
+      "name": "MAIN_SIGNAL LONG + bullish_sweep + near_support",
+      "pf_after": 0.8439,
+      "pf_before": 0.8439,
+      "pf_improvement": 0.0,
+      "profitable_trades_lost": 0,
+      "r_improvement": 0.0,
+      "removed_metrics": {
+        "avg_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "trades": 0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "removed_trades": 0,
+      "total_r_after": -3.5754,
+      "total_r_before": -3.5754
+    },
+    {
+      "classification": "NOISE",
+      "factors": [
+        "HIGH_VOLATILITY"
+      ],
+      "losing_trades_removed": 1,
+      "name": "MAIN_SIGNAL LONG + HIGH_VOLATILITY",
+      "pf_after": 0.8368,
+      "pf_before": 0.8439,
+      "pf_improvement": -0.0071,
+      "profitable_trades_lost": 1,
+      "r_improvement": 0.0,
+      "removed_metrics": {
+        "avg_r": 0.0,
+        "losses": 1,
+        "profit_factor": 1.0,
+        "total_r": 0.0,
+        "trades": 2,
+        "winrate": 50.0,
+        "wins": 1
+      },
+      "removed_trades": 2,
+      "total_r_after": -3.5754,
+      "total_r_before": -3.5754
+    },
+    {
+      "classification": "WATCH",
+      "factors": [
+        "RANGING"
+      ],
+      "losing_trades_removed": 3,
+      "name": "MAIN_SIGNAL LONG + RANGING",
+      "pf_after": 0.7949,
+      "pf_before": 0.8439,
+      "pf_improvement": -0.049,
+      "profitable_trades_lost": 3,
+      "r_improvement": -0.5068,
+      "removed_metrics": {
+        "avg_r": 0.0845,
+        "losses": 3,
+        "profit_factor": 1.1689,
+        "total_r": 0.5068,
+        "trades": 6,
+        "winrate": 50.0,
+        "wins": 3
+      },
+      "removed_trades": 6,
+      "total_r_after": -4.0822,
+      "total_r_before": -3.5754
+    },
+    {
+      "classification": "WATCH",
+      "factors": [
+        "against_htf"
+      ],
+      "losing_trades_removed": 5,
+      "name": "MAIN_SIGNAL LONG + against_htf",
+      "pf_after": 0.7632,
+      "pf_before": 0.8439,
+      "pf_improvement": -0.0807,
+      "profitable_trades_lost": 4,
+      "r_improvement": -0.6636,
+      "removed_metrics": {
+        "avg_r": 0.0737,
+        "losses": 5,
+        "profit_factor": 1.1327,
+        "total_r": 0.6636,
+        "trades": 9,
+        "winrate": 44.4444,
+        "wins": 4
+      },
+      "removed_trades": 9,
+      "total_r_after": -4.239,
+      "total_r_before": -3.5754
+    },
+    {
+      "classification": "WATCH",
+      "factors": [
+        "near_support"
+      ],
+      "losing_trades_removed": 6,
+      "name": "MAIN_SIGNAL LONG + near_support",
+      "pf_after": 0.7434,
+      "pf_before": 0.8439,
+      "pf_improvement": -0.1005,
+      "profitable_trades_lost": 3,
+      "r_improvement": -0.762,
+      "removed_metrics": {
+        "avg_r": 0.0847,
+        "losses": 6,
+        "profit_factor": 1.127,
+        "total_r": 0.762,
+        "trades": 9,
+        "winrate": 33.3333,
+        "wins": 3
+      },
+      "removed_trades": 9,
+      "total_r_after": -4.3374,
+      "total_r_before": -3.5754
+    },
+    {
+      "classification": "NOISE",
+      "factors": [
+        "score_bucket 70-79"
+      ],
+      "losing_trades_removed": 0,
+      "name": "MAIN_SIGNAL LONG + score_bucket 70-79",
+      "pf_after": 0.8002,
+      "pf_before": 0.8439,
+      "pf_improvement": -0.0437,
+      "profitable_trades_lost": 1,
+      "r_improvement": -1.0,
+      "removed_metrics": {
+        "avg_r": 1.0,
+        "losses": 0,
+        "profit_factor": "inf",
+        "total_r": 1.0,
+        "trades": 1,
+        "winrate": 100.0,
+        "wins": 1
+      },
+      "removed_trades": 1,
+      "total_r_after": -4.5754,
+      "total_r_before": -3.5754
+    },
+    {
+      "classification": "WATCH",
+      "factors": [
+        "body_ratio_below_threshold"
+      ],
+      "losing_trades_removed": 3,
+      "name": "MAIN_SIGNAL LONG + body_ratio_below_threshold",
+      "pf_after": 0.6865,
+      "pf_before": 0.8439,
+      "pf_improvement": -0.1574,
+      "profitable_trades_lost": 4,
+      "r_improvement": -2.6636,
+      "removed_metrics": {
+        "avg_r": 0.3805,
+        "losses": 3,
+        "profit_factor": 1.8879,
+        "total_r": 2.6636,
+        "trades": 7,
+        "winrate": 57.1429,
+        "wins": 4
+      },
+      "removed_trades": 7,
+      "total_r_after": -6.239,
+      "total_r_before": -3.5754
+    },
+    {
+      "classification": "WATCH",
+      "factors": [
+        "distance_to_liquidity_penalty"
+      ],
+      "losing_trades_removed": 4,
+      "name": "MAIN_SIGNAL LONG + distance_to_liquidity_penalty",
+      "pf_after": 0.6304,
+      "pf_before": 0.8439,
+      "pf_improvement": -0.2135,
+      "profitable_trades_lost": 3,
+      "r_improvement": -3.412,
+      "removed_metrics": {
+        "avg_r": 0.4874,
+        "losses": 4,
+        "profit_factor": 1.853,
+        "total_r": 3.412,
+        "trades": 7,
+        "winrate": 42.8571,
+        "wins": 3
+      },
+      "removed_trades": 7,
+      "total_r_after": -6.9874,
+      "total_r_before": -3.5754
+    },
+    {
+      "classification": "WATCH",
+      "factors": [
+        "BREAKOUT"
+      ],
+      "losing_trades_removed": 3,
+      "name": "MAIN_SIGNAL LONG + BREAKOUT",
+      "pf_after": 0.5815,
+      "pf_before": 0.8439,
+      "pf_improvement": -0.2624,
+      "profitable_trades_lost": 4,
+      "r_improvement": -4.7552,
+      "removed_metrics": {
+        "avg_r": 0.6793,
+        "losses": 3,
+        "profit_factor": 2.5851,
+        "total_r": 4.7552,
+        "trades": 7,
+        "winrate": 57.1429,
+        "wins": 4
+      },
+      "removed_trades": 7,
+      "total_r_after": -8.3306,
+      "total_r_before": -3.5754
+    },
+    {
+      "classification": "WATCH",
+      "factors": [
+        "score_bucket 60-69"
+      ],
+      "losing_trades_removed": 2,
+      "name": "MAIN_SIGNAL LONG + score_bucket 60-69",
+      "pf_after": 0.594,
+      "pf_before": 0.8439,
+      "pf_improvement": -0.2499,
+      "profitable_trades_lost": 3,
+      "r_improvement": -4.912,
+      "removed_metrics": {
+        "avg_r": 0.9824,
+        "losses": 2,
+        "profit_factor": 3.456,
+        "total_r": 4.912,
+        "trades": 5,
+        "winrate": 60.0,
+        "wins": 3
+      },
+      "removed_trades": 5,
+      "total_r_after": -8.4874,
+      "total_r_before": -3.5754
+    },
+    {
+      "classification": "NOISE",
+      "factors": [
+        "timeframe_alignment_penalty"
+      ],
+      "losing_trades_removed": 1,
+      "name": "MAIN_SIGNAL LONG + timeframe_alignment_penalty",
+      "pf_after": 0.574,
+      "pf_before": 0.8439,
+      "pf_improvement": -0.2699,
+      "profitable_trades_lost": 3,
+      "r_improvement": -5.7552,
+      "removed_metrics": {
+        "avg_r": 1.4388,
+        "losses": 1,
+        "profit_factor": 6.7552,
+        "total_r": 5.7552,
+        "trades": 4,
+        "winrate": 75.0,
+        "wins": 3
+      },
+      "removed_trades": 4,
+      "total_r_after": -9.3306,
+      "total_r_before": -3.5754
+    }
+  ],
+  "tiny_promising_longs": [
+    {
+      "classification": "NOISE",
+      "dimension": "rr_bucket",
+      "metrics": {
+        "avg_r": 0.9439,
+        "losses": 1,
+        "profit_factor": 6.6636,
+        "total_r": 5.6636,
+        "trades": 6,
+        "winrate": 83.3333,
+        "wins": 5
+      },
+      "value": "rr_1_5_to_2"
+    },
+    {
+      "classification": "NOISE",
+      "dimension": "score_bucket",
+      "metrics": {
+        "avg_r": 0.9824,
+        "losses": 2,
+        "profit_factor": 3.456,
+        "total_r": 4.912,
+        "trades": 5,
+        "winrate": 60.0,
+        "wins": 3
+      },
+      "value": "60-69"
+    },
+    {
+      "classification": "NOISE",
+      "dimension": "entry_context",
+      "metrics": {
+        "avg_r": 0.6793,
+        "losses": 3,
+        "profit_factor": 2.5851,
+        "total_r": 4.7552,
+        "trades": 7,
+        "winrate": 57.1429,
+        "wins": 4
+      },
+      "value": "BREAKOUT"
+    },
+    {
+      "classification": "NOISE",
+      "dimension": "market_regime",
+      "metrics": {
+        "avg_r": 0.7353,
+        "losses": 3,
+        "profit_factor": 2.4707,
+        "total_r": 4.412,
+        "trades": 6,
+        "winrate": 50.0,
+        "wins": 3
+      },
+      "value": "TRENDING"
+    },
+    {
+      "classification": "NOISE",
+      "dimension": "htf_alignment",
+      "metrics": {
+        "avg_r": 0.851,
+        "losses": 2,
+        "profit_factor": 3.1276,
+        "total_r": 4.2552,
+        "trades": 5,
+        "winrate": 60.0,
+        "wins": 3
+      },
+      "value": "aligned_with_htf"
+    },
+    {
+      "classification": "NOISE",
+      "dimension": "session",
+      "metrics": {
+        "avg_r": 0.7,
+        "losses": 1,
+        "profit_factor": 4.5,
+        "total_r": 3.5,
+        "trades": 5,
+        "winrate": 80.0,
+        "wins": 4
+      },
+      "value": "LONDON"
+    },
+    {
+      "classification": "NOISE",
+      "dimension": "rejection_reason",
+      "metrics": {
+        "avg_r": 0.4874,
+        "losses": 4,
+        "profit_factor": 1.853,
+        "total_r": 3.412,
+        "trades": 7,
+        "winrate": 42.8571,
+        "wins": 3
+      },
+      "value": "distance_to_liquidity_penalty"
+    },
+    {
+      "classification": "NOISE",
+      "dimension": "condition_failed",
+      "metrics": {
+        "avg_r": 0.4874,
+        "losses": 4,
+        "profit_factor": 1.853,
+        "total_r": 3.412,
+        "trades": 7,
+        "winrate": 42.8571,
+        "wins": 3
+      },
+      "value": "distance_to_liquidity_penalty"
+    },
+    {
+      "classification": "NOISE",
+      "dimension": "rejection_reason",
+      "metrics": {
+        "avg_r": 0.3805,
+        "losses": 3,
+        "profit_factor": 1.8879,
+        "total_r": 2.6636,
+        "trades": 7,
+        "winrate": 57.1429,
+        "wins": 4
+      },
+      "value": "body_ratio_below_threshold"
+    },
+    {
+      "classification": "NOISE",
+      "dimension": "condition_failed",
+      "metrics": {
+        "avg_r": 0.3805,
+        "losses": 3,
+        "profit_factor": 1.8879,
+        "total_r": 2.6636,
+        "trades": 7,
+        "winrate": 57.1429,
+        "wins": 4
+      },
+      "value": "body_ratio_below_threshold"
+    },
+    {
+      "classification": "NOISE",
+      "dimension": "session",
+      "metrics": {
+        "avg_r": 0.3024,
+        "losses": 5,
+        "profit_factor": 1.4838,
+        "total_r": 2.4188,
+        "trades": 8,
+        "winrate": 37.5,
+        "wins": 3
+      },
+      "value": "OVERLAP"
+    },
+    {
+      "classification": "NOISE",
+      "dimension": "rejection_reason",
+      "metrics": {
+        "avg_r": 0.2153,
+        "losses": 3,
+        "profit_factor": 1.5023,
+        "total_r": 1.5068,
+        "trades": 7,
+        "winrate": 57.1429,
+        "wins": 4
+      },
+      "value": "market_structure_range_penalty"
+    },
+    {
+      "classification": "NOISE",
+      "dimension": "condition_failed",
+      "metrics": {
+        "avg_r": 0.2153,
+        "losses": 3,
+        "profit_factor": 1.5023,
+        "total_r": 1.5068,
+        "trades": 7,
+        "winrate": 57.1429,
+        "wins": 4
+      },
+      "value": "market_structure_range_penalty"
+    },
+    {
+      "classification": "NOISE",
+      "dimension": "score_bucket",
+      "metrics": {
+        "avg_r": 0.1678,
+        "losses": 3,
+        "profit_factor": 1.3356,
+        "total_r": 1.0068,
+        "trades": 6,
+        "winrate": 50.0,
+        "wins": 3
+      },
+      "value": "<60"
+    }
+  ],
+  "toxic_root_causes": [],
+  "toxic_single_factor_clusters": []
+}

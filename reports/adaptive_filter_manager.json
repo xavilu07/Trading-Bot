@@ -1,0 +1,1280 @@
+{
+  "adaptive_state": {
+    "active_blocks": [
+      "against_htf_breakout",
+      "bullish_sweep"
+    ],
+    "contexts": {
+      "against_htf_breakout": {
+        "avg_r": 0.1212,
+        "closed": 8,
+        "current_state": "blocked",
+        "full": {
+          "avg_r": 0.1212,
+          "closed": 8,
+          "losses": 5,
+          "profit_factor": 1.3198,
+          "total_r": 0.9692,
+          "winrate": 37.5,
+          "wins": 3
+        },
+        "last_30d": {
+          "avg_r": 1.5,
+          "closed": 1,
+          "losses": 0,
+          "profit_factor": "inf",
+          "total_r": 1.5,
+          "winrate": 100.0,
+          "wins": 1
+        },
+        "last_7d": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "losses": 5,
+        "profit_factor": 1.3198,
+        "recommendation": "WATCH",
+        "survivor_subgroup": {
+          "exists": false
+        },
+        "total_r": 0.9692,
+        "winrate": 37.5,
+        "wins": 3
+      },
+      "bullish_sweep": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "current_state": "blocked",
+        "full": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "last_30d": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "last_7d": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "losses": 0,
+        "profit_factor": 0.0,
+        "recommendation": "KEEP_BLOCKED",
+        "survivor_subgroup": {
+          "exists": false
+        },
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "bullish_sweep_high_volatility": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "current_state": "allowed",
+        "full": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "last_30d": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "last_7d": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "losses": 0,
+        "profit_factor": 0.0,
+        "recommendation": "WATCH",
+        "survivor_subgroup": {
+          "exists": false
+        },
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "bullish_sweep_ranging": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "current_state": "allowed",
+        "full": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "last_30d": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "last_7d": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "losses": 0,
+        "profit_factor": 0.0,
+        "recommendation": "WATCH",
+        "survivor_subgroup": {
+          "exists": false
+        },
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "choppy_range": {
+        "avg_r": -0.5128,
+        "closed": 7,
+        "current_state": "allowed",
+        "full": {
+          "avg_r": -0.5128,
+          "closed": 7,
+          "losses": 5,
+          "profit_factor": 0.2821,
+          "total_r": -3.5896,
+          "winrate": 28.5714,
+          "wins": 2
+        },
+        "last_30d": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "last_7d": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "losses": 5,
+        "profit_factor": 0.2821,
+        "recommendation": "WATCH",
+        "survivor_subgroup": {
+          "exists": false
+        },
+        "total_r": -3.5896,
+        "winrate": 28.5714,
+        "wins": 2
+      },
+      "directional_confluence_failed": {
+        "avg_r": -0.3537,
+        "closed": 13,
+        "current_state": "allowed",
+        "full": {
+          "avg_r": -0.3537,
+          "closed": 13,
+          "losses": 10,
+          "profit_factor": 0.3876,
+          "total_r": -4.5979,
+          "winrate": 23.0769,
+          "wins": 3
+        },
+        "last_30d": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "last_7d": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "losses": 10,
+        "profit_factor": 0.3876,
+        "recommendation": "WATCH",
+        "survivor_subgroup": {
+          "exists": false
+        },
+        "total_r": -4.5979,
+        "winrate": 23.0769,
+        "wins": 3
+      },
+      "dirty_sideways_market": {
+        "avg_r": -0.4316,
+        "closed": 6,
+        "current_state": "allowed",
+        "full": {
+          "avg_r": -0.4316,
+          "closed": 6,
+          "losses": 4,
+          "profit_factor": 0.3526,
+          "total_r": -2.5896,
+          "winrate": 33.3333,
+          "wins": 2
+        },
+        "last_30d": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "last_7d": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "losses": 4,
+        "profit_factor": 0.3526,
+        "recommendation": "WATCH",
+        "survivor_subgroup": {
+          "exists": false
+        },
+        "total_r": -2.5896,
+        "winrate": 33.3333,
+        "wins": 2
+      },
+      "low_volume": {
+        "avg_r": -0.3179,
+        "closed": 5,
+        "current_state": "allowed",
+        "full": {
+          "avg_r": -0.3179,
+          "closed": 5,
+          "losses": 3,
+          "profit_factor": 0.4701,
+          "total_r": -1.5896,
+          "winrate": 40.0,
+          "wins": 2
+        },
+        "last_30d": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "last_7d": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "losses": 3,
+        "profit_factor": 0.4701,
+        "recommendation": "WATCH",
+        "survivor_subgroup": {
+          "exists": false
+        },
+        "total_r": -1.5896,
+        "winrate": 40.0,
+        "wins": 2
+      },
+      "new_york_ranging": {
+        "avg_r": -0.5583,
+        "closed": 7,
+        "current_state": "allowed",
+        "full": {
+          "avg_r": -0.5583,
+          "closed": 7,
+          "losses": 5,
+          "profit_factor": 0.2183,
+          "total_r": -3.9083,
+          "winrate": 28.5714,
+          "wins": 2
+        },
+        "last_30d": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "last_7d": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "losses": 5,
+        "profit_factor": 0.2183,
+        "recommendation": "WATCH",
+        "survivor_subgroup": {
+          "exists": false
+        },
+        "total_r": -3.9083,
+        "winrate": 28.5714,
+        "wins": 2
+      },
+      "score_bucket_60_69": {
+        "avg_r": 0.1782,
+        "closed": 11,
+        "current_state": "allowed",
+        "full": {
+          "avg_r": 0.1782,
+          "closed": 11,
+          "losses": 6,
+          "profit_factor": 1.3267,
+          "total_r": 1.96,
+          "winrate": 45.4545,
+          "wins": 5
+        },
+        "last_30d": {
+          "avg_r": -1.0,
+          "closed": 1,
+          "losses": 1,
+          "profit_factor": 0.0,
+          "total_r": -1.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "last_7d": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "losses": 6,
+        "profit_factor": 1.3267,
+        "recommendation": "WATCH",
+        "survivor_subgroup": {
+          "exists": false
+        },
+        "total_r": 1.96,
+        "winrate": 45.4545,
+        "wins": 5
+      },
+      "score_bucket_80_89": {
+        "avg_r": 0.1042,
+        "closed": 5,
+        "current_state": "allowed",
+        "full": {
+          "avg_r": 0.1042,
+          "closed": 5,
+          "losses": 3,
+          "profit_factor": 1.3749,
+          "total_r": 0.5209,
+          "winrate": 40.0,
+          "wins": 2
+        },
+        "last_30d": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "last_7d": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "losses": 3,
+        "profit_factor": 1.3749,
+        "recommendation": "WATCH",
+        "survivor_subgroup": {
+          "exists": false
+        },
+        "total_r": 0.5209,
+        "winrate": 40.0,
+        "wins": 2
+      },
+      "score_bucket_90_plus": {
+        "avg_r": -0.6728,
+        "closed": 6,
+        "current_state": "allowed",
+        "full": {
+          "avg_r": -0.6728,
+          "closed": 6,
+          "losses": 6,
+          "profit_factor": 0.0,
+          "total_r": -4.0366,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "last_30d": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "last_7d": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "losses": 6,
+        "profit_factor": 0.0,
+        "recommendation": "WATCH",
+        "survivor_subgroup": {
+          "exists": false
+        },
+        "total_r": -4.0366,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "score_bucket_lt_60": {
+        "avg_r": -0.1776,
+        "closed": 17,
+        "current_state": "allowed",
+        "full": {
+          "avg_r": -0.1776,
+          "closed": 17,
+          "losses": 12,
+          "profit_factor": 0.7369,
+          "total_r": -3.0197,
+          "winrate": 29.4118,
+          "wins": 5
+        },
+        "last_30d": {
+          "avg_r": 0.25,
+          "closed": 2,
+          "losses": 1,
+          "profit_factor": 1.5,
+          "total_r": 0.5,
+          "winrate": 50.0,
+          "wins": 1
+        },
+        "last_7d": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "losses": 12,
+        "profit_factor": 0.7369,
+        "recommendation": "WATCH",
+        "survivor_subgroup": {
+          "exists": false
+        },
+        "total_r": -3.0197,
+        "winrate": 29.4118,
+        "wins": 5
+      },
+      "secondary_signal": {
+        "avg_r": -0.247,
+        "closed": 18,
+        "current_state": "allowed",
+        "full": {
+          "avg_r": -0.247,
+          "closed": 18,
+          "losses": 13,
+          "profit_factor": 0.5007,
+          "total_r": -4.4452,
+          "winrate": 27.7778,
+          "wins": 5
+        },
+        "last_30d": {
+          "avg_r": -1.0,
+          "closed": 1,
+          "losses": 1,
+          "profit_factor": 0.0,
+          "total_r": -1.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "last_7d": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "losses": 13,
+        "profit_factor": 0.5007,
+        "recommendation": "WATCH",
+        "survivor_subgroup": {
+          "exists": false
+        },
+        "total_r": -4.4452,
+        "winrate": 27.7778,
+        "wins": 5
+      },
+      "short_only": {
+        "avg_r": -0.4667,
+        "closed": 21,
+        "current_state": "allowed",
+        "full": {
+          "avg_r": -0.4667,
+          "closed": 21,
+          "losses": 18,
+          "profit_factor": 0.3296,
+          "total_r": -9.8004,
+          "winrate": 14.2857,
+          "wins": 3
+        },
+        "last_30d": {
+          "avg_r": -1.0,
+          "closed": 1,
+          "losses": 1,
+          "profit_factor": 0.0,
+          "total_r": -1.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "last_7d": {
+          "avg_r": 0.0,
+          "closed": 0,
+          "losses": 0,
+          "profit_factor": 0.0,
+          "total_r": 0.0,
+          "winrate": 0.0,
+          "wins": 0
+        },
+        "losses": 18,
+        "profit_factor": 0.3296,
+        "recommendation": "WATCH",
+        "survivor_subgroup": {
+          "exists": false
+        },
+        "total_r": -9.8004,
+        "winrate": 14.2857,
+        "wins": 3
+      }
+    },
+    "enabled": false,
+    "generated_at": "2026-06-08T15:28:18+00:00",
+    "human_approval_required": true,
+    "mode": "observe",
+    "production_block_status": {
+      "against_htf_breakout": "enabled",
+      "bullish_sweep": "enabled"
+    },
+    "proposed_blocks": [],
+    "proposed_unblocks": [],
+    "safety_warnings": [
+      "adaptive_filter_disabled"
+    ]
+  },
+  "config": {
+    "allowed_contexts": [
+      "bullish_sweep",
+      "against_htf_breakout"
+    ],
+    "block_pf_threshold": 0.75,
+    "block_total_r_threshold": -5.0,
+    "current_blocks": [
+      "bullish_sweep",
+      "against_htf_breakout"
+    ],
+    "enabled": false,
+    "min_closed": 30,
+    "mode": "observe",
+    "require_human_approval": true,
+    "unblock_pf_threshold": 1.2,
+    "unblock_total_r_threshold": 5.0
+  },
+  "contexts": {
+    "against_htf_breakout": {
+      "avg_r": 0.1212,
+      "closed": 8,
+      "current_state": "blocked",
+      "full": {
+        "avg_r": 0.1212,
+        "closed": 8,
+        "losses": 5,
+        "profit_factor": 1.3198,
+        "total_r": 0.9692,
+        "winrate": 37.5,
+        "wins": 3
+      },
+      "last_30d": {
+        "avg_r": 1.5,
+        "closed": 1,
+        "losses": 0,
+        "profit_factor": "inf",
+        "total_r": 1.5,
+        "winrate": 100.0,
+        "wins": 1
+      },
+      "last_7d": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "losses": 5,
+      "profit_factor": 1.3198,
+      "recommendation": "WATCH",
+      "survivor_subgroup": {
+        "exists": false
+      },
+      "total_r": 0.9692,
+      "winrate": 37.5,
+      "wins": 3
+    },
+    "bullish_sweep": {
+      "avg_r": 0.0,
+      "closed": 0,
+      "current_state": "blocked",
+      "full": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "last_30d": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "last_7d": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "losses": 0,
+      "profit_factor": 0.0,
+      "recommendation": "KEEP_BLOCKED",
+      "survivor_subgroup": {
+        "exists": false
+      },
+      "total_r": 0.0,
+      "winrate": 0.0,
+      "wins": 0
+    },
+    "bullish_sweep_high_volatility": {
+      "avg_r": 0.0,
+      "closed": 0,
+      "current_state": "allowed",
+      "full": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "last_30d": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "last_7d": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "losses": 0,
+      "profit_factor": 0.0,
+      "recommendation": "WATCH",
+      "survivor_subgroup": {
+        "exists": false
+      },
+      "total_r": 0.0,
+      "winrate": 0.0,
+      "wins": 0
+    },
+    "bullish_sweep_ranging": {
+      "avg_r": 0.0,
+      "closed": 0,
+      "current_state": "allowed",
+      "full": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "last_30d": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "last_7d": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "losses": 0,
+      "profit_factor": 0.0,
+      "recommendation": "WATCH",
+      "survivor_subgroup": {
+        "exists": false
+      },
+      "total_r": 0.0,
+      "winrate": 0.0,
+      "wins": 0
+    },
+    "choppy_range": {
+      "avg_r": -0.5128,
+      "closed": 7,
+      "current_state": "allowed",
+      "full": {
+        "avg_r": -0.5128,
+        "closed": 7,
+        "losses": 5,
+        "profit_factor": 0.2821,
+        "total_r": -3.5896,
+        "winrate": 28.5714,
+        "wins": 2
+      },
+      "last_30d": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "last_7d": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "losses": 5,
+      "profit_factor": 0.2821,
+      "recommendation": "WATCH",
+      "survivor_subgroup": {
+        "exists": false
+      },
+      "total_r": -3.5896,
+      "winrate": 28.5714,
+      "wins": 2
+    },
+    "directional_confluence_failed": {
+      "avg_r": -0.3537,
+      "closed": 13,
+      "current_state": "allowed",
+      "full": {
+        "avg_r": -0.3537,
+        "closed": 13,
+        "losses": 10,
+        "profit_factor": 0.3876,
+        "total_r": -4.5979,
+        "winrate": 23.0769,
+        "wins": 3
+      },
+      "last_30d": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "last_7d": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "losses": 10,
+      "profit_factor": 0.3876,
+      "recommendation": "WATCH",
+      "survivor_subgroup": {
+        "exists": false
+      },
+      "total_r": -4.5979,
+      "winrate": 23.0769,
+      "wins": 3
+    },
+    "dirty_sideways_market": {
+      "avg_r": -0.4316,
+      "closed": 6,
+      "current_state": "allowed",
+      "full": {
+        "avg_r": -0.4316,
+        "closed": 6,
+        "losses": 4,
+        "profit_factor": 0.3526,
+        "total_r": -2.5896,
+        "winrate": 33.3333,
+        "wins": 2
+      },
+      "last_30d": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "last_7d": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "losses": 4,
+      "profit_factor": 0.3526,
+      "recommendation": "WATCH",
+      "survivor_subgroup": {
+        "exists": false
+      },
+      "total_r": -2.5896,
+      "winrate": 33.3333,
+      "wins": 2
+    },
+    "low_volume": {
+      "avg_r": -0.3179,
+      "closed": 5,
+      "current_state": "allowed",
+      "full": {
+        "avg_r": -0.3179,
+        "closed": 5,
+        "losses": 3,
+        "profit_factor": 0.4701,
+        "total_r": -1.5896,
+        "winrate": 40.0,
+        "wins": 2
+      },
+      "last_30d": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "last_7d": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "losses": 3,
+      "profit_factor": 0.4701,
+      "recommendation": "WATCH",
+      "survivor_subgroup": {
+        "exists": false
+      },
+      "total_r": -1.5896,
+      "winrate": 40.0,
+      "wins": 2
+    },
+    "new_york_ranging": {
+      "avg_r": -0.5583,
+      "closed": 7,
+      "current_state": "allowed",
+      "full": {
+        "avg_r": -0.5583,
+        "closed": 7,
+        "losses": 5,
+        "profit_factor": 0.2183,
+        "total_r": -3.9083,
+        "winrate": 28.5714,
+        "wins": 2
+      },
+      "last_30d": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "last_7d": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "losses": 5,
+      "profit_factor": 0.2183,
+      "recommendation": "WATCH",
+      "survivor_subgroup": {
+        "exists": false
+      },
+      "total_r": -3.9083,
+      "winrate": 28.5714,
+      "wins": 2
+    },
+    "score_bucket_60_69": {
+      "avg_r": 0.1782,
+      "closed": 11,
+      "current_state": "allowed",
+      "full": {
+        "avg_r": 0.1782,
+        "closed": 11,
+        "losses": 6,
+        "profit_factor": 1.3267,
+        "total_r": 1.96,
+        "winrate": 45.4545,
+        "wins": 5
+      },
+      "last_30d": {
+        "avg_r": -1.0,
+        "closed": 1,
+        "losses": 1,
+        "profit_factor": 0.0,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "last_7d": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "losses": 6,
+      "profit_factor": 1.3267,
+      "recommendation": "WATCH",
+      "survivor_subgroup": {
+        "exists": false
+      },
+      "total_r": 1.96,
+      "winrate": 45.4545,
+      "wins": 5
+    },
+    "score_bucket_80_89": {
+      "avg_r": 0.1042,
+      "closed": 5,
+      "current_state": "allowed",
+      "full": {
+        "avg_r": 0.1042,
+        "closed": 5,
+        "losses": 3,
+        "profit_factor": 1.3749,
+        "total_r": 0.5209,
+        "winrate": 40.0,
+        "wins": 2
+      },
+      "last_30d": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "last_7d": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "losses": 3,
+      "profit_factor": 1.3749,
+      "recommendation": "WATCH",
+      "survivor_subgroup": {
+        "exists": false
+      },
+      "total_r": 0.5209,
+      "winrate": 40.0,
+      "wins": 2
+    },
+    "score_bucket_90_plus": {
+      "avg_r": -0.6728,
+      "closed": 6,
+      "current_state": "allowed",
+      "full": {
+        "avg_r": -0.6728,
+        "closed": 6,
+        "losses": 6,
+        "profit_factor": 0.0,
+        "total_r": -4.0366,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "last_30d": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "last_7d": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "losses": 6,
+      "profit_factor": 0.0,
+      "recommendation": "WATCH",
+      "survivor_subgroup": {
+        "exists": false
+      },
+      "total_r": -4.0366,
+      "winrate": 0.0,
+      "wins": 0
+    },
+    "score_bucket_lt_60": {
+      "avg_r": -0.1776,
+      "closed": 17,
+      "current_state": "allowed",
+      "full": {
+        "avg_r": -0.1776,
+        "closed": 17,
+        "losses": 12,
+        "profit_factor": 0.7369,
+        "total_r": -3.0197,
+        "winrate": 29.4118,
+        "wins": 5
+      },
+      "last_30d": {
+        "avg_r": 0.25,
+        "closed": 2,
+        "losses": 1,
+        "profit_factor": 1.5,
+        "total_r": 0.5,
+        "winrate": 50.0,
+        "wins": 1
+      },
+      "last_7d": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "losses": 12,
+      "profit_factor": 0.7369,
+      "recommendation": "WATCH",
+      "survivor_subgroup": {
+        "exists": false
+      },
+      "total_r": -3.0197,
+      "winrate": 29.4118,
+      "wins": 5
+    },
+    "secondary_signal": {
+      "avg_r": -0.247,
+      "closed": 18,
+      "current_state": "allowed",
+      "full": {
+        "avg_r": -0.247,
+        "closed": 18,
+        "losses": 13,
+        "profit_factor": 0.5007,
+        "total_r": -4.4452,
+        "winrate": 27.7778,
+        "wins": 5
+      },
+      "last_30d": {
+        "avg_r": -1.0,
+        "closed": 1,
+        "losses": 1,
+        "profit_factor": 0.0,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "last_7d": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "losses": 13,
+      "profit_factor": 0.5007,
+      "recommendation": "WATCH",
+      "survivor_subgroup": {
+        "exists": false
+      },
+      "total_r": -4.4452,
+      "winrate": 27.7778,
+      "wins": 5
+    },
+    "short_only": {
+      "avg_r": -0.4667,
+      "closed": 21,
+      "current_state": "allowed",
+      "full": {
+        "avg_r": -0.4667,
+        "closed": 21,
+        "losses": 18,
+        "profit_factor": 0.3296,
+        "total_r": -9.8004,
+        "winrate": 14.2857,
+        "wins": 3
+      },
+      "last_30d": {
+        "avg_r": -1.0,
+        "closed": 1,
+        "losses": 1,
+        "profit_factor": 0.0,
+        "total_r": -1.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "last_7d": {
+        "avg_r": 0.0,
+        "closed": 0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      "losses": 18,
+      "profit_factor": 0.3296,
+      "recommendation": "WATCH",
+      "survivor_subgroup": {
+        "exists": false
+      },
+      "total_r": -9.8004,
+      "winrate": 14.2857,
+      "wins": 3
+    }
+  },
+  "data_path": "data",
+  "generated_at": "2026-06-08T15:28:18+00:00",
+  "production_block_status": {
+    "against_htf_breakout": "enabled",
+    "bullish_sweep": "enabled"
+  },
+  "scope": "ADAPTIVE_FILTER_MANAGER"
+}
