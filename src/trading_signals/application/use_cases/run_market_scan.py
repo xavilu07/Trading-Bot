@@ -4,6 +4,7 @@ import logging
 from collections import Counter
 from dataclasses import asdict
 from datetime import UTC, datetime
+from inspect import Parameter, signature
 from uuid import uuid4
 
 from trading_signals.app.settings import Settings
@@ -694,6 +695,26 @@ def _log_protection_diagnostics(logger, *, symbol: str, protection: dict[str, ob
         )
 
 
+def _build_performance_intelligence_with_optional_edge_memory(
+    *,
+    pattern_record: dict[str, object],
+    pattern_history: list[dict[str, object]],
+    edge_memory_data_path,
+) -> dict[str, object]:
+    kwargs: dict[str, object] = {
+        "pattern_record": pattern_record,
+        "pattern_history": pattern_history,
+    }
+    parameters = signature(build_performance_intelligence).parameters
+    accepts_edge_memory = (
+        "edge_memory_data_path" in parameters
+        or any(parameter.kind == Parameter.VAR_KEYWORD for parameter in parameters.values())
+    )
+    if accepts_edge_memory:
+        kwargs["edge_memory_data_path"] = edge_memory_data_path
+    return build_performance_intelligence(**kwargs)
+
+
 def _signal_activity_status(*, signal: TradeSignal, paper_trade_created: bool, experimental_signal_saved: bool) -> str:
     if signal.status == SignalStatus.PUBLISHED.value:
         return "sent"
@@ -1253,9 +1274,10 @@ def run_market_scan(
                     outcome=None,
                     r_result=None,
                 )
-                pattern_memory = build_performance_intelligence(
+                pattern_memory = _build_performance_intelligence_with_optional_edge_memory(
                     pattern_record=pattern_record,
                     pattern_history=pattern_history,
+                    edge_memory_data_path=settings.data_storage_path,
                 )
                 performance_gate = evaluate_performance_gate(pattern_memory)
                 pattern_memory["performance_gate"] = performance_gate
