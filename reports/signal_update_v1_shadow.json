@@ -1,0 +1,29 @@
+{
+  "duplicate_signal_suppressed_still_blocks": true,
+  "events": [],
+  "generated_at": "2026-06-22T17:08:18.741180+00:00",
+  "historical_duplicate_diagnostics": {
+    "by_direction": {
+      "long": 104
+    },
+    "by_score_bucket": {
+      "90+": 104
+    },
+    "by_setup_type": {
+      "MAIN_SIGNAL": 104
+    },
+    "by_symbol": {
+      "BTCUSDT": 104
+    },
+    "note": "Historical rows are diagnostic only. Runtime classification needs the active signal repository to compare current candidate against the latest published same symbol+direction signal.",
+    "source": "data/bot_activity/signals_log.jsonl",
+    "total": 104
+  },
+  "mode": "shadow_dev_only",
+  "public_behavior_changed": false,
+  "summary": {
+    "by_update_type": {},
+    "latest_update_type": null,
+    "total_events": 0
+  }
+}

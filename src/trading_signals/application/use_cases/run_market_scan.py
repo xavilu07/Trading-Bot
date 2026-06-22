@@ -66,6 +66,11 @@ from trading_signals.application.use_cases.publish_signal import meta_decision_p
 from trading_signals.application.use_cases.publish_signal import public_routing_rejection_reason
 from trading_signals.application.use_cases.setup_context import build_setup_context
 from trading_signals.application.use_cases.signal_lifecycle import classify_signal_lifecycle
+from trading_signals.application.use_cases.signal_update_v1 import (
+    evaluate_signal_update_v1,
+    format_signal_update_v1_dev_message,
+    write_signal_update_v1_shadow_report,
+)
 from trading_signals.data.market_data import market_data_status
 from trading_signals.diagnostics.logger import log_module_diagnostic
 from trading_signals.domain.entities.scan_run import ScanRun
@@ -629,6 +634,88 @@ def _observe_relaxation_shadow_v1(
     return payload
 
 
+def _observe_signal_update_v1(
+    *,
+    logger,
+    notifier,
+    settings: Settings,
+    signal_repo,
+    signal: TradeSignal,
+    evaluation,
+    risk_plan,
+    entry_snapshot,
+    setup_context: dict[str, object],
+    is_duplicate: bool,
+    lifecycle,
+    dry_run: bool,
+) -> dict[str, object] | None:
+    update = evaluate_signal_update_v1(
+        signal_repo=signal_repo,
+        signal=signal,
+        evaluation=evaluation,
+        entry_snapshot=entry_snapshot,
+        risk_plan=risk_plan,
+        setup_context=setup_context,
+        is_duplicate=is_duplicate,
+        lifecycle=lifecycle,
+        dev_note_enabled=settings.signal_update_v1_dev_note_enabled,
+    )
+    if update is None:
+        return None
+
+    payload = update.to_dict()
+    log_json(
+        logger,
+        "signal_update_v1_detected",
+        symbol=update.symbol,
+        direction=update.direction,
+        active_signal_id=update.active_signal_id,
+        active_dedupe_key=update.active_dedupe_key,
+        current_dedupe_key=update.current_dedupe_key,
+        reasons=update.reasons,
+    )
+    log_json(
+        logger,
+        "signal_update_v1_classified",
+        symbol=update.symbol,
+        direction=update.direction,
+        update_type=update.update_type,
+        score=update.score,
+        active_score=update.active_score,
+        rr=update.rr,
+        active_rr=update.active_rr,
+        new_snapshot=update.new_snapshot,
+        reentry_confirmation=update.reentry_confirmation,
+        risks=update.risks,
+    )
+    log_json(
+        logger,
+        "signal_update_v1_shadow_decision",
+        symbol=update.symbol,
+        direction=update.direction,
+        update_type=update.update_type,
+        shadow_only=True,
+        public_allowed=False,
+        dev_note_enabled=settings.signal_update_v1_dev_note_enabled,
+    )
+    try:
+        write_signal_update_v1_shadow_report(
+            reports_path=settings.data_storage_path.parent / "reports",
+            update=update,
+        )
+    except OSError as exc:
+        log_json(
+            logger,
+            "signal_update_v1_report_write_failed",
+            symbol=update.symbol,
+            direction=update.direction,
+            error=str(exc),
+        )
+    if settings.signal_update_v1_dev_note_enabled:
+        send_dev_message(notifier, format_signal_update_v1_dev_message(update), dry_run=dry_run)
+    return payload
+
+
 def _pre_publishability_block_reasons(
     *,
     should_publish_decision: bool,
@@ -747,6 +834,7 @@ def _signal_activity_entry(
     public_block_reason: str | None = None,
     public_canary: dict[str, object] | None = None,
     relaxed_public_shadow: dict[str, object] | None = None,
+    signal_update_v1: dict[str, object] | None = None,
 ) -> dict[str, object]:
     entry = analysis.entry_snapshot
     strategy_gate = module_diagnostics.get("strategy_gate", {})
@@ -797,6 +885,8 @@ def _signal_activity_entry(
         "relaxed_public_policy_decision": (relaxed_public_shadow or {}).get("relaxed_public_policy_decision"),
         "relaxed_public_policy_vs_current": (relaxed_public_shadow or {}).get("relaxed_public_policy_vs_current"),
         "relaxed_public_shadow_sent_dev": (relaxed_public_shadow or {}).get("relaxed_public_shadow_sent_dev"),
+        "signal_update_v1_type": (signal_update_v1 or {}).get("update_type"),
+        "signal_update_v1_shadow_only": (signal_update_v1 or {}).get("shadow_only"),
         "raw_summary": {
             "signal_id": signal.id,
             "evaluation_id": evaluation.id,
@@ -819,6 +909,7 @@ def _signal_activity_entry(
             "relaxed_public_policy_decision": (relaxed_public_shadow or {}).get("relaxed_public_policy_decision"),
             "relaxed_public_policy_vs_current": (relaxed_public_shadow or {}).get("relaxed_public_policy_vs_current"),
             "relaxed_public_shadow_sent_dev": (relaxed_public_shadow or {}).get("relaxed_public_shadow_sent_dev"),
+            "signal_update_v1": signal_update_v1,
         },
     }
 
@@ -1402,6 +1493,22 @@ def run_market_scan(
                 signal.signal_type = lifecycle.signal_type
                 signal.lifecycle_reason = lifecycle.reason
                 signal_repo.save_signal(signal)
+            signal_update_v1 = None
+            if status == SignalStatus.VALID.value:
+                signal_update_v1 = _observe_signal_update_v1(
+                    logger=logger,
+                    notifier=notifier,
+                    settings=settings,
+                    signal_repo=signal_repo,
+                    signal=signal,
+                    evaluation=evaluation,
+                    risk_plan=risk_plan,
+                    entry_snapshot=analysis.entry_snapshot,
+                    setup_context=setup_context,
+                    is_duplicate=is_duplicate,
+                    lifecycle=lifecycle,
+                    dry_run=dry_run,
+                )
             if (
                 relaxation_shadow_v1 is None
                 and status == SignalStatus.VALID.value
@@ -1693,6 +1800,7 @@ def run_market_scan(
                     public_block_reason=public_block_reason,
                     public_canary=public_canary,
                     relaxed_public_shadow=relaxed_public_shadow,
+                    signal_update_v1=signal_update_v1,
                 )
             )
             multi_agent_shadow_decision = None
@@ -1773,6 +1881,7 @@ def run_market_scan(
                     "kill_switch": kill_switch_status,
                     "protection_engine": protection_engine,
                     "public_canary": public_canary,
+                    "signal_update_v1": signal_update_v1,
                 }
             )
             _log_symbol_diagnostics(
