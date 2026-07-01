@@ -1,0 +1,943 @@
+{
+  "avoid_edges": [],
+  "edges": [
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "direction": "short"
+      },
+      "dimension": "direction",
+      "evidence_count": 21,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.4667,
+        "decision_hint": "WATCH",
+        "n": 21,
+        "profit_factor": 0.3296,
+        "totalR": -9.8004,
+        "winrate": 14.2857
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -3.9191,
+      "unique_id": "edge_v1_f1814de42252",
+      "value": "short"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "direction": "long"
+      },
+      "dimension": "direction",
+      "evidence_count": 20,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": 0.3613,
+        "decision_hint": "WATCH",
+        "n": 20,
+        "profit_factor": 1.872,
+        "totalR": 7.225,
+        "winrate": 55.0
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": 3.8005,
+      "unique_id": "edge_v1_543c09ff0631",
+      "value": "long"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "nearest_distance_to_liquidity_atr_bucket": "1-2"
+      },
+      "dimension": "nearest_distance_to_liquidity_atr_bucket",
+      "evidence_count": 20,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.3113,
+        "decision_hint": "WATCH",
+        "n": 20,
+        "profit_factor": 0.472,
+        "totalR": -6.2266,
+        "winrate": 25.0
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -2.6988,
+      "unique_id": "edge_v1_5d1d79d8d886",
+      "value": "1-2"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "direction": "long",
+        "setup_type": "MAIN_SIGNAL"
+      },
+      "dimension": "direction + setup_type",
+      "evidence_count": 15,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": 0.3946,
+        "decision_hint": "WATCH",
+        "n": 15,
+        "profit_factor": 1.8455,
+        "totalR": 5.9188,
+        "winrate": 53.3333
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": 2.711,
+      "unique_id": "edge_v1_3320c1e3537e",
+      "value": "long + MAIN_SIGNAL"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "directional_distance_to_liquidity_atr_bucket": "2-3"
+      },
+      "dimension": "directional_distance_to_liquidity_atr_bucket",
+      "evidence_count": 19,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.2795,
+        "decision_hint": "WATCH",
+        "n": 19,
+        "profit_factor": 0.6002,
+        "totalR": -5.311,
+        "winrate": 26.3158
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -2.1341,
+      "unique_id": "edge_v1_7e48cb6c5d65",
+      "value": "2-3"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "nearest_distance_to_liquidity_atr_bucket": "0.5-1"
+      },
+      "dimension": "nearest_distance_to_liquidity_atr_bucket",
+      "evidence_count": 15,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": 0.3465,
+        "decision_hint": "WATCH",
+        "n": 15,
+        "profit_factor": 1.7041,
+        "totalR": 5.1977,
+        "winrate": 46.6667
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": 2.3231,
+      "unique_id": "edge_v1_9394eb5c4d38",
+      "value": "0.5-1"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "liquidity_sweep": "none"
+      },
+      "dimension": "liquidity_sweep",
+      "evidence_count": 18,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.247,
+        "decision_hint": "WATCH",
+        "n": 18,
+        "profit_factor": 0.5007,
+        "totalR": -4.4452,
+        "winrate": 27.7778
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -2.0282,
+      "unique_id": "edge_v1_66419ea32c2c",
+      "value": "none"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "setup_type": "SECONDARY_SIGNAL"
+      },
+      "dimension": "setup_type",
+      "evidence_count": 18,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.247,
+        "decision_hint": "WATCH",
+        "n": 18,
+        "profit_factor": 0.5007,
+        "totalR": -4.4452,
+        "winrate": 27.7778
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -2.0282,
+      "unique_id": "edge_v1_a02157ccbf1a",
+      "value": "SECONDARY_SIGNAL"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "trend_4h": "bearish"
+      },
+      "dimension": "trend_4h",
+      "evidence_count": 25,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.1659,
+        "decision_hint": "WATCH",
+        "n": 25,
+        "profit_factor": 0.7157,
+        "totalR": -4.1466,
+        "winrate": 36.0
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -1.8072,
+      "unique_id": "edge_v1_4fbabc68be90",
+      "value": "bearish"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "market_regime": "RANGING"
+      },
+      "dimension": "market_regime",
+      "evidence_count": 18,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.2229,
+        "decision_hint": "WATCH",
+        "n": 18,
+        "profit_factor": 0.6171,
+        "totalR": -4.0123,
+        "winrate": 38.8889
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -1.7049,
+      "unique_id": "edge_v1_7f54c063b423",
+      "value": "RANGING"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "break_of_structure": "bearish_bos"
+      },
+      "dimension": "break_of_structure",
+      "evidence_count": 20,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.1748,
+        "decision_hint": "WATCH",
+        "n": 20,
+        "profit_factor": 0.6991,
+        "totalR": -3.4962,
+        "winrate": 25.0
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -1.4938,
+      "unique_id": "edge_v1_8b842c4b63e3",
+      "value": "bearish_bos"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "HIGH",
+      "context": {
+        "late_entry_from_bos": "false"
+      },
+      "dimension": "late_entry_from_bos",
+      "evidence_count": 41,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.0628,
+        "decision_hint": "WATCH",
+        "n": 41,
+        "profit_factor": 0.8876,
+        "totalR": -2.5754,
+        "winrate": 34.1463
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -1.0223,
+      "unique_id": "edge_v1_9e0496e11a4d",
+      "value": "false"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "HIGH",
+      "context": {
+        "paper_level": "HIGH"
+      },
+      "dimension": "paper_level",
+      "evidence_count": 41,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.0628,
+        "decision_hint": "WATCH",
+        "n": 41,
+        "profit_factor": 0.8876,
+        "totalR": -2.5754,
+        "winrate": 34.1463
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -1.0223,
+      "unique_id": "edge_v1_af7e99dcb10f",
+      "value": "HIGH"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "HIGH",
+      "context": {
+        "rr_valid": "true"
+      },
+      "dimension": "rr_valid",
+      "evidence_count": 41,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.0628,
+        "decision_hint": "WATCH",
+        "n": 41,
+        "profit_factor": 0.8876,
+        "totalR": -2.5754,
+        "winrate": 34.1463
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -1.0223,
+      "unique_id": "edge_v1_f8977cf3344e",
+      "value": "true"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "break_of_structure": "none"
+      },
+      "dimension": "break_of_structure",
+      "evidence_count": 15,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.1257,
+        "decision_hint": "WATCH",
+        "n": 15,
+        "profit_factor": 0.8115,
+        "totalR": -1.8854,
+        "winrate": 33.3333
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -0.7423,
+      "unique_id": "edge_v1_933e16108acf",
+      "value": "none"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "setup_type": "MAIN_SIGNAL"
+      },
+      "dimension": "setup_type",
+      "evidence_count": 23,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": 0.0813,
+        "decision_hint": "WATCH",
+        "n": 23,
+        "profit_factor": 1.1336,
+        "totalR": 1.8698,
+        "winrate": 39.1304
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": 0.9843,
+      "unique_id": "edge_v1_15cf279c5254",
+      "value": "MAIN_SIGNAL"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "trend_1h": "bullish"
+      },
+      "dimension": "trend_1h",
+      "evidence_count": 23,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.0732,
+        "decision_hint": "WATCH",
+        "n": 23,
+        "profit_factor": 0.8633,
+        "totalR": -1.684,
+        "winrate": 34.7826
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -0.6812,
+      "unique_id": "edge_v1_4bef77fcdff5",
+      "value": "bullish"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "trend_4h": "bullish"
+      },
+      "dimension": "trend_4h",
+      "evidence_count": 16,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": 0.0982,
+        "decision_hint": "WATCH",
+        "n": 16,
+        "profit_factor": 1.1889,
+        "totalR": 1.5712,
+        "winrate": 31.25
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": 0.7062,
+      "unique_id": "edge_v1_9549f3a67500",
+      "value": "bullish"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "trade_location": "near_support"
+      },
+      "dimension": "trade_location",
+      "evidence_count": 15,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": 0.1013,
+        "decision_hint": "WATCH",
+        "n": 15,
+        "profit_factor": 1.1873,
+        "totalR": 1.5189,
+        "winrate": 40.0
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": 0.6513,
+      "unique_id": "edge_v1_5f915114d363",
+      "value": "near_support"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "entry_context": "BREAKOUT"
+      },
+      "dimension": "entry_context",
+      "evidence_count": 23,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": 0.0391,
+        "decision_hint": "WATCH",
+        "n": 23,
+        "profit_factor": 1.0825,
+        "totalR": 0.8996,
+        "winrate": 34.7826
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": 0.5817,
+      "unique_id": "edge_v1_024363b12997",
+      "value": "BREAKOUT"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "trend_1h": "bearish"
+      },
+      "dimension": "trend_1h",
+      "evidence_count": 18,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.0495,
+        "decision_hint": "WATCH",
+        "n": 18,
+        "profit_factor": 0.9158,
+        "totalR": -0.8914,
+        "winrate": 33.3333
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -0.348,
+      "unique_id": "edge_v1_56dc81e5a282",
+      "value": "bearish"
+    }
+  ],
+  "generated_at": "2026-07-01T14:45:10+00:00",
+  "priority_edges": [],
+  "schema_version": "1.0",
+  "source_report": "reports/performance_intelligence_report_v2.json",
+  "summary": {
+    "avoid_edges": 0,
+    "priority_edges": 0,
+    "total_edges": 21,
+    "watch_edges": 21
+  },
+  "watch_edges": [
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "direction": "short"
+      },
+      "dimension": "direction",
+      "evidence_count": 21,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.4667,
+        "decision_hint": "WATCH",
+        "n": 21,
+        "profit_factor": 0.3296,
+        "totalR": -9.8004,
+        "winrate": 14.2857
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -3.9191,
+      "unique_id": "edge_v1_f1814de42252",
+      "value": "short"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "direction": "long"
+      },
+      "dimension": "direction",
+      "evidence_count": 20,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": 0.3613,
+        "decision_hint": "WATCH",
+        "n": 20,
+        "profit_factor": 1.872,
+        "totalR": 7.225,
+        "winrate": 55.0
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": 3.8005,
+      "unique_id": "edge_v1_543c09ff0631",
+      "value": "long"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "nearest_distance_to_liquidity_atr_bucket": "1-2"
+      },
+      "dimension": "nearest_distance_to_liquidity_atr_bucket",
+      "evidence_count": 20,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.3113,
+        "decision_hint": "WATCH",
+        "n": 20,
+        "profit_factor": 0.472,
+        "totalR": -6.2266,
+        "winrate": 25.0
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -2.6988,
+      "unique_id": "edge_v1_5d1d79d8d886",
+      "value": "1-2"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "direction": "long",
+        "setup_type": "MAIN_SIGNAL"
+      },
+      "dimension": "direction + setup_type",
+      "evidence_count": 15,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": 0.3946,
+        "decision_hint": "WATCH",
+        "n": 15,
+        "profit_factor": 1.8455,
+        "totalR": 5.9188,
+        "winrate": 53.3333
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": 2.711,
+      "unique_id": "edge_v1_3320c1e3537e",
+      "value": "long + MAIN_SIGNAL"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "directional_distance_to_liquidity_atr_bucket": "2-3"
+      },
+      "dimension": "directional_distance_to_liquidity_atr_bucket",
+      "evidence_count": 19,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.2795,
+        "decision_hint": "WATCH",
+        "n": 19,
+        "profit_factor": 0.6002,
+        "totalR": -5.311,
+        "winrate": 26.3158
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -2.1341,
+      "unique_id": "edge_v1_7e48cb6c5d65",
+      "value": "2-3"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "nearest_distance_to_liquidity_atr_bucket": "0.5-1"
+      },
+      "dimension": "nearest_distance_to_liquidity_atr_bucket",
+      "evidence_count": 15,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": 0.3465,
+        "decision_hint": "WATCH",
+        "n": 15,
+        "profit_factor": 1.7041,
+        "totalR": 5.1977,
+        "winrate": 46.6667
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": 2.3231,
+      "unique_id": "edge_v1_9394eb5c4d38",
+      "value": "0.5-1"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "liquidity_sweep": "none"
+      },
+      "dimension": "liquidity_sweep",
+      "evidence_count": 18,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.247,
+        "decision_hint": "WATCH",
+        "n": 18,
+        "profit_factor": 0.5007,
+        "totalR": -4.4452,
+        "winrate": 27.7778
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -2.0282,
+      "unique_id": "edge_v1_66419ea32c2c",
+      "value": "none"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "setup_type": "SECONDARY_SIGNAL"
+      },
+      "dimension": "setup_type",
+      "evidence_count": 18,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.247,
+        "decision_hint": "WATCH",
+        "n": 18,
+        "profit_factor": 0.5007,
+        "totalR": -4.4452,
+        "winrate": 27.7778
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -2.0282,
+      "unique_id": "edge_v1_a02157ccbf1a",
+      "value": "SECONDARY_SIGNAL"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "trend_4h": "bearish"
+      },
+      "dimension": "trend_4h",
+      "evidence_count": 25,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.1659,
+        "decision_hint": "WATCH",
+        "n": 25,
+        "profit_factor": 0.7157,
+        "totalR": -4.1466,
+        "winrate": 36.0
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -1.8072,
+      "unique_id": "edge_v1_4fbabc68be90",
+      "value": "bearish"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "market_regime": "RANGING"
+      },
+      "dimension": "market_regime",
+      "evidence_count": 18,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.2229,
+        "decision_hint": "WATCH",
+        "n": 18,
+        "profit_factor": 0.6171,
+        "totalR": -4.0123,
+        "winrate": 38.8889
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -1.7049,
+      "unique_id": "edge_v1_7f54c063b423",
+      "value": "RANGING"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "break_of_structure": "bearish_bos"
+      },
+      "dimension": "break_of_structure",
+      "evidence_count": 20,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.1748,
+        "decision_hint": "WATCH",
+        "n": 20,
+        "profit_factor": 0.6991,
+        "totalR": -3.4962,
+        "winrate": 25.0
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -1.4938,
+      "unique_id": "edge_v1_8b842c4b63e3",
+      "value": "bearish_bos"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "HIGH",
+      "context": {
+        "late_entry_from_bos": "false"
+      },
+      "dimension": "late_entry_from_bos",
+      "evidence_count": 41,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.0628,
+        "decision_hint": "WATCH",
+        "n": 41,
+        "profit_factor": 0.8876,
+        "totalR": -2.5754,
+        "winrate": 34.1463
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -1.0223,
+      "unique_id": "edge_v1_9e0496e11a4d",
+      "value": "false"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "HIGH",
+      "context": {
+        "paper_level": "HIGH"
+      },
+      "dimension": "paper_level",
+      "evidence_count": 41,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.0628,
+        "decision_hint": "WATCH",
+        "n": 41,
+        "profit_factor": 0.8876,
+        "totalR": -2.5754,
+        "winrate": 34.1463
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -1.0223,
+      "unique_id": "edge_v1_af7e99dcb10f",
+      "value": "HIGH"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "HIGH",
+      "context": {
+        "rr_valid": "true"
+      },
+      "dimension": "rr_valid",
+      "evidence_count": 41,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.0628,
+        "decision_hint": "WATCH",
+        "n": 41,
+        "profit_factor": 0.8876,
+        "totalR": -2.5754,
+        "winrate": 34.1463
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -1.0223,
+      "unique_id": "edge_v1_f8977cf3344e",
+      "value": "true"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "break_of_structure": "none"
+      },
+      "dimension": "break_of_structure",
+      "evidence_count": 15,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.1257,
+        "decision_hint": "WATCH",
+        "n": 15,
+        "profit_factor": 0.8115,
+        "totalR": -1.8854,
+        "winrate": 33.3333
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -0.7423,
+      "unique_id": "edge_v1_933e16108acf",
+      "value": "none"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "setup_type": "MAIN_SIGNAL"
+      },
+      "dimension": "setup_type",
+      "evidence_count": 23,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": 0.0813,
+        "decision_hint": "WATCH",
+        "n": 23,
+        "profit_factor": 1.1336,
+        "totalR": 1.8698,
+        "winrate": 39.1304
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": 0.9843,
+      "unique_id": "edge_v1_15cf279c5254",
+      "value": "MAIN_SIGNAL"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "trend_1h": "bullish"
+      },
+      "dimension": "trend_1h",
+      "evidence_count": 23,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.0732,
+        "decision_hint": "WATCH",
+        "n": 23,
+        "profit_factor": 0.8633,
+        "totalR": -1.684,
+        "winrate": 34.7826
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -0.6812,
+      "unique_id": "edge_v1_4bef77fcdff5",
+      "value": "bullish"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "trend_4h": "bullish"
+      },
+      "dimension": "trend_4h",
+      "evidence_count": 16,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": 0.0982,
+        "decision_hint": "WATCH",
+        "n": 16,
+        "profit_factor": 1.1889,
+        "totalR": 1.5712,
+        "winrate": 31.25
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": 0.7062,
+      "unique_id": "edge_v1_9549f3a67500",
+      "value": "bullish"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "trade_location": "near_support"
+      },
+      "dimension": "trade_location",
+      "evidence_count": 15,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": 0.1013,
+        "decision_hint": "WATCH",
+        "n": 15,
+        "profit_factor": 1.1873,
+        "totalR": 1.5189,
+        "winrate": 40.0
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": 0.6513,
+      "unique_id": "edge_v1_5f915114d363",
+      "value": "near_support"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "entry_context": "BREAKOUT"
+      },
+      "dimension": "entry_context",
+      "evidence_count": 23,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": 0.0391,
+        "decision_hint": "WATCH",
+        "n": 23,
+        "profit_factor": 1.0825,
+        "totalR": 0.8996,
+        "winrate": 34.7826
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": 0.5817,
+      "unique_id": "edge_v1_024363b12997",
+      "value": "BREAKOUT"
+    },
+    {
+      "category": "watch_edges",
+      "confidence": "MEDIUM",
+      "context": {
+        "trend_1h": "bearish"
+      },
+      "dimension": "trend_1h",
+      "evidence_count": 18,
+      "last_generated": "2026-07-01T14:45:10+00:00",
+      "metrics": {
+        "avgR": -0.0495,
+        "decision_hint": "WATCH",
+        "n": 18,
+        "profit_factor": 0.9158,
+        "totalR": -0.8914,
+        "winrate": 33.3333
+      },
+      "source_report": "reports/performance_intelligence_report_v2.json",
+      "statistical_weight": -0.348,
+      "unique_id": "edge_v1_56dc81e5a282",
+      "value": "bearish"
+    }
+  ]
+}
