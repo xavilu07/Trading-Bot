@@ -1,0 +1,16 @@
+{
+  "avg_ekb_bonus": 0.0,
+  "bias_counts": {},
+  "by_dimension": {
+    "direction": [],
+    "market_regime": [],
+    "session": [],
+    "symbol": []
+  },
+  "candidates_where_ekb_disagrees_with_legacy": [],
+  "duplicate_signal_suppressed_ekb_positive": [],
+  "high_score_rejected_ekb_positive": [],
+  "low_score_accepted_ekb_negative": [],
+  "top_matched_edges": [],
+  "total_shadow_evaluations": 0
+}
