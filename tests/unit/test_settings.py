@@ -89,6 +89,28 @@ def test_active_signal_expiration_settings_defaults_and_env(monkeypatch) -> None
     assert settings.active_signal_default_expiration_hours == 72
 
 
+def test_active_signal_cleanup_scheduler_dry_run_settings_defaults_and_env(monkeypatch) -> None:
+    monkeypatch.delenv("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_DRY_RUN_ENABLED", raising=False)
+    monkeypatch.delenv("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_DRY_RUN_INTERVAL_CYCLES", raising=False)
+    monkeypatch.delenv("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_DRY_RUN_DEV_NOTE_ENABLED", raising=False)
+
+    settings = Settings()
+
+    assert settings.active_signal_cleanup_scheduler_dry_run_enabled is True
+    assert settings.active_signal_cleanup_scheduler_dry_run_interval_cycles == 1
+    assert settings.active_signal_cleanup_scheduler_dry_run_dev_note_enabled is False
+
+    monkeypatch.setenv("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_DRY_RUN_ENABLED", "false")
+    monkeypatch.setenv("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_DRY_RUN_INTERVAL_CYCLES", "3")
+    monkeypatch.setenv("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_DRY_RUN_DEV_NOTE_ENABLED", "true")
+
+    settings = Settings()
+
+    assert settings.active_signal_cleanup_scheduler_dry_run_enabled is False
+    assert settings.active_signal_cleanup_scheduler_dry_run_interval_cycles == 3
+    assert settings.active_signal_cleanup_scheduler_dry_run_dev_note_enabled is True
+
+
 def test_telegram_dev_chat_id_supports_multiple_ids(monkeypatch) -> None:
     monkeypatch.setenv("TELEGRAM_DEV_CHAT_ID", "7437028098,1979812925")
 

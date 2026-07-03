@@ -26,6 +26,7 @@ from trading_signals.application.use_cases.private_runtime_report import (
     save_private_runtime_report_state,
     should_send_private_runtime_report,
 )
+from trading_signals.application.use_cases.active_signal_cleanup_v1 import ActiveSignalCleanupConfig, run_active_signal_cleanup_v1
 from trading_signals.application.use_cases.run_market_scan import run_market_scan
 from trading_signals.infrastructure.logging.logger import log_json
 
@@ -84,6 +85,70 @@ def scheduler_heartbeat_cycle_number(heartbeat: dict[str, object]) -> int:
         return int(heartbeat.get("cycle_number", 0) or 0)
     except (TypeError, ValueError):
         return 0
+
+
+def should_run_active_signal_cleanup_scheduler_dry_run(*, enabled: bool, cycle_number: int, interval_cycles: int) -> bool:
+    if not enabled:
+        return False
+    interval = max(1, int(interval_cycles or 1))
+    return cycle_number % interval == 0
+
+
+def run_active_signal_cleanup_scheduler_dry_run(
+    *,
+    logger,
+    data_path: Path,
+    cycle_number: int,
+    zombie_hours: float,
+) -> dict[str, object]:
+    log_json(
+        logger,
+        "active_signal_cleanup_scheduler_dry_run_started",
+        cycle_number=cycle_number,
+        dry_run=True,
+        zombie_hours=zombie_hours,
+        data_path=str(data_path),
+    )
+    result = run_active_signal_cleanup_v1(
+        data_path=data_path,
+        config=ActiveSignalCleanupConfig(enabled=True, dry_run=True, zombie_hours=zombie_hours),
+    )
+    summary = build_active_signal_cleanup_scheduler_dry_run_summary(result.to_dict(), cycle_number=cycle_number)
+    log_json(logger, "active_signal_cleanup_scheduler_dry_run_summary", **summary)
+    if int(summary.get("candidates", 0)) > 0:
+        log_json(logger, "active_signal_cleanup_scheduler_dry_run_warning", **summary)
+    return summary
+
+
+def build_active_signal_cleanup_scheduler_dry_run_summary(
+    result: dict[str, object],
+    *,
+    cycle_number: int,
+) -> dict[str, object]:
+    candidates = [item for item in result.get("candidates", []) if isinstance(item, dict)]
+    top_symbols = Counter(str(item.get("symbol") or "UNKNOWN") for item in candidates).most_common(5)
+    top_symbol_directions = Counter(
+        f"{item.get('symbol') or 'UNKNOWN'}|{item.get('direction') or 'UNKNOWN'}" for item in candidates
+    ).most_common(5)
+    ages = []
+    for item in candidates:
+        try:
+            ages.append(float(item.get("age_hours", 0) or 0))
+        except (TypeError, ValueError):
+            continue
+    return {
+        "cycle_number": cycle_number,
+        "dry_run": True,
+        "scanned": int(result.get("scanned", 0) or 0),
+        "candidates": len(candidates),
+        "zombie_hours": float(result.get("zombie_hours", 48.0) or 48.0),
+        "oldest_candidate_age_hours": round(max(ages), 2) if ages else 0.0,
+        "top_symbols": [{"symbol": symbol, "count": count} for symbol, count in top_symbols],
+        "top_symbol_directions": [
+            {"symbol_direction": symbol_direction, "count": count}
+            for symbol_direction, count in top_symbol_directions
+        ],
+    }
 
 
 def _duration_seconds(started_at: datetime, finished_at: datetime) -> float:
@@ -951,6 +1016,26 @@ def main(argv: list[str] | None = None) -> int:
                         log_json(
                             logger,
                             "private_runtime_report_error",
+                            cycle_number=cycle_number,
+                            error_type=type(exc).__name__,
+                            error_message=str(exc),
+                        )
+                if should_run_active_signal_cleanup_scheduler_dry_run(
+                    enabled=settings.active_signal_cleanup_scheduler_dry_run_enabled,
+                    cycle_number=cycle_number,
+                    interval_cycles=settings.active_signal_cleanup_scheduler_dry_run_interval_cycles,
+                ):
+                    try:
+                        run_active_signal_cleanup_scheduler_dry_run(
+                            logger=logger,
+                            data_path=settings.data_storage_path,
+                            cycle_number=cycle_number,
+                            zombie_hours=settings.active_signal_cleanup_zombie_hours,
+                        )
+                    except Exception as exc:  # pragma: no cover - defensive scheduler path
+                        log_json(
+                            logger,
+                            "active_signal_cleanup_scheduler_dry_run_error",
                             cycle_number=cycle_number,
                             error_type=type(exc).__name__,
                             error_message=str(exc),

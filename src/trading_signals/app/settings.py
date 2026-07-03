@@ -213,6 +213,15 @@ class Settings:
     active_signal_default_expiration_hours: float = field(
         default_factory=lambda: float(os.getenv("ACTIVE_SIGNAL_DEFAULT_EXPIRATION_HOURS", "48"))
     )
+    active_signal_cleanup_scheduler_dry_run_enabled: bool = field(
+        default_factory=lambda: _bool_env("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_DRY_RUN_ENABLED", "true")
+    )
+    active_signal_cleanup_scheduler_dry_run_interval_cycles: int = field(
+        default_factory=lambda: int(os.getenv("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_DRY_RUN_INTERVAL_CYCLES", "1"))
+    )
+    active_signal_cleanup_scheduler_dry_run_dev_note_enabled: bool = field(
+        default_factory=lambda: _bool_env("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_DRY_RUN_DEV_NOTE_ENABLED", "false")
+    )
     edge_knowledge_shadow_dev_note_enabled: bool = field(
         default_factory=lambda: _bool_env("EDGE_KNOWLEDGE_SHADOW_DEV_NOTE_ENABLED", "false")
     )

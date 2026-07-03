@@ -1,14 +1,19 @@
 from __future__ import annotations
 
 from trading_signals.app.cli import (
+    build_active_signal_cleanup_scheduler_dry_run_summary,
     build_scheduler_diagnostic_summary,
     format_scheduler_diagnostic_summary_for_telegram,
     load_scheduler_heartbeat,
     load_scheduler_results_window,
+    run_active_signal_cleanup_scheduler_dry_run,
     save_scheduler_heartbeat,
     save_scheduler_results_window,
     scheduler_heartbeat_cycle_number,
+    should_run_active_signal_cleanup_scheduler_dry_run,
 )
+import json
+from pathlib import Path
 
 
 def test_scheduler_diagnostic_summary_aggregates_five_cycles() -> None:
@@ -438,3 +443,98 @@ def test_scheduler_heartbeat_returns_empty_dict_for_corrupt_file(tmp_path) -> No
 def test_scheduler_heartbeat_cycle_number_handles_invalid_values() -> None:
     assert scheduler_heartbeat_cycle_number({"cycle_number": "12"}) == 12
     assert scheduler_heartbeat_cycle_number({"cycle_number": "invalid"}) == 0
+
+
+class _ListLogger:
+    def __init__(self) -> None:
+        self.messages: list[str] = []
+
+    def info(self, message: str) -> None:
+        self.messages.append(message)
+
+
+def _write_trade_signal(path: Path, payload: dict[str, object]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+
+def test_active_signal_cleanup_scheduler_dry_run_respects_interval() -> None:
+    assert should_run_active_signal_cleanup_scheduler_dry_run(enabled=True, cycle_number=5, interval_cycles=5) is True
+    assert should_run_active_signal_cleanup_scheduler_dry_run(enabled=True, cycle_number=6, interval_cycles=5) is False
+    assert should_run_active_signal_cleanup_scheduler_dry_run(enabled=False, cycle_number=5, interval_cycles=5) is False
+    assert should_run_active_signal_cleanup_scheduler_dry_run(enabled=True, cycle_number=1, interval_cycles=0) is True
+
+
+def test_active_signal_cleanup_scheduler_summary_with_no_candidates() -> None:
+    summary = build_active_signal_cleanup_scheduler_dry_run_summary(
+        {"scanned": 2, "zombie_hours": 48, "candidates": []},
+        cycle_number=3,
+    )
+
+    assert summary["cycle_number"] == 3
+    assert summary["scanned"] == 2
+    assert summary["candidates"] == 0
+    assert summary["oldest_candidate_age_hours"] == 0.0
+    assert summary["top_symbols"] == []
+
+
+def test_active_signal_cleanup_scheduler_dry_run_no_candidates_logs_summary(tmp_path: Path) -> None:
+    signal_path = tmp_path / "data" / "trade_signals" / "2026-01-01" / "sig.json"
+    _write_trade_signal(
+        signal_path,
+        {
+            "id": "sig",
+            "symbol": "BTCUSDT",
+            "decision": "long",
+            "status": "published",
+            "published_at": "2026-01-01T00:00:00+00:00",
+            "expires_at": "2026-01-03T00:00:00+00:00",
+        },
+    )
+    original = signal_path.read_text(encoding="utf-8")
+    logger = _ListLogger()
+
+    summary = run_active_signal_cleanup_scheduler_dry_run(
+        logger=logger,
+        data_path=tmp_path / "data",
+        cycle_number=1,
+        zombie_hours=48,
+    )
+
+    events = [json.loads(message)["event"] for message in logger.messages]
+    assert "active_signal_cleanup_scheduler_dry_run_started" in events
+    assert "active_signal_cleanup_scheduler_dry_run_summary" in events
+    assert "active_signal_cleanup_scheduler_dry_run_warning" not in events
+    assert summary["candidates"] == 0
+    assert signal_path.read_text(encoding="utf-8") == original
+
+
+def test_active_signal_cleanup_scheduler_dry_run_candidates_logs_warning_and_does_not_modify(tmp_path: Path) -> None:
+    signal_path = tmp_path / "data" / "trade_signals" / "2026-01-01" / "sig.json"
+    _write_trade_signal(
+        signal_path,
+        {
+            "id": "sig",
+            "symbol": "BTCUSDT",
+            "decision": "long",
+            "status": "published",
+            "published_at": "2026-01-01T00:00:00+00:00",
+        },
+    )
+    original = signal_path.read_text(encoding="utf-8")
+    logger = _ListLogger()
+
+    summary = run_active_signal_cleanup_scheduler_dry_run(
+        logger=logger,
+        data_path=tmp_path / "data",
+        cycle_number=1,
+        zombie_hours=1,
+    )
+
+    parsed = [json.loads(message) for message in logger.messages]
+    events = [message["event"] for message in parsed]
+    assert "active_signal_cleanup_scheduler_dry_run_warning" in events
+    assert summary["candidates"] == 1
+    assert summary["top_symbols"] == [{"symbol": "BTCUSDT", "count": 1}]
+    assert summary["top_symbol_directions"] == [{"symbol_direction": "BTCUSDT|long", "count": 1}]
+    assert signal_path.read_text(encoding="utf-8") == original
