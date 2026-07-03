@@ -207,6 +207,12 @@ class Settings:
     active_signal_cleanup_dev_note_enabled: bool = field(
         default_factory=lambda: _bool_env("ACTIVE_SIGNAL_CLEANUP_DEV_NOTE_ENABLED", "false")
     )
+    active_signal_expiration_enabled: bool = field(
+        default_factory=lambda: _bool_env("ACTIVE_SIGNAL_EXPIRATION_ENABLED", "true")
+    )
+    active_signal_default_expiration_hours: float = field(
+        default_factory=lambda: float(os.getenv("ACTIVE_SIGNAL_DEFAULT_EXPIRATION_HOURS", "48"))
+    )
     edge_knowledge_shadow_dev_note_enabled: bool = field(
         default_factory=lambda: _bool_env("EDGE_KNOWLEDGE_SHADOW_DEV_NOTE_ENABLED", "false")
     )

@@ -23,5 +23,9 @@ class TradeSignal:
     published_at: str | None = None
     signal_type: str = "NEW"
     lifecycle_reason: str | None = None
+    lifecycle_status: str | None = None
+    expires_at: str | None = None
+    close_reason: str | None = None
+    closed_at: str | None = None
     schema_version: str = "1.0"
     updated_at: str | None = None

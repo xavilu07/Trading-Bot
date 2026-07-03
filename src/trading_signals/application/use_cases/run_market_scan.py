@@ -41,6 +41,10 @@ from trading_signals.application.use_cases.edge_knowledge_shadow_v1 import (
     format_edge_knowledge_shadow_dev_note,
 )
 from trading_signals.application.use_cases.edge_optimizer_shadow_v1 import evaluate_edge_optimizer_shadow_v1
+from trading_signals.application.use_cases.active_signal_cleanup_shadow_v1 import (
+    evaluate_active_signal_cleanup_shadow_v1,
+)
+from trading_signals.application.use_cases.active_signal_expiration_v1 import apply_active_signal_expiration_v1
 from trading_signals.application.use_cases.paper_trading import (
     build_paper_candidate_from_decision,
     build_paper_rejection_diagnostic,
@@ -757,6 +761,53 @@ def _observe_signal_update_v1(
     if settings.signal_update_v1_dev_note_enabled:
         send_dev_message(notifier, format_signal_update_v1_dev_message(update), dry_run=dry_run)
     return payload
+
+
+def _observe_active_signal_cleanup_shadow_v1(
+    *,
+    logger,
+    signal_repo,
+    signal: TradeSignal,
+    is_duplicate: bool,
+    lifecycle,
+) -> dict[str, object] | None:
+    cleanup = evaluate_active_signal_cleanup_shadow_v1(
+        signal_repo=signal_repo,
+        signal=signal,
+        is_duplicate=is_duplicate,
+        lifecycle=lifecycle,
+    )
+    if cleanup is None:
+        return None
+    log_json(
+        logger,
+        "active_signal_cleanup_shadow_analysis",
+        symbol=cleanup.get("symbol"),
+        direction=cleanup.get("direction"),
+        active_key=cleanup.get("active_key"),
+        is_duplicate=cleanup.get("is_duplicate"),
+        lifecycle_reason=cleanup.get("lifecycle_reason"),
+        blocking_active_count=cleanup.get("blocking_active_count"),
+        cleanup_classification=cleanup.get("cleanup_classification"),
+        likely_zombie_count=cleanup.get("likely_zombie_count", 0),
+        stale_count=cleanup.get("stale_count", 0),
+        shadow_only=True,
+        public_allowed=False,
+    )
+    log_json(
+        logger,
+        "active_signal_cleanup_shadow_candidate",
+        symbol=cleanup.get("symbol"),
+        direction=cleanup.get("direction"),
+        active_key=cleanup.get("active_key"),
+        cleanup_classification=cleanup.get("cleanup_classification"),
+        estimated_released_candidate_if_cleanup=cleanup.get("estimated_released_candidate_if_cleanup", False),
+        blocking_active_signals=cleanup.get("blocking_active_signals", []),
+        skip_reason=cleanup.get("skip_reason"),
+        shadow_only=True,
+        public_allowed=False,
+    )
+    return cleanup
 
 
 def _pre_publishability_block_reasons(
@@ -1672,6 +1723,13 @@ def run_market_scan(
                     lifecycle=lifecycle,
                     dry_run=dry_run,
                 )
+                _observe_active_signal_cleanup_shadow_v1(
+                    logger=logger,
+                    signal_repo=signal_repo,
+                    signal=signal,
+                    is_duplicate=is_duplicate,
+                    lifecycle=lifecycle,
+                )
             if (
                 relaxation_shadow_v1 is None
                 and status == SignalStatus.VALID.value
@@ -1747,6 +1805,11 @@ def run_market_scan(
                     signal.status = SignalStatus.PUBLISHED.value
                     signal.published_at = _now_iso()
                     signal.updated_at = signal.published_at
+                    apply_active_signal_expiration_v1(
+                        signal,
+                        enabled=settings.active_signal_expiration_enabled,
+                        default_expiration_hours=settings.active_signal_default_expiration_hours,
+                    )
                     signal_repo.save_signal(signal)
                     if settings.live_trade_tracking_enabled and live_trading_store is not None and risk_plan is not None:
                         live_candidate = build_live_candidate_from_decision(
