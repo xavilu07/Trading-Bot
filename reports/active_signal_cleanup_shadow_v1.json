@@ -1,0 +1,288 @@
+{
+  "active_signals": [
+    {
+      "active_key": "XRPUSDT|short",
+      "age_hours": 1586.28,
+      "classification": "LIKELY_ZOMBIE",
+      "close_reason": null,
+      "created_at": "2026-04-28T14:18:56.769285+00:00",
+      "direction": "short",
+      "expires_at": null,
+      "published_at": "2026-04-28T14:18:57.347717+00:00",
+      "reasons": [
+        "age_gt_48h",
+        "missing_expires_at",
+        "missing_close_reason"
+      ],
+      "signal_id": "sig_77579d5442a1",
+      "symbol": "XRPUSDT"
+    },
+    {
+      "active_key": "XRPUSDT|short",
+      "age_hours": 1585.58,
+      "classification": "LIKELY_ZOMBIE",
+      "close_reason": null,
+      "created_at": "2026-04-28T15:00:44.625266+00:00",
+      "direction": "short",
+      "expires_at": null,
+      "published_at": "2026-04-28T15:00:45.166925+00:00",
+      "reasons": [
+        "age_gt_48h",
+        "missing_expires_at",
+        "missing_close_reason"
+      ],
+      "signal_id": "sig_23c36a41d54c",
+      "symbol": "XRPUSDT"
+    },
+    {
+      "active_key": "BNBUSDT|short",
+      "age_hours": 1562.07,
+      "classification": "LIKELY_ZOMBIE",
+      "close_reason": null,
+      "created_at": "2026-04-29T14:31:32.323436+00:00",
+      "direction": "short",
+      "expires_at": null,
+      "published_at": "2026-04-29T14:31:33.492050+00:00",
+      "reasons": [
+        "age_gt_48h",
+        "missing_expires_at",
+        "missing_close_reason"
+      ],
+      "signal_id": "sig_1631f34186d6",
+      "symbol": "BNBUSDT"
+    },
+    {
+      "active_key": "DOGEUSDT|long",
+      "age_hours": 1490.28,
+      "classification": "LIKELY_ZOMBIE",
+      "close_reason": null,
+      "created_at": "2026-05-02T14:18:42.081622+00:00",
+      "direction": "long",
+      "expires_at": null,
+      "published_at": "2026-05-02T14:18:47.675842+00:00",
+      "reasons": [
+        "age_gt_48h",
+        "missing_expires_at",
+        "missing_close_reason"
+      ],
+      "signal_id": "sig_64286992bce9",
+      "symbol": "DOGEUSDT"
+    },
+    {
+      "active_key": "ETHUSDT|long",
+      "age_hours": 1460.54,
+      "classification": "LIKELY_ZOMBIE",
+      "close_reason": null,
+      "created_at": "2026-05-03T20:02:58.869913+00:00",
+      "direction": "long",
+      "expires_at": null,
+      "published_at": "2026-05-03T20:02:59.793778+00:00",
+      "reasons": [
+        "age_gt_48h",
+        "missing_expires_at",
+        "missing_close_reason"
+      ],
+      "signal_id": "sig_7b1b5db6a233",
+      "symbol": "ETHUSDT"
+    },
+    {
+      "active_key": "TAOUSDT|long",
+      "age_hours": 1459.05,
+      "classification": "LIKELY_ZOMBIE",
+      "close_reason": null,
+      "created_at": "2026-05-03T21:32:48.893630+00:00",
+      "direction": "long",
+      "expires_at": null,
+      "published_at": "2026-05-03T21:32:48.922905+00:00",
+      "reasons": [
+        "age_gt_48h",
+        "missing_expires_at",
+        "missing_close_reason"
+      ],
+      "signal_id": "sig_41eae3d19cc3",
+      "symbol": "TAOUSDT"
+    },
+    {
+      "active_key": "MANAUSDT|short",
+      "age_hours": 1458.52,
+      "classification": "LIKELY_ZOMBIE",
+      "close_reason": null,
+      "created_at": "2026-05-03T22:04:14.464174+00:00",
+      "direction": "short",
+      "expires_at": null,
+      "published_at": "2026-05-03T22:04:14.495927+00:00",
+      "reasons": [
+        "age_gt_48h",
+        "missing_expires_at",
+        "missing_close_reason"
+      ],
+      "signal_id": "sig_b6535ceaf589",
+      "symbol": "MANAUSDT"
+    },
+    {
+      "active_key": "ICPUSDT|short",
+      "age_hours": 1458.52,
+      "classification": "LIKELY_ZOMBIE",
+      "close_reason": null,
+      "created_at": "2026-05-03T22:04:08.747409+00:00",
+      "direction": "short",
+      "expires_at": null,
+      "published_at": "2026-05-03T22:04:08.780604+00:00",
+      "reasons": [
+        "age_gt_48h",
+        "missing_expires_at",
+        "missing_close_reason"
+      ],
+      "signal_id": "sig_e84f188ec9e5",
+      "symbol": "ICPUSDT"
+    },
+    {
+      "active_key": "BTCUSDT|long",
+      "age_hours": 1440.93,
+      "classification": "LIKELY_ZOMBIE",
+      "close_reason": null,
+      "created_at": "2026-05-04T15:39:53.617391+00:00",
+      "direction": "long",
+      "expires_at": null,
+      "published_at": "2026-05-04T15:39:54.864055+00:00",
+      "reasons": [
+        "age_gt_48h",
+        "missing_expires_at",
+        "missing_close_reason"
+      ],
+      "signal_id": "sig_257347cad0f9",
+      "symbol": "BTCUSDT"
+    },
+    {
+      "active_key": "ETHUSDT|long",
+      "age_hours": 1440.93,
+      "classification": "LIKELY_ZOMBIE",
+      "close_reason": null,
+      "created_at": "2026-05-04T15:39:55.680649+00:00",
+      "direction": "long",
+      "expires_at": null,
+      "published_at": "2026-05-04T15:39:56.744863+00:00",
+      "reasons": [
+        "age_gt_48h",
+        "missing_expires_at",
+        "missing_close_reason"
+      ],
+      "signal_id": "sig_d9bf53436cfa",
+      "symbol": "ETHUSDT"
+    }
+  ],
+  "affected_symbol_direction": [
+    {
+      "active_count": 1,
+      "cleanup_would_release": true,
+      "duplicates_blocked": 110,
+      "likely_zombie_count": 1,
+      "pair": "BTCUSDT|long",
+      "score_gte_90_duplicates": 110,
+      "stale_count": 0
+    },
+    {
+      "active_count": 1,
+      "cleanup_would_release": true,
+      "duplicates_blocked": 1,
+      "likely_zombie_count": 1,
+      "pair": "TAOUSDT|long",
+      "score_gte_90_duplicates": 0,
+      "stale_count": 0
+    },
+    {
+      "active_count": 1,
+      "cleanup_would_release": true,
+      "duplicates_blocked": 0,
+      "likely_zombie_count": 1,
+      "pair": "BNBUSDT|short",
+      "score_gte_90_duplicates": 0,
+      "stale_count": 0
+    },
+    {
+      "active_count": 1,
+      "cleanup_would_release": true,
+      "duplicates_blocked": 0,
+      "likely_zombie_count": 1,
+      "pair": "DOGEUSDT|long",
+      "score_gte_90_duplicates": 0,
+      "stale_count": 0
+    },
+    {
+      "active_count": 2,
+      "cleanup_would_release": true,
+      "duplicates_blocked": 0,
+      "likely_zombie_count": 2,
+      "pair": "ETHUSDT|long",
+      "score_gte_90_duplicates": 0,
+      "stale_count": 0
+    },
+    {
+      "active_count": 1,
+      "cleanup_would_release": true,
+      "duplicates_blocked": 0,
+      "likely_zombie_count": 1,
+      "pair": "ICPUSDT|short",
+      "score_gte_90_duplicates": 0,
+      "stale_count": 0
+    },
+    {
+      "active_count": 1,
+      "cleanup_would_release": true,
+      "duplicates_blocked": 0,
+      "likely_zombie_count": 1,
+      "pair": "MANAUSDT|short",
+      "score_gte_90_duplicates": 0,
+      "stale_count": 0
+    },
+    {
+      "active_count": 2,
+      "cleanup_would_release": true,
+      "duplicates_blocked": 0,
+      "likely_zombie_count": 2,
+      "pair": "XRPUSDT|short",
+      "score_gte_90_duplicates": 0,
+      "stale_count": 0
+    }
+  ],
+  "conclusion": {
+    "options_considered": [
+      "activar cleanup real",
+      "mantener shadow",
+      "datos insuficientes"
+    ],
+    "reasons": [
+      "Hay se\u00f1ales activas clasificadas como LIKELY_ZOMBIE que est\u00e1n bloqueando candidatos nuevos.",
+      "El siguiente paso seguro ser\u00eda implementar cleanup real detr\u00e1s de flag, no permitir duplicados directamente."
+    ],
+    "recommended_action": "activar cleanup real"
+  },
+  "generated_at": "2026-07-03T16:35:36+00:00",
+  "metrics": {
+    "duplicate_signal_suppressed_events": 111,
+    "duplicates_blocked_by_likely_zombie": 111,
+    "estimated_released_candidates_if_cleanup": 111,
+    "high_score_duplicates_blocked_by_likely_zombie": 110,
+    "likely_zombie_count": 10,
+    "recent_count": 0,
+    "runtime_cleanup_analysis_events": 0,
+    "runtime_cleanup_candidate_events": 0,
+    "stale_count": 0,
+    "total_active_signals": 10,
+    "unknown_count": 0
+  },
+  "mode": "shadow_diagnostic_only",
+  "production_changed": false,
+  "runtime_events": {
+    "analysis": [],
+    "analysis_by_classification": {},
+    "candidate": [],
+    "candidate_by_classification": {}
+  },
+  "scope": "ACTIVE_SIGNAL_CLEANUP_SHADOW_V1",
+  "source_files": {
+    "scheduler_log": "logs/scheduler.log",
+    "signals_log": "data/bot_activity/signals_log.jsonl",
+    "trade_signals_dir": "data/trade_signals"
+  }
+}
