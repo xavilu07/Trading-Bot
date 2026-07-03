@@ -195,6 +195,18 @@ class Settings:
     signal_update_v1_dev_note_enabled: bool = field(
         default_factory=lambda: _bool_env("SIGNAL_UPDATE_V1_DEV_NOTE_ENABLED", "false")
     )
+    active_signal_cleanup_enabled: bool = field(
+        default_factory=lambda: _bool_env("ACTIVE_SIGNAL_CLEANUP_ENABLED", "false")
+    )
+    active_signal_cleanup_dry_run: bool = field(
+        default_factory=lambda: _bool_env("ACTIVE_SIGNAL_CLEANUP_DRY_RUN", "true")
+    )
+    active_signal_cleanup_zombie_hours: float = field(
+        default_factory=lambda: float(os.getenv("ACTIVE_SIGNAL_CLEANUP_ZOMBIE_HOURS", "48"))
+    )
+    active_signal_cleanup_dev_note_enabled: bool = field(
+        default_factory=lambda: _bool_env("ACTIVE_SIGNAL_CLEANUP_DEV_NOTE_ENABLED", "false")
+    )
     edge_knowledge_shadow_dev_note_enabled: bool = field(
         default_factory=lambda: _bool_env("EDGE_KNOWLEDGE_SHADOW_DEV_NOTE_ENABLED", "false")
     )

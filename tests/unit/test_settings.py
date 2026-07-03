@@ -45,6 +45,32 @@ def test_private_runtime_report_settings_defaults_and_env(monkeypatch) -> None:
     assert str(settings.private_runtime_report_state_file) == "data/runtime/custom_private_report.json"
 
 
+def test_active_signal_cleanup_settings_defaults_and_env(monkeypatch) -> None:
+    monkeypatch.delenv("ACTIVE_SIGNAL_CLEANUP_ENABLED", raising=False)
+    monkeypatch.delenv("ACTIVE_SIGNAL_CLEANUP_DRY_RUN", raising=False)
+    monkeypatch.delenv("ACTIVE_SIGNAL_CLEANUP_ZOMBIE_HOURS", raising=False)
+    monkeypatch.delenv("ACTIVE_SIGNAL_CLEANUP_DEV_NOTE_ENABLED", raising=False)
+
+    settings = Settings()
+
+    assert settings.active_signal_cleanup_enabled is False
+    assert settings.active_signal_cleanup_dry_run is True
+    assert settings.active_signal_cleanup_zombie_hours == 48
+    assert settings.active_signal_cleanup_dev_note_enabled is False
+
+    monkeypatch.setenv("ACTIVE_SIGNAL_CLEANUP_ENABLED", "true")
+    monkeypatch.setenv("ACTIVE_SIGNAL_CLEANUP_DRY_RUN", "false")
+    monkeypatch.setenv("ACTIVE_SIGNAL_CLEANUP_ZOMBIE_HOURS", "72")
+    monkeypatch.setenv("ACTIVE_SIGNAL_CLEANUP_DEV_NOTE_ENABLED", "true")
+
+    settings = Settings()
+
+    assert settings.active_signal_cleanup_enabled is True
+    assert settings.active_signal_cleanup_dry_run is False
+    assert settings.active_signal_cleanup_zombie_hours == 72
+    assert settings.active_signal_cleanup_dev_note_enabled is True
+
+
 def test_telegram_dev_chat_id_supports_multiple_ids(monkeypatch) -> None:
     monkeypatch.setenv("TELEGRAM_DEV_CHAT_ID", "7437028098,1979812925")
 
