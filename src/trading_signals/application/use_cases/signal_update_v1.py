@@ -46,6 +46,25 @@ class SignalUpdateV1Decision:
         return asdict(self)
 
 
+@dataclass(frozen=True)
+class SignalUpdateV1Skip:
+    detected: bool
+    skipped: bool
+    skip_reason: str
+    symbol: str
+    direction: str
+    current_dedupe_key: str | None
+    is_duplicate: bool
+    lifecycle_reason: str | None
+    shadow_only: bool
+    public_allowed: bool
+    dev_note_enabled: bool
+    reasons: list[str]
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
 def evaluate_signal_update_v1(
     *,
     signal_repo,
@@ -122,6 +141,48 @@ def evaluate_signal_update_v1(
     )
 
 
+def diagnose_signal_update_v1_skip(
+    *,
+    signal_repo,
+    signal,
+    is_duplicate: bool = False,
+    lifecycle=None,
+    dev_note_enabled: bool = False,
+) -> SignalUpdateV1Skip | None:
+    block_reasons = _active_signal_block_reasons(is_duplicate=is_duplicate, lifecycle=lifecycle)
+    if not block_reasons:
+        return None
+
+    lifecycle_reason = _str_or_none(getattr(lifecycle, "reason", None))
+    symbol = str(getattr(signal, "symbol", "") or "")
+    direction = str(getattr(signal, "decision", "") or "")
+    current_dedupe = _str_or_none(getattr(signal, "dedupe_key", None))
+    skip_reason = "unknown_signal_update_skip"
+    if not symbol or not direction:
+        skip_reason = "missing_symbol_or_direction"
+    else:
+        active = active_published_signals(signal_repo, symbol=symbol, direction=direction, limit=500)
+        if not active:
+            skip_reason = "active_signal_not_found"
+        else:
+            skip_reason = "classification_returned_none"
+
+    return SignalUpdateV1Skip(
+        detected=True,
+        skipped=True,
+        skip_reason=skip_reason,
+        symbol=symbol,
+        direction=direction,
+        current_dedupe_key=current_dedupe,
+        is_duplicate=bool(is_duplicate),
+        lifecycle_reason=lifecycle_reason,
+        shadow_only=True,
+        public_allowed=False,
+        dev_note_enabled=bool(dev_note_enabled),
+        reasons=block_reasons,
+    )
+
+
 def format_signal_update_v1_dev_message(update: SignalUpdateV1Decision) -> str:
     return (
         "🧪 SIGNAL UPDATE V1\n"
@@ -137,7 +198,7 @@ def format_signal_update_v1_dev_message(update: SignalUpdateV1Decision) -> str:
 def write_signal_update_v1_shadow_report(
     *,
     reports_path: Path,
-    update: SignalUpdateV1Decision | dict[str, Any] | None = None,
+    update: SignalUpdateV1Decision | SignalUpdateV1Skip | dict[str, Any] | None = None,
     generated_at: str | None = None,
 ) -> Path:
     reports_path.mkdir(parents=True, exist_ok=True)
@@ -145,7 +206,7 @@ def write_signal_update_v1_shadow_report(
     existing = _read_existing_shadow(path)
     events = list(existing.get("events", []))
     if update is not None:
-        payload = update.to_dict() if isinstance(update, SignalUpdateV1Decision) else dict(update)
+        payload = update.to_dict() if isinstance(update, (SignalUpdateV1Decision, SignalUpdateV1Skip)) else dict(update)
         payload["recorded_at"] = generated_at or _now_iso()
         events.append(payload)
     events = events[-100:]
@@ -205,9 +266,10 @@ def write_signal_update_v1_design_report(reports_path: Path) -> Path:
                 "- `signal_update_v1_detected`",
                 "- `signal_update_v1_classified`",
                 "- `signal_update_v1_shadow_decision`",
+                "- `signal_update_v1_skipped` when a duplicate/lifecycle block is observed but cannot be classified.",
                 "",
                 "## Safety",
-                "The update always returns `public_allowed=false` and never changes the existing publishability branch. DEV notification is optional behind `SIGNAL_UPDATE_V1_DEV_NOTE_ENABLED=false` by default.",
+                "The update always returns `public_allowed=false` and never changes the existing publishability branch. DEV notification is optional behind `SIGNAL_UPDATE_V1_DEV_NOTE_ENABLED=false` by default. That flag only controls DEV Telegram messages, not runtime logs.",
             ]
         )
         + "\n",
@@ -302,13 +364,24 @@ def _read_existing_shadow(path: Path) -> dict[str, Any]:
 
 def _summarize_events(events: list[dict[str, Any]]) -> dict[str, Any]:
     counts: dict[str, int] = {}
+    skipped = 0
+    skip_reasons: dict[str, int] = {}
     for event in events:
-        update_type = str(event.get("update_type") or "UNKNOWN")
+        if event.get("skipped"):
+            skipped += 1
+            reason = str(event.get("skip_reason") or "unknown_signal_update_skip")
+            skip_reasons[reason] = skip_reasons.get(reason, 0) + 1
+            update_type = "SKIPPED"
+        else:
+            update_type = str(event.get("update_type") or "UNKNOWN")
         counts[update_type] = counts.get(update_type, 0) + 1
     return {
         "total_events": len(events),
+        "skipped_events": skipped,
         "by_update_type": counts,
+        "by_skip_reason": skip_reasons,
         "latest_update_type": str(events[-1].get("update_type")) if events else None,
+        "latest_skip_reason": str(events[-1].get("skip_reason")) if events and events[-1].get("skipped") else None,
     }
 
 

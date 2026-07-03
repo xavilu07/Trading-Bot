@@ -18,18 +18,23 @@ TARGET_REASON = "duplicate_signal_suppressed"
 def main() -> int:
     data_path = Path(os.getenv("DATA_STORAGE_PATH", "./data"))
     reports_path = Path("reports")
+    logs_path = Path("logs")
     reports_path.mkdir(parents=True, exist_ok=True)
     design_path = write_signal_update_v1_design_report(reports_path)
     shadow_path = write_signal_update_v1_shadow_report(reports_path=reports_path)
     diagnostics = build_historical_diagnostics(data_path)
+    runtime = build_runtime_diagnostics(logs_path / "scheduler.log")
     shadow = _read_json(shadow_path)
     shadow["historical_duplicate_diagnostics"] = diagnostics
+    shadow["runtime_signal_update_diagnostics"] = runtime
     shadow_path.write_text(json.dumps(shadow, indent=2, sort_keys=True), encoding="utf-8")
 
     print("SIGNAL_UPDATE_V1")
     print(f"Design report: {design_path}")
     print(f"Shadow report: {shadow_path}")
     print(f"Historical duplicate_signal_suppressed: {diagnostics['total']}")
+    print(f"Runtime detected: {runtime['detected']}")
+    print(f"Runtime skipped: {runtime['skipped']}")
     return 0
 
 
@@ -50,6 +55,28 @@ def build_historical_diagnostics(data_path: Path) -> dict[str, Any]:
     }
 
 
+def build_runtime_diagnostics(log_file: Path) -> dict[str, Any]:
+    events = _read_scheduler_events(log_file)
+    detected = [event for event in events if event.get("event") == "signal_update_v1_detected"]
+    classified = [event for event in events if event.get("event") == "signal_update_v1_classified"]
+    skipped = [event for event in events if event.get("event") == "signal_update_v1_skipped"]
+    shadow_decisions = [event for event in events if event.get("event") == "signal_update_v1_shadow_decision"]
+    return {
+        "source": str(log_file),
+        "detected": len(detected),
+        "classified": len(classified),
+        "skipped": len(skipped),
+        "shadow_decision": len(shadow_decisions),
+        "by_update_type": dict(Counter(str(event.get("update_type") or "UNKNOWN") for event in classified).most_common()),
+        "by_skip_reason": dict(Counter(str(event.get("skip_reason") or "UNKNOWN") for event in skipped).most_common()),
+        "latest_detected": detected[-1] if detected else None,
+        "latest_classified": classified[-1] if classified else None,
+        "latest_skipped": skipped[-1] if skipped else None,
+        "latest_shadow_decision": shadow_decisions[-1] if shadow_decisions else None,
+        "note": "SIGNAL_UPDATE_V1_DEV_NOTE_ENABLED only controls DEV Telegram notes; runtime logs should exist even when it is false.",
+    }
+
+
 def _read_signal_log_rows(path: Path) -> list[dict[str, Any]]:
     if not path.exists():
         return []
@@ -64,6 +91,35 @@ def _read_signal_log_rows(path: Path) -> list[dict[str, Any]]:
         if isinstance(row, dict):
             rows.append(row)
     return rows
+
+
+def _read_scheduler_events(path: Path) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+    rows: list[dict[str, Any]] = []
+    for line in path.read_text(encoding="utf-8", errors="ignore").splitlines():
+        row = _parse_json_line(line)
+        if row:
+            rows.append(row)
+    return rows
+
+
+def _parse_json_line(line: str) -> dict[str, Any] | None:
+    raw = line.strip()
+    if not raw:
+        return None
+    candidates = [raw]
+    brace = raw.find("{")
+    if brace > 0:
+        candidates.append(raw[brace:])
+    for candidate in candidates:
+        try:
+            row = json.loads(candidate)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(row, dict):
+            return row
+    return None
 
 
 def _contains_reason(row: dict[str, Any], reason: str) -> bool:

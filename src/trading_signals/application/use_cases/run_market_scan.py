@@ -72,6 +72,7 @@ from trading_signals.application.use_cases.publish_signal import public_routing_
 from trading_signals.application.use_cases.setup_context import build_setup_context
 from trading_signals.application.use_cases.signal_lifecycle import classify_signal_lifecycle
 from trading_signals.application.use_cases.signal_update_v1 import (
+    diagnose_signal_update_v1_skip,
     evaluate_signal_update_v1,
     format_signal_update_v1_dev_message,
     write_signal_update_v1_shadow_report,
@@ -666,6 +667,43 @@ def _observe_signal_update_v1(
         dev_note_enabled=settings.signal_update_v1_dev_note_enabled,
     )
     if update is None:
+        skip = diagnose_signal_update_v1_skip(
+            signal_repo=signal_repo,
+            signal=signal,
+            is_duplicate=is_duplicate,
+            lifecycle=lifecycle,
+            dev_note_enabled=settings.signal_update_v1_dev_note_enabled,
+        )
+        if skip is not None:
+            payload = skip.to_dict()
+            log_json(
+                logger,
+                "signal_update_v1_skipped",
+                symbol=skip.symbol,
+                direction=skip.direction,
+                skip_reason=skip.skip_reason,
+                current_dedupe_key=skip.current_dedupe_key,
+                is_duplicate=skip.is_duplicate,
+                lifecycle_reason=skip.lifecycle_reason,
+                reasons=skip.reasons,
+                shadow_only=True,
+                public_allowed=False,
+                dev_note_enabled=settings.signal_update_v1_dev_note_enabled,
+            )
+            try:
+                write_signal_update_v1_shadow_report(
+                    reports_path=settings.data_storage_path.parent / "reports",
+                    update=skip,
+                )
+            except OSError as exc:
+                log_json(
+                    logger,
+                    "signal_update_v1_report_write_failed",
+                    symbol=skip.symbol,
+                    direction=skip.direction,
+                    error=str(exc),
+                )
+            return payload
         return None
 
     payload = update.to_dict()

@@ -8,6 +8,7 @@ from trading_signals.application.use_cases.signal_update_v1 import (
     UPDATE_NONE,
     UPDATE_REENTRY,
     UPDATE_STRENGTHENED,
+    diagnose_signal_update_v1_skip,
     evaluate_signal_update_v1,
     write_signal_update_v1_design_report,
     write_signal_update_v1_shadow_report,
@@ -217,6 +218,35 @@ def test_returns_none_when_no_active_duplicate_block() -> None:
     assert update is None
 
 
+def test_skip_diagnostic_when_duplicate_has_no_active_signal() -> None:
+    skip = diagnose_signal_update_v1_skip(
+        signal_repo=FakeSignalRepo([]),
+        signal=_signal(),
+        is_duplicate=True,
+        dev_note_enabled=False,
+    )
+
+    assert skip is not None
+    assert skip.skip_reason == "active_signal_not_found"
+    assert skip.public_allowed is False
+    assert skip.dev_note_enabled is False
+    assert "duplicate_signal_suppressed" in skip.reasons
+
+
+def test_shadow_report_counts_skipped_events(tmp_path: Path) -> None:
+    skip = diagnose_signal_update_v1_skip(
+        signal_repo=FakeSignalRepo([]),
+        signal=_signal(),
+        is_duplicate=True,
+    )
+
+    shadow = write_signal_update_v1_shadow_report(reports_path=tmp_path, update=skip)
+    text = shadow.read_text(encoding="utf-8")
+
+    assert "active_signal_not_found" in text
+    assert '"skipped_events": 1' in text
+
+
 def test_writes_design_and_shadow_reports(tmp_path: Path) -> None:
     design = write_signal_update_v1_design_report(tmp_path)
     update = evaluate_signal_update_v1(
@@ -232,4 +262,5 @@ def test_writes_design_and_shadow_reports(tmp_path: Path) -> None:
     assert design.exists()
     assert shadow.exists()
     assert "SIGNAL_UPDATE_V1" in design.read_text(encoding="utf-8")
+    assert "signal_update_v1_skipped" in design.read_text(encoding="utf-8")
     assert "STRENGTHENED_SIGNAL" in shadow.read_text(encoding="utf-8")

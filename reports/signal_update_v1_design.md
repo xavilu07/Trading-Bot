@@ -29,6 +29,7 @@ The active reference is the latest published signal with the same `symbol` and `
 - `signal_update_v1_detected`
 - `signal_update_v1_classified`
 - `signal_update_v1_shadow_decision`
+- `signal_update_v1_skipped` when a duplicate/lifecycle block is observed but cannot be classified.
 
 ## Safety
-The update always returns `public_allowed=false` and never changes the existing publishability branch. DEV notification is optional behind `SIGNAL_UPDATE_V1_DEV_NOTE_ENABLED=false` by default.
+The update always returns `public_allowed=false` and never changes the existing publishability branch. DEV notification is optional behind `SIGNAL_UPDATE_V1_DEV_NOTE_ENABLED=false` by default. That flag only controls DEV Telegram messages, not runtime logs.
