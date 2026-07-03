@@ -40,6 +40,7 @@ from trading_signals.application.use_cases.edge_knowledge_shadow_v1 import (
     evaluate_edge_knowledge_shadow_v1,
     format_edge_knowledge_shadow_dev_note,
 )
+from trading_signals.application.use_cases.edge_optimizer_shadow_v1 import evaluate_edge_optimizer_shadow_v1
 from trading_signals.application.use_cases.paper_trading import (
     build_paper_candidate_from_decision,
     build_paper_rejection_diagnostic,
@@ -840,6 +841,7 @@ def _signal_activity_entry(
     relaxed_public_shadow: dict[str, object] | None = None,
     signal_update_v1: dict[str, object] | None = None,
     edge_knowledge_shadow: dict[str, object] | None = None,
+    edge_optimizer_shadow: dict[str, object] | None = None,
 ) -> dict[str, object]:
     entry = analysis.entry_snapshot
     strategy_gate = module_diagnostics.get("strategy_gate", {})
@@ -896,6 +898,10 @@ def _signal_activity_entry(
         "edge_knowledge_bias": (edge_knowledge_shadow or {}).get("hypothetical_bias"),
         "edge_knowledge_confidence": (edge_knowledge_shadow or {}).get("ekb_confidence"),
         "edge_knowledge_matched_edges_count": (edge_knowledge_shadow or {}).get("matched_edges_count"),
+        "edge_optimizer_adjustment": (edge_optimizer_shadow or {}).get("optimizer_adjustment"),
+        "edge_optimizer_bias": (edge_optimizer_shadow or {}).get("hypothetical_bias"),
+        "edge_optimizer_confidence": (edge_optimizer_shadow or {}).get("optimizer_confidence"),
+        "edge_optimizer_matched_edges_count": (edge_optimizer_shadow or {}).get("matched_edges_count"),
         "raw_summary": {
             "signal_id": signal.id,
             "evaluation_id": evaluation.id,
@@ -920,6 +926,7 @@ def _signal_activity_entry(
             "relaxed_public_shadow_sent_dev": (relaxed_public_shadow or {}).get("relaxed_public_shadow_sent_dev"),
             "signal_update_v1": signal_update_v1,
             "edge_knowledge_shadow": edge_knowledge_shadow,
+            "edge_optimizer_shadow": edge_optimizer_shadow,
         },
     }
 
@@ -1384,6 +1391,57 @@ def run_market_scan(
                     format_edge_knowledge_shadow_dev_note(edge_knowledge_shadow),
                     dry_run=dry_run,
                 )
+            edge_optimizer_shadow = evaluate_edge_optimizer_shadow_v1(
+                symbol=symbol,
+                analysis=analysis,
+                evaluation=evaluation,
+                risk_plan=risk_plan,
+                setup_context=setup_context,
+                signal_decision=signal_decision,
+                setup_type=candidate_setup_type,
+                direction=candidate_direction,
+            )
+            log_json(
+                logger,
+                "edge_optimizer_shadow_analysis",
+                symbol=symbol,
+                direction=candidate_direction,
+                setup_type=candidate_setup_type,
+                current_decision=edge_optimizer_shadow.current_decision,
+                current_score=edge_optimizer_shadow.current_score,
+                optimizer_adjustment=edge_optimizer_shadow.optimizer_adjustment,
+                optimizer_confidence=edge_optimizer_shadow.optimizer_confidence,
+                context=edge_optimizer_shadow.context,
+                matched_edges_count=edge_optimizer_shadow.matched_edges_count,
+                matched_positive_edges=edge_optimizer_shadow.matched_positive_edges,
+                matched_negative_edges=edge_optimizer_shadow.matched_negative_edges,
+                top_edges=edge_optimizer_shadow.top_edges,
+                hypothetical_score=edge_optimizer_shadow.hypothetical_score,
+                hypothetical_bias=edge_optimizer_shadow.hypothetical_bias,
+                conflict_reduced=edge_optimizer_shadow.conflict_reduced,
+                caps_applied=edge_optimizer_shadow.caps_applied,
+            )
+            log_json(
+                logger,
+                "edge_optimizer_shadow_decision",
+                symbol=symbol,
+                direction=candidate_direction,
+                setup_type=candidate_setup_type,
+                current_decision=edge_optimizer_shadow.current_decision,
+                current_score=edge_optimizer_shadow.current_score,
+                optimizer_adjustment=edge_optimizer_shadow.optimizer_adjustment,
+                optimizer_confidence=edge_optimizer_shadow.optimizer_confidence,
+                matched_edges_count=edge_optimizer_shadow.matched_edges_count,
+                matched_positive_edges=edge_optimizer_shadow.matched_positive_edges,
+                matched_negative_edges=edge_optimizer_shadow.matched_negative_edges,
+                top_edges=edge_optimizer_shadow.top_edges,
+                hypothetical_score=edge_optimizer_shadow.hypothetical_score,
+                hypothetical_bias=edge_optimizer_shadow.hypothetical_bias,
+                rejection_reasons=list(evaluation.rejection_reasons),
+                final_decision=signal_decision.decision,
+                conflict_reduced=edge_optimizer_shadow.conflict_reduced,
+                caps_applied=edge_optimizer_shadow.caps_applied,
+            )
             current_public_policy = evaluate_public_safety_policy(
                 signal=signal,
                 evaluation_or_decision=signal_decision,
@@ -1438,6 +1496,7 @@ def run_market_scan(
                 performance_gate = evaluate_performance_gate(pattern_memory)
                 pattern_memory["performance_gate"] = performance_gate
                 pattern_memory["edge_knowledge_shadow"] = edge_knowledge_shadow.to_dict()
+                pattern_memory["edge_optimizer_shadow"] = edge_optimizer_shadow.to_dict()
                 log_performance_intelligence(
                     logger,
                     symbol=symbol,
@@ -1868,6 +1927,7 @@ def run_market_scan(
                     relaxed_public_shadow=relaxed_public_shadow,
                     signal_update_v1=signal_update_v1,
                     edge_knowledge_shadow=edge_knowledge_shadow.to_dict(),
+                    edge_optimizer_shadow=edge_optimizer_shadow.to_dict(),
                 )
             )
             multi_agent_shadow_decision = None
@@ -1950,6 +2010,7 @@ def run_market_scan(
                     "public_canary": public_canary,
                     "signal_update_v1": signal_update_v1,
                     "edge_knowledge_shadow": edge_knowledge_shadow.to_dict(),
+                    "edge_optimizer_shadow": edge_optimizer_shadow.to_dict(),
                 }
             )
             _log_symbol_diagnostics(

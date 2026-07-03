@@ -1,0 +1,20 @@
+{
+  "accepted_valid_optimizer_negative": [],
+  "avg_adjustment": 0.0,
+  "best_hypothetical_boosts": [],
+  "bias_counts": {},
+  "by_dimension": {
+    "direction": [],
+    "entry_context": [],
+    "market_regime": [],
+    "session": [],
+    "symbol": []
+  },
+  "duplicate_signal_suppressed_optimizer_positive": [],
+  "high_score_rejected_optimizer_positive": [],
+  "legacy_disagreements": [],
+  "top_negative_edges": [],
+  "top_positive_edges": [],
+  "total_evaluations": 0,
+  "worst_hypothetical_penalties": []
+}
