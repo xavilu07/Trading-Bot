@@ -111,6 +111,28 @@ def test_active_signal_cleanup_scheduler_dry_run_settings_defaults_and_env(monke
     assert settings.active_signal_cleanup_scheduler_dry_run_dev_note_enabled is True
 
 
+def test_edge_optimizer_active_settings_defaults_and_env(monkeypatch) -> None:
+    monkeypatch.delenv("EDGE_OPTIMIZER_ACTIVE_ENABLED", raising=False)
+    monkeypatch.delenv("EDGE_OPTIMIZER_ACTIVE_MAX_ADJUSTMENT", raising=False)
+    monkeypatch.delenv("EDGE_OPTIMIZER_ACTIVE_MIN_CONFIDENCE", raising=False)
+
+    settings = Settings()
+
+    assert settings.edge_optimizer_active_enabled is False
+    assert settings.edge_optimizer_active_max_adjustment == 2.0
+    assert settings.edge_optimizer_active_min_confidence == "MEDIUM"
+
+    monkeypatch.setenv("EDGE_OPTIMIZER_ACTIVE_ENABLED", "true")
+    monkeypatch.setenv("EDGE_OPTIMIZER_ACTIVE_MAX_ADJUSTMENT", "1.5")
+    monkeypatch.setenv("EDGE_OPTIMIZER_ACTIVE_MIN_CONFIDENCE", "HIGH")
+
+    settings = Settings()
+
+    assert settings.edge_optimizer_active_enabled is True
+    assert settings.edge_optimizer_active_max_adjustment == 1.5
+    assert settings.edge_optimizer_active_min_confidence == "HIGH"
+
+
 def test_telegram_dev_chat_id_supports_multiple_ids(monkeypatch) -> None:
     monkeypatch.setenv("TELEGRAM_DEV_CHAT_ID", "7437028098,1979812925")
 

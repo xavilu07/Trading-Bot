@@ -225,6 +225,15 @@ class Settings:
     edge_knowledge_shadow_dev_note_enabled: bool = field(
         default_factory=lambda: _bool_env("EDGE_KNOWLEDGE_SHADOW_DEV_NOTE_ENABLED", "false")
     )
+    edge_optimizer_active_enabled: bool = field(
+        default_factory=lambda: _bool_env("EDGE_OPTIMIZER_ACTIVE_ENABLED", "false")
+    )
+    edge_optimizer_active_max_adjustment: float = field(
+        default_factory=lambda: float(os.getenv("EDGE_OPTIMIZER_ACTIVE_MAX_ADJUSTMENT", "2.0"))
+    )
+    edge_optimizer_active_min_confidence: str = field(
+        default_factory=lambda: os.getenv("EDGE_OPTIMIZER_ACTIVE_MIN_CONFIDENCE", "MEDIUM")
+    )
     private_runtime_report_enabled: bool = field(
         default_factory=lambda: _bool_env("PRIVATE_RUNTIME_REPORT_ENABLED", "true")
     )
