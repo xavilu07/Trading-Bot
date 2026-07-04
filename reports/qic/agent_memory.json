@@ -1,0 +1,45 @@
+{
+  "agents": {
+    "research_director": {
+      "historical_precision": 0.0,
+      "hypotheses": [
+        "Detected research patterns; not recommending implementation yet.",
+        "Research response: evidence remains observational; CIO should require manual approval."
+      ],
+      "proposals_accepted": 0,
+      "proposals_pending": 2,
+      "proposals_rejected": 0,
+      "total_interventions": 2
+    },
+    "risk_director": {
+      "historical_precision": 0.0,
+      "hypotheses": [
+        "Attempted to reject weak or overfit rule candidates."
+      ],
+      "proposals_accepted": 0,
+      "proposals_pending": 1,
+      "proposals_rejected": 0,
+      "total_interventions": 1
+    },
+    "simulation_director": {
+      "historical_precision": 0.0,
+      "hypotheses": [
+        "Validated available candidates with Strategy Simulator outputs only."
+      ],
+      "proposals_accepted": 0,
+      "proposals_pending": 1,
+      "proposals_rejected": 0,
+      "total_interventions": 1
+    },
+    "strategy_director": {
+      "historical_precision": 0.0,
+      "hypotheses": [
+        "Converted research patterns into possible strategy rules for debate."
+      ],
+      "proposals_accepted": 0,
+      "proposals_pending": 1,
+      "proposals_rejected": 0,
+      "total_interventions": 1
+    }
+  }
+}

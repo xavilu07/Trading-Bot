@@ -9,7 +9,7 @@ from trading_signals.agents.risk_agent import vote_committee_risk
 from trading_signals.agents.telegram_approval import build_approval_payload, handle_approval_callback
 
 
-def test_committee_generates_proposal_from_strategy_simulator(tmp_path: Path) -> None:
+def test_committee_generates_single_cio_proposal_from_strategy_simulator(tmp_path: Path) -> None:
     _write_reports(tmp_path)
 
     result = run_agent_committee(
@@ -21,11 +21,13 @@ def test_committee_generates_proposal_from_strategy_simulator(tmp_path: Path) ->
         telegram_enabled=False,
     )
 
-    assert result["proposal_count"] >= 1
-    assert any("Simulator proposal" in proposal["title"] for proposal in result["proposals"])
+    assert result["proposal_count"] <= 1
+    assert result["proposal_count"] == 1
+    assert result["single_proposal"]["title"].startswith("CIO proposal")
+    assert "exclude htf_alignment=against" in result["single_proposal"]["title"]
     assert (tmp_path / "data" / "agent_proposals" / "proposals.jsonl").exists()
-    assert (tmp_path / "reports" / "agent_committee" / "latest_proposals.json").exists()
-    json.loads((tmp_path / "reports" / "agent_committee" / "latest_proposals.json").read_text())
+    assert (tmp_path / "reports" / "agent_committee" / "debate.json").exists()
+    json.loads((tmp_path / "reports" / "agent_committee" / "debate.json").read_text())
 
 
 def test_risk_agent_penalizes_extreme_trade_reduction() -> None:

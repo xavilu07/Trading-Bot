@@ -27,11 +27,12 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Run Agent Committee V1 offline.")
     parser.add_argument("--reports-root", type=Path, default=Path("reports"))
     parser.add_argument("--data-path", type=Path, default=None)
-    parser.add_argument("--output-path", type=Path, default=Path("reports") / "agent_committee")
+    parser.add_argument("--output-path", type=Path, default=Path("reports") / "qic")
     parser.add_argument("--env-file", type=Path, default=Path(".env"))
     parser.add_argument("--min-confidence", choices=["LOW", "MEDIUM", "HIGH"], default="")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--force", action="store_true", help="Run even if AGENT_COMMITTEE_ENABLED=false.")
+    parser.add_argument("--legacy-v1", action="store_true", help="Use the old independent-proposals committee flow.")
     args = parser.parse_args()
 
     load_dotenv(args.env_file)
@@ -47,6 +48,7 @@ def main() -> int:
         telegram_chat_id=settings.agent_telegram_chat_id or settings.telegram_dev_chat_id,
         dry_run=args.dry_run,
         force=args.force,
+        use_qic_v2=not args.legacy_v1,
     )
     print(json.dumps(
         {

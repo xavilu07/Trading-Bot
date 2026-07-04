@@ -61,6 +61,24 @@ def send_proposals_for_approval(
     return results
 
 
+def send_cio_proposal_for_approval(
+    proposal: dict[str, Any] | None,
+    *,
+    bot_token: str,
+    chat_id: str,
+    dry_run: bool = False,
+) -> list[dict[str, Any]]:
+    if proposal is None:
+        return [{"status": "skipped", "reason": "no_cio_proposal"}]
+    return send_proposals_for_approval(
+        [proposal],
+        bot_token=bot_token,
+        chat_id=chat_id,
+        dry_run=dry_run,
+        limit=1,
+    )
+
+
 def handle_approval_callback(
     callback_data: str,
     *,
