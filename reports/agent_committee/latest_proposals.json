@@ -1,0 +1,3012 @@
+{
+  "enabled": true,
+  "proposal_count": 64,
+  "proposal_store": "data/agent_proposals/proposals.jsonl",
+  "proposals": [
+    {
+      "agent_votes": [
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves PF and TotalR.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.5312,
+      "confidence": "LOW",
+      "context": {},
+      "created_at": "2026-07-04T16:03:37.189137+00:00",
+      "evidence": 25,
+      "expected_pf": 1.7473,
+      "expected_total_r": 6.8245,
+      "hypothesis": "Prioritizing this context may improve selectivity. PF=1.7473 TotalR=6.8245",
+      "id": "prop_3ee4e30e84ec",
+      "risk_level": "LOW",
+      "source_agent": "strategy_agent",
+      "status": "pending",
+      "title": "Prioritize positive edge: direction=long",
+      "trades_lost": 0
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves PF and TotalR.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.5312,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude direction=short"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189159+00:00",
+      "evidence": 25,
+      "expected_pf": 1.7473,
+      "expected_total_r": 6.8245,
+      "hypothesis": "Simulated conditions: exclude direction=short",
+      "id": "prop_a86829589069",
+      "risk_level": "LOW",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Simulate filter before production",
+      "trades_lost": 24
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves PF and TotalR.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.5312,
+      "confidence": "LOW",
+      "context": {},
+      "created_at": "2026-07-04T16:03:37.189148+00:00",
+      "evidence": 26,
+      "expected_pf": 1.2905,
+      "expected_total_r": 2.7625,
+      "hypothesis": "Prioritizing this context may improve selectivity. PF=1.2905 TotalR=2.7625",
+      "id": "prop_19133bf54f0f",
+      "risk_level": "LOW",
+      "source_agent": "strategy_agent",
+      "status": "pending",
+      "title": "Prioritize positive edge: rr_bucket=1.5-1.99",
+      "trades_lost": 0
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves PF and TotalR.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.5312,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude rr>=2"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189171+00:00",
+      "evidence": 26,
+      "expected_pf": 1.2905,
+      "expected_total_r": 2.7625,
+      "hypothesis": "Simulated conditions: exclude rr>=2",
+      "id": "prop_d9d03f846cfd",
+      "risk_level": "LOW",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Simulate filter before production",
+      "trades_lost": 23
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves PF and TotalR.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.5312,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude htf_alignment=aligned"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189175+00:00",
+      "evidence": 25,
+      "expected_pf": 1.2337,
+      "expected_total_r": 2.3441,
+      "hypothesis": "Simulated conditions: exclude htf_alignment=aligned",
+      "id": "prop_7e504756f1a4",
+      "risk_level": "LOW",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Simulate filter before production",
+      "trades_lost": 24
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves PF and TotalR.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.5312,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude setup=SECONDARY_SIGNAL"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189180+00:00",
+      "evidence": 24,
+      "expected_pf": 1.1336,
+      "expected_total_r": 1.8698,
+      "hypothesis": "Simulated conditions: exclude setup=SECONDARY_SIGNAL",
+      "id": "prop_387d79b944bb",
+      "risk_level": "LOW",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Simulate filter before production",
+      "trades_lost": 25
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves PF and TotalR.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.5312,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude setup_type=SECONDARY_SIGNAL"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189183+00:00",
+      "evidence": 24,
+      "expected_pf": 1.1336,
+      "expected_total_r": 1.8698,
+      "hypothesis": "Simulated conditions: exclude setup_type=SECONDARY_SIGNAL",
+      "id": "prop_15c06c5c16fb",
+      "risk_level": "LOW",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Simulate filter before production",
+      "trades_lost": 25
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves PF and TotalR.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.5312,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude liquidity_sweep=none"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189187+00:00",
+      "evidence": 24,
+      "expected_pf": 1.1336,
+      "expected_total_r": 1.8698,
+      "hypothesis": "Simulated conditions: exclude liquidity_sweep=none",
+      "id": "prop_1d2cca2ee20f",
+      "risk_level": "LOW",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Simulate filter before production",
+      "trades_lost": 25
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves PF and TotalR.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.5312,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude setup=SECONDARY_SIGNAL",
+          "exclude setup_type=SECONDARY_SIGNAL"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189192+00:00",
+      "evidence": 24,
+      "expected_pf": 1.1336,
+      "expected_total_r": 1.8698,
+      "hypothesis": "Simulated conditions: exclude setup=SECONDARY_SIGNAL, exclude setup_type=SECONDARY_SIGNAL",
+      "id": "prop_731d93dc7df0",
+      "risk_level": "LOW",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Simulate filter before production",
+      "trades_lost": 25
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves PF and TotalR.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.5312,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude setup=SECONDARY_SIGNAL",
+          "exclude liquidity_sweep=none"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189196+00:00",
+      "evidence": 24,
+      "expected_pf": 1.1336,
+      "expected_total_r": 1.8698,
+      "hypothesis": "Simulated conditions: exclude setup=SECONDARY_SIGNAL, exclude liquidity_sweep=none",
+      "id": "prop_26db05776be4",
+      "risk_level": "LOW",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Simulate filter before production",
+      "trades_lost": 25
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves PF and TotalR.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.5312,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude setup_type=SECONDARY_SIGNAL",
+          "exclude liquidity_sweep=none"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189209+00:00",
+      "evidence": 24,
+      "expected_pf": 1.1336,
+      "expected_total_r": 1.8698,
+      "hypothesis": "Simulated conditions: exclude setup_type=SECONDARY_SIGNAL, exclude liquidity_sweep=none",
+      "id": "prop_b2127455504b",
+      "risk_level": "LOW",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Simulate filter before production",
+      "trades_lost": 25
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves PF and TotalR.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.5312,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude setup=SECONDARY_SIGNAL",
+          "exclude setup_type=SECONDARY_SIGNAL",
+          "exclude liquidity_sweep=none"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189214+00:00",
+      "evidence": 24,
+      "expected_pf": 1.1336,
+      "expected_total_r": 1.8698,
+      "hypothesis": "Simulated conditions: exclude setup=SECONDARY_SIGNAL, exclude setup_type=SECONDARY_SIGNAL, exclude liquidity_sweep=none",
+      "id": "prop_a173f6c470ec",
+      "risk_level": "LOW",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Simulate filter before production",
+      "trades_lost": 25
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves PF and TotalR.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.5312,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude setup=MAIN_SIGNAL",
+          "exclude setup_type=MAIN_SIGNAL"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189263+00:00",
+      "evidence": 24,
+      "expected_pf": 1.1336,
+      "expected_total_r": 1.8698,
+      "hypothesis": "Simulated conditions: exclude setup=MAIN_SIGNAL, exclude setup_type=MAIN_SIGNAL",
+      "id": "prop_6967477f9980",
+      "risk_level": "LOW",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Prioritize configuration in shadow",
+      "trades_lost": 25
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves PF and TotalR.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.5312,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude market_regime=RANGING"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189218+00:00",
+      "evidence": 29,
+      "expected_pf": 1.1121,
+      "expected_total_r": 1.4873,
+      "hypothesis": "Simulated conditions: exclude market_regime=RANGING",
+      "id": "prop_beef85d985f3",
+      "risk_level": "LOW",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Simulate filter before production",
+      "trades_lost": 20
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves PF and TotalR.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.5312,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude entry_zone=BREAKOUT",
+          "exclude entry_context=BREAKOUT"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189268+00:00",
+      "evidence": 29,
+      "expected_pf": 1.1189,
+      "expected_total_r": 1.3967,
+      "hypothesis": "Simulated conditions: exclude entry_zone=BREAKOUT, exclude entry_context=BREAKOUT",
+      "id": "prop_3af67607d4fd",
+      "risk_level": "LOW",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Prioritize configuration in shadow",
+      "trades_lost": 20
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.4375,
+      "confidence": "LOW",
+      "context": {
+        "exit_reason": "sl_hit"
+      },
+      "created_at": "2026-07-04T16:03:37.189092+00:00",
+      "evidence": 20,
+      "expected_pf": null,
+      "expected_total_r": 20.0,
+      "hypothesis": "20.0",
+      "id": "prop_c8bc6ea9a3f4",
+      "risk_level": "LOW",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Historical intelligence: Avoid context",
+      "trades_lost": 0
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.4375,
+      "confidence": "LOW",
+      "context": {
+        "status": "sl_hit"
+      },
+      "created_at": "2026-07-04T16:03:37.189096+00:00",
+      "evidence": 20,
+      "expected_pf": null,
+      "expected_total_r": 20.0,
+      "hypothesis": "20.0",
+      "id": "prop_5267eede52ae",
+      "risk_level": "LOW",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Historical intelligence: Avoid context",
+      "trades_lost": 0
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.4375,
+      "confidence": "LOW",
+      "context": {},
+      "created_at": "2026-07-04T16:03:37.189115+00:00",
+      "evidence": 20,
+      "expected_pf": 0.0,
+      "expected_total_r": 20.0,
+      "hypothesis": "Blocking or shadow-testing this context may reduce losses. PF=0.0 TotalR=-20.0",
+      "id": "prop_73475518f306",
+      "risk_level": "LOW",
+      "source_agent": "strategy_agent",
+      "status": "pending",
+      "title": "Avoid negative edge: exit_reason=sl_hit",
+      "trades_lost": 20
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.4375,
+      "confidence": "LOW",
+      "context": {},
+      "created_at": "2026-07-04T16:03:37.189120+00:00",
+      "evidence": 20,
+      "expected_pf": 0.0,
+      "expected_total_r": 20.0,
+      "hypothesis": "Blocking or shadow-testing this context may reduce losses. PF=0.0 TotalR=-20.0",
+      "id": "prop_abe28e7c45ea",
+      "risk_level": "LOW",
+      "source_agent": "strategy_agent",
+      "status": "pending",
+      "title": "Avoid negative edge: status=sl_hit",
+      "trades_lost": 20
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.4375,
+      "confidence": "LOW",
+      "context": {
+        "direction": "short"
+      },
+      "created_at": "2026-07-04T16:03:37.189003+00:00",
+      "evidence": 25,
+      "expected_pf": null,
+      "expected_total_r": 8.9028,
+      "hypothesis": "direction=short has PF 0.391 and TotalR -8.9028",
+      "id": "prop_52b92b4adc15",
+      "risk_level": "LOW",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Research candidate: Eliminar contexto",
+      "trades_lost": 24
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.4375,
+      "confidence": "LOW",
+      "context": {
+        "direction": "short"
+      },
+      "created_at": "2026-07-04T16:03:37.189102+00:00",
+      "evidence": 24,
+      "expected_pf": null,
+      "expected_total_r": 8.9028,
+      "hypothesis": "8.9028",
+      "id": "prop_619d9d4fe571",
+      "risk_level": "LOW",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Historical intelligence: Avoid context",
+      "trades_lost": 0
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.4375,
+      "confidence": "LOW",
+      "context": {},
+      "created_at": "2026-07-04T16:03:37.189124+00:00",
+      "evidence": 24,
+      "expected_pf": 0.391,
+      "expected_total_r": 8.9028,
+      "hypothesis": "Blocking or shadow-testing this context may reduce losses. PF=0.391 TotalR=-8.9028",
+      "id": "prop_b9c795e8e6e3",
+      "risk_level": "LOW",
+      "source_agent": "strategy_agent",
+      "status": "pending",
+      "title": "Avoid negative edge: direction=short",
+      "trades_lost": 24
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.4375,
+      "confidence": "LOW",
+      "context": {
+        "direction": "long"
+      },
+      "created_at": "2026-07-04T16:03:37.189009+00:00",
+      "evidence": 25,
+      "expected_pf": null,
+      "expected_total_r": 6.8245,
+      "hypothesis": "direction=long has PF 1.7473 and TotalR 6.8245",
+      "id": "prop_329494ff797c",
+      "risk_level": "LOW",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Research candidate: Priorizar contexto",
+      "trades_lost": 25
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.4375,
+      "confidence": "LOW",
+      "context": {
+        "direction": "long"
+      },
+      "created_at": "2026-07-04T16:03:37.189084+00:00",
+      "evidence": 25,
+      "expected_pf": null,
+      "expected_total_r": 6.8245,
+      "hypothesis": "6.8245",
+      "id": "prop_d8409afb610e",
+      "risk_level": "LOW",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Historical intelligence: Prioritize context",
+      "trades_lost": 0
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.4375,
+      "confidence": "LOW",
+      "context": {
+        "avoidance_warnings": "[\"against_htf\"]"
+      },
+      "created_at": "2026-07-04T16:03:37.189027+00:00",
+      "evidence": 20,
+      "expected_pf": null,
+      "expected_total_r": 4.9337,
+      "hypothesis": "avoidance_warnings=[\"against_htf\"] has PF 1.7017 and TotalR 4.9337",
+      "id": "prop_c04feeade02c",
+      "risk_level": "LOW",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Research candidate: Priorizar contexto",
+      "trades_lost": 20
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.4375,
+      "confidence": "LOW",
+      "context": {
+        "warnings": "[\"against_htf\"]"
+      },
+      "created_at": "2026-07-04T16:03:37.189032+00:00",
+      "evidence": 20,
+      "expected_pf": null,
+      "expected_total_r": 4.9337,
+      "hypothesis": "warnings=[\"against_htf\"] has PF 1.7017 and TotalR 4.9337",
+      "id": "prop_f6adc7412de2",
+      "risk_level": "LOW",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Research candidate: Priorizar contexto",
+      "trades_lost": 20
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.4375,
+      "confidence": "LOW",
+      "context": {
+        "htf_alignment": "aligned"
+      },
+      "created_at": "2026-07-04T16:03:37.189036+00:00",
+      "evidence": 25,
+      "expected_pf": null,
+      "expected_total_r": 4.4224,
+      "hypothesis": "htf_alignment=aligned has PF 0.6777 and TotalR -4.4224",
+      "id": "prop_a07cbc6bc724",
+      "risk_level": "LOW",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Research candidate: Eliminar contexto",
+      "trades_lost": 24
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.4375,
+      "confidence": "LOW",
+      "context": {
+        "rr_bucket": "2-2.99"
+      },
+      "created_at": "2026-07-04T16:03:37.189051+00:00",
+      "evidence": 26,
+      "expected_pf": null,
+      "expected_total_r": 4.096,
+      "hypothesis": "rr_bucket=2-2.99 has PF 0.5031 and TotalR -4.096",
+      "id": "prop_f4b70febdb33",
+      "risk_level": "LOW",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Research candidate: Cambiar RR",
+      "trades_lost": 14
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.4375,
+      "confidence": "LOW",
+      "context": {
+        "setup": "SECONDARY_SIGNAL"
+      },
+      "created_at": "2026-07-04T16:03:37.189079+00:00",
+      "evidence": 24,
+      "expected_pf": null,
+      "expected_total_r": 3.9481,
+      "hypothesis": "setup=SECONDARY_SIGNAL has PF 0.5951 and TotalR -3.9481",
+      "id": "prop_b310b4233b86",
+      "risk_level": "LOW",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Research candidate: Eliminar contexto",
+      "trades_lost": 25
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.4375,
+      "confidence": "LOW",
+      "context": {
+        "setup_type": "SECONDARY_SIGNAL"
+      },
+      "created_at": "2026-07-04T16:03:37.189106+00:00",
+      "evidence": 25,
+      "expected_pf": null,
+      "expected_total_r": 3.9481,
+      "hypothesis": "3.9481",
+      "id": "prop_f70a65c69a1c",
+      "risk_level": "LOW",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Historical intelligence: Avoid context",
+      "trades_lost": 0
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.4375,
+      "confidence": "LOW",
+      "context": {},
+      "created_at": "2026-07-04T16:03:37.189128+00:00",
+      "evidence": 25,
+      "expected_pf": 0.5951,
+      "expected_total_r": 3.9481,
+      "hypothesis": "Blocking or shadow-testing this context may reduce losses. PF=0.5951 TotalR=-3.9481",
+      "id": "prop_61321abf707c",
+      "risk_level": "LOW",
+      "source_agent": "strategy_agent",
+      "status": "pending",
+      "title": "Avoid negative edge: setup_type=SECONDARY_SIGNAL",
+      "trades_lost": 25
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.4375,
+      "confidence": "LOW",
+      "context": {
+        "market_regime": "RANGING"
+      },
+      "created_at": "2026-07-04T16:03:37.189110+00:00",
+      "evidence": 20,
+      "expected_pf": null,
+      "expected_total_r": 3.5656,
+      "hypothesis": "3.5656",
+      "id": "prop_056a1228aa06",
+      "risk_level": "LOW",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Historical intelligence: Avoid context",
+      "trades_lost": 0
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.4375,
+      "confidence": "LOW",
+      "context": {},
+      "created_at": "2026-07-04T16:03:37.189133+00:00",
+      "evidence": 20,
+      "expected_pf": 0.6597,
+      "expected_total_r": 3.5656,
+      "hypothesis": "Blocking or shadow-testing this context may reduce losses. PF=0.6597 TotalR=-3.5656",
+      "id": "prop_7a48edf57791",
+      "risk_level": "LOW",
+      "source_agent": "strategy_agent",
+      "status": "pending",
+      "title": "Avoid negative edge: market_regime=RANGING",
+      "trades_lost": 20
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.4375,
+      "confidence": "LOW",
+      "context": {
+        "rr_bucket": "1.5-1.99"
+      },
+      "created_at": "2026-07-04T16:03:37.189088+00:00",
+      "evidence": 26,
+      "expected_pf": null,
+      "expected_total_r": 2.7625,
+      "hypothesis": "2.7625",
+      "id": "prop_19a0415927eb",
+      "risk_level": "LOW",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Historical intelligence: Prioritize context",
+      "trades_lost": 0
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.4375,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude bos=bearish_bos"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189222+00:00",
+      "evidence": 26,
+      "expected_pf": 1.0429,
+      "expected_total_r": 0.5203,
+      "hypothesis": "Simulated conditions: exclude bos=bearish_bos",
+      "id": "prop_20c8920414cb",
+      "risk_level": "LOW",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Simulate filter before production",
+      "trades_lost": 23
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.4375,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude break_of_structure=bearish_bos"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189226+00:00",
+      "evidence": 26,
+      "expected_pf": 1.0429,
+      "expected_total_r": 0.5203,
+      "hypothesis": "Simulated conditions: exclude break_of_structure=bearish_bos",
+      "id": "prop_511fc2403101",
+      "risk_level": "LOW",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Simulate filter before production",
+      "trades_lost": 23
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.4375,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude bos=bearish_bos",
+          "exclude break_of_structure=bearish_bos"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189230+00:00",
+      "evidence": 26,
+      "expected_pf": 1.0429,
+      "expected_total_r": 0.5203,
+      "hypothesis": "Simulated conditions: exclude bos=bearish_bos, exclude break_of_structure=bearish_bos",
+      "id": "prop_4e4a832774f3",
+      "risk_level": "LOW",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Simulate filter before production",
+      "trades_lost": 23
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "MEDIUM",
+          "reason": "Risk profile acceptable for manual review.",
+          "risks": [],
+          "vote": "SUPPORT"
+        }
+      ],
+      "committee_score": 0.4375,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude trend_1h=bullish"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189234+00:00",
+      "evidence": 24,
+      "expected_pf": 1.0047,
+      "expected_total_r": 0.0497,
+      "hypothesis": "Simulated conditions: exclude trend_1h=bullish",
+      "id": "prop_78cb67ad6555",
+      "risk_level": "LOW",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Simulate filter before production",
+      "trades_lost": 25
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves PF and TotalR.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "HIGH",
+          "reason": "large_trade_reduction",
+          "risks": [
+            "large_trade_reduction"
+          ],
+          "vote": "CAUTION"
+        }
+      ],
+      "committee_score": 0.375,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude liquidity_distance_bucket=2-4atr"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189153+00:00",
+      "evidence": 20,
+      "expected_pf": 2.6415,
+      "expected_total_r": 7.8114,
+      "hypothesis": "Simulated conditions: exclude liquidity_distance_bucket=2-4atr",
+      "id": "prop_1ad804a85cc5",
+      "risk_level": "MEDIUM",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Simulate filter before production",
+      "trades_lost": 29
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves PF and TotalR.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "HIGH",
+          "reason": "large_trade_reduction",
+          "risks": [
+            "large_trade_reduction"
+          ],
+          "vote": "CAUTION"
+        }
+      ],
+      "committee_score": 0.375,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude volume_ratio>=1.2",
+          "exclude entry_zone=BREAKOUT"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189251+00:00",
+      "evidence": 23,
+      "expected_pf": 1.5234,
+      "expected_total_r": 4.2444,
+      "hypothesis": "Simulated conditions: exclude volume_ratio>=1.2, exclude entry_zone=BREAKOUT",
+      "id": "prop_baf39f069c25",
+      "risk_level": "MEDIUM",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Prioritize configuration in shadow",
+      "trades_lost": 26
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves PF and TotalR.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "HIGH",
+          "reason": "large_trade_reduction",
+          "risks": [
+            "large_trade_reduction"
+          ],
+          "vote": "CAUTION"
+        }
+      ],
+      "committee_score": 0.375,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude volume_ratio>=1.2",
+          "exclude entry_context=BREAKOUT"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189255+00:00",
+      "evidence": 23,
+      "expected_pf": 1.5234,
+      "expected_total_r": 4.2444,
+      "hypothesis": "Simulated conditions: exclude volume_ratio>=1.2, exclude entry_context=BREAKOUT",
+      "id": "prop_f549cf433d1b",
+      "risk_level": "MEDIUM",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Prioritize configuration in shadow",
+      "trades_lost": 26
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves PF and TotalR.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "HIGH",
+          "reason": "large_trade_reduction",
+          "risks": [
+            "large_trade_reduction"
+          ],
+          "vote": "CAUTION"
+        }
+      ],
+      "committee_score": 0.375,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude volume_ratio>=1.2",
+          "exclude entry_zone=BREAKOUT",
+          "exclude entry_context=BREAKOUT"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189259+00:00",
+      "evidence": 23,
+      "expected_pf": 1.5234,
+      "expected_total_r": 4.2444,
+      "hypothesis": "Simulated conditions: exclude volume_ratio>=1.2, exclude entry_zone=BREAKOUT, exclude entry_context=BREAKOUT",
+      "id": "prop_2cdb879c6e2e",
+      "risk_level": "MEDIUM",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Prioritize configuration in shadow",
+      "trades_lost": 26
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves PF and TotalR.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "HIGH",
+          "reason": "large_trade_reduction",
+          "risks": [
+            "large_trade_reduction"
+          ],
+          "vote": "CAUTION"
+        }
+      ],
+      "committee_score": 0.375,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude ltf_alignment=against"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189164+00:00",
+      "evidence": 21,
+      "expected_pf": 1.3008,
+      "expected_total_r": 2.3224,
+      "hypothesis": "Simulated conditions: exclude ltf_alignment=against",
+      "id": "prop_9e247d29a6b3",
+      "risk_level": "MEDIUM",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Simulate filter before production",
+      "trades_lost": 28
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "HIGH",
+          "reason": "low_evidence, large_trade_reduction",
+          "risks": [
+            "low_evidence",
+            "large_trade_reduction"
+          ],
+          "vote": "CAUTION"
+        }
+      ],
+      "committee_score": 0.2812,
+      "confidence": "LOW",
+      "context": {
+        "outcome": "loss"
+      },
+      "created_at": "2026-07-04T16:03:37.188902+00:00",
+      "evidence": 18,
+      "expected_pf": null,
+      "expected_total_r": 23.7508,
+      "hypothesis": "outcome=loss has PF 0.0 and TotalR -23.7508",
+      "id": "prop_002327dabb92",
+      "risk_level": "MEDIUM",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Research candidate: Eliminar contexto",
+      "trades_lost": 28
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "HIGH",
+          "reason": "low_evidence",
+          "risks": [
+            "low_evidence"
+          ],
+          "vote": "CAUTION"
+        }
+      ],
+      "committee_score": 0.2812,
+      "confidence": "LOW",
+      "context": {
+        "outcome": "win"
+      },
+      "created_at": "2026-07-04T16:03:37.188979+00:00",
+      "evidence": 18,
+      "expected_pf": null,
+      "expected_total_r": 21.6725,
+      "hypothesis": "outcome=win has PF 21.6725 and TotalR 21.6725",
+      "id": "prop_a29f8d306b87",
+      "risk_level": "MEDIUM",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Research candidate: Priorizar contexto",
+      "trades_lost": 18
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "HIGH",
+          "reason": "low_evidence",
+          "risks": [
+            "low_evidence"
+          ],
+          "vote": "CAUTION"
+        }
+      ],
+      "committee_score": 0.2812,
+      "confidence": "LOW",
+      "context": {
+        "status": "sl_hit"
+      },
+      "created_at": "2026-07-04T16:03:37.188991+00:00",
+      "evidence": 13,
+      "expected_pf": null,
+      "expected_total_r": 20.0,
+      "hypothesis": "status=sl_hit has PF 0.0 and TotalR -20.0",
+      "id": "prop_4f0eefd01c2a",
+      "risk_level": "MEDIUM",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Research candidate: Eliminar contexto",
+      "trades_lost": 20
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "HIGH",
+          "reason": "low_evidence, large_trade_reduction",
+          "risks": [
+            "low_evidence",
+            "large_trade_reduction"
+          ],
+          "vote": "CAUTION"
+        }
+      ],
+      "committee_score": 0.2812,
+      "confidence": "LOW",
+      "context": {
+        "liquidity_distance_bucket": "2-4atr"
+      },
+      "created_at": "2026-07-04T16:03:37.188998+00:00",
+      "evidence": 12,
+      "expected_pf": null,
+      "expected_total_r": 9.8897,
+      "hypothesis": "liquidity_distance_bucket=2-4atr has PF 0.4793 and TotalR -9.8897",
+      "id": "prop_debba5eb1d60",
+      "risk_level": "MEDIUM",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Research candidate: Eliminar contexto",
+      "trades_lost": 29
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "HIGH",
+          "reason": "low_evidence",
+          "risks": [
+            "low_evidence"
+          ],
+          "vote": "CAUTION"
+        }
+      ],
+      "committee_score": 0.2812,
+      "confidence": "LOW",
+      "context": {
+        "session": "NEW_YORK"
+      },
+      "created_at": "2026-07-04T16:03:37.189015+00:00",
+      "evidence": 18,
+      "expected_pf": null,
+      "expected_total_r": 6.3579,
+      "hypothesis": "session=NEW_YORK has PF 0.3543 and TotalR -6.3579",
+      "id": "prop_cc160cc58674",
+      "risk_level": "MEDIUM",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Research candidate: Cambiar sesion",
+      "trades_lost": 16
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "HIGH",
+          "reason": "low_evidence",
+          "risks": [
+            "low_evidence"
+          ],
+          "vote": "CAUTION"
+        }
+      ],
+      "committee_score": 0.2812,
+      "confidence": "LOW",
+      "context": {
+        "opened_weekday": "Sunday"
+      },
+      "created_at": "2026-07-04T16:03:37.189022+00:00",
+      "evidence": 11,
+      "expected_pf": null,
+      "expected_total_r": 5.3579,
+      "hypothesis": "opened_weekday=Sunday has PF 0.4559 and TotalR -5.3579",
+      "id": "prop_dd3bbd84ee53",
+      "risk_level": "MEDIUM",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Research candidate: Eliminar contexto",
+      "trades_lost": 17
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "HIGH",
+          "reason": "low_evidence",
+          "risks": [
+            "low_evidence"
+          ],
+          "vote": "CAUTION"
+        }
+      ],
+      "committee_score": 0.2812,
+      "confidence": "LOW",
+      "context": {
+        "liquidity_sweep": "bullish_sweep"
+      },
+      "created_at": "2026-07-04T16:03:37.189041+00:00",
+      "evidence": 15,
+      "expected_pf": null,
+      "expected_total_r": 4.4188,
+      "hypothesis": "liquidity_sweep=bullish_sweep has PF 1.6313 and TotalR 4.4188",
+      "id": "prop_66d02799ac88",
+      "risk_level": "MEDIUM",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Research candidate: Priorizar contexto",
+      "trades_lost": 15
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "HIGH",
+          "reason": "large_trade_reduction",
+          "risks": [
+            "large_trade_reduction"
+          ],
+          "vote": "CAUTION"
+        }
+      ],
+      "committee_score": 0.2812,
+      "confidence": "LOW",
+      "context": {
+        "ltf_alignment": "against"
+      },
+      "created_at": "2026-07-04T16:03:37.189045+00:00",
+      "evidence": 21,
+      "expected_pf": null,
+      "expected_total_r": 4.4007,
+      "hypothesis": "ltf_alignment=against has PF 0.7255 and TotalR -4.4007",
+      "id": "prop_0e79ae5ffed8",
+      "risk_level": "MEDIUM",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Research candidate: Eliminar contexto",
+      "trades_lost": 28
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "HIGH",
+          "reason": "low_evidence",
+          "risks": [
+            "low_evidence"
+          ],
+          "vote": "CAUTION"
+        }
+      ],
+      "committee_score": 0.2812,
+      "confidence": "LOW",
+      "context": {
+        "entry_or_rejection_reason": "paper_tradeable"
+      },
+      "created_at": "2026-07-04T16:03:37.189056+00:00",
+      "evidence": 10,
+      "expected_pf": null,
+      "expected_total_r": 4.047,
+      "hypothesis": "entry_or_rejection_reason=paper_tradeable has PF 0.228 and TotalR -4.047",
+      "id": "prop_9db9da22ac74",
+      "risk_level": "MEDIUM",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Research candidate: Eliminar contexto",
+      "trades_lost": 10
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "HIGH",
+          "reason": "low_evidence",
+          "risks": [
+            "low_evidence"
+          ],
+          "vote": "CAUTION"
+        }
+      ],
+      "committee_score": 0.2812,
+      "confidence": "LOW",
+      "context": {
+        "rejection_reason": "paper_tradeable"
+      },
+      "created_at": "2026-07-04T16:03:37.189060+00:00",
+      "evidence": 10,
+      "expected_pf": null,
+      "expected_total_r": 4.047,
+      "hypothesis": "rejection_reason=paper_tradeable has PF 0.228 and TotalR -4.047",
+      "id": "prop_0a9d0fb60620",
+      "risk_level": "MEDIUM",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Research candidate: Eliminar contexto",
+      "trades_lost": 10
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "HIGH",
+          "reason": "low_evidence",
+          "risks": [
+            "low_evidence"
+          ],
+          "vote": "CAUTION"
+        }
+      ],
+      "committee_score": 0.2812,
+      "confidence": "LOW",
+      "context": {
+        "utc_hour": "21"
+      },
+      "created_at": "2026-07-04T16:03:37.189066+00:00",
+      "evidence": 10,
+      "expected_pf": null,
+      "expected_total_r": 4.0003,
+      "hypothesis": "utc_hour=21 has PF 0.4158 and TotalR -4.0003",
+      "id": "prop_fdaa5bff127f",
+      "risk_level": "MEDIUM",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Research candidate: Eliminar contexto",
+      "trades_lost": 10
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "HIGH",
+          "reason": "low_evidence",
+          "risks": [
+            "low_evidence"
+          ],
+          "vote": "CAUTION"
+        }
+      ],
+      "committee_score": 0.2812,
+      "confidence": "LOW",
+      "context": {
+        "opened_hour_utc": "21"
+      },
+      "created_at": "2026-07-04T16:03:37.189070+00:00",
+      "evidence": 10,
+      "expected_pf": null,
+      "expected_total_r": 4.0003,
+      "hypothesis": "opened_hour_utc=21 has PF 0.4158 and TotalR -4.0003",
+      "id": "prop_e6d614c7f68d",
+      "risk_level": "MEDIUM",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Research candidate: Eliminar contexto",
+      "trades_lost": 10
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "research_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation improves TotalR but PF evidence is limited.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "HIGH",
+          "reason": "low_evidence",
+          "risks": [
+            "low_evidence"
+          ],
+          "vote": "CAUTION"
+        }
+      ],
+      "committee_score": 0.2812,
+      "confidence": "LOW",
+      "context": {
+        "liquidity_sweep": "none"
+      },
+      "created_at": "2026-07-04T16:03:37.189075+00:00",
+      "evidence": 15,
+      "expected_pf": null,
+      "expected_total_r": 3.9481,
+      "hypothesis": "liquidity_sweep=none has PF 0.5951 and TotalR -3.9481",
+      "id": "prop_88bb997609e9",
+      "risk_level": "MEDIUM",
+      "source_agent": "research_agent",
+      "status": "pending",
+      "title": "Research candidate: Eliminar contexto",
+      "trades_lost": 25
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation does not improve outcome.",
+          "vote": "REJECT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "HIGH",
+          "reason": "large_trade_reduction, negative_expected_total_r",
+          "risks": [
+            "large_trade_reduction",
+            "negative_expected_total_r"
+          ],
+          "vote": "REJECT"
+        }
+      ],
+      "committee_score": -0.3438,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude volume_ratio>=1.2",
+          "exclude volume_ratio_bucket=very_high"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189272+00:00",
+      "evidence": 20,
+      "expected_pf": 0.9619,
+      "expected_total_r": -0.412,
+      "hypothesis": "Simulated conditions: exclude volume_ratio>=1.2, exclude volume_ratio_bucket=very_high",
+      "id": "prop_6de62f160433",
+      "risk_level": "HIGH",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Prioritize configuration in shadow",
+      "trades_lost": 29
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation does not improve outcome.",
+          "vote": "REJECT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "HIGH",
+          "reason": "large_trade_reduction, negative_expected_total_r",
+          "risks": [
+            "large_trade_reduction",
+            "negative_expected_total_r"
+          ],
+          "vote": "REJECT"
+        }
+      ],
+      "committee_score": -0.3438,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude volume_ratio>=1.2",
+          "exclude volume_ratio>=1.8"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189276+00:00",
+      "evidence": 20,
+      "expected_pf": 0.9619,
+      "expected_total_r": -0.412,
+      "hypothesis": "Simulated conditions: exclude volume_ratio>=1.2, exclude volume_ratio>=1.8",
+      "id": "prop_388916f415f0",
+      "risk_level": "HIGH",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Prioritize configuration in shadow",
+      "trades_lost": 29
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation does not improve outcome.",
+          "vote": "REJECT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "HIGH",
+          "reason": "large_trade_reduction, negative_expected_total_r",
+          "risks": [
+            "large_trade_reduction",
+            "negative_expected_total_r"
+          ],
+          "vote": "REJECT"
+        }
+      ],
+      "committee_score": -0.3438,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude volume_ratio_bucket=very_high",
+          "exclude volume_ratio>=1.8"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189280+00:00",
+      "evidence": 20,
+      "expected_pf": 0.9619,
+      "expected_total_r": -0.412,
+      "hypothesis": "Simulated conditions: exclude volume_ratio_bucket=very_high, exclude volume_ratio>=1.8",
+      "id": "prop_d886b9e1c66f",
+      "risk_level": "HIGH",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Prioritize configuration in shadow",
+      "trades_lost": 29
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation does not improve outcome.",
+          "vote": "REJECT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "HIGH",
+          "reason": "large_trade_reduction, negative_expected_total_r",
+          "risks": [
+            "large_trade_reduction",
+            "negative_expected_total_r"
+          ],
+          "vote": "REJECT"
+        }
+      ],
+      "committee_score": -0.3438,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude volume_ratio>=1.2",
+          "exclude volume_ratio_bucket=very_high",
+          "exclude volume_ratio>=1.8"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189285+00:00",
+      "evidence": 20,
+      "expected_pf": 0.9619,
+      "expected_total_r": -0.412,
+      "hypothesis": "Simulated conditions: exclude volume_ratio>=1.2, exclude volume_ratio_bucket=very_high, exclude volume_ratio>=1.8",
+      "id": "prop_9db0851744a7",
+      "risk_level": "HIGH",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Prioritize configuration in shadow",
+      "trades_lost": 29
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation does not improve outcome.",
+          "vote": "REJECT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "HIGH",
+          "reason": "large_trade_reduction, negative_expected_total_r",
+          "risks": [
+            "large_trade_reduction",
+            "negative_expected_total_r"
+          ],
+          "vote": "REJECT"
+        }
+      ],
+      "committee_score": -0.3438,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude liquidity_distance>=2",
+          "exclude entry_zone=BREAKOUT"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189290+00:00",
+      "evidence": 20,
+      "expected_pf": 0.9511,
+      "expected_total_r": -0.4757,
+      "hypothesis": "Simulated conditions: exclude liquidity_distance>=2, exclude entry_zone=BREAKOUT",
+      "id": "prop_52e4c610c9e0",
+      "risk_level": "HIGH",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Prioritize configuration in shadow",
+      "trades_lost": 29
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation does not improve outcome.",
+          "vote": "REJECT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "HIGH",
+          "reason": "negative_expected_total_r",
+          "risks": [
+            "negative_expected_total_r"
+          ],
+          "vote": "REJECT"
+        }
+      ],
+      "committee_score": -0.3438,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude volume_ratio_bucket=very_high"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189238+00:00",
+      "evidence": 29,
+      "expected_pf": 0.8711,
+      "expected_total_r": -1.6663,
+      "hypothesis": "Simulated conditions: exclude volume_ratio_bucket=very_high",
+      "id": "prop_2373f376f7cc",
+      "risk_level": "HIGH",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Simulate filter before production",
+      "trades_lost": 20
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation does not improve outcome.",
+          "vote": "REJECT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "HIGH",
+          "reason": "negative_expected_total_r",
+          "risks": [
+            "negative_expected_total_r"
+          ],
+          "vote": "REJECT"
+        }
+      ],
+      "committee_score": -0.3438,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude volume_ratio>=1.8"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189243+00:00",
+      "evidence": 29,
+      "expected_pf": 0.8711,
+      "expected_total_r": -1.6663,
+      "hypothesis": "Simulated conditions: exclude volume_ratio>=1.8",
+      "id": "prop_73fd4b5a5abb",
+      "risk_level": "HIGH",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Simulate filter before production",
+      "trades_lost": 20
+    },
+    {
+      "agent_votes": [
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Originating agent generated this proposal.",
+          "vote": "SUPPORT"
+        },
+        {
+          "agent": "strategy_agent",
+          "confidence": "LOW",
+          "reason": "Strategy evidence reviewed from offline reports.",
+          "vote": "CAUTION"
+        },
+        {
+          "agent": "simulator_agent",
+          "confidence": "LOW",
+          "reason": "Simulation does not improve outcome.",
+          "vote": "REJECT"
+        },
+        {
+          "agent": "risk_agent",
+          "confidence": "HIGH",
+          "reason": "negative_expected_total_r",
+          "risks": [
+            "negative_expected_total_r"
+          ],
+          "vote": "REJECT"
+        }
+      ],
+      "committee_score": -0.3438,
+      "confidence": "LOW",
+      "context": {
+        "conditions": [
+          "exclude volume_ratio_bucket=very_high",
+          "exclude volume_ratio>=1.8"
+        ]
+      },
+      "created_at": "2026-07-04T16:03:37.189247+00:00",
+      "evidence": 29,
+      "expected_pf": 0.8711,
+      "expected_total_r": -1.6663,
+      "hypothesis": "Simulated conditions: exclude volume_ratio_bucket=very_high, exclude volume_ratio>=1.8",
+      "id": "prop_1bfdbee4feed",
+      "risk_level": "HIGH",
+      "source_agent": "simulator_agent",
+      "status": "pending",
+      "title": "Simulator proposal: Simulate filter before production",
+      "trades_lost": 20
+    }
+  ],
+  "telegram_results": []
+}

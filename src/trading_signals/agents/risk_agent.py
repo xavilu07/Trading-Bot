@@ -51,3 +51,54 @@ def vote_risk(
 
     confidence = "HIGH" if rr_float is not None or rr_valid is not None else "MEDIUM" if risk_plan is not None else "LOW"
     return AgentVote("risk_agent", action, confidence, score, reasons or ["risk context observable"], risks)
+
+
+def vote_committee_risk(proposal: dict[str, object]) -> dict[str, object]:
+    trades_lost = _int(proposal.get("trades_lost"))
+    evidence = _int(proposal.get("evidence"))
+    expected_total_r = _float(proposal.get("expected_total_r"))
+    risks: list[str] = []
+    vote = "SUPPORT"
+    risk_level = "LOW"
+
+    if evidence < 20:
+        risks.append("low_evidence")
+        vote = "CAUTION"
+        risk_level = "MEDIUM"
+    if trades_lost > max(50, evidence):
+        risks.append("extreme_trade_reduction")
+        vote = "REJECT"
+        risk_level = "HIGH"
+    elif trades_lost > max(25, evidence * 0.5):
+        risks.append("large_trade_reduction")
+        vote = "CAUTION"
+        risk_level = "MEDIUM"
+    if expected_total_r is not None and expected_total_r < 0:
+        risks.append("negative_expected_total_r")
+        vote = "REJECT"
+        risk_level = "HIGH"
+
+    proposal["risk_level"] = risk_level
+    return {
+        "agent": "risk_agent",
+        "vote": vote,
+        "confidence": "HIGH" if risks else "MEDIUM",
+        "reason": ", ".join(risks) if risks else "Risk profile acceptable for manual review.",
+        "risks": risks,
+    }
+
+
+def _int(value: object) -> int:
+    try:
+        return int(float(value or 0))
+    except (TypeError, ValueError):
+        return 0
+
+
+def _float(value: object) -> float | None:
+    try:
+        if value in (None, ""):
+            return None
+        return float(value)
+    except (TypeError, ValueError):
+        return None

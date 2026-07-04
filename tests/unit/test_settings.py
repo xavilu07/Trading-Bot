@@ -133,6 +133,54 @@ def test_edge_optimizer_active_settings_defaults_and_env(monkeypatch) -> None:
     assert settings.edge_optimizer_active_min_confidence == "HIGH"
 
 
+def test_strategy_v2_1_htf_alignment_filter_settings_defaults_and_env(monkeypatch) -> None:
+    monkeypatch.delenv("STRATEGY_V2_1_HTF_ALIGNMENT_FILTER_ENABLED", raising=False)
+    monkeypatch.delenv("STRATEGY_V2_1_HTF_ALIGNMENT_FILTER_MODE", raising=False)
+
+    settings = Settings()
+
+    assert settings.strategy_v2_1_htf_alignment_filter_enabled is False
+    assert settings.strategy_v2_1_htf_alignment_filter_mode == "shadow"
+
+    monkeypatch.setenv("STRATEGY_V2_1_HTF_ALIGNMENT_FILTER_ENABLED", "true")
+    monkeypatch.setenv("STRATEGY_V2_1_HTF_ALIGNMENT_FILTER_MODE", "hard_block")
+
+    settings = Settings()
+
+    assert settings.strategy_v2_1_htf_alignment_filter_enabled is True
+    assert settings.strategy_v2_1_htf_alignment_filter_mode == "hard_block"
+
+
+def test_agent_committee_settings_defaults_and_env(monkeypatch) -> None:
+    monkeypatch.delenv("AGENT_COMMITTEE_ENABLED", raising=False)
+    monkeypatch.delenv("AGENT_COMMITTEE_MIN_CONFIDENCE", raising=False)
+    monkeypatch.delenv("AGENT_TELEGRAM_APPROVAL_ENABLED", raising=False)
+    monkeypatch.delenv("AGENT_TELEGRAM_CHAT_ID", raising=False)
+    monkeypatch.delenv("AGENT_TELEGRAM_BOT_TOKEN", raising=False)
+
+    settings = Settings()
+
+    assert settings.agent_committee_enabled is False
+    assert settings.agent_committee_min_confidence == "MEDIUM"
+    assert settings.agent_telegram_approval_enabled is False
+    assert settings.agent_telegram_chat_id == ""
+    assert settings.agent_telegram_bot_token == ""
+
+    monkeypatch.setenv("AGENT_COMMITTEE_ENABLED", "true")
+    monkeypatch.setenv("AGENT_COMMITTEE_MIN_CONFIDENCE", "HIGH")
+    monkeypatch.setenv("AGENT_TELEGRAM_APPROVAL_ENABLED", "true")
+    monkeypatch.setenv("AGENT_TELEGRAM_CHAT_ID", "123")
+    monkeypatch.setenv("AGENT_TELEGRAM_BOT_TOKEN", "token")
+
+    settings = Settings()
+
+    assert settings.agent_committee_enabled is True
+    assert settings.agent_committee_min_confidence == "HIGH"
+    assert settings.agent_telegram_approval_enabled is True
+    assert settings.agent_telegram_chat_id == "123"
+    assert settings.agent_telegram_bot_token == "token"
+
+
 def test_telegram_dev_chat_id_supports_multiple_ids(monkeypatch) -> None:
     monkeypatch.setenv("TELEGRAM_DEV_CHAT_ID", "7437028098,1979812925")
 
