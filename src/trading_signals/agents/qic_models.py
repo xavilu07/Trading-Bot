@@ -43,6 +43,10 @@ class CIOProposal:
     risk_level: str
     evidence: int
     agent_votes: list[dict[str, Any]]
+    action: str = "IMPLEMENTATION_CANDIDATE"
+    baseline_trades: int = 0
+    trade_reduction_pct: float = 0.0
+    risk_objections: list[str] = field(default_factory=list)
     status: str = "pending"
     context: dict[str, Any] = field(default_factory=dict)
     rationale: str = ""
@@ -60,6 +64,10 @@ class CIOProposal:
             "risk_level": self.risk_level,
             "evidence": self.evidence,
             "agent_votes": self.agent_votes,
+            "action": self.action,
+            "baseline_trades": self.baseline_trades,
+            "trade_reduction_pct": self.trade_reduction_pct,
+            "risk_objections": self.risk_objections,
             "status": self.status,
             "context": self.context,
             "rationale": self.rationale,

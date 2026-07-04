@@ -4,6 +4,7 @@ import hashlib
 from typing import Any
 
 from trading_signals.agents.qic_models import CIOProposal
+from trading_signals.agents.risk_agent import classify_trade_reduction_risk
 
 CONFIDENCE_RANK = {"LOW": 1, "MEDIUM": 2, "HIGH": 3}
 
@@ -14,23 +15,31 @@ def build_cio_consensus(debate: dict[str, Any], *, min_confidence: str = "MEDIUM
     risk = _find_stage(interventions, "risk")
     research_response = _find_stage(interventions, "research_response")
     best = (simulation.get("data") or {}).get("best_simulation") if isinstance(simulation.get("data"), dict) else {}
-    risks = (risk.get("data") or {}).get("risks") if isinstance(risk.get("data"), dict) else []
+    baseline_trades = _baseline_trades(best, risk)
+    selected_reduction = classify_trade_reduction_risk(_int(best.get("trades_eliminated")) if isinstance(best, dict) else 0, baseline_trades)
+    risks = _selected_risk_objections(best, risk, selected_reduction)
     confidence = str(simulation.get("confidence") or "LOW").upper()
     min_rank = CONFIDENCE_RANK.get(str(min_confidence).upper(), 2)
-    risk_level = str(risk.get("risk_level") or "MEDIUM").upper()
-    consensus_score = _consensus_score(simulation=simulation, risk=risk, research_response=research_response)
+    risk_level = str(selected_reduction.get("risk_level") or "MEDIUM").upper()
+    consensus_score = _consensus_score(simulation=simulation, risk_level=risk_level, research_response=research_response)
     discard_reasons = []
     if not best:
         discard_reasons.append("no_simulation_candidate")
     if CONFIDENCE_RANK.get(confidence, 1) < min_rank:
         discard_reasons.append("below_min_confidence")
-    if risk_level == "HIGH":
-        discard_reasons.append("high_risk_objection")
     if consensus_score <= 0:
         discard_reasons.append("weak_consensus")
     proposal = None
     if not discard_reasons:
-        proposal = _proposal_from_simulation(best, confidence=confidence, risk_level=risk_level, interventions=interventions)
+        proposal = _proposal_from_simulation(
+            best,
+            confidence=confidence,
+            risk_level=risk_level,
+            interventions=interventions,
+            baseline_trades=baseline_trades,
+            trade_reduction_pct=float(selected_reduction.get("trade_reduction_pct") or 0),
+            risk_objections=risks,
+        )
     return {
         "consensus_score": consensus_score,
         "confidence": confidence,
@@ -47,10 +56,21 @@ def _proposal_from_simulation(
     confidence: str,
     risk_level: str,
     interventions: list[dict[str, Any]],
+    baseline_trades: int,
+    trade_reduction_pct: float,
+    risk_objections: list[str],
 ) -> CIOProposal:
     conditions = simulation.get("conditions") or []
-    title = f"CIO proposal: {', '.join(str(item) for item in conditions) or 'prioritize simulated context'}"
+    action = "IMPLEMENTATION_CANDIDATE"
+    if risk_level == "EXTREME":
+        action = "REQUIRES_VARIANT_SEARCH"
+    elif risk_level == "HIGH":
+        action = "SHADOW_VALIDATION_REQUIRED"
+    title_prefix = "CIO variant search required" if action == "REQUIRES_VARIANT_SEARCH" else "CIO proposal"
+    title = f"{title_prefix}: {', '.join(str(item) for item in conditions) or 'prioritize simulated context'}"
     hypothesis = "Strategy Simulator indicates this single candidate has the strongest current evidence."
+    if action == "REQUIRES_VARIANT_SEARCH":
+        hypothesis = "Simulation result is promising but removes too much of the operating universe; find a less aggressive variant."
     unique = f"{title}|{conditions}|{simulation.get('profit_factor')}|{simulation.get('total_r')}"
     proposal_id = "cio_" + hashlib.sha1(unique.encode("utf-8")).hexdigest()[:12]
     return CIOProposal(
@@ -63,6 +83,10 @@ def _proposal_from_simulation(
         confidence=confidence,
         risk_level=risk_level,
         evidence=_int(simulation.get("remaining_closed") or simulation.get("evidence")),
+        action=action,
+        baseline_trades=baseline_trades,
+        trade_reduction_pct=round(trade_reduction_pct, 4),
+        risk_objections=risk_objections,
         agent_votes=[
             {
                 "agent": item.get("agent"),
@@ -72,8 +96,13 @@ def _proposal_from_simulation(
             }
             for item in interventions
         ],
-        context={"conditions": conditions, "condition_details": simulation.get("condition_details") or []},
-        rationale=f"Expected PF {simulation.get('profit_factor')} and TotalR {simulation.get('total_r')} after simulation.",
+        context={
+            "conditions": conditions,
+            "condition_details": simulation.get("condition_details") or [],
+            "baseline_trades": baseline_trades,
+            "trade_reduction_pct": round(trade_reduction_pct, 4),
+        },
+        rationale=_rationale(simulation, action, trade_reduction_pct),
     )
 
 
@@ -84,15 +113,56 @@ def _find_stage(interventions: list[dict[str, Any]], stage: str) -> dict[str, An
     return {}
 
 
-def _consensus_score(*, simulation: dict[str, Any], risk: dict[str, Any], research_response: dict[str, Any]) -> float:
+def _consensus_score(*, simulation: dict[str, Any], risk_level: str, research_response: dict[str, Any]) -> float:
     score = 0.0
     score += CONFIDENCE_RANK.get(str(simulation.get("confidence") or "LOW").upper(), 1)
     score += CONFIDENCE_RANK.get(str(research_response.get("confidence") or "LOW").upper(), 1) * 0.5
-    if str(risk.get("risk_level") or "MEDIUM").upper() == "HIGH":
+    normalized_risk = str(risk_level or "MEDIUM").upper()
+    if normalized_risk == "EXTREME":
+        score -= 0.5
+    elif normalized_risk == "HIGH":
         score -= 3
-    elif str(risk.get("risk_level") or "MEDIUM").upper() == "MEDIUM":
+    elif normalized_risk == "MEDIUM":
         score -= 1
     return round(score, 4)
+
+
+def _baseline_trades(best: dict[str, Any], risk: dict[str, Any]) -> int:
+    risk_data = risk.get("data") if isinstance(risk.get("data"), dict) else {}
+    baseline = _int((risk_data or {}).get("baseline_closed"))
+    if baseline:
+        return baseline
+    return _int(best.get("trades_eliminated")) + _int(best.get("remaining_closed") or best.get("evidence"))
+
+
+def _selected_risk_objections(
+    best: dict[str, Any],
+    risk: dict[str, Any],
+    selected_reduction: dict[str, object],
+) -> list[str]:
+    objections = []
+    risk_name = str(selected_reduction.get("risk") or "")
+    if risk_name:
+        objections.append(risk_name)
+    conditions = [str(item) for item in best.get("conditions") or []]
+    all_risks = (risk.get("data") or {}).get("risks") if isinstance(risk.get("data"), dict) else []
+    for item in all_risks or []:
+        candidate = str(item.get("candidate") or "")
+        if conditions and not all(condition in candidate for condition in conditions):
+            continue
+        item_risk = str(item.get("risk") or "")
+        if item_risk and item_risk not in objections:
+            objections.append(item_risk)
+    return objections
+
+
+def _rationale(simulation: dict[str, Any], action: str, trade_reduction_pct: float) -> str:
+    base = f"Expected PF {simulation.get('profit_factor')} and TotalR {simulation.get('total_r')} after simulation."
+    if action == "REQUIRES_VARIANT_SEARCH":
+        return f"{base} Trade reduction is {trade_reduction_pct:.2f}%, so this is not a direct implementation candidate."
+    if action == "SHADOW_VALIDATION_REQUIRED":
+        return f"{base} Trade reduction is {trade_reduction_pct:.2f}%, so shadow validation is required before implementation."
+    return base
 
 
 def _int(value: Any) -> int:

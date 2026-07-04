@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 from trading_signals.agents.qic_models import DebateIntervention
+from trading_signals.agents.risk_agent import classify_trade_reduction_risk
 from trading_signals.agents.research_agent import load_research_reports
 
 
@@ -84,22 +85,41 @@ def _actionable_pattern(pattern: dict[str, Any]) -> bool:
 
 def risk_director_opinion(strategy: DebateIntervention, reports: dict[str, Any]) -> DebateIntervention:
     candidates = list(strategy.data.get("rule_candidates", []))
-    baseline_closed = int(
-        reports.get("strategy_simulator", {})
-        .get("overview", {})
-        .get("baseline", {})
-        .get("closed", 0)
-        or 0
-    )
+    baseline_closed = _baseline_closed(reports)
     risks = []
     for candidate in candidates:
         source = candidate.get("source_pattern") or {}
         trades_lost = int(float(source.get("trades_eliminated") or source.get("closed") or source.get("trades") or 0))
-        if baseline_closed and trades_lost / baseline_closed > 0.5:
-            risks.append({"candidate": candidate.get("rule_candidate"), "risk": "excessive_trade_reduction", "trades_lost": trades_lost})
+        reduction = classify_trade_reduction_risk(trades_lost, baseline_closed)
+        if reduction["risk_level"] != "LOW":
+            risks.append(
+                {
+                    "candidate": candidate.get("rule_candidate"),
+                    "risk": reduction["risk"],
+                    "risk_level": reduction["risk_level"],
+                    "trades_lost": trades_lost,
+                    "baseline_trades": baseline_closed,
+                    "trade_reduction_pct": reduction["trade_reduction_pct"],
+                }
+            )
         elif trades_lost < 20:
             risks.append({"candidate": candidate.get("rule_candidate"), "risk": "low_sample_overfitting", "trades_lost": trades_lost})
-    risk_level = "HIGH" if any(item["risk"] == "excessive_trade_reduction" for item in risks) else "MEDIUM" if risks else "LOW"
+    for simulation in _simulator_candidates(reports)[:25]:
+        trades_lost = int(float(simulation.get("trades_eliminated") or 0))
+        reduction = classify_trade_reduction_risk(trades_lost, baseline_closed)
+        if reduction["risk_level"] == "LOW":
+            continue
+        risks.append(
+            {
+                "candidate": ", ".join(str(item) for item in simulation.get("conditions") or []) or "simulated candidate",
+                "risk": reduction["risk"],
+                "risk_level": reduction["risk_level"],
+                "trades_lost": trades_lost,
+                "baseline_trades": baseline_closed,
+                "trade_reduction_pct": reduction["trade_reduction_pct"],
+            }
+        )
+    risk_level = _max_risk_level(str(item.get("risk_level") or "MEDIUM") for item in risks) if risks else "LOW"
     return DebateIntervention(
         agent="risk_director",
         role="Risk Director",
@@ -113,26 +133,7 @@ def risk_director_opinion(strategy: DebateIntervention, reports: dict[str, Any])
 
 
 def simulation_director_opinion(strategy: DebateIntervention, reports: dict[str, Any]) -> DebateIntervention:
-    simulator = reports.get("strategy_simulator", {})
-    simulations = []
-    for section in ("single_filters", "double_filters", "triple_filters", "best_configs"):
-        key = "configs" if section == "best_configs" else "simulations"
-        simulations.extend(simulator.get(section, {}).get(key, [])[:10])
-    for item in simulator.get("recommendations", {}).get("recommendations", [])[:10]:
-        if not isinstance(item, dict) or str(item.get("action")) == "Insufficient data":
-            continue
-        simulations.append(
-            {
-                "simulation_type": "recommendation",
-                "conditions": item.get("conditions") or [],
-                "trades_eliminated": item.get("trades_lost", 0),
-                "remaining_closed": item.get("evidence", 0),
-                "profit_factor": item.get("expected_pf"),
-                "total_r": item.get("expected_total_r"),
-                "delta_total_r": item.get("expected_improvement", item.get("expected_total_r")),
-                "confidence": item.get("confidence", "LOW"),
-            }
-        )
+    simulations = _simulator_candidates(reports)
     simulations = sorted(simulations, key=lambda item: (float(item.get("delta_total_r") or item.get("total_r") or 0), float(item.get("profit_factor") or 0)), reverse=True)
     best = simulations[0] if simulations else {}
     return DebateIntervention(
@@ -187,6 +188,55 @@ def _top_conditions(rows: Any) -> list[dict[str, Any]]:
         if isinstance(row, dict):
             output.append({"condition": row.get("conditions"), "evidence": row.get("remaining_closed") or 0, **row})
     return output
+
+
+def _simulator_candidates(reports: dict[str, Any]) -> list[dict[str, Any]]:
+    simulator = reports.get("strategy_simulator", {})
+    simulations = []
+    for section in ("single_filters", "double_filters", "triple_filters", "best_configs"):
+        key = "configs" if section == "best_configs" else "simulations"
+        simulations.extend(simulator.get(section, {}).get(key, [])[:10])
+    for item in simulator.get("recommendations", {}).get("recommendations", [])[:10]:
+        if not isinstance(item, dict) or str(item.get("action")) == "Insufficient data":
+            continue
+        simulations.append(
+            {
+                "simulation_type": "recommendation",
+                "conditions": item.get("conditions") or [],
+                "trades_eliminated": item.get("trades_lost", 0),
+                "remaining_closed": item.get("evidence", 0),
+                "profit_factor": item.get("expected_pf"),
+                "total_r": item.get("expected_total_r"),
+                "delta_total_r": item.get("expected_improvement", item.get("expected_total_r")),
+                "confidence": item.get("confidence", "LOW"),
+            }
+        )
+    return [item for item in simulations if isinstance(item, dict)]
+
+
+def _baseline_closed(reports: dict[str, Any]) -> int:
+    try:
+        return int(
+            float(
+                reports.get("strategy_simulator", {})
+                .get("overview", {})
+                .get("baseline", {})
+                .get("closed", 0)
+                or 0
+            )
+        )
+    except (TypeError, ValueError):
+        return 0
+
+
+def _max_risk_level(levels: Any) -> str:
+    ranks = {"LOW": 0, "MEDIUM": 1, "HIGH": 2, "EXTREME": 3}
+    max_level = "LOW"
+    for level in levels:
+        normalized = str(level).upper()
+        if ranks.get(normalized, 0) > ranks[max_level]:
+            max_level = normalized
+    return max_level
 
 
 def _max_evidence(items: list[dict[str, Any]]) -> int:

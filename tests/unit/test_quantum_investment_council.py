@@ -45,6 +45,9 @@ def test_cio_generates_single_proposal_from_consensus(tmp_path: Path) -> None:
     assert consensus["single_proposal"] is not None
     assert consensus["single_proposal"]["id"].startswith("cio_")
     assert isinstance(consensus["single_proposal"]["agent_votes"], list)
+    assert consensus["single_proposal"]["action"] == "IMPLEMENTATION_CANDIDATE"
+    assert consensus["single_proposal"]["baseline_trades"] == 1148
+    assert consensus["single_proposal"]["trade_reduction_pct"] < 25
 
 
 def test_cio_discards_weak_proposal_when_confidence_too_low(tmp_path: Path) -> None:
@@ -55,6 +58,47 @@ def test_cio_discards_weak_proposal_when_confidence_too_low(tmp_path: Path) -> N
 
     assert consensus["single_proposal"] is None
     assert "below_min_confidence" in consensus["discard_reasons"]
+
+
+def test_cio_marks_extreme_reduction_as_variant_search(tmp_path: Path) -> None:
+    _write_qic_reports(
+        tmp_path,
+        trades_eliminated=864,
+        remaining_closed=284,
+        profit_factor=1.6693,
+        total_r=43.8517,
+        delta_total_r=43.8517,
+    )
+    debate = run_debate_engine(reports_root=tmp_path / "reports")
+
+    consensus = build_cio_consensus(debate, min_confidence="LOW")
+
+    proposal = consensus["single_proposal"]
+    assert proposal is not None
+    assert proposal["risk_level"] == "EXTREME"
+    assert proposal["action"] == "REQUIRES_VARIANT_SEARCH"
+    assert proposal["baseline_trades"] == 1148
+    assert proposal["trade_reduction_pct"] == 75.2613
+    assert "extreme_trade_reduction" in proposal["risk_objections"]
+
+
+def test_qic_report_includes_risk_objections_for_extreme_reduction(tmp_path: Path) -> None:
+    _write_qic_reports(tmp_path, trades_eliminated=864, remaining_closed=284, profit_factor=1.6693, total_r=43.8517)
+
+    result = run_quantum_investment_council_v2(
+        reports_root=tmp_path / "reports",
+        data_path=tmp_path / "data",
+        output_path=tmp_path / "reports" / "qic",
+        min_confidence="LOW",
+        telegram_enabled=False,
+    )
+
+    proposal = result["single_proposal"]
+    assert proposal["action"] == "REQUIRES_VARIANT_SEARCH"
+    assert "extreme_trade_reduction" in proposal["risk_objections"]
+    report = json.loads((tmp_path / "reports" / "qic" / "proposal.json").read_text())
+    assert report["risk_objections"] == ["extreme_trade_reduction"]
+    assert "risk_objections" in (tmp_path / "reports" / "qic" / "proposal.md").read_text()
 
 
 def test_qic_persists_reports_and_only_one_proposal(tmp_path: Path) -> None:
@@ -100,19 +144,28 @@ def test_telegram_sends_only_cio_proposal_payload_in_dry_run() -> None:
     assert [button["text"] for button in buttons] == ["APPROVE", "REJECT", "DETAILS"]
 
 
-def _write_qic_reports(tmp_path: Path, *, confidence: str = "MEDIUM") -> None:
+def _write_qic_reports(
+    tmp_path: Path,
+    *,
+    confidence: str = "MEDIUM",
+    trades_eliminated: int = 100,
+    remaining_closed: int = 586,
+    profit_factor: float = 1.113,
+    total_r: float = 21.1506,
+    delta_total_r: float = 75.3217,
+) -> None:
     simulator = tmp_path / "reports" / "strategy_simulator"
     simulator.mkdir(parents=True)
     simulation = {
         "simulation_type": "exclude",
         "conditions": ["exclude htf_alignment=against"],
         "condition_details": [{"feature": "htf_alignment", "operator": "==", "value": "against"}],
-        "trades_eliminated": 100,
-        "remaining_closed": 586,
+        "trades_eliminated": trades_eliminated,
+        "remaining_closed": remaining_closed,
         "winrate": 45.0,
-        "profit_factor": 1.113,
-        "total_r": 21.1506,
-        "delta_total_r": 75.3217,
+        "profit_factor": profit_factor,
+        "total_r": total_r,
+        "delta_total_r": delta_total_r,
         "confidence": confidence,
     }
     (simulator / "single_filters.json").write_text(json.dumps({"simulations": [simulation]}), encoding="utf-8")

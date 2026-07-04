@@ -31,12 +31,13 @@ def test_committee_generates_single_cio_proposal_from_strategy_simulator(tmp_pat
 
 
 def test_risk_agent_penalizes_extreme_trade_reduction() -> None:
-    proposal = {"trades_lost": 500, "evidence": 20, "expected_total_r": 10}
+    proposal = {"trades_lost": 750, "baseline_trades": 1000, "evidence": 20, "expected_total_r": 10}
 
     vote = vote_committee_risk(proposal)
 
     assert vote["vote"] == "REJECT"
-    assert proposal["risk_level"] == "HIGH"
+    assert proposal["risk_level"] == "EXTREME"
+    assert proposal["trade_reduction_pct"] == 75.0
     assert "extreme_trade_reduction" in vote["risks"]
 
 
