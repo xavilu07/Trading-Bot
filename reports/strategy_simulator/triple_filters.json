@@ -1,0 +1,73 @@
+{
+  "simulations": [
+    {
+      "average_loss": -1.0,
+      "average_win": 1.7633,
+      "avg_r": 0.0779,
+      "condition_details": [
+        {
+          "evidence": 25,
+          "feature": "setup",
+          "label": "exclude setup=SECONDARY_SIGNAL",
+          "operator": "==",
+          "value": "SECONDARY_SIGNAL"
+        },
+        {
+          "evidence": 25,
+          "feature": "setup_type",
+          "label": "exclude setup_type=SECONDARY_SIGNAL",
+          "operator": "==",
+          "value": "SECONDARY_SIGNAL"
+        },
+        {
+          "evidence": 25,
+          "feature": "liquidity_sweep",
+          "label": "exclude liquidity_sweep=none",
+          "operator": "==",
+          "value": "none"
+        }
+      ],
+      "conditions": [
+        "exclude setup=SECONDARY_SIGNAL",
+        "exclude setup_type=SECONDARY_SIGNAL",
+        "exclude liquidity_sweep=none"
+      ],
+      "confidence": "LOW",
+      "delta_pf": 0.2211,
+      "delta_total_r": 3.9481,
+      "delta_wr": 0.7653,
+      "drawdown": -6.0,
+      "evidence": 24,
+      "expectancy": 0.0779,
+      "profit_factor": 1.1336,
+      "remaining_closed": 24,
+      "removed_closed": 25,
+      "removed_metrics": {
+        "average_loss": -0.6965,
+        "average_win": 0.6447,
+        "avg_r": -0.1579,
+        "closed": 25,
+        "confidence": "LOW",
+        "drawdown": -4.686,
+        "evidence": 25,
+        "expectancy": -0.1579,
+        "losses": 14,
+        "median_r": -0.21,
+        "neutral": 2,
+        "open": 0,
+        "profit_factor": 0.5951,
+        "std_dev": 0.7304,
+        "total_r": -3.9481,
+        "trades": 25,
+        "winrate": 36.0,
+        "wins": 9
+      },
+      "simulation_type": "exclude",
+      "total_r": 1.8698,
+      "trade_reduction_pct": 51.0204,
+      "trades_eliminated": 25,
+      "trades_remaining": 24,
+      "winrate": 37.5
+    }
+  ]
+}

@@ -1,0 +1,614 @@
+{
+  "simulations": [
+    {
+      "average_loss": -1.0,
+      "average_win": 1.7633,
+      "avg_r": 0.0779,
+      "condition_details": [
+        {
+          "evidence": 25,
+          "feature": "setup",
+          "label": "exclude setup=SECONDARY_SIGNAL",
+          "operator": "==",
+          "value": "SECONDARY_SIGNAL"
+        },
+        {
+          "evidence": 25,
+          "feature": "setup_type",
+          "label": "exclude setup_type=SECONDARY_SIGNAL",
+          "operator": "==",
+          "value": "SECONDARY_SIGNAL"
+        }
+      ],
+      "conditions": [
+        "exclude setup=SECONDARY_SIGNAL",
+        "exclude setup_type=SECONDARY_SIGNAL"
+      ],
+      "confidence": "LOW",
+      "delta_pf": 0.2211,
+      "delta_total_r": 3.9481,
+      "delta_wr": 0.7653,
+      "drawdown": -6.0,
+      "evidence": 24,
+      "expectancy": 0.0779,
+      "profit_factor": 1.1336,
+      "remaining_closed": 24,
+      "removed_closed": 25,
+      "removed_metrics": {
+        "average_loss": -0.6965,
+        "average_win": 0.6447,
+        "avg_r": -0.1579,
+        "closed": 25,
+        "confidence": "LOW",
+        "drawdown": -4.686,
+        "evidence": 25,
+        "expectancy": -0.1579,
+        "losses": 14,
+        "median_r": -0.21,
+        "neutral": 2,
+        "open": 0,
+        "profit_factor": 0.5951,
+        "std_dev": 0.7304,
+        "total_r": -3.9481,
+        "trades": 25,
+        "winrate": 36.0,
+        "wins": 9
+      },
+      "simulation_type": "exclude",
+      "total_r": 1.8698,
+      "trade_reduction_pct": 51.0204,
+      "trades_eliminated": 25,
+      "trades_remaining": 24,
+      "winrate": 37.5
+    },
+    {
+      "average_loss": -1.0,
+      "average_win": 1.7633,
+      "avg_r": 0.0779,
+      "condition_details": [
+        {
+          "evidence": 25,
+          "feature": "setup",
+          "label": "exclude setup=SECONDARY_SIGNAL",
+          "operator": "==",
+          "value": "SECONDARY_SIGNAL"
+        },
+        {
+          "evidence": 25,
+          "feature": "liquidity_sweep",
+          "label": "exclude liquidity_sweep=none",
+          "operator": "==",
+          "value": "none"
+        }
+      ],
+      "conditions": [
+        "exclude setup=SECONDARY_SIGNAL",
+        "exclude liquidity_sweep=none"
+      ],
+      "confidence": "LOW",
+      "delta_pf": 0.2211,
+      "delta_total_r": 3.9481,
+      "delta_wr": 0.7653,
+      "drawdown": -6.0,
+      "evidence": 24,
+      "expectancy": 0.0779,
+      "profit_factor": 1.1336,
+      "remaining_closed": 24,
+      "removed_closed": 25,
+      "removed_metrics": {
+        "average_loss": -0.6965,
+        "average_win": 0.6447,
+        "avg_r": -0.1579,
+        "closed": 25,
+        "confidence": "LOW",
+        "drawdown": -4.686,
+        "evidence": 25,
+        "expectancy": -0.1579,
+        "losses": 14,
+        "median_r": -0.21,
+        "neutral": 2,
+        "open": 0,
+        "profit_factor": 0.5951,
+        "std_dev": 0.7304,
+        "total_r": -3.9481,
+        "trades": 25,
+        "winrate": 36.0,
+        "wins": 9
+      },
+      "simulation_type": "exclude",
+      "total_r": 1.8698,
+      "trade_reduction_pct": 51.0204,
+      "trades_eliminated": 25,
+      "trades_remaining": 24,
+      "winrate": 37.5
+    },
+    {
+      "average_loss": -1.0,
+      "average_win": 1.7633,
+      "avg_r": 0.0779,
+      "condition_details": [
+        {
+          "evidence": 25,
+          "feature": "setup_type",
+          "label": "exclude setup_type=SECONDARY_SIGNAL",
+          "operator": "==",
+          "value": "SECONDARY_SIGNAL"
+        },
+        {
+          "evidence": 25,
+          "feature": "liquidity_sweep",
+          "label": "exclude liquidity_sweep=none",
+          "operator": "==",
+          "value": "none"
+        }
+      ],
+      "conditions": [
+        "exclude setup_type=SECONDARY_SIGNAL",
+        "exclude liquidity_sweep=none"
+      ],
+      "confidence": "LOW",
+      "delta_pf": 0.2211,
+      "delta_total_r": 3.9481,
+      "delta_wr": 0.7653,
+      "drawdown": -6.0,
+      "evidence": 24,
+      "expectancy": 0.0779,
+      "profit_factor": 1.1336,
+      "remaining_closed": 24,
+      "removed_closed": 25,
+      "removed_metrics": {
+        "average_loss": -0.6965,
+        "average_win": 0.6447,
+        "avg_r": -0.1579,
+        "closed": 25,
+        "confidence": "LOW",
+        "drawdown": -4.686,
+        "evidence": 25,
+        "expectancy": -0.1579,
+        "losses": 14,
+        "median_r": -0.21,
+        "neutral": 2,
+        "open": 0,
+        "profit_factor": 0.5951,
+        "std_dev": 0.7304,
+        "total_r": -3.9481,
+        "trades": 25,
+        "winrate": 36.0,
+        "wins": 9
+      },
+      "simulation_type": "exclude",
+      "total_r": 1.8698,
+      "trade_reduction_pct": 51.0204,
+      "trades_eliminated": 25,
+      "trades_remaining": 24,
+      "winrate": 37.5
+    },
+    {
+      "average_loss": -0.9333,
+      "average_win": 1.2653,
+      "avg_r": 0.02,
+      "condition_details": [
+        {
+          "evidence": 23,
+          "feature": "bos",
+          "label": "exclude bos=bearish_bos",
+          "operator": "==",
+          "value": "bearish_bos"
+        },
+        {
+          "evidence": 23,
+          "feature": "break_of_structure",
+          "label": "exclude break_of_structure=bearish_bos",
+          "operator": "==",
+          "value": "bearish_bos"
+        }
+      ],
+      "conditions": [
+        "exclude bos=bearish_bos",
+        "exclude break_of_structure=bearish_bos"
+      ],
+      "confidence": "LOW",
+      "delta_pf": 0.1304,
+      "delta_total_r": 2.5986,
+      "delta_wr": 1.7268,
+      "drawdown": -4.3472,
+      "evidence": 26,
+      "expectancy": 0.02,
+      "profit_factor": 1.0429,
+      "remaining_closed": 26,
+      "removed_closed": 23,
+      "removed_metrics": {
+        "average_loss": -0.7745,
+        "average_win": 1.1274,
+        "avg_r": -0.113,
+        "closed": 23,
+        "confidence": "LOW",
+        "drawdown": -5.5245,
+        "evidence": 23,
+        "expectancy": -0.113,
+        "losses": 15,
+        "median_r": -0.4775,
+        "neutral": 0,
+        "open": 0,
+        "profit_factor": 0.7763,
+        "std_dev": 1.1959,
+        "total_r": -2.5986,
+        "trades": 23,
+        "winrate": 34.7826,
+        "wins": 8
+      },
+      "simulation_type": "exclude",
+      "total_r": 0.5203,
+      "trade_reduction_pct": 46.9388,
+      "trades_eliminated": 23,
+      "trades_remaining": 26,
+      "winrate": 38.4615
+    },
+    {
+      "average_loss": -0.9233,
+      "average_win": 0.9384,
+      "avg_r": -0.0575,
+      "condition_details": [
+        {
+          "evidence": 20,
+          "feature": "volume_ratio_bucket",
+          "label": "exclude volume_ratio_bucket=very_high",
+          "operator": "==",
+          "value": "very_high"
+        },
+        {
+          "evidence": 20,
+          "feature": "volume_ratio",
+          "label": "exclude volume_ratio>=1.8",
+          "operator": ">=",
+          "value": 1.8
+        }
+      ],
+      "conditions": [
+        "exclude volume_ratio_bucket=very_high",
+        "exclude volume_ratio>=1.8"
+      ],
+      "confidence": "LOW",
+      "delta_pf": -0.0414,
+      "delta_total_r": 0.412,
+      "delta_wr": 4.6446,
+      "drawdown": -5.2499,
+      "evidence": 29,
+      "expectancy": -0.0575,
+      "profit_factor": 0.8711,
+      "remaining_closed": 29,
+      "removed_closed": 20,
+      "removed_metrics": {
+        "average_loss": -0.7731,
+        "average_win": 1.7353,
+        "avg_r": -0.0206,
+        "closed": 20,
+        "confidence": "LOW",
+        "drawdown": -6.0525,
+        "evidence": 20,
+        "expectancy": -0.0206,
+        "losses": 14,
+        "median_r": -0.6027,
+        "neutral": 0,
+        "open": 0,
+        "profit_factor": 0.9619,
+        "std_dev": 1.3377,
+        "total_r": -0.412,
+        "trades": 20,
+        "winrate": 30.0,
+        "wins": 6
+      },
+      "simulation_type": "exclude",
+      "total_r": -1.6663,
+      "trade_reduction_pct": 40.8163,
+      "trades_eliminated": 20,
+      "trades_remaining": 29,
+      "winrate": 41.3793
+    },
+    {
+      "average_loss": -0.8109,
+      "average_win": 1.376,
+      "avg_r": -0.1151,
+      "condition_details": [
+        {
+          "evidence": 24,
+          "feature": "trend_1h",
+          "label": "exclude trend_1h=bearish",
+          "operator": "==",
+          "value": "bearish"
+        },
+        {
+          "evidence": 22,
+          "feature": "rsi",
+          "label": "exclude rsi<45",
+          "operator": "<",
+          "value": 45
+        }
+      ],
+      "conditions": [
+        "exclude trend_1h=bearish",
+        "exclude rsi<45"
+      ],
+      "confidence": "LOW",
+      "delta_pf": -0.1206,
+      "delta_total_r": -0.4529,
+      "delta_wr": -4.9165,
+      "drawdown": -6.5927,
+      "evidence": 22,
+      "expectancy": -0.1151,
+      "profit_factor": 0.7919,
+      "remaining_closed": 22,
+      "removed_closed": 27,
+      "removed_metrics": {
+        "average_loss": -0.8913,
+        "average_win": 1.0946,
+        "avg_r": 0.0168,
+        "closed": 27,
+        "confidence": "LOW",
+        "drawdown": -3.7252,
+        "evidence": 27,
+        "expectancy": 0.0168,
+        "losses": 13,
+        "median_r": 0.0,
+        "neutral": 3,
+        "open": 0,
+        "profit_factor": 1.0391,
+        "std_dev": 1.1875,
+        "total_r": 0.4529,
+        "trades": 27,
+        "winrate": 40.7407,
+        "wins": 11
+      },
+      "simulation_type": "exclude",
+      "total_r": -2.5312,
+      "trade_reduction_pct": 55.102,
+      "trades_eliminated": 27,
+      "trades_remaining": 22,
+      "winrate": 31.8182
+    },
+    {
+      "average_loss": -0.8359,
+      "average_win": 1.2291,
+      "avg_r": -0.1265,
+      "condition_details": [
+        {
+          "evidence": 24,
+          "feature": "htf_alignment",
+          "label": "exclude htf_alignment=aligned",
+          "operator": "==",
+          "value": "aligned"
+        },
+        {
+          "evidence": 21,
+          "feature": "ltf_alignment",
+          "label": "exclude ltf_alignment=aligned",
+          "operator": "==",
+          "value": "aligned"
+        }
+      ],
+      "conditions": [
+        "exclude htf_alignment=aligned",
+        "exclude ltf_alignment=aligned"
+      ],
+      "confidence": "LOW",
+      "delta_pf": -0.1773,
+      "delta_total_r": -0.5776,
+      "delta_wr": -8.1633,
+      "drawdown": -6.3209,
+      "evidence": 21,
+      "expectancy": -0.1265,
+      "profit_factor": 0.7352,
+      "remaining_closed": 21,
+      "removed_closed": 28,
+      "removed_metrics": {
+        "average_loss": -0.8575,
+        "average_win": 1.1915,
+        "avg_r": 0.0206,
+        "closed": 28,
+        "confidence": "LOW",
+        "drawdown": -5.5003,
+        "evidence": 28,
+        "expectancy": 0.0206,
+        "losses": 16,
+        "median_r": -0.4297,
+        "neutral": 0,
+        "open": 0,
+        "profit_factor": 1.0421,
+        "std_dev": 1.2289,
+        "total_r": 0.5776,
+        "trades": 28,
+        "winrate": 42.8571,
+        "wins": 12
+      },
+      "simulation_type": "exclude",
+      "total_r": -2.6559,
+      "trade_reduction_pct": 57.1429,
+      "trades_eliminated": 28,
+      "trades_remaining": 21,
+      "winrate": 28.5714
+    },
+    {
+      "average_loss": -1.0,
+      "average_win": 1.4208,
+      "avg_r": -0.1738,
+      "condition_details": [
+        {
+          "evidence": 29,
+          "feature": "entry_zone",
+          "label": "exclude entry_zone=BREAKOUT",
+          "operator": "==",
+          "value": "BREAKOUT"
+        },
+        {
+          "evidence": 29,
+          "feature": "entry_context",
+          "label": "exclude entry_context=BREAKOUT",
+          "operator": "==",
+          "value": "BREAKOUT"
+        }
+      ],
+      "conditions": [
+        "exclude entry_zone=BREAKOUT",
+        "exclude entry_context=BREAKOUT"
+      ],
+      "confidence": "LOW",
+      "delta_pf": -0.2021,
+      "delta_total_r": -1.3967,
+      "delta_wr": -6.7347,
+      "drawdown": -6.0828,
+      "evidence": 20,
+      "expectancy": -0.1738,
+      "profit_factor": 0.7104,
+      "remaining_closed": 20,
+      "removed_closed": 29,
+      "removed_metrics": {
+        "average_loss": -0.7344,
+        "average_win": 1.0956,
+        "avg_r": 0.0482,
+        "closed": 29,
+        "confidence": "LOW",
+        "drawdown": -3.4759,
+        "evidence": 29,
+        "expectancy": 0.0482,
+        "losses": 16,
+        "median_r": -0.21,
+        "neutral": 1,
+        "open": 0,
+        "profit_factor": 1.1189,
+        "std_dev": 1.1459,
+        "total_r": 1.3967,
+        "trades": 29,
+        "winrate": 41.3793,
+        "wins": 12
+      },
+      "simulation_type": "exclude",
+      "total_r": -3.475,
+      "trade_reduction_pct": 59.1837,
+      "trades_eliminated": 29,
+      "trades_remaining": 20,
+      "winrate": 30.0
+    },
+    {
+      "average_loss": -0.8902,
+      "average_win": 1.567,
+      "avg_r": -0.2105,
+      "condition_details": [
+        {
+          "evidence": 26,
+          "feature": "rr_bucket",
+          "label": "exclude rr_bucket=1.5-1.99",
+          "operator": "==",
+          "value": "1.5-1.99"
+        },
+        {
+          "evidence": 26,
+          "feature": "rr",
+          "label": "exclude rr<2",
+          "operator": "<",
+          "value": 2
+        }
+      ],
+      "conditions": [
+        "exclude rr_bucket=1.5-1.99",
+        "exclude rr<2"
+      ],
+      "confidence": "LOW",
+      "delta_pf": -0.2524,
+      "delta_total_r": -2.7625,
+      "delta_wr": -10.6477,
+      "drawdown": -5.7918,
+      "evidence": 23,
+      "expectancy": -0.2105,
+      "profit_factor": 0.6601,
+      "remaining_closed": 23,
+      "removed_closed": 26,
+      "removed_metrics": {
+        "average_loss": -0.7924,
+        "average_win": 1.0226,
+        "avg_r": 0.1063,
+        "closed": 26,
+        "confidence": "LOW",
+        "drawdown": -3.9808,
+        "evidence": 26,
+        "expectancy": 0.1063,
+        "losses": 12,
+        "median_r": 0.0,
+        "neutral": 2,
+        "open": 0,
+        "profit_factor": 1.2905,
+        "std_dev": 0.9575,
+        "total_r": 2.7625,
+        "trades": 26,
+        "winrate": 46.1538,
+        "wins": 12
+      },
+      "simulation_type": "exclude",
+      "total_r": -4.8408,
+      "trade_reduction_pct": 53.0612,
+      "trades_eliminated": 26,
+      "trades_remaining": 23,
+      "winrate": 26.087
+    },
+    {
+      "average_loss": -0.6965,
+      "average_win": 0.6447,
+      "avg_r": -0.1579,
+      "condition_details": [
+        {
+          "evidence": 24,
+          "feature": "setup",
+          "label": "exclude setup=MAIN_SIGNAL",
+          "operator": "==",
+          "value": "MAIN_SIGNAL"
+        },
+        {
+          "evidence": 24,
+          "feature": "setup_type",
+          "label": "exclude setup_type=MAIN_SIGNAL",
+          "operator": "==",
+          "value": "MAIN_SIGNAL"
+        }
+      ],
+      "conditions": [
+        "exclude setup=MAIN_SIGNAL",
+        "exclude setup_type=MAIN_SIGNAL"
+      ],
+      "confidence": "LOW",
+      "delta_pf": -0.3174,
+      "delta_total_r": -1.8698,
+      "delta_wr": -0.7347,
+      "drawdown": -4.686,
+      "evidence": 25,
+      "expectancy": -0.1579,
+      "profit_factor": 0.5951,
+      "remaining_closed": 25,
+      "removed_closed": 24,
+      "removed_metrics": {
+        "average_loss": -1.0,
+        "average_win": 1.7633,
+        "avg_r": 0.0779,
+        "closed": 24,
+        "confidence": "LOW",
+        "drawdown": -6.0,
+        "evidence": 24,
+        "expectancy": 0.0779,
+        "losses": 14,
+        "median_r": -1.0,
+        "neutral": 1,
+        "open": 0,
+        "profit_factor": 1.1336,
+        "std_dev": 1.471,
+        "total_r": 1.8698,
+        "trades": 24,
+        "winrate": 37.5,
+        "wins": 9
+      },
+      "simulation_type": "exclude",
+      "total_r": -3.9481,
+      "trade_reduction_pct": 48.9796,
+      "trades_eliminated": 24,
+      "trades_remaining": 25,
+      "winrate": 36.0
+    }
+  ]
+}

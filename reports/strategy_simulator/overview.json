@@ -1,0 +1,277 @@
+{
+  "baseline": {
+    "average_loss": -0.8482,
+    "average_win": 1.204,
+    "avg_r": -0.0424,
+    "closed": 49,
+    "confidence": "MEDIUM",
+    "drawdown": -7.918,
+    "evidence": 49,
+    "expectancy": -0.0424,
+    "losses": 28,
+    "median_r": -0.382,
+    "neutral": 3,
+    "open": 0,
+    "profit_factor": 0.9125,
+    "std_dev": 1.1602,
+    "total_r": -2.0783,
+    "trades": 49,
+    "winrate": 36.7347,
+    "wins": 18
+  },
+  "eligible_conditions": [
+    {
+      "evidence": 49,
+      "feature": "strategy",
+      "label": "exclude strategy=liquidity_sweep_mtf_v1",
+      "operator": "==",
+      "value": "liquidity_sweep_mtf_v1"
+    },
+    {
+      "evidence": 49,
+      "feature": "paper_level",
+      "label": "exclude paper_level=HIGH",
+      "operator": "==",
+      "value": "HIGH"
+    },
+    {
+      "evidence": 49,
+      "feature": "rr_valid",
+      "label": "exclude rr_valid=True",
+      "operator": "==",
+      "value": "True"
+    },
+    {
+      "evidence": 49,
+      "feature": "late_entry_from_bos",
+      "label": "exclude late_entry_from_bos=False",
+      "operator": "==",
+      "value": "False"
+    },
+    {
+      "evidence": 35,
+      "feature": "score",
+      "label": "exclude score<80",
+      "operator": "<",
+      "value": 80
+    },
+    {
+      "evidence": 34,
+      "feature": "liquidity_distance",
+      "label": "exclude liquidity_distance>=2",
+      "operator": ">=",
+      "value": 2
+    },
+    {
+      "evidence": 33,
+      "feature": "volume_ratio",
+      "label": "exclude volume_ratio>=1.2",
+      "operator": ">=",
+      "value": 1.2
+    },
+    {
+      "evidence": 31,
+      "feature": "trend_4h",
+      "label": "exclude trend_4h=bearish",
+      "operator": "==",
+      "value": "bearish"
+    },
+    {
+      "evidence": 31,
+      "feature": "score",
+      "label": "exclude score<70",
+      "operator": "<",
+      "value": 70
+    },
+    {
+      "evidence": 29,
+      "feature": "entry_zone",
+      "label": "exclude entry_zone=BREAKOUT",
+      "operator": "==",
+      "value": "BREAKOUT"
+    },
+    {
+      "evidence": 29,
+      "feature": "entry_context",
+      "label": "exclude entry_context=BREAKOUT",
+      "operator": "==",
+      "value": "BREAKOUT"
+    },
+    {
+      "evidence": 29,
+      "feature": "liquidity_distance_bucket",
+      "label": "exclude liquidity_distance_bucket=2-4atr",
+      "operator": "==",
+      "value": "2-4atr"
+    },
+    {
+      "evidence": 28,
+      "feature": "ltf_alignment",
+      "label": "exclude ltf_alignment=against",
+      "operator": "==",
+      "value": "against"
+    },
+    {
+      "evidence": 26,
+      "feature": "rr_bucket",
+      "label": "exclude rr_bucket=1.5-1.99",
+      "operator": "==",
+      "value": "1.5-1.99"
+    },
+    {
+      "evidence": 26,
+      "feature": "rr",
+      "label": "exclude rr<2",
+      "operator": "<",
+      "value": 2
+    },
+    {
+      "evidence": 25,
+      "feature": "direction",
+      "label": "exclude direction=long",
+      "operator": "==",
+      "value": "long"
+    },
+    {
+      "evidence": 25,
+      "feature": "setup",
+      "label": "exclude setup=SECONDARY_SIGNAL",
+      "operator": "==",
+      "value": "SECONDARY_SIGNAL"
+    },
+    {
+      "evidence": 25,
+      "feature": "setup_type",
+      "label": "exclude setup_type=SECONDARY_SIGNAL",
+      "operator": "==",
+      "value": "SECONDARY_SIGNAL"
+    },
+    {
+      "evidence": 25,
+      "feature": "liquidity_sweep",
+      "label": "exclude liquidity_sweep=none",
+      "operator": "==",
+      "value": "none"
+    },
+    {
+      "evidence": 25,
+      "feature": "htf_alignment",
+      "label": "exclude htf_alignment=against",
+      "operator": "==",
+      "value": "against"
+    },
+    {
+      "evidence": 25,
+      "feature": "trend_1h",
+      "label": "exclude trend_1h=bullish",
+      "operator": "==",
+      "value": "bullish"
+    },
+    {
+      "evidence": 24,
+      "feature": "direction",
+      "label": "exclude direction=short",
+      "operator": "==",
+      "value": "short"
+    },
+    {
+      "evidence": 24,
+      "feature": "setup",
+      "label": "exclude setup=MAIN_SIGNAL",
+      "operator": "==",
+      "value": "MAIN_SIGNAL"
+    },
+    {
+      "evidence": 24,
+      "feature": "setup_type",
+      "label": "exclude setup_type=MAIN_SIGNAL",
+      "operator": "==",
+      "value": "MAIN_SIGNAL"
+    },
+    {
+      "evidence": 24,
+      "feature": "htf_alignment",
+      "label": "exclude htf_alignment=aligned",
+      "operator": "==",
+      "value": "aligned"
+    },
+    {
+      "evidence": 24,
+      "feature": "trend_1h",
+      "label": "exclude trend_1h=bearish",
+      "operator": "==",
+      "value": "bearish"
+    },
+    {
+      "evidence": 23,
+      "feature": "bos",
+      "label": "exclude bos=bearish_bos",
+      "operator": "==",
+      "value": "bearish_bos"
+    },
+    {
+      "evidence": 23,
+      "feature": "break_of_structure",
+      "label": "exclude break_of_structure=bearish_bos",
+      "operator": "==",
+      "value": "bearish_bos"
+    },
+    {
+      "evidence": 23,
+      "feature": "rr",
+      "label": "exclude rr>=2",
+      "operator": ">=",
+      "value": 2
+    },
+    {
+      "evidence": 22,
+      "feature": "rsi",
+      "label": "exclude rsi<45",
+      "operator": "<",
+      "value": 45
+    },
+    {
+      "evidence": 21,
+      "feature": "ltf_alignment",
+      "label": "exclude ltf_alignment=aligned",
+      "operator": "==",
+      "value": "aligned"
+    },
+    {
+      "evidence": 20,
+      "feature": "market_regime",
+      "label": "exclude market_regime=RANGING",
+      "operator": "==",
+      "value": "RANGING"
+    },
+    {
+      "evidence": 20,
+      "feature": "volume_ratio_bucket",
+      "label": "exclude volume_ratio_bucket=very_high",
+      "operator": "==",
+      "value": "very_high"
+    },
+    {
+      "evidence": 20,
+      "feature": "volume_ratio",
+      "label": "exclude volume_ratio>=1.8",
+      "operator": ">=",
+      "value": 1.8
+    }
+  ],
+  "excluded_filter_features": [
+    "candles_held",
+    "closed_at",
+    "holding_candles",
+    "holding_candles_bucket",
+    "holding_hours",
+    "mae_r",
+    "mfe_r",
+    "outcome",
+    "result_r",
+    "status",
+    "updated_at"
+  ],
+  "pre_trade_only": true,
+  "source": "data/paper_trading/trades.csv"
+}
