@@ -1,0 +1,38 @@
+{
+  "edges": [
+    {
+      "avg_r": 0.273,
+      "closed": 25,
+      "confidence": "LOW",
+      "context": {},
+      "dimension": "direction",
+      "dimensions": null,
+      "edge_type": "POSITIVE_EDGE",
+      "evidence_count": 25,
+      "expectancy": 0.273,
+      "label": "direction=long",
+      "profit_factor": 1.7473,
+      "total_r": 6.8245,
+      "trades": 25,
+      "value": "long",
+      "winrate": 48.0
+    },
+    {
+      "avg_r": 0.1063,
+      "closed": 26,
+      "confidence": "LOW",
+      "context": {},
+      "dimension": "rr_bucket",
+      "dimensions": null,
+      "edge_type": "POSITIVE_EDGE",
+      "evidence_count": 26,
+      "expectancy": 0.1063,
+      "label": "rr_bucket=1.5-1.99",
+      "profit_factor": 1.2905,
+      "total_r": 2.7625,
+      "trades": 26,
+      "value": "1.5-1.99",
+      "winrate": 46.1538
+    }
+  ]
+}

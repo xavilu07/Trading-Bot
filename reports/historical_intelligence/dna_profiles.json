@@ -1,0 +1,127 @@
+{
+  "profiles": [
+    {
+      "classification": "PROMISING",
+      "drawdown": -4.0,
+      "evidence": 11,
+      "expected_r": 0.1602,
+      "historical_confidence": "LOW",
+      "holding": {
+        "average_loss": -1.0,
+        "average_win": 1.9405,
+        "avg_candles_held": 6.9091,
+        "avg_r": 0.1602,
+        "closed": 11,
+        "confidence": "LOW",
+        "current_drawdown": -1.0,
+        "evidence_count": 11,
+        "expectancy": 0.1602,
+        "losing_streak": 4,
+        "losses": 6,
+        "max_drawdown": -4.0,
+        "median_r": -1.0,
+        "neutral": 1,
+        "open": 0,
+        "profit_factor": 1.2937,
+        "std_dev": 1.5982,
+        "total_r": 1.762,
+        "trades": 11,
+        "winning_streak": 2,
+        "winrate": 36.3636,
+        "wins": 4
+      },
+      "label": "direction=long | setup_type=MAIN_SIGNAL | trade_location=near_support",
+      "profile": {
+        "direction": "long",
+        "setup_type": "MAIN_SIGNAL",
+        "trade_location": "near_support"
+      },
+      "profit_factor": 1.2937,
+      "total_r": 1.762,
+      "winrate": 36.3636
+    },
+    {
+      "classification": "NEGATIVE",
+      "drawdown": -3.8538,
+      "evidence": 15,
+      "expected_r": -0.2569,
+      "historical_confidence": "LOW",
+      "holding": {
+        "average_loss": -0.6618,
+        "average_win": 0.5529,
+        "avg_candles_held": 15.4667,
+        "avg_r": -0.2569,
+        "closed": 15,
+        "confidence": "LOW",
+        "current_drawdown": -3.8538,
+        "evidence_count": 15,
+        "expectancy": -0.2569,
+        "losing_streak": 4,
+        "losses": 10,
+        "max_drawdown": -3.8538,
+        "median_r": -0.382,
+        "neutral": 0,
+        "open": 0,
+        "profit_factor": 0.4177,
+        "std_dev": 0.6875,
+        "total_r": -3.8538,
+        "trades": 15,
+        "winning_streak": 2,
+        "winrate": 33.3333,
+        "wins": 5
+      },
+      "label": "direction=short | setup_type=SECONDARY_SIGNAL | entry_context=BREAKOUT",
+      "profile": {
+        "direction": "short",
+        "entry_context": "BREAKOUT",
+        "setup_type": "SECONDARY_SIGNAL"
+      },
+      "profit_factor": 0.4177,
+      "total_r": -3.8538,
+      "winrate": 33.3333
+    }
+  ],
+  "top_elite": [],
+  "top_negative": [
+    {
+      "classification": "NEGATIVE",
+      "drawdown": -3.8538,
+      "evidence": 15,
+      "expected_r": -0.2569,
+      "historical_confidence": "LOW",
+      "holding": {
+        "average_loss": -0.6618,
+        "average_win": 0.5529,
+        "avg_candles_held": 15.4667,
+        "avg_r": -0.2569,
+        "closed": 15,
+        "confidence": "LOW",
+        "current_drawdown": -3.8538,
+        "evidence_count": 15,
+        "expectancy": -0.2569,
+        "losing_streak": 4,
+        "losses": 10,
+        "max_drawdown": -3.8538,
+        "median_r": -0.382,
+        "neutral": 0,
+        "open": 0,
+        "profit_factor": 0.4177,
+        "std_dev": 0.6875,
+        "total_r": -3.8538,
+        "trades": 15,
+        "winning_streak": 2,
+        "winrate": 33.3333,
+        "wins": 5
+      },
+      "label": "direction=short | setup_type=SECONDARY_SIGNAL | entry_context=BREAKOUT",
+      "profile": {
+        "direction": "short",
+        "entry_context": "BREAKOUT",
+        "setup_type": "SECONDARY_SIGNAL"
+      },
+      "profit_factor": 0.4177,
+      "total_r": -3.8538,
+      "winrate": 33.3333
+    }
+  ]
+}

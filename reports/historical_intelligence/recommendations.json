@@ -1,0 +1,167 @@
+{
+  "recommendations": [
+    {
+      "action": "Prioritize context",
+      "confidence": "LOW",
+      "context": {
+        "direction": "long"
+      },
+      "evidence": 25,
+      "expected_impact": 6.8245,
+      "label": "direction=long",
+      "reason": "PF 1.7473 with TotalR 6.8245"
+    },
+    {
+      "action": "Prioritize context",
+      "confidence": "LOW",
+      "context": {
+        "rr_bucket": "1.5-1.99"
+      },
+      "evidence": 26,
+      "expected_impact": 2.7625,
+      "label": "rr_bucket=1.5-1.99",
+      "reason": "PF 1.2905 with TotalR 2.7625"
+    },
+    {
+      "action": "Avoid context",
+      "confidence": "LOW",
+      "context": {
+        "exit_reason": "sl_hit"
+      },
+      "evidence": 20,
+      "expected_impact": 20.0,
+      "label": "exit_reason=sl_hit",
+      "reason": "PF 0.0 with TotalR -20.0"
+    },
+    {
+      "action": "Avoid context",
+      "confidence": "LOW",
+      "context": {
+        "status": "sl_hit"
+      },
+      "evidence": 20,
+      "expected_impact": 20.0,
+      "label": "status=sl_hit",
+      "reason": "PF 0.0 with TotalR -20.0"
+    },
+    {
+      "action": "Avoid context",
+      "confidence": "LOW",
+      "context": {
+        "direction": "short"
+      },
+      "evidence": 24,
+      "expected_impact": 8.9028,
+      "label": "direction=short",
+      "reason": "PF 0.391 with TotalR -8.9028"
+    },
+    {
+      "action": "Avoid context",
+      "confidence": "LOW",
+      "context": {
+        "setup_type": "SECONDARY_SIGNAL"
+      },
+      "evidence": 25,
+      "expected_impact": 3.9481,
+      "label": "setup_type=SECONDARY_SIGNAL",
+      "reason": "PF 0.5951 with TotalR -3.9481"
+    },
+    {
+      "action": "Avoid context",
+      "confidence": "LOW",
+      "context": {
+        "market_regime": "RANGING"
+      },
+      "evidence": 20,
+      "expected_impact": 3.5656,
+      "label": "market_regime=RANGING",
+      "reason": "PF 0.6597 with TotalR -3.5656"
+    }
+  ],
+  "summary": {
+    "global_profit_factor": 0.9125,
+    "global_total_r": -2.0783,
+    "negative_actions": 5,
+    "positive_actions": 2,
+    "total_recommendations": 7
+  },
+  "watchlist": [
+    {
+      "action": "Prioritize context",
+      "confidence": "LOW",
+      "context": {
+        "direction": "long"
+      },
+      "evidence": 25,
+      "expected_impact": 6.8245,
+      "label": "direction=long",
+      "reason": "PF 1.7473 with TotalR 6.8245"
+    },
+    {
+      "action": "Prioritize context",
+      "confidence": "LOW",
+      "context": {
+        "rr_bucket": "1.5-1.99"
+      },
+      "evidence": 26,
+      "expected_impact": 2.7625,
+      "label": "rr_bucket=1.5-1.99",
+      "reason": "PF 1.2905 with TotalR 2.7625"
+    },
+    {
+      "action": "Avoid context",
+      "confidence": "LOW",
+      "context": {
+        "exit_reason": "sl_hit"
+      },
+      "evidence": 20,
+      "expected_impact": 20.0,
+      "label": "exit_reason=sl_hit",
+      "reason": "PF 0.0 with TotalR -20.0"
+    },
+    {
+      "action": "Avoid context",
+      "confidence": "LOW",
+      "context": {
+        "status": "sl_hit"
+      },
+      "evidence": 20,
+      "expected_impact": 20.0,
+      "label": "status=sl_hit",
+      "reason": "PF 0.0 with TotalR -20.0"
+    },
+    {
+      "action": "Avoid context",
+      "confidence": "LOW",
+      "context": {
+        "direction": "short"
+      },
+      "evidence": 24,
+      "expected_impact": 8.9028,
+      "label": "direction=short",
+      "reason": "PF 0.391 with TotalR -8.9028"
+    },
+    {
+      "action": "Avoid context",
+      "confidence": "LOW",
+      "context": {
+        "setup_type": "SECONDARY_SIGNAL"
+      },
+      "evidence": 25,
+      "expected_impact": 3.9481,
+      "label": "setup_type=SECONDARY_SIGNAL",
+      "reason": "PF 0.5951 with TotalR -3.9481"
+    },
+    {
+      "action": "Avoid context",
+      "confidence": "LOW",
+      "context": {
+        "market_regime": "RANGING"
+      },
+      "evidence": 20,
+      "expected_impact": 3.5656,
+      "label": "market_regime=RANGING",
+      "reason": "PF 0.6597 with TotalR -3.5656"
+    }
+  ]
+}

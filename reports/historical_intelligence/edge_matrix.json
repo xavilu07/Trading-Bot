@@ -1,0 +1,12 @@
+{
+  "dimensions": [
+    "symbol",
+    "direction",
+    "session",
+    "setup_type",
+    "market_regime",
+    "trade_location",
+    "score_bucket"
+  ],
+  "groups": []
+}
