@@ -13,7 +13,12 @@ def main() -> int:
     parser.add_argument("--data-path", type=Path, default=root / "data")
     parser.add_argument("--reports-path", type=Path, default=root / "reports" / "strategy_simulator")
     parser.add_argument("--min-evidence", type=int, default=20)
-    parser.add_argument("--max-conditions", type=int, default=60)
+    parser.add_argument(
+        "--max-conditions",
+        type=int,
+        default=3,
+        help="Maximum filter combination depth to test: 1, 2, or 3.",
+    )
     args = parser.parse_args()
 
     result = run_strategy_simulator(

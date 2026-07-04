@@ -18,6 +18,7 @@ SAFE_CATEGORICAL_FEATURES = (
     "session",
     "utc_hour",
     "opened_weekday",
+    "opened_hour_utc",
     "market_regime",
     "location",
     "trade_location",
@@ -72,22 +73,41 @@ REPORTS = (
     "recommendations",
 )
 
+MAX_CONDITION_POOL = 60
+NEAR_CONSTANT_RATIO = 0.98
+
 
 def run_strategy_simulator(
     *,
     data_path: Path = Path("data"),
     reports_path: Path = Path("reports") / "strategy_simulator",
     min_evidence: int = 20,
-    max_conditions: int = 60,
+    max_conditions: int = 3,
 ) -> dict[str, Any]:
     dataset = load_research_dataset(data_path)
     rows = dataset["rows"]
     baseline = compute_metrics(rows)
-    conditions = build_filter_conditions(rows, min_evidence=min_evidence, max_conditions=max_conditions)
+    condition_set = collect_filter_conditions(rows, min_evidence=min_evidence)
+    conditions = condition_set["conditions"][:MAX_CONDITION_POOL]
+    max_combination_size = max(1, min(max_conditions, 3))
     single = run_exclusion_simulations(rows, baseline, conditions, size=1, min_evidence=min_evidence)
-    double = run_exclusion_simulations(rows, baseline, conditions, size=2, min_evidence=min_evidence)
-    triple = run_exclusion_simulations(rows, baseline, conditions, size=3, min_evidence=min_evidence)
-    best_configs = run_keep_configurations(rows, baseline, conditions, min_evidence=min_evidence)
+    double = (
+        run_exclusion_simulations(rows, baseline, conditions, size=2, min_evidence=min_evidence)
+        if max_combination_size >= 2
+        else []
+    )
+    triple = (
+        run_exclusion_simulations(rows, baseline, conditions, size=3, min_evidence=min_evidence)
+        if max_combination_size >= 3
+        else []
+    )
+    best_configs = run_keep_configurations(
+        rows,
+        baseline,
+        conditions,
+        min_evidence=min_evidence,
+        max_size=max_combination_size,
+    )
     all_filters = [*single, *double, *triple]
     worst_configs = sorted(all_filters, key=lambda item: (item["delta_total_r"], item["delta_pf"]))[:100]
     recommendations = build_simulator_recommendations(single, double, triple, best_configs)
@@ -96,6 +116,8 @@ def run_strategy_simulator(
             "source": dataset["source"],
             "baseline": baseline,
             "eligible_conditions": conditions,
+            "condition_debug": condition_set["debug"],
+            "max_combination_size": max_combination_size,
             "pre_trade_only": True,
             "excluded_filter_features": sorted(BANNED_FILTER_FEATURES),
         },
@@ -118,21 +140,44 @@ def build_filter_conditions(
     rows: list[dict[str, Any]],
     *,
     min_evidence: int = 20,
-    max_conditions: int = 60,
+    max_conditions: int = MAX_CONDITION_POOL,
 ) -> list[dict[str, Any]]:
+    return collect_filter_conditions(rows, min_evidence=min_evidence)["conditions"][:max_conditions]
+
+
+def collect_filter_conditions(
+    rows: list[dict[str, Any]],
+    *,
+    min_evidence: int = 20,
+) -> dict[str, Any]:
     conditions: list[dict[str, Any]] = []
+    total_before_filter = 0
+    skipped_constant_features: list[dict[str, Any]] = []
+    skipped_low_evidence: list[dict[str, Any]] = []
+    closed_rows = [row for row in rows if to_float(row.get("result_r")) is not None]
+    closed_count = len(closed_rows)
     for feature in SAFE_CATEGORICAL_FEATURES:
         if feature in BANNED_FILTER_FEATURES:
             continue
         counts: dict[str, int] = {}
-        for row in rows:
-            if to_float(row.get("result_r")) is None:
-                continue
+        for row in closed_rows:
             value = normalize_group_value(row.get(feature))
             if value == "UNKNOWN":
                 continue
             counts[value] = counts.get(value, 0) + 1
+        if _is_constant_or_near_constant(counts, closed_count):
+            skipped_constant_features.append(
+                {
+                    "feature": feature,
+                    "values": len(counts),
+                    "dominant_value": max(counts, key=counts.get) if counts else None,
+                    "dominant_count": max(counts.values()) if counts else 0,
+                    "closed_count": closed_count,
+                }
+            )
+            continue
         for value, evidence in sorted(counts.items(), key=lambda item: item[1], reverse=True)[:8]:
+            total_before_filter += 1
             if evidence >= min_evidence:
                 conditions.append(
                     {
@@ -143,15 +188,30 @@ def build_filter_conditions(
                         "label": f"exclude {feature}={value}",
                     }
                 )
+            else:
+                skipped_low_evidence.append({"feature": feature, "operator": "==", "value": value, "evidence": evidence})
     for feature, thresholds in SAFE_NUMERIC_THRESHOLDS.items():
         if feature in BANNED_FILTER_FEATURES:
             continue
+        numeric_values = [to_float(row.get(feature)) for row in closed_rows]
+        numeric_values = [value for value in numeric_values if value is not None]
+        if _numeric_is_constant_or_near_constant(numeric_values):
+            skipped_constant_features.append(
+                {
+                    "feature": feature,
+                    "values": len(set(numeric_values)),
+                    "dominant_value": numeric_values[0] if numeric_values else None,
+                    "dominant_count": len(numeric_values),
+                    "closed_count": closed_count,
+                }
+            )
+            continue
         for operator, threshold in thresholds:
+            total_before_filter += 1
             evidence = sum(
                 1
-                for row in rows
-                if to_float(row.get("result_r")) is not None
-                and _compare(to_float(row.get(feature)), operator, threshold)
+                for row in closed_rows
+                if _compare(to_float(row.get(feature)), operator, threshold)
             )
             if evidence >= min_evidence:
                 conditions.append(
@@ -163,7 +223,20 @@ def build_filter_conditions(
                         "label": f"exclude {feature}{operator}{threshold}",
                     }
                 )
-    return sorted(conditions, key=lambda item: item["evidence"], reverse=True)[:max_conditions]
+            else:
+                skipped_low_evidence.append({"feature": feature, "operator": operator, "value": threshold, "evidence": evidence})
+    sorted_conditions = sorted(conditions, key=lambda item: item["evidence"], reverse=True)
+    return {
+        "conditions": sorted_conditions,
+        "debug": {
+            "total_candidate_conditions_before_filter": total_before_filter,
+            "total_candidate_conditions_after_filter": len(sorted_conditions),
+            "skipped_constant_features": skipped_constant_features,
+            "skipped_low_evidence": skipped_low_evidence[:200],
+            "min_evidence": min_evidence,
+            "near_constant_ratio": NEAR_CONSTANT_RATIO,
+        },
+    }
 
 
 def run_exclusion_simulations(
@@ -189,10 +262,11 @@ def run_keep_configurations(
     conditions: list[dict[str, Any]],
     *,
     min_evidence: int,
+    max_size: int = 3,
 ) -> list[dict[str, Any]]:
     configs = []
     keep_conditions = [condition for condition in conditions if condition["operator"] in {"==", ">="}]
-    for size in (2, 3):
+    for size in range(2, max_size + 1):
         for condition_group in combinations(keep_conditions, size):
             result = simulate_keep_only(rows, baseline, list(condition_group))
             if result["remaining_closed"] < min_evidence:
@@ -310,6 +384,9 @@ def to_markdown(name: str, payload: dict[str, Any]) -> str:
     if name == "overview":
         lines.extend(_key_values(payload.get("baseline", {})))
         lines.append("")
+        lines.append("## Condition Debug")
+        lines.extend(_key_values(payload.get("condition_debug", {})))
+        lines.append("")
         lines.append("## Eligible Conditions")
         lines.extend(_table(payload.get("eligible_conditions", [])[:100]))
     elif "simulations" in payload:
@@ -372,6 +449,24 @@ def _compare(value: float | None, operator: str, expected: float) -> bool:
     if operator == ">=":
         return value >= expected
     return False
+
+
+def _is_constant_or_near_constant(counts: dict[str, int], total: int) -> bool:
+    if not counts or total <= 0:
+        return True
+    if len(counts) <= 1:
+        return True
+    return max(counts.values()) / total >= NEAR_CONSTANT_RATIO
+
+
+def _numeric_is_constant_or_near_constant(values: list[float]) -> bool:
+    if not values:
+        return True
+    unique = set(values)
+    if len(unique) <= 1:
+        return True
+    counts = {value: values.count(value) for value in unique}
+    return max(counts.values()) / len(values) >= NEAR_CONSTANT_RATIO
 
 
 def _key_values(payload: dict[str, Any]) -> list[str]:

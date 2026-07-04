@@ -22,13 +22,13 @@
 | ["exclude volume_ratio_bucket=very_high"] | Simulate filter before production | 0.8711 | -1.6663 | 20 | LOW | 29 |
 | ["exclude volume_ratio>=1.8"] | Simulate filter before production | 0.8711 | -1.6663 | 20 | LOW | 29 |
 | ["exclude volume_ratio_bucket=very_high", "exclude volume_ratio>=1.8"] | Simulate filter before production | 0.8711 | -1.6663 | 20 | LOW | 29 |
-| ["exclude strategy=liquidity_sweep_mtf_v1", "exclude direction=long"] | Prioritize configuration in shadow | 1.7473 | 6.8245 | 24 | LOW | 25 |
-| ["exclude paper_level=HIGH", "exclude direction=long"] | Prioritize configuration in shadow | 1.7473 | 6.8245 | 24 | LOW | 25 |
-| ["exclude rr_valid=True", "exclude direction=long"] | Prioritize configuration in shadow | 1.7473 | 6.8245 | 24 | LOW | 25 |
-| ["exclude late_entry_from_bos=False", "exclude direction=long"] | Prioritize configuration in shadow | 1.7473 | 6.8245 | 24 | LOW | 25 |
-| ["exclude strategy=liquidity_sweep_mtf_v1", "exclude paper_level=HIGH", "exclude direction=long"] | Prioritize configuration in shadow | 1.7473 | 6.8245 | 24 | LOW | 25 |
-| ["exclude strategy=liquidity_sweep_mtf_v1", "exclude rr_valid=True", "exclude direction=long"] | Prioritize configuration in shadow | 1.7473 | 6.8245 | 24 | LOW | 25 |
-| ["exclude strategy=liquidity_sweep_mtf_v1", "exclude late_entry_from_bos=False", "exclude direction=long"] | Prioritize configuration in shadow | 1.7473 | 6.8245 | 24 | LOW | 25 |
-| ["exclude paper_level=HIGH", "exclude rr_valid=True", "exclude direction=long"] | Prioritize configuration in shadow | 1.7473 | 6.8245 | 24 | LOW | 25 |
-| ["exclude paper_level=HIGH", "exclude late_entry_from_bos=False", "exclude direction=long"] | Prioritize configuration in shadow | 1.7473 | 6.8245 | 24 | LOW | 25 |
-| ["exclude rr_valid=True", "exclude late_entry_from_bos=False", "exclude direction=long"] | Prioritize configuration in shadow | 1.7473 | 6.8245 | 24 | LOW | 25 |
+| ["exclude volume_ratio>=1.2", "exclude entry_zone=BREAKOUT"] | Prioritize configuration in shadow | 1.5234 | 4.2444 | 26 | LOW | 23 |
+| ["exclude volume_ratio>=1.2", "exclude entry_context=BREAKOUT"] | Prioritize configuration in shadow | 1.5234 | 4.2444 | 26 | LOW | 23 |
+| ["exclude volume_ratio>=1.2", "exclude entry_zone=BREAKOUT", "exclude entry_context=BREAKOUT"] | Prioritize configuration in shadow | 1.5234 | 4.2444 | 26 | LOW | 23 |
+| ["exclude setup=MAIN_SIGNAL", "exclude setup_type=MAIN_SIGNAL"] | Prioritize configuration in shadow | 1.1336 | 1.8698 | 25 | LOW | 24 |
+| ["exclude entry_zone=BREAKOUT", "exclude entry_context=BREAKOUT"] | Prioritize configuration in shadow | 1.1189 | 1.3967 | 20 | LOW | 29 |
+| ["exclude volume_ratio>=1.2", "exclude volume_ratio_bucket=very_high"] | Prioritize configuration in shadow | 0.9619 | -0.412 | 29 | LOW | 20 |
+| ["exclude volume_ratio>=1.2", "exclude volume_ratio>=1.8"] | Prioritize configuration in shadow | 0.9619 | -0.412 | 29 | LOW | 20 |
+| ["exclude volume_ratio_bucket=very_high", "exclude volume_ratio>=1.8"] | Prioritize configuration in shadow | 0.9619 | -0.412 | 29 | LOW | 20 |
+| ["exclude volume_ratio>=1.2", "exclude volume_ratio_bucket=very_high", "exclude volume_ratio>=1.8"] | Prioritize configuration in shadow | 0.9619 | -0.412 | 29 | LOW | 20 |
+| ["exclude liquidity_distance>=2", "exclude entry_zone=BREAKOUT"] | Prioritize configuration in shadow | 0.9511 | -0.4757 | 29 | LOW | 20 |

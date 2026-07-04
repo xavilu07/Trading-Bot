@@ -250,138 +250,134 @@
     {
       "action": "Prioritize configuration in shadow",
       "conditions": [
-        "exclude strategy=liquidity_sweep_mtf_v1",
-        "exclude direction=long"
+        "exclude volume_ratio>=1.2",
+        "exclude entry_zone=BREAKOUT"
       ],
       "confidence": "LOW",
-      "evidence": 25,
-      "expected_improvement": 8.9028,
-      "expected_pf": 1.7473,
-      "expected_total_r": 6.8245,
-      "trades_lost": 24
+      "evidence": 23,
+      "expected_improvement": 6.3227,
+      "expected_pf": 1.5234,
+      "expected_total_r": 4.2444,
+      "trades_lost": 26
     },
     {
       "action": "Prioritize configuration in shadow",
       "conditions": [
-        "exclude paper_level=HIGH",
-        "exclude direction=long"
+        "exclude volume_ratio>=1.2",
+        "exclude entry_context=BREAKOUT"
       ],
       "confidence": "LOW",
-      "evidence": 25,
-      "expected_improvement": 8.9028,
-      "expected_pf": 1.7473,
-      "expected_total_r": 6.8245,
-      "trades_lost": 24
+      "evidence": 23,
+      "expected_improvement": 6.3227,
+      "expected_pf": 1.5234,
+      "expected_total_r": 4.2444,
+      "trades_lost": 26
     },
     {
       "action": "Prioritize configuration in shadow",
       "conditions": [
-        "exclude rr_valid=True",
-        "exclude direction=long"
+        "exclude volume_ratio>=1.2",
+        "exclude entry_zone=BREAKOUT",
+        "exclude entry_context=BREAKOUT"
       ],
       "confidence": "LOW",
-      "evidence": 25,
-      "expected_improvement": 8.9028,
-      "expected_pf": 1.7473,
-      "expected_total_r": 6.8245,
-      "trades_lost": 24
+      "evidence": 23,
+      "expected_improvement": 6.3227,
+      "expected_pf": 1.5234,
+      "expected_total_r": 4.2444,
+      "trades_lost": 26
     },
     {
       "action": "Prioritize configuration in shadow",
       "conditions": [
-        "exclude late_entry_from_bos=False",
-        "exclude direction=long"
+        "exclude setup=MAIN_SIGNAL",
+        "exclude setup_type=MAIN_SIGNAL"
       ],
       "confidence": "LOW",
-      "evidence": 25,
-      "expected_improvement": 8.9028,
-      "expected_pf": 1.7473,
-      "expected_total_r": 6.8245,
-      "trades_lost": 24
+      "evidence": 24,
+      "expected_improvement": 3.9481,
+      "expected_pf": 1.1336,
+      "expected_total_r": 1.8698,
+      "trades_lost": 25
     },
     {
       "action": "Prioritize configuration in shadow",
       "conditions": [
-        "exclude strategy=liquidity_sweep_mtf_v1",
-        "exclude paper_level=HIGH",
-        "exclude direction=long"
+        "exclude entry_zone=BREAKOUT",
+        "exclude entry_context=BREAKOUT"
       ],
       "confidence": "LOW",
-      "evidence": 25,
-      "expected_improvement": 8.9028,
-      "expected_pf": 1.7473,
-      "expected_total_r": 6.8245,
-      "trades_lost": 24
+      "evidence": 29,
+      "expected_improvement": 3.475,
+      "expected_pf": 1.1189,
+      "expected_total_r": 1.3967,
+      "trades_lost": 20
     },
     {
       "action": "Prioritize configuration in shadow",
       "conditions": [
-        "exclude strategy=liquidity_sweep_mtf_v1",
-        "exclude rr_valid=True",
-        "exclude direction=long"
+        "exclude volume_ratio>=1.2",
+        "exclude volume_ratio_bucket=very_high"
       ],
       "confidence": "LOW",
-      "evidence": 25,
-      "expected_improvement": 8.9028,
-      "expected_pf": 1.7473,
-      "expected_total_r": 6.8245,
-      "trades_lost": 24
+      "evidence": 20,
+      "expected_improvement": 1.6663,
+      "expected_pf": 0.9619,
+      "expected_total_r": -0.412,
+      "trades_lost": 29
     },
     {
       "action": "Prioritize configuration in shadow",
       "conditions": [
-        "exclude strategy=liquidity_sweep_mtf_v1",
-        "exclude late_entry_from_bos=False",
-        "exclude direction=long"
+        "exclude volume_ratio>=1.2",
+        "exclude volume_ratio>=1.8"
       ],
       "confidence": "LOW",
-      "evidence": 25,
-      "expected_improvement": 8.9028,
-      "expected_pf": 1.7473,
-      "expected_total_r": 6.8245,
-      "trades_lost": 24
+      "evidence": 20,
+      "expected_improvement": 1.6663,
+      "expected_pf": 0.9619,
+      "expected_total_r": -0.412,
+      "trades_lost": 29
     },
     {
       "action": "Prioritize configuration in shadow",
       "conditions": [
-        "exclude paper_level=HIGH",
-        "exclude rr_valid=True",
-        "exclude direction=long"
+        "exclude volume_ratio_bucket=very_high",
+        "exclude volume_ratio>=1.8"
       ],
       "confidence": "LOW",
-      "evidence": 25,
-      "expected_improvement": 8.9028,
-      "expected_pf": 1.7473,
-      "expected_total_r": 6.8245,
-      "trades_lost": 24
+      "evidence": 20,
+      "expected_improvement": 1.6663,
+      "expected_pf": 0.9619,
+      "expected_total_r": -0.412,
+      "trades_lost": 29
     },
     {
       "action": "Prioritize configuration in shadow",
       "conditions": [
-        "exclude paper_level=HIGH",
-        "exclude late_entry_from_bos=False",
-        "exclude direction=long"
+        "exclude volume_ratio>=1.2",
+        "exclude volume_ratio_bucket=very_high",
+        "exclude volume_ratio>=1.8"
       ],
       "confidence": "LOW",
-      "evidence": 25,
-      "expected_improvement": 8.9028,
-      "expected_pf": 1.7473,
-      "expected_total_r": 6.8245,
-      "trades_lost": 24
+      "evidence": 20,
+      "expected_improvement": 1.6663,
+      "expected_pf": 0.9619,
+      "expected_total_r": -0.412,
+      "trades_lost": 29
     },
     {
       "action": "Prioritize configuration in shadow",
       "conditions": [
-        "exclude rr_valid=True",
-        "exclude late_entry_from_bos=False",
-        "exclude direction=long"
+        "exclude liquidity_distance>=2",
+        "exclude entry_zone=BREAKOUT"
       ],
       "confidence": "LOW",
-      "evidence": 25,
-      "expected_improvement": 8.9028,
-      "expected_pf": 1.7473,
-      "expected_total_r": 6.8245,
-      "trades_lost": 24
+      "evidence": 20,
+      "expected_improvement": 1.6026,
+      "expected_pf": 0.9511,
+      "expected_total_r": -0.4757,
+      "trades_lost": 29
     }
   ]
 }

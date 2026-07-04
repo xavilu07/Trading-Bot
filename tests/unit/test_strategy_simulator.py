@@ -34,6 +34,19 @@ def test_build_conditions_uses_only_pre_trade_features(tmp_path: Path) -> None:
     assert conditions
     assert not {condition["feature"] for condition in conditions} & BANNED_FILTER_FEATURES
     assert any(condition["label"] == "exclude session=NEW_YORK" for condition in conditions)
+    assert not any(condition["label"] == "exclude strategy=liquidity_sweep_mtf_v1" for condition in conditions)
+    assert not any(condition["label"] == "exclude rr_valid=True" for condition in conditions)
+
+
+def test_multiple_sessions_generate_session_conditions(tmp_path: Path) -> None:
+    _write_fixture(tmp_path, positive=20, negative=20)
+    rows = load_research_dataset(tmp_path / "data")["rows"]
+
+    conditions = build_filter_conditions(rows, min_evidence=5, max_conditions=100)
+    labels = {condition["label"] for condition in conditions}
+
+    assert "exclude session=LONDON" in labels
+    assert "exclude session=NEW_YORK" in labels
 
 
 def test_simulate_exclusion_improves_when_removing_toxic_context(tmp_path: Path) -> None:
@@ -76,6 +89,9 @@ def test_run_strategy_simulator_generates_all_reports(tmp_path: Path) -> None:
     )
 
     assert result["overview"]["baseline"]["trades"] == 52
+    assert result["overview"]["condition_debug"]["total_candidate_conditions_before_filter"] > 0
+    assert result["overview"]["condition_debug"]["total_candidate_conditions_after_filter"] > 0
+    assert result["overview"]["condition_debug"]["skipped_constant_features"]
     for report in REPORTS:
         json_path = reports_path / f"{report}.json"
         md_path = reports_path / f"{report}.md"
@@ -102,6 +118,26 @@ def test_simulator_outputs_recommendations_and_best_configs(tmp_path: Path) -> N
     assert recommendations["recommendations"]
     assert best_configs["configs"]
     assert any("exclude session=NEW_YORK" in item["conditions"] for item in single_filters["simulations"])
+
+
+def test_max_conditions_two_generates_single_and_double_but_not_triple(tmp_path: Path) -> None:
+    _write_fixture(tmp_path, positive=25, negative=25)
+    reports_path = tmp_path / "reports" / "strategy_simulator"
+
+    run_strategy_simulator(
+        data_path=tmp_path / "data",
+        reports_path=reports_path,
+        min_evidence=5,
+        max_conditions=2,
+    )
+
+    single_filters = json.loads((reports_path / "single_filters.json").read_text(encoding="utf-8"))
+    double_filters = json.loads((reports_path / "double_filters.json").read_text(encoding="utf-8"))
+    triple_filters = json.loads((reports_path / "triple_filters.json").read_text(encoding="utf-8"))
+
+    assert single_filters["simulations"]
+    assert double_filters["simulations"]
+    assert triple_filters["simulations"] == []
 
 
 def _write_fixture(tmp_path: Path, *, positive: int, negative: int, open_rows: int = 0) -> None:
