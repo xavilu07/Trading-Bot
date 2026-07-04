@@ -1,0 +1,1011 @@
+{
+  "negative": [
+    {
+      "best_pf": 1.6245,
+      "best_value": "80-89",
+      "correlation_score": -1.6245,
+      "evidence": 45,
+      "feature": "score_bucket",
+      "interpretation": "negative",
+      "type": "categorical",
+      "worst_pf": 0.0,
+      "worst_value": "0-49"
+    },
+    {
+      "best_pf": 1.6135,
+      "best_value": "1.5",
+      "correlation_score": -1.4136,
+      "evidence": 23,
+      "feature": "risk_reward_tp2",
+      "interpretation": "negative",
+      "type": "categorical",
+      "worst_pf": 0.1999,
+      "worst_value": "2.0"
+    },
+    {
+      "best_pf": 1.1189,
+      "best_value": "BREAKOUT",
+      "correlation_score": -0.8368,
+      "evidence": 46,
+      "feature": "entry_zone",
+      "interpretation": "negative",
+      "type": "categorical",
+      "worst_pf": 0.2821,
+      "worst_value": "CHOPPY_RANGE"
+    },
+    {
+      "best_pf": 1.1189,
+      "best_value": "BREAKOUT",
+      "correlation_score": -0.8368,
+      "evidence": 46,
+      "feature": "entry_context",
+      "interpretation": "negative",
+      "type": "categorical",
+      "worst_pf": 0.2821,
+      "worst_value": "CHOPPY_RANGE"
+    },
+    {
+      "best_pf": 1.2905,
+      "best_value": "1.5-1.99",
+      "correlation_score": -0.7874,
+      "evidence": 49,
+      "feature": "rr_bucket",
+      "interpretation": "negative",
+      "type": "categorical",
+      "worst_pf": 0.5031,
+      "worst_value": "2-2.99"
+    },
+    {
+      "best_pf": 1.0731,
+      "best_value": "high",
+      "correlation_score": -0.603,
+      "evidence": 49,
+      "feature": "volume_ratio_bucket",
+      "interpretation": "negative",
+      "type": "categorical",
+      "worst_pf": 0.4701,
+      "worst_value": "low"
+    },
+    {
+      "best_pf": 1.1336,
+      "best_value": "MAIN_SIGNAL",
+      "correlation_score": -0.5385,
+      "evidence": 49,
+      "feature": "setup",
+      "interpretation": "negative",
+      "type": "categorical",
+      "worst_pf": 0.5951,
+      "worst_value": "SECONDARY_SIGNAL"
+    },
+    {
+      "best_pf": 1.1336,
+      "best_value": "MAIN_SIGNAL",
+      "correlation_score": -0.5385,
+      "evidence": 49,
+      "feature": "setup_type",
+      "interpretation": "negative",
+      "type": "categorical",
+      "worst_pf": 0.5951,
+      "worst_value": "SECONDARY_SIGNAL"
+    },
+    {
+      "best_pf": 1.1421,
+      "best_value": "24",
+      "correlation_score": -0.4932,
+      "evidence": 25,
+      "feature": "candles_held",
+      "interpretation": "negative",
+      "type": "categorical",
+      "worst_pf": 0.6489,
+      "worst_value": "3"
+    },
+    {
+      "best_pf": 1.1204,
+      "best_value": "TRENDING",
+      "correlation_score": -0.4607,
+      "evidence": 49,
+      "feature": "market_regime",
+      "interpretation": "negative",
+      "type": "categorical",
+      "worst_pf": 0.6597,
+      "worst_value": "RANGING"
+    },
+    {
+      "correlation_score": -0.1154,
+      "evidence": 49,
+      "feature": "rsi",
+      "interpretation": "negative",
+      "type": "numeric"
+    },
+    {
+      "correlation_score": -0.0883,
+      "evidence": 49,
+      "feature": "liquidity_distance",
+      "interpretation": "negative",
+      "type": "numeric"
+    },
+    {
+      "correlation_score": -0.0796,
+      "evidence": 49,
+      "feature": "rr",
+      "interpretation": "negative",
+      "type": "numeric"
+    },
+    {
+      "correlation_score": -0.0617,
+      "evidence": 49,
+      "feature": "atr",
+      "interpretation": "negative",
+      "type": "numeric"
+    },
+    {
+      "correlation_score": -0.0612,
+      "evidence": 49,
+      "feature": "holding_candles",
+      "interpretation": "negative",
+      "type": "numeric"
+    },
+    {
+      "correlation_score": -0.0612,
+      "evidence": 49,
+      "feature": "holding_hours",
+      "interpretation": "negative",
+      "type": "numeric"
+    },
+    {
+      "correlation_score": -0.0091,
+      "evidence": 49,
+      "feature": "score",
+      "interpretation": "negative",
+      "type": "numeric"
+    }
+  ],
+  "positive": [
+    {
+      "best_pf": 21.6725,
+      "best_value": "win",
+      "correlation_score": 21.6725,
+      "evidence": 46,
+      "feature": "outcome",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.0,
+      "worst_value": "loss"
+    },
+    {
+      "best_pf": 14.8698,
+      "best_value": "tp2_hit",
+      "correlation_score": 14.8698,
+      "evidence": 48,
+      "feature": "status",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.0,
+      "worst_value": "sl_hit"
+    },
+    {
+      "best_pf": 7.4721,
+      "best_value": "[\"volatility\", \"candle_confirmation\", \"timeframe_alignment\", \"distance_to_liquidity\", \"quality_score\"]",
+      "correlation_score": 7.3723,
+      "evidence": 26,
+      "feature": "conditions_passed",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.0998,
+      "worst_value": "[\"volatility\", \"candle_confirmation\", \"timeframe_alignment\", \"quality_score\"]"
+    },
+    {
+      "best_pf": 5.7019,
+      "best_value": "BTCUSDT",
+      "correlation_score": 5.7019,
+      "evidence": 26,
+      "feature": "symbol",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.0,
+      "worst_value": "XRPUSDT"
+    },
+    {
+      "best_pf": 4.9047,
+      "best_value": "market_structure_range_penalty|secondary_setup_requirements_failed|directional_confluence_failed",
+      "correlation_score": 4.6767,
+      "evidence": 23,
+      "feature": "entry_or_rejection_reason",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.228,
+      "worst_value": "paper_tradeable"
+    },
+    {
+      "best_pf": 4.9047,
+      "best_value": "market_structure_range_penalty|secondary_setup_requirements_failed|directional_confluence_failed",
+      "correlation_score": 4.6767,
+      "evidence": 23,
+      "feature": "rejection_reason",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.228,
+      "worst_value": "paper_tradeable"
+    },
+    {
+      "best_pf": 4.9047,
+      "best_value": "[\"market_structure_range_penalty\", \"secondary_setup_requirements_failed\", \"directional_confluence_failed\"]",
+      "correlation_score": 4.6323,
+      "evidence": 19,
+      "feature": "conditions_failed",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.2724,
+      "worst_value": "[\"market_structure_range_penalty\", \"distance_to_liquidity_penalty\"]"
+    },
+    {
+      "best_pf": 2.8661,
+      "best_value": "1-2atr",
+      "correlation_score": 2.3868,
+      "evidence": 46,
+      "feature": "liquidity_distance_bucket",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.4793,
+      "worst_value": "2-4atr"
+    },
+    {
+      "best_pf": 2.1123,
+      "best_value": "15",
+      "correlation_score": 1.9287,
+      "evidence": 28,
+      "feature": "utc_hour",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.1836,
+      "worst_value": "22"
+    },
+    {
+      "best_pf": 2.1123,
+      "best_value": "15",
+      "correlation_score": 1.9287,
+      "evidence": 28,
+      "feature": "opened_hour_utc",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.1836,
+      "worst_value": "22"
+    },
+    {
+      "best_pf": 2.3816,
+      "best_value": "oversold",
+      "correlation_score": 1.9277,
+      "evidence": 47,
+      "feature": "rsi_bucket",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.4539,
+      "worst_value": "weak"
+    },
+    {
+      "best_pf": 2.2589,
+      "best_value": "Monday",
+      "correlation_score": 1.803,
+      "evidence": 46,
+      "feature": "opened_weekday",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.4559,
+      "worst_value": "Sunday"
+    },
+    {
+      "best_pf": 1.8026,
+      "best_value": "near_resistance",
+      "correlation_score": 1.7342,
+      "evidence": 49,
+      "feature": "location",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.0684,
+      "worst_value": "premium_zone"
+    },
+    {
+      "best_pf": 1.8026,
+      "best_value": "near_resistance",
+      "correlation_score": 1.7342,
+      "evidence": 49,
+      "feature": "trade_location",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.0684,
+      "worst_value": "premium_zone"
+    },
+    {
+      "best_pf": 1.7473,
+      "best_value": "long",
+      "correlation_score": 1.3563,
+      "evidence": 49,
+      "feature": "direction",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.391,
+      "worst_value": "short"
+    },
+    {
+      "best_pf": 2.128,
+      "best_value": "bullish_bos",
+      "correlation_score": 1.3517,
+      "evidence": 49,
+      "feature": "bos",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.7763,
+      "worst_value": "bearish_bos"
+    },
+    {
+      "best_pf": 2.128,
+      "best_value": "bullish_bos",
+      "correlation_score": 1.3517,
+      "evidence": 49,
+      "feature": "break_of_structure",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.7763,
+      "worst_value": "bearish_bos"
+    },
+    {
+      "best_pf": 1.6018,
+      "best_value": "LONDON",
+      "correlation_score": 1.2475,
+      "evidence": 48,
+      "feature": "session",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.3543,
+      "worst_value": "NEW_YORK"
+    },
+    {
+      "best_pf": 1.6313,
+      "best_value": "bullish_sweep",
+      "correlation_score": 1.0362,
+      "evidence": 49,
+      "feature": "liquidity_sweep",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.5951,
+      "worst_value": "none"
+    },
+    {
+      "best_pf": 1.7017,
+      "best_value": "[\"against_htf\"]",
+      "correlation_score": 0.9267,
+      "evidence": 39,
+      "feature": "avoidance_warnings",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.775,
+      "worst_value": "[]"
+    },
+    {
+      "best_pf": 1.7017,
+      "best_value": "[\"against_htf\"]",
+      "correlation_score": 0.9267,
+      "evidence": 39,
+      "feature": "warnings",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.775,
+      "worst_value": "[]"
+    },
+    {
+      "best_pf": 1.3021,
+      "best_value": "4-8",
+      "correlation_score": 0.6093,
+      "evidence": 49,
+      "feature": "holding_candles_bucket",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.6928,
+      "worst_value": "9-16"
+    },
+    {
+      "best_pf": 1.3008,
+      "best_value": "aligned",
+      "correlation_score": 0.5753,
+      "evidence": 49,
+      "feature": "ltf_alignment",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.7255,
+      "worst_value": "against"
+    },
+    {
+      "best_pf": 1.2337,
+      "best_value": "against",
+      "correlation_score": 0.556,
+      "evidence": 49,
+      "feature": "htf_alignment",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.6777,
+      "worst_value": "aligned"
+    },
+    {
+      "best_pf": 1.123,
+      "best_value": "bullish",
+      "correlation_score": 0.3427,
+      "evidence": 49,
+      "feature": "trend_4h",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.7803,
+      "worst_value": "bearish"
+    },
+    {
+      "best_pf": 1.0047,
+      "best_value": "bearish",
+      "correlation_score": 0.1664,
+      "evidence": 49,
+      "feature": "trend_1h",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.8383,
+      "worst_value": "bullish"
+    },
+    {
+      "correlation_score": 0.1054,
+      "evidence": 49,
+      "feature": "volume_ratio",
+      "interpretation": "positive",
+      "type": "numeric"
+    }
+  ],
+  "ranked": [
+    {
+      "best_pf": 21.6725,
+      "best_value": "win",
+      "correlation_score": 21.6725,
+      "evidence": 46,
+      "feature": "outcome",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.0,
+      "worst_value": "loss"
+    },
+    {
+      "best_pf": 14.8698,
+      "best_value": "tp2_hit",
+      "correlation_score": 14.8698,
+      "evidence": 48,
+      "feature": "status",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.0,
+      "worst_value": "sl_hit"
+    },
+    {
+      "best_pf": 7.4721,
+      "best_value": "[\"volatility\", \"candle_confirmation\", \"timeframe_alignment\", \"distance_to_liquidity\", \"quality_score\"]",
+      "correlation_score": 7.3723,
+      "evidence": 26,
+      "feature": "conditions_passed",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.0998,
+      "worst_value": "[\"volatility\", \"candle_confirmation\", \"timeframe_alignment\", \"quality_score\"]"
+    },
+    {
+      "best_pf": 5.7019,
+      "best_value": "BTCUSDT",
+      "correlation_score": 5.7019,
+      "evidence": 26,
+      "feature": "symbol",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.0,
+      "worst_value": "XRPUSDT"
+    },
+    {
+      "best_pf": 4.9047,
+      "best_value": "market_structure_range_penalty|secondary_setup_requirements_failed|directional_confluence_failed",
+      "correlation_score": 4.6767,
+      "evidence": 23,
+      "feature": "entry_or_rejection_reason",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.228,
+      "worst_value": "paper_tradeable"
+    },
+    {
+      "best_pf": 4.9047,
+      "best_value": "market_structure_range_penalty|secondary_setup_requirements_failed|directional_confluence_failed",
+      "correlation_score": 4.6767,
+      "evidence": 23,
+      "feature": "rejection_reason",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.228,
+      "worst_value": "paper_tradeable"
+    },
+    {
+      "best_pf": 4.9047,
+      "best_value": "[\"market_structure_range_penalty\", \"secondary_setup_requirements_failed\", \"directional_confluence_failed\"]",
+      "correlation_score": 4.6323,
+      "evidence": 19,
+      "feature": "conditions_failed",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.2724,
+      "worst_value": "[\"market_structure_range_penalty\", \"distance_to_liquidity_penalty\"]"
+    },
+    {
+      "best_pf": 2.8661,
+      "best_value": "1-2atr",
+      "correlation_score": 2.3868,
+      "evidence": 46,
+      "feature": "liquidity_distance_bucket",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.4793,
+      "worst_value": "2-4atr"
+    },
+    {
+      "best_pf": 2.1123,
+      "best_value": "15",
+      "correlation_score": 1.9287,
+      "evidence": 28,
+      "feature": "utc_hour",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.1836,
+      "worst_value": "22"
+    },
+    {
+      "best_pf": 2.1123,
+      "best_value": "15",
+      "correlation_score": 1.9287,
+      "evidence": 28,
+      "feature": "opened_hour_utc",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.1836,
+      "worst_value": "22"
+    },
+    {
+      "best_pf": 2.3816,
+      "best_value": "oversold",
+      "correlation_score": 1.9277,
+      "evidence": 47,
+      "feature": "rsi_bucket",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.4539,
+      "worst_value": "weak"
+    },
+    {
+      "best_pf": 2.2589,
+      "best_value": "Monday",
+      "correlation_score": 1.803,
+      "evidence": 46,
+      "feature": "opened_weekday",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.4559,
+      "worst_value": "Sunday"
+    },
+    {
+      "best_pf": 1.8026,
+      "best_value": "near_resistance",
+      "correlation_score": 1.7342,
+      "evidence": 49,
+      "feature": "location",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.0684,
+      "worst_value": "premium_zone"
+    },
+    {
+      "best_pf": 1.8026,
+      "best_value": "near_resistance",
+      "correlation_score": 1.7342,
+      "evidence": 49,
+      "feature": "trade_location",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.0684,
+      "worst_value": "premium_zone"
+    },
+    {
+      "best_pf": 1.6245,
+      "best_value": "80-89",
+      "correlation_score": -1.6245,
+      "evidence": 45,
+      "feature": "score_bucket",
+      "interpretation": "negative",
+      "type": "categorical",
+      "worst_pf": 0.0,
+      "worst_value": "0-49"
+    },
+    {
+      "best_pf": 1.6135,
+      "best_value": "1.5",
+      "correlation_score": -1.4136,
+      "evidence": 23,
+      "feature": "risk_reward_tp2",
+      "interpretation": "negative",
+      "type": "categorical",
+      "worst_pf": 0.1999,
+      "worst_value": "2.0"
+    },
+    {
+      "best_pf": 1.7473,
+      "best_value": "long",
+      "correlation_score": 1.3563,
+      "evidence": 49,
+      "feature": "direction",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.391,
+      "worst_value": "short"
+    },
+    {
+      "best_pf": 2.128,
+      "best_value": "bullish_bos",
+      "correlation_score": 1.3517,
+      "evidence": 49,
+      "feature": "bos",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.7763,
+      "worst_value": "bearish_bos"
+    },
+    {
+      "best_pf": 2.128,
+      "best_value": "bullish_bos",
+      "correlation_score": 1.3517,
+      "evidence": 49,
+      "feature": "break_of_structure",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.7763,
+      "worst_value": "bearish_bos"
+    },
+    {
+      "best_pf": 1.6018,
+      "best_value": "LONDON",
+      "correlation_score": 1.2475,
+      "evidence": 48,
+      "feature": "session",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.3543,
+      "worst_value": "NEW_YORK"
+    },
+    {
+      "best_pf": 1.6313,
+      "best_value": "bullish_sweep",
+      "correlation_score": 1.0362,
+      "evidence": 49,
+      "feature": "liquidity_sweep",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.5951,
+      "worst_value": "none"
+    },
+    {
+      "best_pf": 1.7017,
+      "best_value": "[\"against_htf\"]",
+      "correlation_score": 0.9267,
+      "evidence": 39,
+      "feature": "avoidance_warnings",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.775,
+      "worst_value": "[]"
+    },
+    {
+      "best_pf": 1.7017,
+      "best_value": "[\"against_htf\"]",
+      "correlation_score": 0.9267,
+      "evidence": 39,
+      "feature": "warnings",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.775,
+      "worst_value": "[]"
+    },
+    {
+      "best_pf": 1.1189,
+      "best_value": "BREAKOUT",
+      "correlation_score": -0.8368,
+      "evidence": 46,
+      "feature": "entry_zone",
+      "interpretation": "negative",
+      "type": "categorical",
+      "worst_pf": 0.2821,
+      "worst_value": "CHOPPY_RANGE"
+    },
+    {
+      "best_pf": 1.1189,
+      "best_value": "BREAKOUT",
+      "correlation_score": -0.8368,
+      "evidence": 46,
+      "feature": "entry_context",
+      "interpretation": "negative",
+      "type": "categorical",
+      "worst_pf": 0.2821,
+      "worst_value": "CHOPPY_RANGE"
+    },
+    {
+      "best_pf": 1.2905,
+      "best_value": "1.5-1.99",
+      "correlation_score": -0.7874,
+      "evidence": 49,
+      "feature": "rr_bucket",
+      "interpretation": "negative",
+      "type": "categorical",
+      "worst_pf": 0.5031,
+      "worst_value": "2-2.99"
+    },
+    {
+      "best_pf": 1.3021,
+      "best_value": "4-8",
+      "correlation_score": 0.6093,
+      "evidence": 49,
+      "feature": "holding_candles_bucket",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.6928,
+      "worst_value": "9-16"
+    },
+    {
+      "best_pf": 1.0731,
+      "best_value": "high",
+      "correlation_score": -0.603,
+      "evidence": 49,
+      "feature": "volume_ratio_bucket",
+      "interpretation": "negative",
+      "type": "categorical",
+      "worst_pf": 0.4701,
+      "worst_value": "low"
+    },
+    {
+      "best_pf": 1.3008,
+      "best_value": "aligned",
+      "correlation_score": 0.5753,
+      "evidence": 49,
+      "feature": "ltf_alignment",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.7255,
+      "worst_value": "against"
+    },
+    {
+      "best_pf": 1.2337,
+      "best_value": "against",
+      "correlation_score": 0.556,
+      "evidence": 49,
+      "feature": "htf_alignment",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.6777,
+      "worst_value": "aligned"
+    },
+    {
+      "best_pf": 1.1336,
+      "best_value": "MAIN_SIGNAL",
+      "correlation_score": -0.5385,
+      "evidence": 49,
+      "feature": "setup",
+      "interpretation": "negative",
+      "type": "categorical",
+      "worst_pf": 0.5951,
+      "worst_value": "SECONDARY_SIGNAL"
+    },
+    {
+      "best_pf": 1.1336,
+      "best_value": "MAIN_SIGNAL",
+      "correlation_score": -0.5385,
+      "evidence": 49,
+      "feature": "setup_type",
+      "interpretation": "negative",
+      "type": "categorical",
+      "worst_pf": 0.5951,
+      "worst_value": "SECONDARY_SIGNAL"
+    },
+    {
+      "best_pf": 1.1421,
+      "best_value": "24",
+      "correlation_score": -0.4932,
+      "evidence": 25,
+      "feature": "candles_held",
+      "interpretation": "negative",
+      "type": "categorical",
+      "worst_pf": 0.6489,
+      "worst_value": "3"
+    },
+    {
+      "best_pf": 1.1204,
+      "best_value": "TRENDING",
+      "correlation_score": -0.4607,
+      "evidence": 49,
+      "feature": "market_regime",
+      "interpretation": "negative",
+      "type": "categorical",
+      "worst_pf": 0.6597,
+      "worst_value": "RANGING"
+    },
+    {
+      "best_pf": 1.123,
+      "best_value": "bullish",
+      "correlation_score": 0.3427,
+      "evidence": 49,
+      "feature": "trend_4h",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.7803,
+      "worst_value": "bearish"
+    },
+    {
+      "best_pf": 1.0047,
+      "best_value": "bearish",
+      "correlation_score": 0.1664,
+      "evidence": 49,
+      "feature": "trend_1h",
+      "interpretation": "positive",
+      "type": "categorical",
+      "worst_pf": 0.8383,
+      "worst_value": "bullish"
+    },
+    {
+      "correlation_score": -0.1154,
+      "evidence": 49,
+      "feature": "rsi",
+      "interpretation": "negative",
+      "type": "numeric"
+    },
+    {
+      "correlation_score": 0.1054,
+      "evidence": 49,
+      "feature": "volume_ratio",
+      "interpretation": "positive",
+      "type": "numeric"
+    },
+    {
+      "correlation_score": -0.0883,
+      "evidence": 49,
+      "feature": "liquidity_distance",
+      "interpretation": "negative",
+      "type": "numeric"
+    },
+    {
+      "correlation_score": -0.0796,
+      "evidence": 49,
+      "feature": "rr",
+      "interpretation": "negative",
+      "type": "numeric"
+    },
+    {
+      "correlation_score": -0.0617,
+      "evidence": 49,
+      "feature": "atr",
+      "interpretation": "negative",
+      "type": "numeric"
+    },
+    {
+      "correlation_score": -0.0612,
+      "evidence": 49,
+      "feature": "holding_candles",
+      "interpretation": "negative",
+      "type": "numeric"
+    },
+    {
+      "correlation_score": -0.0612,
+      "evidence": 49,
+      "feature": "holding_hours",
+      "interpretation": "negative",
+      "type": "numeric"
+    },
+    {
+      "correlation_score": -0.0091,
+      "evidence": 49,
+      "feature": "score",
+      "interpretation": "negative",
+      "type": "numeric"
+    },
+    {
+      "best_pf": 0.9125,
+      "best_value": "liquidity_sweep_mtf_v1",
+      "correlation_score": 0.0,
+      "evidence": 49,
+      "feature": "strategy",
+      "interpretation": "neutral",
+      "type": "categorical",
+      "worst_pf": 0.9125,
+      "worst_value": "liquidity_sweep_mtf_v1"
+    },
+    {
+      "best_pf": 2.7671,
+      "best_value": "UNKNOWN",
+      "correlation_score": 0.0,
+      "evidence": 9,
+      "feature": "closed_at",
+      "interpretation": "neutral",
+      "type": "categorical",
+      "worst_pf": 2.7671,
+      "worst_value": "UNKNOWN"
+    },
+    {
+      "best_pf": 0.9125,
+      "best_value": "24",
+      "correlation_score": 0.0,
+      "evidence": 49,
+      "feature": "expires_after_candles",
+      "interpretation": "neutral",
+      "type": "categorical",
+      "worst_pf": 0.9125,
+      "worst_value": "24"
+    },
+    {
+      "best_pf": 0.9125,
+      "best_value": "False",
+      "correlation_score": 0.0,
+      "evidence": 49,
+      "feature": "late_entry_from_bos",
+      "interpretation": "neutral",
+      "type": "categorical",
+      "worst_pf": 0.9125,
+      "worst_value": "False"
+    },
+    {
+      "best_pf": 0.8937,
+      "best_value": "UNKNOWN",
+      "correlation_score": 0.0,
+      "evidence": 46,
+      "feature": "market_structure",
+      "interpretation": "neutral",
+      "type": "categorical",
+      "worst_pf": 0.8937,
+      "worst_value": "UNKNOWN"
+    },
+    {
+      "best_pf": 0.9125,
+      "best_value": "HIGH",
+      "correlation_score": 0.0,
+      "evidence": 49,
+      "feature": "paper_level",
+      "interpretation": "neutral",
+      "type": "categorical",
+      "worst_pf": 0.9125,
+      "worst_value": "HIGH"
+    },
+    {
+      "best_pf": 0.8937,
+      "best_value": "UNKNOWN",
+      "correlation_score": 0.0,
+      "evidence": 46,
+      "feature": "penalties",
+      "interpretation": "neutral",
+      "type": "categorical",
+      "worst_pf": 0.8937,
+      "worst_value": "UNKNOWN"
+    },
+    {
+      "best_pf": 0.9125,
+      "best_value": "1.0",
+      "correlation_score": 0.0,
+      "evidence": 49,
+      "feature": "risk_reward_tp1",
+      "interpretation": "neutral",
+      "type": "categorical",
+      "worst_pf": 0.9125,
+      "worst_value": "1.0"
+    },
+    {
+      "best_pf": 0.9125,
+      "best_value": "True",
+      "correlation_score": 0.0,
+      "evidence": 49,
+      "feature": "rr_valid",
+      "interpretation": "neutral",
+      "type": "categorical",
+      "worst_pf": 0.9125,
+      "worst_value": "True"
+    }
+  ]
+}

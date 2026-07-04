@@ -1,0 +1,341 @@
+{
+  "negative_clusters_to_investigate": [],
+  "positive_clusters_to_watch": [],
+  "recommendations": [
+    {
+      "confidence": "LOW",
+      "context": {
+        "outcome": "loss"
+      },
+      "evidence": 18,
+      "expected_impact": 23.7508,
+      "rationale": "outcome=loss has PF 0.0 and TotalR -23.7508",
+      "recommendation": "Eliminar contexto",
+      "trades_affected": 28
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "outcome": "win"
+      },
+      "evidence": 18,
+      "expected_impact": 21.6725,
+      "rationale": "outcome=win has PF 21.6725 and TotalR 21.6725",
+      "recommendation": "Priorizar contexto",
+      "trades_affected": 18
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "status": "sl_hit"
+      },
+      "evidence": 13,
+      "expected_impact": 20.0,
+      "rationale": "status=sl_hit has PF 0.0 and TotalR -20.0",
+      "recommendation": "Eliminar contexto",
+      "trades_affected": 20
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "liquidity_distance_bucket": "2-4atr"
+      },
+      "evidence": 12,
+      "expected_impact": 9.8897,
+      "rationale": "liquidity_distance_bucket=2-4atr has PF 0.4793 and TotalR -9.8897",
+      "recommendation": "Eliminar contexto",
+      "trades_affected": 29
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "direction": "short"
+      },
+      "evidence": 25,
+      "expected_impact": 8.9028,
+      "rationale": "direction=short has PF 0.391 and TotalR -8.9028",
+      "recommendation": "Eliminar contexto",
+      "trades_affected": 24
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "direction": "long"
+      },
+      "evidence": 25,
+      "expected_impact": 6.8245,
+      "rationale": "direction=long has PF 1.7473 and TotalR 6.8245",
+      "recommendation": "Priorizar contexto",
+      "trades_affected": 25
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "session": "NEW_YORK"
+      },
+      "evidence": 18,
+      "expected_impact": 6.3579,
+      "rationale": "session=NEW_YORK has PF 0.3543 and TotalR -6.3579",
+      "recommendation": "Cambiar sesion",
+      "trades_affected": 16
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "opened_weekday": "Sunday"
+      },
+      "evidence": 11,
+      "expected_impact": 5.3579,
+      "rationale": "opened_weekday=Sunday has PF 0.4559 and TotalR -5.3579",
+      "recommendation": "Eliminar contexto",
+      "trades_affected": 17
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "avoidance_warnings": "[\"against_htf\"]"
+      },
+      "evidence": 20,
+      "expected_impact": 4.9337,
+      "rationale": "avoidance_warnings=[\"against_htf\"] has PF 1.7017 and TotalR 4.9337",
+      "recommendation": "Priorizar contexto",
+      "trades_affected": 20
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "warnings": "[\"against_htf\"]"
+      },
+      "evidence": 20,
+      "expected_impact": 4.9337,
+      "rationale": "warnings=[\"against_htf\"] has PF 1.7017 and TotalR 4.9337",
+      "recommendation": "Priorizar contexto",
+      "trades_affected": 20
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "htf_alignment": "aligned"
+      },
+      "evidence": 25,
+      "expected_impact": 4.4224,
+      "rationale": "htf_alignment=aligned has PF 0.6777 and TotalR -4.4224",
+      "recommendation": "Eliminar contexto",
+      "trades_affected": 24
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "liquidity_sweep": "bullish_sweep"
+      },
+      "evidence": 15,
+      "expected_impact": 4.4188,
+      "rationale": "liquidity_sweep=bullish_sweep has PF 1.6313 and TotalR 4.4188",
+      "recommendation": "Priorizar contexto",
+      "trades_affected": 15
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "ltf_alignment": "against"
+      },
+      "evidence": 21,
+      "expected_impact": 4.4007,
+      "rationale": "ltf_alignment=against has PF 0.7255 and TotalR -4.4007",
+      "recommendation": "Eliminar contexto",
+      "trades_affected": 28
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "rr_bucket": "2-2.99"
+      },
+      "evidence": 26,
+      "expected_impact": 4.096,
+      "rationale": "rr_bucket=2-2.99 has PF 0.5031 and TotalR -4.096",
+      "recommendation": "Cambiar RR",
+      "trades_affected": 14
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "entry_or_rejection_reason": "paper_tradeable"
+      },
+      "evidence": 10,
+      "expected_impact": 4.047,
+      "rationale": "entry_or_rejection_reason=paper_tradeable has PF 0.228 and TotalR -4.047",
+      "recommendation": "Eliminar contexto",
+      "trades_affected": 10
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "rejection_reason": "paper_tradeable"
+      },
+      "evidence": 10,
+      "expected_impact": 4.047,
+      "rationale": "rejection_reason=paper_tradeable has PF 0.228 and TotalR -4.047",
+      "recommendation": "Eliminar contexto",
+      "trades_affected": 10
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "utc_hour": "21"
+      },
+      "evidence": 10,
+      "expected_impact": 4.0003,
+      "rationale": "utc_hour=21 has PF 0.4158 and TotalR -4.0003",
+      "recommendation": "Eliminar contexto",
+      "trades_affected": 10
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "opened_hour_utc": "21"
+      },
+      "evidence": 10,
+      "expected_impact": 4.0003,
+      "rationale": "opened_hour_utc=21 has PF 0.4158 and TotalR -4.0003",
+      "recommendation": "Eliminar contexto",
+      "trades_affected": 10
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "liquidity_sweep": "none"
+      },
+      "evidence": 15,
+      "expected_impact": 3.9481,
+      "rationale": "liquidity_sweep=none has PF 0.5951 and TotalR -3.9481",
+      "recommendation": "Eliminar contexto",
+      "trades_affected": 25
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "setup": "SECONDARY_SIGNAL"
+      },
+      "evidence": 24,
+      "expected_impact": 3.9481,
+      "rationale": "setup=SECONDARY_SIGNAL has PF 0.5951 and TotalR -3.9481",
+      "recommendation": "Eliminar contexto",
+      "trades_affected": 25
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "setup_type": "SECONDARY_SIGNAL"
+      },
+      "evidence": 24,
+      "expected_impact": 3.9481,
+      "rationale": "setup_type=SECONDARY_SIGNAL has PF 0.5951 and TotalR -3.9481",
+      "recommendation": "Eliminar contexto",
+      "trades_affected": 25
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "liquidity_sweep": "none",
+        "setup": "SECONDARY_SIGNAL"
+      },
+      "evidence": 25,
+      "expected_impact": 3.9481,
+      "rationale": "Multi-factor context loses -3.9481R with PF 0.5951",
+      "recommendation": "Eliminate context",
+      "trades_affected": 25
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "liquidity_distance_bucket": "1-2atr"
+      },
+      "evidence": 12,
+      "expected_impact": 3.7896,
+      "rationale": "liquidity_distance_bucket=1-2atr has PF 2.8661 and TotalR 3.7896",
+      "recommendation": "Priorizar contexto",
+      "trades_affected": 12
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "market_regime": "RANGING"
+      },
+      "evidence": 16,
+      "expected_impact": 3.5656,
+      "rationale": "market_regime=RANGING has PF 0.6597 and TotalR -3.5656",
+      "recommendation": "Eliminar contexto",
+      "trades_affected": 20
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "session": "LONDON"
+      },
+      "evidence": 18,
+      "expected_impact": 3.5307,
+      "rationale": "session=LONDON has PF 1.6018 and TotalR 3.5307",
+      "recommendation": "Cambiar sesion",
+      "trades_affected": 18
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "entry_zone": "BREAKOUT",
+        "setup": "SECONDARY_SIGNAL"
+      },
+      "evidence": 22,
+      "expected_impact": 3.3585,
+      "rationale": "Multi-factor context loses -3.3585R with PF 0.6162",
+      "recommendation": "Eliminate context",
+      "trades_affected": 22
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "entry_zone": "BREAKOUT",
+        "liquidity_sweep": "none"
+      },
+      "evidence": 22,
+      "expected_impact": 3.3585,
+      "rationale": "Multi-factor context loses -3.3585R with PF 0.6162",
+      "recommendation": "Eliminate context",
+      "trades_affected": 22
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "entry_zone": "BREAKOUT",
+        "liquidity_sweep": "none",
+        "setup": "SECONDARY_SIGNAL"
+      },
+      "evidence": 22,
+      "expected_impact": 3.3585,
+      "rationale": "Multi-factor context loses -3.3585R with PF 0.6162",
+      "recommendation": "Eliminate context",
+      "trades_affected": 22
+    },
+    {
+      "confidence": "LOW",
+      "context": {
+        "rsi_bucket": "weak"
+      },
+      "evidence": 11,
+      "expected_impact": 3.2766,
+      "rationale": "rsi_bucket=weak has PF 0.4539 and TotalR -3.2766",
+      "recommendation": "Eliminar contexto",
+      "trades_affected": 13
+    },
+    {
+      "confidence": "MEDIUM",
+      "context": {
+        "trend_4h": "bearish"
+      },
+      "evidence": 18,
+      "expected_impact": 3.2055,
+      "rationale": "trend_4h=bearish has PF 0.7803 and TotalR -3.2055",
+      "recommendation": "Eliminar contexto",
+      "trades_affected": 31
+    }
+  ]
+}
