@@ -65,6 +65,12 @@ class Settings:
     against_htf_breakout_block_enabled: bool = field(
         default_factory=lambda: _bool_env("AGAINST_HTF_BREAKOUT_BLOCK_ENABLED", "false")
     )
+    strategy_v2_1_htf_alignment_filter_enabled: bool = field(
+        default_factory=lambda: _bool_env("STRATEGY_V2_1_HTF_ALIGNMENT_FILTER_ENABLED", "false")
+    )
+    strategy_v2_1_htf_alignment_filter_mode: str = field(
+        default_factory=lambda: os.getenv("STRATEGY_V2_1_HTF_ALIGNMENT_FILTER_MODE", "shadow")
+    )
     adaptive_filter_enabled: bool = field(default_factory=lambda: _bool_env("ADAPTIVE_FILTER_ENABLED", "false"))
     adaptive_filter_mode: str = field(default_factory=lambda: os.getenv("ADAPTIVE_FILTER_MODE", "observe"))
     adaptive_filter_min_closed: int = field(default_factory=lambda: int(os.getenv("ADAPTIVE_FILTER_MIN_CLOSED", "30")))
@@ -234,6 +240,17 @@ class Settings:
     edge_optimizer_active_min_confidence: str = field(
         default_factory=lambda: os.getenv("EDGE_OPTIMIZER_ACTIVE_MIN_CONFIDENCE", "MEDIUM")
     )
+    agent_committee_enabled: bool = field(
+        default_factory=lambda: _bool_env("AGENT_COMMITTEE_ENABLED", "false")
+    )
+    agent_committee_min_confidence: str = field(
+        default_factory=lambda: os.getenv("AGENT_COMMITTEE_MIN_CONFIDENCE", "MEDIUM")
+    )
+    agent_telegram_approval_enabled: bool = field(
+        default_factory=lambda: _bool_env("AGENT_TELEGRAM_APPROVAL_ENABLED", "false")
+    )
+    agent_telegram_chat_id: str = field(default_factory=lambda: os.getenv("AGENT_TELEGRAM_CHAT_ID", ""))
+    agent_telegram_bot_token: str = field(default_factory=lambda: os.getenv("AGENT_TELEGRAM_BOT_TOKEN", ""))
     private_runtime_report_enabled: bool = field(
         default_factory=lambda: _bool_env("PRIVATE_RUNTIME_REPORT_ENABLED", "true")
     )
