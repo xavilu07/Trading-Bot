@@ -5,12 +5,22 @@
       "edge_type": "OVERFIT_RISK",
       "first_seen_at": "2026-07-06T15:11:08.966970+00:00",
       "id": "edge_fc1437682982",
+      "implementation_history": [
+        {
+          "decision": "NEEDS_MORE_RESEARCH",
+          "event": "implementation_review",
+          "timestamp": "2026-07-06T17:47:59.533593+00:00"
+        }
+      ],
       "implementation_priority": "LOW",
+      "implementation_status": "approved_for_review",
       "last_evidence": 20,
       "last_expected_pf": 2.6415,
       "last_expected_total_r": 7.8114,
-      "last_seen_at": "2026-07-06T15:11:08.966970+00:00",
+      "last_seen_at": "2026-07-06T17:47:48.491714+00:00",
       "last_trade_reduction_pct": 59.1837,
+      "live_performance_after_implementation": {},
+      "monitoring_history": [],
       "notes": "",
       "qic_proposal_ids": [
         "cio_805ad892d491"
@@ -23,23 +33,48 @@
           "expected_total_r": 7.8114,
           "timestamp": "2026-07-06T15:11:08.966970+00:00",
           "trade_reduction_pct": 59.1837
+        },
+        {
+          "action": "PROPOSE_IMPLEMENTATION",
+          "evidence": 20,
+          "expected_pf": 2.6415,
+          "expected_total_r": 7.8114,
+          "timestamp": "2026-07-06T15:39:51.404944+00:00",
+          "trade_reduction_pct": 59.1837
+        },
+        {
+          "action": "PROMOTE_TO_CONFIRMED_EDGE",
+          "evidence": 20,
+          "expected_pf": 2.6415,
+          "expected_total_r": 7.8114,
+          "timestamp": "2026-07-06T15:41:09.455186+00:00",
+          "trade_reduction_pct": 59.1837
+        },
+        {
+          "action": "PROMOTE_TO_CONFIRMED_EDGE",
+          "evidence": 20,
+          "expected_pf": 2.6415,
+          "expected_total_r": 7.8114,
+          "timestamp": "2026-07-06T17:47:48.491714+00:00",
+          "trade_reduction_pct": 59.1837
         }
       ],
       "risk_level": "HIGH",
       "risk_objections": [
         "high_trade_reduction"
       ],
+      "rollback_history": [],
       "rule_conditions": [
         "exclude:liquidity_distance_bucket=2-4atr"
       ],
       "source": "single_filter",
-      "status": "candidate",
+      "status": "confirmed",
       "times_approved": 0,
-      "times_proposed": 1,
+      "times_proposed": 4,
       "times_rejected": 0,
-      "times_seen": 1,
+      "times_seen": 4,
       "title": "CIO proposal: exclude liquidity_distance_bucket=2-4atr"
     }
   },
-  "updated_at": "2026-07-06T15:11:08.966977+00:00"
+  "updated_at": "2026-07-06T17:47:59.534384+00:00"
 }

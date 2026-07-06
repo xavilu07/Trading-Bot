@@ -124,6 +124,13 @@ def test_qic_persists_reports_and_only_one_proposal(tmp_path: Path) -> None:
     if result["proposal_count"]:
         rows = [line for line in (tmp_path / "data" / "agent_proposals" / "proposals.jsonl").read_text().splitlines() if line.strip()]
         assert len(rows) == 1
+        proposal = result["single_proposal"]
+        assert proposal["edge_type"] == "STRUCTURAL_EDGE"
+        assert proposal["implementation_priority"] == "HIGH"
+        assert proposal["knowledge_item_id"].startswith("edge_")
+        kb = json.loads((tmp_path / "data" / "qic" / "strategy_knowledge_base.json").read_text())
+        assert proposal["knowledge_item_id"] in kb["items"]
+        assert (tmp_path / "reports" / "qic" / "strategy_knowledge_base.json").exists()
 
 
 def test_telegram_sends_only_cio_proposal_payload_in_dry_run() -> None:
@@ -144,7 +151,7 @@ def test_telegram_sends_only_cio_proposal_payload_in_dry_run() -> None:
     assert len(result) == 1
     assert result[0]["status"] == "dry_run"
     buttons = result[0]["payload"]["reply_markup"]["inline_keyboard"][0]
-    assert [button["text"] for button in buttons] == ["APPROVE", "REJECT", "DETAILS"]
+    assert [button["text"] for button in buttons] == ["✅ Approve", "❌ Reject", "📊 Details"]
 
 
 def _write_qic_reports(

@@ -71,7 +71,17 @@ def test_telegram_payload_includes_buttons() -> None:
 
     assert payload["chat_id"] == "123"
     buttons = [button for row in payload["reply_markup"]["inline_keyboard"] for button in row]
-    assert [button["text"] for button in buttons] == ["✅ Approve", "❌ Reject", "📊 Details", "🔁 Revalidate", "🧪 Find Alternative"]
+    assert [button["text"] for button in buttons] == [
+        "✅ Approve",
+        "❌ Reject",
+        "📊 Details",
+        "🧠 Debate",
+        "🔁 Revalidate",
+        "🧪 Find Alternative",
+        "🛠 Implementation Review",
+        "📦 Generate Patch",
+        "🧪 Start Shadow",
+    ]
     assert buttons[0]["callback_data"] == "agent:approve:prop_1"
 
 
@@ -96,8 +106,8 @@ def test_approval_callback_approve_updates_store_and_knowledge_base(tmp_path: Pa
     result = handle_approval_callback("agent:approve:prop_1", proposal_store_path=path, knowledge_base_path=kb_path, actor="tester")
 
     assert result["handled"] is True
-    assert result["status"] == "approved"
-    assert load_proposals(path)[0]["status"] == "approved"
+    assert result["status"] == "approved_for_implementation_review"
+    assert load_proposals(path)[0]["status"] == "approved_for_implementation_review"
     assert result["knowledge_item"]["times_approved"] == 1
 
 

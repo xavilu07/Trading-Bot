@@ -181,6 +181,62 @@ def test_agent_committee_settings_defaults_and_env(monkeypatch) -> None:
     assert settings.agent_telegram_bot_token == "token"
 
 
+def test_qic_telegram_settings_defaults_and_env(monkeypatch) -> None:
+    monkeypatch.delenv("QIC_TELEGRAM_ENABLED", raising=False)
+    monkeypatch.delenv("QIC_TELEGRAM_CHAT_ID", raising=False)
+    monkeypatch.delenv("QIC_TELEGRAM_BOT_TOKEN", raising=False)
+    monkeypatch.delenv("QIC_TELEGRAM_SEND_NO_ACTIONABLE", raising=False)
+    monkeypatch.delenv("QIC_TELEGRAM_MIN_PRIORITY", raising=False)
+
+    settings = Settings()
+
+    assert settings.qic_telegram_enabled is False
+    assert settings.qic_telegram_chat_id == ""
+    assert settings.qic_telegram_bot_token == ""
+    assert settings.qic_telegram_send_no_actionable is True
+    assert settings.qic_telegram_min_priority == "MEDIUM"
+
+    monkeypatch.setenv("QIC_TELEGRAM_ENABLED", "true")
+    monkeypatch.setenv("QIC_TELEGRAM_CHAT_ID", "456")
+    monkeypatch.setenv("QIC_TELEGRAM_BOT_TOKEN", "qic-token")
+    monkeypatch.setenv("QIC_TELEGRAM_SEND_NO_ACTIONABLE", "false")
+    monkeypatch.setenv("QIC_TELEGRAM_MIN_PRIORITY", "HIGH")
+
+    settings = Settings()
+
+    assert settings.qic_telegram_enabled is True
+    assert settings.qic_telegram_chat_id == "456"
+    assert settings.qic_telegram_bot_token == "qic-token"
+    assert settings.qic_telegram_send_no_actionable is False
+    assert settings.qic_telegram_min_priority == "HIGH"
+
+
+def test_qic_scheduler_settings_defaults_and_env(monkeypatch) -> None:
+    monkeypatch.delenv("QIC_SCHEDULER_ENABLED", raising=False)
+    monkeypatch.delenv("QIC_SCHEDULER_INTERVAL_HOURS", raising=False)
+    monkeypatch.delenv("QIC_DAILY_SUMMARY_ENABLED", raising=False)
+    monkeypatch.delenv("QIC_DAILY_SUMMARY_HOUR", raising=False)
+
+    settings = Settings()
+
+    assert settings.qic_scheduler_enabled is False
+    assert settings.qic_scheduler_interval_hours == 6
+    assert settings.qic_daily_summary_enabled is True
+    assert settings.qic_daily_summary_hour == 9
+
+    monkeypatch.setenv("QIC_SCHEDULER_ENABLED", "true")
+    monkeypatch.setenv("QIC_SCHEDULER_INTERVAL_HOURS", "3")
+    monkeypatch.setenv("QIC_DAILY_SUMMARY_ENABLED", "false")
+    monkeypatch.setenv("QIC_DAILY_SUMMARY_HOUR", "10")
+
+    settings = Settings()
+
+    assert settings.qic_scheduler_enabled is True
+    assert settings.qic_scheduler_interval_hours == 3
+    assert settings.qic_daily_summary_enabled is False
+    assert settings.qic_daily_summary_hour == 10
+
+
 def test_telegram_dev_chat_id_supports_multiple_ids(monkeypatch) -> None:
     monkeypatch.setenv("TELEGRAM_DEV_CHAT_ID", "7437028098,1979812925")
 

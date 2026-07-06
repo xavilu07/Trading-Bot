@@ -27,8 +27,14 @@ def build_approval_payload(proposal: dict[str, Any], *, chat_id: str) -> dict[st
                     {"text": "📊 Details", "callback_data": f"agent:details:{proposal_id}"},
                 ],
                 [
+                    {"text": "🧠 Debate", "callback_data": f"agent:debate:{proposal_id}"},
                     {"text": "🔁 Revalidate", "callback_data": f"agent:revalidate:{proposal_id}"},
                     {"text": "🧪 Find Alternative", "callback_data": f"agent:alternative:{proposal_id}"},
+                ],
+                [
+                    {"text": "🛠 Implementation Review", "callback_data": f"agent:implementation_review:{proposal_id}"},
+                    {"text": "📦 Generate Patch", "callback_data": f"agent:generate_patch:{proposal_id}"},
+                    {"text": "🧪 Start Shadow", "callback_data": f"agent:start_shadow:{proposal_id}"},
                 ]
             ]
         },
@@ -206,6 +212,7 @@ def handle_approval_callback(
     *,
     proposal_store_path: Path = DEFAULT_PROPOSALS_PATH,
     knowledge_base_path: Path = DEFAULT_KNOWLEDGE_BASE_PATH,
+    qic_output_path: Path = Path("reports") / "qic",
     actor: str = "telegram_dev",
     rejection_reason: str = "",
 ) -> dict[str, Any]:
@@ -213,23 +220,37 @@ def handle_approval_callback(
     if len(parts) != 3 or parts[0] != "agent":
         return {"handled": False, "reason": "invalid_callback"}
     action, proposal_id = parts[1], parts[2]
-    if action in {"details", "revalidate", "alternative"}:
+    if action in {"details", "debate", "revalidate", "alternative", "start_shadow"}:
         return {"handled": True, "action": action, "proposal_id": proposal_id, "status": "unchanged"}
+    if action == "implementation_review":
+        return _handle_implementation_review_callback(
+            proposal_id,
+            proposal_store_path=proposal_store_path,
+            knowledge_base_path=knowledge_base_path,
+            qic_output_path=qic_output_path,
+        )
+    if action == "generate_patch":
+        return _handle_generate_patch_callback(
+            proposal_id,
+            proposal_store_path=proposal_store_path,
+            knowledge_base_path=knowledge_base_path,
+            qic_output_path=qic_output_path,
+        )
     if action not in {"approve", "reject"}:
         return {"handled": False, "reason": "unsupported_action", "action": action}
-    status = "approved" if action == "approve" else "rejected"
+    status = "approved_for_implementation_review" if action == "approve" else "rejected"
     updated = update_proposal_status(
         proposal_id,
         status,
         path=proposal_store_path,
         actor=actor,
-        approval_metadata={"rejection_reason": rejection_reason} if rejection_reason else {},
+        approval_metadata={"human_approved": action == "approve", "rejection_reason": rejection_reason} if rejection_reason or action == "approve" else {},
     )
     knowledge_item = None
     if updated is not None:
         knowledge_item = record_proposal_review(
             updated,
-            status,
+            "approved" if action == "approve" else "rejected",
             path=knowledge_base_path,
             rejection_reason=rejection_reason,
         )
@@ -243,11 +264,75 @@ def handle_approval_callback(
     }
 
 
+def _handle_implementation_review_callback(
+    proposal_id: str,
+    *,
+    proposal_store_path: Path,
+    knowledge_base_path: Path,
+    qic_output_path: Path,
+) -> dict[str, Any]:
+    from trading_signals.agents.implementation.implementation_review_council import run_implementation_review_for_proposal_id
+
+    review = run_implementation_review_for_proposal_id(
+        proposal_id,
+        proposal_store_path=proposal_store_path,
+        knowledge_base_path=knowledge_base_path,
+        output_path=qic_output_path,
+    )
+    return {
+        "handled": True,
+        "action": "implementation_review",
+        "proposal_id": proposal_id,
+        "status": "review_generated",
+        "implementation_review": {
+            "decision": review.get("decision"),
+            "allowed_to_generate_patch": review.get("allowed_to_generate_patch"),
+            "blockers": review.get("blockers", []),
+        },
+    }
+
+
+def _handle_generate_patch_callback(
+    proposal_id: str,
+    *,
+    proposal_store_path: Path,
+    knowledge_base_path: Path,
+    qic_output_path: Path,
+) -> dict[str, Any]:
+    from trading_signals.agents.implementation.implementation_review_council import run_implementation_review_for_proposal_id
+    from trading_signals.agents.implementation.patch_generator import generate_patch_report
+
+    review = run_implementation_review_for_proposal_id(
+        proposal_id,
+        proposal_store_path=proposal_store_path,
+        knowledge_base_path=knowledge_base_path,
+        output_path=qic_output_path,
+    )
+    if not review.get("allowed_to_generate_patch"):
+        return {
+            "handled": True,
+            "action": "generate_patch",
+            "proposal_id": proposal_id,
+            "status": "blocked",
+            "reason": "implementation_review_not_allowed",
+            "implementation_review": review,
+        }
+    patch = generate_patch_report(review, output_path=qic_output_path, apply_patch=False)
+    return {
+        "handled": True,
+        "action": "generate_patch",
+        "proposal_id": proposal_id,
+        "status": "patch_report_generated",
+        "patch": {"status": patch.get("status"), "patch_applied": patch.get("patch_applied")},
+    }
+
+
 def process_approval_update(
     update: dict[str, Any],
     *,
     proposal_store_path: Path = DEFAULT_PROPOSALS_PATH,
     knowledge_base_path: Path = DEFAULT_KNOWLEDGE_BASE_PATH,
+    qic_output_path: Path = Path("reports") / "qic",
 ) -> dict[str, Any]:
     callback = update.get("callback_query") if isinstance(update.get("callback_query"), dict) else {}
     data = str(callback.get("data") or "")
@@ -258,6 +343,7 @@ def process_approval_update(
         data,
         proposal_store_path=proposal_store_path,
         knowledge_base_path=knowledge_base_path,
+        qic_output_path=qic_output_path,
         actor=actor,
     )
     result["update_id"] = update.get("update_id")
@@ -270,6 +356,7 @@ def poll_approval_callbacks(
     bot_token: str,
     proposal_store_path: Path = DEFAULT_PROPOSALS_PATH,
     knowledge_base_path: Path = DEFAULT_KNOWLEDGE_BASE_PATH,
+    qic_output_path: Path = Path("reports") / "qic",
     offset_path: Path = DEFAULT_QIC_TELEGRAM_OFFSET_PATH,
     limit: int = 20,
     timeout: int = 0,
@@ -289,6 +376,7 @@ def poll_approval_callbacks(
             update,
             proposal_store_path=proposal_store_path,
             knowledge_base_path=knowledge_base_path,
+            qic_output_path=qic_output_path,
         )
         processed.append(result)
         try:
