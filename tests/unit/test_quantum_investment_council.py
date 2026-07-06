@@ -94,10 +94,12 @@ def test_qic_report_includes_risk_objections_for_extreme_reduction(tmp_path: Pat
     )
 
     proposal = result["single_proposal"]
-    assert proposal["action"] == "REQUIRES_VARIANT_SEARCH"
+    assert proposal["action"] == "REQUIRES_MANUAL_RESEARCH"
     assert "extreme_trade_reduction" in proposal["risk_objections"]
+    assert "no_valid_variant_found" in proposal["risk_objections"]
     report = json.loads((tmp_path / "reports" / "qic" / "proposal.json").read_text())
-    assert report["risk_objections"] == ["extreme_trade_reduction"]
+    assert "extreme_trade_reduction" in report["risk_objections"]
+    assert "no_valid_variant_found" in report["risk_objections"]
     assert "risk_objections" in (tmp_path / "reports" / "qic" / "proposal.md").read_text()
 
 

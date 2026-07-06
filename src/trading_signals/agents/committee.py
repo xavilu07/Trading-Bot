@@ -10,6 +10,7 @@ from trading_signals.agents.coordinator_agent import coordinate_committee_propos
 from trading_signals.agents.debate_engine import run_debate_engine
 from trading_signals.agents.proposal_store import DEFAULT_PROPOSALS_PATH, save_proposals
 from trading_signals.agents.qic_reporting import write_qic_reports
+from trading_signals.agents.qic_variant_search import apply_variant_to_proposal, run_qic_variant_search
 from trading_signals.agents.research_agent import generate_research_proposals, load_research_reports
 from trading_signals.agents.simulator_agent import generate_simulator_proposals
 from trading_signals.agents.strategy_agent import generate_strategy_proposals
@@ -94,6 +95,18 @@ def run_quantum_investment_council_v2(
     debate = run_debate_engine(reports_root=reports_root)
     consensus = build_cio_consensus(debate, min_confidence=min_confidence)
     proposal = consensus.get("single_proposal")
+    variant_search = run_qic_variant_search(
+        proposal if isinstance(proposal, dict) else None,
+        data_path=data_path,
+        reports_path=output_path,
+    )
+    if isinstance(proposal, dict) and proposal.get("action") == "REQUIRES_VARIANT_SEARCH":
+        proposal = apply_variant_to_proposal(proposal, variant_search)
+        consensus["single_proposal"] = proposal
+        consensus["variant_search"] = {
+            "status": variant_search.get("status"),
+            "selected_variant": variant_search.get("selected_variant"),
+        }
     proposals = [proposal] if isinstance(proposal, dict) else []
     proposal_path = data_path / "agent_proposals" / "proposals.jsonl"
     if proposals:
