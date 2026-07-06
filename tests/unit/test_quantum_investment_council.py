@@ -94,13 +94,14 @@ def test_qic_report_includes_risk_objections_for_extreme_reduction(tmp_path: Pat
     )
 
     proposal = result["single_proposal"]
-    assert proposal["action"] == "REQUIRES_MANUAL_RESEARCH"
-    assert "extreme_trade_reduction" in proposal["risk_objections"]
-    assert "no_profitable_variant_found" in proposal["risk_objections"]
+    assert proposal is None
+    assert result["proposal_count"] == 0
+    ranking = json.loads((tmp_path / "reports" / "qic" / "hypothesis_ranking.json").read_text())
+    assert ranking["final_action"] == "NO_ACTIONABLE_PROPOSAL"
+    assert ranking["candidates"][0]["discard_reason"] == "no_valid_variant_found"
     report = json.loads((tmp_path / "reports" / "qic" / "proposal.json").read_text())
-    assert "extreme_trade_reduction" in report["risk_objections"]
-    assert "no_profitable_variant_found" in report["risk_objections"]
-    assert "risk_objections" in (tmp_path / "reports" / "qic" / "proposal.md").read_text()
+    assert report["single_proposal"] is None
+    assert "QIC Hypothesis Ranking" in (tmp_path / "reports" / "qic" / "hypothesis_ranking.md").read_text()
 
 
 def test_qic_persists_reports_and_only_one_proposal(tmp_path: Path) -> None:

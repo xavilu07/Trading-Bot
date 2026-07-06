@@ -67,8 +67,16 @@ def send_cio_proposal_for_approval(
     bot_token: str,
     chat_id: str,
     dry_run: bool = False,
+    no_actionable_summary: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
     if proposal is None:
+        if no_actionable_summary is not None:
+            return send_no_actionable_summary(
+                no_actionable_summary,
+                bot_token=bot_token,
+                chat_id=chat_id,
+                dry_run=dry_run,
+            )
         return [{"status": "skipped", "reason": "no_cio_proposal"}]
     return send_proposals_for_approval(
         [proposal],
@@ -76,6 +84,38 @@ def send_cio_proposal_for_approval(
         chat_id=chat_id,
         dry_run=dry_run,
         limit=1,
+    )
+
+
+def send_no_actionable_summary(
+    summary: dict[str, Any],
+    *,
+    bot_token: str,
+    chat_id: str,
+    dry_run: bool = False,
+) -> list[dict[str, Any]]:
+    if not bot_token or not chat_id:
+        return [{"status": "skipped", "reason": "telegram_approval_not_configured"}]
+    payload = {
+        "chat_id": chat_id,
+        "text": format_no_actionable_message(summary),
+        "reply_markup": {"inline_keyboard": []},
+    }
+    if dry_run:
+        return [{"status": "dry_run", "proposal_id": "no_actionable", "payload": payload}]
+    return [_send_payload(bot_token, payload, proposal_id="no_actionable")]
+
+
+def format_no_actionable_message(summary: dict[str, Any]) -> str:
+    candidates = summary.get("candidates") if isinstance(summary.get("candidates"), list) else []
+    discarded = sum(1 for item in candidates if item.get("status") == "discarded")
+    return (
+        "🧠 Agent Committee Summary\n\n"
+        "No actionable proposal.\n"
+        f"Candidates reviewed: {len(candidates)}\n"
+        f"Discarded: {discarded}\n\n"
+        "Reason: top hypotheses were too aggressive or had no profitable variant.\n\n"
+        "No se ejecutará ningún cambio automáticamente."
     )
 
 

@@ -50,6 +50,54 @@ def build_cio_consensus(debate: dict[str, Any], *, min_confidence: str = "MEDIUM
     }
 
 
+def build_cio_hypothesis_candidates(debate: dict[str, Any], *, min_confidence: str = "MEDIUM") -> list[dict[str, Any]]:
+    interventions = debate.get("interventions") if isinstance(debate.get("interventions"), list) else []
+    simulation = _find_stage(interventions, "simulation")
+    risk = _find_stage(interventions, "risk")
+    research_response = _find_stage(interventions, "research_response")
+    simulation_data = simulation.get("data") if isinstance(simulation.get("data"), dict) else {}
+    simulations = simulation_data.get("top_simulations") if isinstance(simulation_data.get("top_simulations"), list) else []
+    min_rank = CONFIDENCE_RANK.get(str(min_confidence).upper(), 2)
+    candidates = []
+    for rank, item in enumerate(simulations, start=1):
+        if not isinstance(item, dict):
+            continue
+        confidence = str(item.get("confidence") or "LOW").upper()
+        baseline_trades = _baseline_trades(item, risk)
+        selected_reduction = classify_trade_reduction_risk(_int(item.get("trades_eliminated")), baseline_trades)
+        risk_level = str(selected_reduction.get("risk_level") or "MEDIUM").upper()
+        consensus_score = _consensus_score(simulation={"confidence": confidence}, risk_level=risk_level, research_response=research_response)
+        discard_reasons = []
+        if CONFIDENCE_RANK.get(confidence, 1) < min_rank:
+            discard_reasons.append("below_min_confidence")
+        if consensus_score <= 0:
+            discard_reasons.append("weak_consensus")
+        proposal = None
+        if not discard_reasons:
+            proposal = _proposal_from_simulation(
+                item,
+                confidence=confidence,
+                risk_level=risk_level,
+                interventions=interventions,
+                baseline_trades=baseline_trades,
+                trade_reduction_pct=float(selected_reduction.get("trade_reduction_pct") or 0),
+                risk_objections=_selected_risk_objections(item, risk, selected_reduction),
+            ).to_dict()
+        candidates.append(
+            {
+                "rank": rank,
+                "status": "candidate" if proposal else "discarded",
+                "discard_reason": ", ".join(discard_reasons),
+                "proposal": proposal,
+                "simulation": item,
+                "consensus_score": consensus_score,
+                "risk_level": risk_level,
+                "trade_reduction_pct": selected_reduction.get("trade_reduction_pct"),
+            }
+        )
+    return candidates
+
+
 def _proposal_from_simulation(
     simulation: dict[str, Any],
     *,

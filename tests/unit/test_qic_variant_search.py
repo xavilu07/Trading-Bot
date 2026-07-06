@@ -129,6 +129,56 @@ def test_qic_uses_variant_as_final_telegram_proposal(tmp_path: Path) -> None:
     assert json.loads((tmp_path / "reports" / "qic" / "variant_search.json").read_text())
 
 
+def test_top_extreme_without_variant_falls_through_to_second_candidate(tmp_path: Path) -> None:
+    _write_qic_reports_with_two_candidates(tmp_path)
+    _write_trade_rows(tmp_path / "data", _no_variant_rows())
+
+    result = run_quantum_investment_council_v2(
+        reports_root=tmp_path / "reports",
+        data_path=tmp_path / "data",
+        output_path=tmp_path / "reports" / "qic",
+        min_confidence="LOW",
+        telegram_enabled=True,
+        telegram_bot_token="token",
+        telegram_chat_id="chat",
+        dry_run=True,
+    )
+
+    proposal = result["single_proposal"]
+    ranking = json.loads((tmp_path / "reports" / "qic" / "hypothesis_ranking.json").read_text(encoding="utf-8"))
+    assert proposal["action"] == "PROPOSE_IMPLEMENTATION"
+    assert proposal["context"]["conditions"] == ["exclude htf_alignment=against"]
+    assert ranking["candidates"][0]["status"] == "discarded"
+    assert ranking["candidates"][0]["discard_reason"] == "no_valid_variant_found"
+    assert ranking["selected_rank"] == 2
+    assert result["telegram_results"][0]["status"] == "dry_run"
+    assert "exclude htf_alignment=against" in result["telegram_results"][0]["payload"]["text"]
+
+
+def test_all_invalid_candidates_emit_no_actionable_summary(tmp_path: Path) -> None:
+    _write_qic_reports_all_extreme(tmp_path)
+    _write_trade_rows(tmp_path / "data", _no_variant_rows())
+
+    result = run_quantum_investment_council_v2(
+        reports_root=tmp_path / "reports",
+        data_path=tmp_path / "data",
+        output_path=tmp_path / "reports" / "qic",
+        min_confidence="LOW",
+        telegram_enabled=True,
+        telegram_bot_token="token",
+        telegram_chat_id="chat",
+        dry_run=True,
+    )
+
+    ranking = json.loads((tmp_path / "reports" / "qic" / "hypothesis_ranking.json").read_text(encoding="utf-8"))
+    assert result["proposal_count"] == 0
+    assert result["single_proposal"] is None
+    assert ranking["final_action"] == "NO_ACTIONABLE_PROPOSAL"
+    assert all(item["status"] == "discarded" for item in ranking["candidates"])
+    assert result["telegram_results"][0]["status"] == "dry_run"
+    assert "No actionable proposal" in result["telegram_results"][0]["payload"]["text"]
+
+
 def _extreme_conditions() -> list[dict[str, object]]:
     return [
         {"feature": "volume_ratio", "operator": ">=", "value": 1.2, "label": "exclude volume_ratio>=1.2"},
@@ -232,6 +282,82 @@ def _write_qic_reports(tmp_path: Path) -> None:
     (simulator / "triple_filters.json").write_text(json.dumps({"simulations": []}), encoding="utf-8")
     (simulator / "best_configs.json").write_text(json.dumps({"configs": [simulation]}), encoding="utf-8")
     (simulator / "overview.json").write_text(json.dumps({"baseline": {"closed": 100}}), encoding="utf-8")
+    historical = tmp_path / "reports" / "historical_intelligence"
+    historical.mkdir(parents=True)
+    (historical / "negative_edges.json").write_text(json.dumps({"edges": []}), encoding="utf-8")
+    (historical / "positive_edges.json").write_text(json.dumps({"edges": []}), encoding="utf-8")
+    quant = tmp_path / "reports" / "quant_research"
+    quant.mkdir(parents=True)
+    (quant / "feature_importance.json").write_text(json.dumps({"features": []}), encoding="utf-8")
+
+
+def _write_qic_reports_with_two_candidates(tmp_path: Path) -> None:
+    simulator = tmp_path / "reports" / "strategy_simulator"
+    simulator.mkdir(parents=True)
+    extreme = {
+        "simulation_type": "exclude",
+        "conditions": ["exclude volume_ratio>=1.2", "exclude rsi>=55"],
+        "condition_details": _extreme_conditions(),
+        "trades_eliminated": 70,
+        "remaining_closed": 30,
+        "profit_factor": 10.0,
+        "total_r": 30.0,
+        "delta_total_r": 70.0,
+        "confidence": "LOW",
+    }
+    second = {
+        "simulation_type": "exclude",
+        "conditions": ["exclude htf_alignment=against"],
+        "condition_details": [{"feature": "htf_alignment", "operator": "==", "value": "against", "label": "exclude htf_alignment=against"}],
+        "trades_eliminated": 20,
+        "remaining_closed": 80,
+        "profit_factor": 1.25,
+        "total_r": 12.0,
+        "delta_total_r": 12.0,
+        "confidence": "LOW",
+    }
+    (simulator / "single_filters.json").write_text(json.dumps({"simulations": [second]}), encoding="utf-8")
+    (simulator / "double_filters.json").write_text(json.dumps({"simulations": [extreme]}), encoding="utf-8")
+    (simulator / "triple_filters.json").write_text(json.dumps({"simulations": []}), encoding="utf-8")
+    (simulator / "best_configs.json").write_text(json.dumps({"configs": []}), encoding="utf-8")
+    (simulator / "overview.json").write_text(json.dumps({"baseline": {"closed": 100}}), encoding="utf-8")
+    _write_empty_support_reports(tmp_path)
+
+
+def _write_qic_reports_all_extreme(tmp_path: Path) -> None:
+    simulator = tmp_path / "reports" / "strategy_simulator"
+    simulator.mkdir(parents=True)
+    extreme = {
+        "simulation_type": "exclude",
+        "conditions": ["exclude volume_ratio>=1.2", "exclude rsi>=55"],
+        "condition_details": _extreme_conditions(),
+        "trades_eliminated": 70,
+        "remaining_closed": 30,
+        "profit_factor": 10.0,
+        "total_r": 30.0,
+        "delta_total_r": 70.0,
+        "confidence": "LOW",
+    }
+    other_extreme = {
+        "simulation_type": "exclude",
+        "conditions": ["exclude score>=90"],
+        "condition_details": [{"feature": "score", "operator": ">=", "value": 90, "label": "exclude score>=90"}],
+        "trades_eliminated": 65,
+        "remaining_closed": 35,
+        "profit_factor": 2.0,
+        "total_r": 10.0,
+        "delta_total_r": 20.0,
+        "confidence": "LOW",
+    }
+    (simulator / "single_filters.json").write_text(json.dumps({"simulations": [other_extreme]}), encoding="utf-8")
+    (simulator / "double_filters.json").write_text(json.dumps({"simulations": [extreme]}), encoding="utf-8")
+    (simulator / "triple_filters.json").write_text(json.dumps({"simulations": []}), encoding="utf-8")
+    (simulator / "best_configs.json").write_text(json.dumps({"configs": []}), encoding="utf-8")
+    (simulator / "overview.json").write_text(json.dumps({"baseline": {"closed": 100}}), encoding="utf-8")
+    _write_empty_support_reports(tmp_path)
+
+
+def _write_empty_support_reports(tmp_path: Path) -> None:
     historical = tmp_path / "reports" / "historical_intelligence"
     historical.mkdir(parents=True)
     (historical / "negative_edges.json").write_text(json.dumps({"edges": []}), encoding="utf-8")

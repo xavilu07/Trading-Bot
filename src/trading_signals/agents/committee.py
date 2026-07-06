@@ -5,11 +5,11 @@ from pathlib import Path
 from typing import Any
 
 from trading_signals.agents.agent_memory import DEFAULT_MEMORY_PATH, update_agent_memory
-from trading_signals.agents.cio import build_cio_consensus
+from trading_signals.agents.cio import build_cio_consensus, build_cio_hypothesis_candidates
 from trading_signals.agents.coordinator_agent import coordinate_committee_proposals
 from trading_signals.agents.debate_engine import run_debate_engine
 from trading_signals.agents.proposal_store import DEFAULT_PROPOSALS_PATH, save_proposals
-from trading_signals.agents.qic_reporting import write_qic_reports
+from trading_signals.agents.qic_reporting import write_hypothesis_ranking_report, write_qic_reports
 from trading_signals.agents.qic_variant_search import apply_variant_to_proposal, run_qic_variant_search
 from trading_signals.agents.research_agent import generate_research_proposals, load_research_reports
 from trading_signals.agents.simulator_agent import generate_simulator_proposals
@@ -94,19 +94,19 @@ def run_quantum_investment_council_v2(
 ) -> dict[str, Any]:
     debate = run_debate_engine(reports_root=reports_root)
     consensus = build_cio_consensus(debate, min_confidence=min_confidence)
-    proposal = consensus.get("single_proposal")
-    variant_search = run_qic_variant_search(
-        proposal if isinstance(proposal, dict) else None,
+    selection = _select_actionable_qic_proposal(
+        debate=debate,
         data_path=data_path,
-        reports_path=output_path,
+        output_path=output_path,
+        min_confidence=min_confidence,
     )
-    if isinstance(proposal, dict) and proposal.get("action") == "REQUIRES_VARIANT_SEARCH":
-        proposal = apply_variant_to_proposal(proposal, variant_search)
-        consensus["single_proposal"] = proposal
-        consensus["variant_search"] = {
-            "status": variant_search.get("status"),
-            "selected_variant": variant_search.get("selected_variant"),
-        }
+    proposal = selection.get("proposal")
+    consensus["single_proposal"] = proposal if isinstance(proposal, dict) else None
+    consensus["hypothesis_ranking"] = {
+        "final_action": selection.get("final_action"),
+        "selected_rank": selection.get("selected_rank"),
+    }
+    write_hypothesis_ranking_report(output_path, selection)
     proposals = [proposal] if isinstance(proposal, dict) else []
     proposal_path = data_path / "agent_proposals" / "proposals.jsonl"
     if proposals:
@@ -130,6 +130,7 @@ def run_quantum_investment_council_v2(
             bot_token=telegram_bot_token,
             chat_id=telegram_chat_id,
             dry_run=dry_run,
+            no_actionable_summary=selection if selection.get("final_action") == "NO_ACTIONABLE_PROPOSAL" else None,
         )
     result = {
         "enabled": True,
@@ -143,6 +144,93 @@ def run_quantum_investment_council_v2(
     }
     write_latest_reports(Path("reports") / "agent_committee", result)
     return result
+
+
+def _select_actionable_qic_proposal(
+    *,
+    debate: dict[str, Any],
+    data_path: Path,
+    output_path: Path,
+    min_confidence: str,
+) -> dict[str, Any]:
+    candidates = build_cio_hypothesis_candidates(debate, min_confidence=min_confidence)
+    ranking_rows = []
+    selected_proposal: dict[str, Any] | None = None
+    selected_rank: int | None = None
+    final_action = "NO_ACTIONABLE_PROPOSAL"
+    last_variant_search: dict[str, Any] | None = None
+
+    for candidate in candidates:
+        proposal = candidate.get("proposal")
+        row = _ranking_row(candidate)
+        if not isinstance(proposal, dict):
+            ranking_rows.append(row)
+            continue
+        if proposal.get("action") == "REQUIRES_VARIANT_SEARCH":
+            variant_search = run_qic_variant_search(proposal, data_path=data_path, reports_path=output_path)
+            last_variant_search = variant_search
+            if variant_search.get("status") == "variant_found":
+                proposal = apply_variant_to_proposal(proposal, variant_search)
+                row.update(_proposal_summary(proposal))
+                row["status"] = "selected"
+                row["discard_reason"] = ""
+                selected_proposal = proposal
+                selected_rank = int(candidate.get("rank") or 0)
+                final_action = str(proposal.get("action") or "PROPOSE_VARIANT")
+                ranking_rows.append(row)
+                break
+            row["status"] = "discarded"
+            row["discard_reason"] = "no_valid_variant_found"
+            ranking_rows.append(row)
+            continue
+        if proposal.get("action") in {"IMPLEMENTATION_CANDIDATE", "SHADOW_VALIDATION_REQUIRED", "PROPOSE_VARIANT"}:
+            if proposal.get("action") == "IMPLEMENTATION_CANDIDATE":
+                proposal = dict(proposal)
+                proposal["action"] = "PROPOSE_IMPLEMENTATION"
+            row.update(_proposal_summary(proposal))
+            row["status"] = "selected"
+            selected_proposal = proposal
+            selected_rank = int(candidate.get("rank") or 0)
+            final_action = str(proposal.get("action") or "PROPOSE_IMPLEMENTATION")
+            ranking_rows.append(row)
+            break
+        row["status"] = "discarded"
+        row["discard_reason"] = f"non_actionable:{proposal.get('action')}"
+        ranking_rows.append(row)
+
+    if selected_proposal is None and last_variant_search is None:
+        run_qic_variant_search(None, data_path=data_path, reports_path=output_path)
+    return {
+        "final_action": final_action,
+        "selected_rank": selected_rank,
+        "proposal": selected_proposal,
+        "candidates": ranking_rows,
+        "variant_search": last_variant_search,
+    }
+
+
+def _ranking_row(candidate: dict[str, Any]) -> dict[str, Any]:
+    proposal = candidate.get("proposal")
+    row = {
+        "rank": candidate.get("rank"),
+        "status": candidate.get("status"),
+        "discard_reason": candidate.get("discard_reason") or "",
+        "risk_level": candidate.get("risk_level"),
+        "trade_reduction_pct": candidate.get("trade_reduction_pct"),
+    }
+    if isinstance(proposal, dict):
+        row.update(_proposal_summary(proposal))
+    return row
+
+
+def _proposal_summary(proposal: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "action": proposal.get("action"),
+        "expected_pf": proposal.get("expected_pf"),
+        "expected_total_r": proposal.get("expected_total_r"),
+        "trades_lost": proposal.get("trades_lost"),
+        "evidence": proposal.get("evidence"),
+    }
 
 
 def write_latest_reports(output_path: Path, result: dict[str, Any]) -> dict[str, Path]:

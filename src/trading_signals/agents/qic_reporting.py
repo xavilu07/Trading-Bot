@@ -30,6 +30,15 @@ def write_qic_reports(
     return paths
 
 
+def write_hypothesis_ranking_report(output_path: Path, ranking: dict[str, Any]) -> dict[str, Path]:
+    output_path.mkdir(parents=True, exist_ok=True)
+    json_path = output_path / "hypothesis_ranking.json"
+    md_path = output_path / "hypothesis_ranking.md"
+    json_path.write_text(json.dumps(ranking, indent=2, sort_keys=True), encoding="utf-8")
+    md_path.write_text(_hypothesis_ranking_markdown(ranking), encoding="utf-8")
+    return {"json": json_path, "markdown": md_path}
+
+
 def _markdown(name: str, payload: Any) -> str:
     lines = [f"# QIC {name.replace('_', ' ').title()}", ""]
     if name == "debate":
@@ -71,3 +80,27 @@ def _md(value: Any) -> str:
     if isinstance(value, (dict, list)):
         value = json.dumps(value, sort_keys=True)
     return str(value).replace("|", "\\|")
+
+
+def _hypothesis_ranking_markdown(ranking: dict[str, Any]) -> str:
+    lines = ["# QIC Hypothesis Ranking", ""]
+    lines.append(f"- final_action: {ranking.get('final_action')}")
+    lines.append(f"- selected_rank: {ranking.get('selected_rank')}")
+    lines.append("")
+    rows = ranking.get("candidates") if isinstance(ranking.get("candidates"), list) else []
+    lines.extend(
+        _table(
+            rows,
+            [
+                "rank",
+                "status",
+                "action",
+                "risk_level",
+                "trade_reduction_pct",
+                "expected_pf",
+                "expected_total_r",
+                "discard_reason",
+            ],
+        )
+    )
+    return "\n".join(lines) + "\n"

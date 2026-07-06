@@ -1,0 +1,78 @@
+{
+  "candidates": [
+    {
+      "discard_reason": "weak_consensus",
+      "rank": 1,
+      "risk_level": "HIGH",
+      "status": "discarded",
+      "trade_reduction_pct": 59.1837
+    },
+    {
+      "discard_reason": "weak_consensus",
+      "rank": 2,
+      "risk_level": "HIGH",
+      "status": "discarded",
+      "trade_reduction_pct": 59.1837
+    },
+    {
+      "discard_reason": "weak_consensus",
+      "rank": 3,
+      "risk_level": "HIGH",
+      "status": "discarded",
+      "trade_reduction_pct": 48.9796
+    },
+    {
+      "discard_reason": "weak_consensus",
+      "rank": 4,
+      "risk_level": "HIGH",
+      "status": "discarded",
+      "trade_reduction_pct": 48.9796
+    },
+    {
+      "discard_reason": "weak_consensus",
+      "rank": 5,
+      "risk_level": "HIGH",
+      "status": "discarded",
+      "trade_reduction_pct": 53.0612
+    },
+    {
+      "discard_reason": "weak_consensus",
+      "rank": 6,
+      "risk_level": "HIGH",
+      "status": "discarded",
+      "trade_reduction_pct": 53.0612
+    },
+    {
+      "discard_reason": "weak_consensus",
+      "rank": 7,
+      "risk_level": "HIGH",
+      "status": "discarded",
+      "trade_reduction_pct": 53.0612
+    },
+    {
+      "discard_reason": "weak_consensus",
+      "rank": 8,
+      "risk_level": "HIGH",
+      "status": "discarded",
+      "trade_reduction_pct": 46.9388
+    },
+    {
+      "discard_reason": "weak_consensus",
+      "rank": 9,
+      "risk_level": "HIGH",
+      "status": "discarded",
+      "trade_reduction_pct": 46.9388
+    },
+    {
+      "discard_reason": "weak_consensus",
+      "rank": 10,
+      "risk_level": "HIGH",
+      "status": "discarded",
+      "trade_reduction_pct": 48.9796
+    }
+  ],
+  "final_action": "NO_ACTIONABLE_PROPOSAL",
+  "proposal": null,
+  "selected_rank": null,
+  "variant_search": null
+}
