@@ -32,22 +32,43 @@ def update_agent_memory(
             agent,
             {
                 "hypotheses": [],
+                "hypotheses_seen": 0,
+                "hypotheses_supported": 0,
+                "hypotheses_opposed": 0,
                 "proposals_accepted": 0,
                 "proposals_rejected": 0,
                 "proposals_pending": 0,
+                "successful_revalidations": 0,
+                "failed_revalidations": 0,
+                "last_notes": [],
                 "historical_precision": 0.0,
                 "total_interventions": 0,
             },
         )
         item["total_interventions"] = int(item.get("total_interventions", 0)) + 1
+        item["hypotheses_seen"] = int(item.get("hypotheses_seen", 0)) + 1
         content = str(intervention.get("content") or "")
         if content and content not in item["hypotheses"]:
             item["hypotheses"].append(content)
             item["hypotheses"] = item["hypotheses"][-50:]
+        if str(intervention.get("risk_level") or "").upper() in {"HIGH", "EXTREME"}:
+            item["hypotheses_opposed"] = int(item.get("hypotheses_opposed", 0)) + 1
+        else:
+            item["hypotheses_supported"] = int(item.get("hypotheses_supported", 0)) + 1
+        notes = list(item.get("last_notes") or [])
+        if proposal and proposal.get("known_edge_status") not in {None, "new"}:
+            notes.append(f"recurring pattern: {proposal.get('known_edge_status')}:{proposal.get('knowledge_item_id')}")
+        if proposal and proposal.get("risk_objections"):
+            notes.append(f"risk objections: {proposal.get('risk_objections')}")
+        item["last_notes"] = notes[-10:]
         if proposal_status == "approved":
             item["proposals_accepted"] = int(item.get("proposals_accepted", 0)) + 1
+            if str((proposal or {}).get("action")) == "REVALIDATE_KNOWN_EDGE":
+                item["successful_revalidations"] = int(item.get("successful_revalidations", 0)) + 1
         elif proposal_status == "rejected":
             item["proposals_rejected"] = int(item.get("proposals_rejected", 0)) + 1
+            if str((proposal or {}).get("action")) == "REVALIDATE_KNOWN_EDGE":
+                item["failed_revalidations"] = int(item.get("failed_revalidations", 0)) + 1
         else:
             item["proposals_pending"] = int(item.get("proposals_pending", 0)) + 1
         accepted = int(item.get("proposals_accepted", 0))

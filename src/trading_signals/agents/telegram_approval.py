@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from trading_signals.agents.proposal_store import DEFAULT_PROPOSALS_PATH, update_proposal_status
+from trading_signals.agents.strategy_knowledge_base import DEFAULT_KNOWLEDGE_BASE_PATH, record_proposal_review
 
 
 def build_approval_payload(proposal: dict[str, Any], *, chat_id: str) -> dict[str, Any]:
@@ -18,9 +19,13 @@ def build_approval_payload(proposal: dict[str, Any], *, chat_id: str) -> dict[st
         "reply_markup": {
             "inline_keyboard": [
                 [
-                    {"text": "APPROVE", "callback_data": f"agent:approve:{proposal_id}"},
-                    {"text": "REJECT", "callback_data": f"agent:reject:{proposal_id}"},
-                    {"text": "DETAILS", "callback_data": f"agent:details:{proposal_id}"},
+                    {"text": "✅ Approve", "callback_data": f"agent:approve:{proposal_id}"},
+                    {"text": "❌ Reject", "callback_data": f"agent:reject:{proposal_id}"},
+                    {"text": "📊 Details", "callback_data": f"agent:details:{proposal_id}"},
+                ],
+                [
+                    {"text": "🔁 Revalidate", "callback_data": f"agent:revalidate:{proposal_id}"},
+                    {"text": "🧪 Find Alternative", "callback_data": f"agent:alternative:{proposal_id}"},
                 ]
             ]
         },
@@ -28,15 +33,27 @@ def build_approval_payload(proposal: dict[str, Any], *, chat_id: str) -> dict[st
 
 
 def format_proposal_message(proposal: dict[str, Any]) -> str:
+    context = proposal.get("context") if isinstance(proposal.get("context"), dict) else {}
+    conditions = context.get("conditions") or proposal.get("conditions") or [proposal.get("title")]
+    rule = ", ".join(str(item) for item in conditions if item)
+    baseline_pf = context.get("baseline_pf")
+    baseline_total_r = context.get("baseline_total_r")
+    remaining = int(proposal.get("baseline_trades") or 0) - int(proposal.get("trades_lost") or 0)
+    recommendation = "Implementar con feature flag reversible." if proposal.get("edge_type") == "STRUCTURAL_EDGE" else "Revisar manualmente antes de cualquier cambio."
     return (
-        "🧠 Agent Committee Proposal\n\n"
-        f"ID: {proposal.get('id')}\n"
-        f"Title: {proposal.get('title')}\n"
-        f"Confidence: {proposal.get('confidence')} | Risk: {proposal.get('risk_level')}\n"
-        f"Expected PF: {proposal.get('expected_pf')}\n"
-        f"Expected Total R: {proposal.get('expected_total_r')}\n"
-        f"Trades lost: {proposal.get('trades_lost')} | Evidence: {proposal.get('evidence')}\n\n"
-        f"Hypothesis: {proposal.get('hypothesis')}\n\n"
+        "🤖 Quantum Investment Council\n\n"
+        f"Decisión:\n{proposal.get('action')}\n\n"
+        f"Título:\n{proposal.get('title')}\n\n"
+        f"Regla:\n{rule}\n\n"
+        f"Tipo:\n{proposal.get('edge_type') or context.get('edge_type')}\n\n"
+        "Impacto simulado:\n"
+        f"PF {baseline_pf} → {proposal.get('expected_pf')}\n"
+        f"TotalR {baseline_total_r}R → {proposal.get('expected_total_r')}R\n"
+        f"Trades restantes: {remaining} / {proposal.get('baseline_trades')}\n"
+        f"Reducción: {proposal.get('trade_reduction_pct')}%\n\n"
+        f"Riesgo:\n{proposal.get('risk_level')}\n"
+        f"Motivo:\n{', '.join(str(item) for item in proposal.get('risk_objections') or []) or 'none'}\n\n"
+        f"Recomendación:\n{recommendation}\n\n"
         "No se ejecutará ningún cambio automáticamente."
     )
 
@@ -123,24 +140,41 @@ def handle_approval_callback(
     callback_data: str,
     *,
     proposal_store_path: Path = DEFAULT_PROPOSALS_PATH,
+    knowledge_base_path: Path = DEFAULT_KNOWLEDGE_BASE_PATH,
     actor: str = "telegram_dev",
+    rejection_reason: str = "",
 ) -> dict[str, Any]:
     parts = callback_data.split(":")
     if len(parts) != 3 or parts[0] != "agent":
         return {"handled": False, "reason": "invalid_callback"}
     action, proposal_id = parts[1], parts[2]
-    if action == "details":
-        return {"handled": True, "action": "details", "proposal_id": proposal_id, "status": "unchanged"}
+    if action in {"details", "revalidate", "alternative"}:
+        return {"handled": True, "action": action, "proposal_id": proposal_id, "status": "unchanged"}
     if action not in {"approve", "reject"}:
         return {"handled": False, "reason": "unsupported_action", "action": action}
     status = "approved" if action == "approve" else "rejected"
-    updated = update_proposal_status(proposal_id, status, path=proposal_store_path, actor=actor)
+    updated = update_proposal_status(
+        proposal_id,
+        status,
+        path=proposal_store_path,
+        actor=actor,
+        approval_metadata={"rejection_reason": rejection_reason} if rejection_reason else {},
+    )
+    knowledge_item = None
+    if updated is not None:
+        knowledge_item = record_proposal_review(
+            updated,
+            status,
+            path=knowledge_base_path,
+            rejection_reason=rejection_reason,
+        )
     return {
         "handled": updated is not None,
         "action": action,
         "proposal_id": proposal_id,
         "status": status if updated is not None else "not_found",
         "proposal": updated,
+        "knowledge_item": knowledge_item,
     }
 
 

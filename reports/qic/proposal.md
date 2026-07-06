@@ -1,20 +1,22 @@
 # QIC Proposal
 
 - id: cio_805ad892d491
+- action: PROPOSE_IMPLEMENTATION
+- edge_type: OVERFIT_RISK
+- implementation_priority: LOW
+- known_edge_status: new
 - title: CIO proposal: exclude liquidity_distance_bucket=2-4atr
-- hypothesis: Strategy Simulator indicates this single candidate has the strongest current evidence.
 - expected_pf: 2.6415
 - expected_total_r: 7.8114
-- trades_lost: 29
-- confidence: LOW
-- risk_level: HIGH
-- evidence: 20
-- agent_votes: [{"agent": "research_director", "confidence": "LOW", "risk_level": "LOW", "stage": "research"}, {"agent": "strategy_director", "confidence": "LOW", "risk_level": "MEDIUM", "stage": "strategy"}, {"agent": "risk_director", "confidence": "HIGH", "risk_level": "HIGH", "stage": "risk"}, {"agent": "simulation_director", "confidence": "LOW", "risk_level": "LOW", "stage": "simulation"}, {"agent": "research_director", "confidence": "LOW", "risk_level": "HIGH", "stage": "research_response"}]
-- action: PROPOSE_IMPLEMENTATION
 - baseline_trades: 49
+- trades_lost: 29
 - trade_reduction_pct: 59.1837
+- risk_level: HIGH
 - risk_objections: ["high_trade_reduction"]
-- status: pending
-- context: {"baseline_trades": 49, "complexity": 1, "composite_score": 39.4162, "condition_details": [{"evidence": 29, "feature": "liquidity_distance_bucket", "label": "exclude liquidity_distance_bucket=2-4atr", "operator": "==", "value": "2-4atr"}], "conditions": ["exclude liquidity_distance_bucket=2-4atr"], "source": "single_filter", "trade_reduction_pct": 59.1837}
+- confidence: LOW
+- evidence: 20
+- knowledge_item_id: edge_fc1437682982
 - rationale: Expected PF 2.6415 and TotalR 7.8114 after simulation.
-- created_at: 2026-07-06T14:53:22.117354+00:00
+
+## Recommended Next Step
+Mantener como hipótesis QIC hasta tener evidencia suficiente.

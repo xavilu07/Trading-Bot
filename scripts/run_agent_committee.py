@@ -46,9 +46,19 @@ def main(argv: list[str] | None = None) -> int:
             output_path=args.output_path,
             enabled=_bool_setting(settings, "agent_committee_enabled", False),
             min_confidence=args.min_confidence or str(_setting(settings, "agent_committee_min_confidence", "MEDIUM")),
-            telegram_enabled=_bool_setting(settings, "agent_telegram_approval_enabled", False),
-            telegram_bot_token=str(_setting(settings, "agent_telegram_bot_token", "") or _setting(settings, "telegram_bot_token", "")),
-            telegram_chat_id=str(_setting(settings, "agent_telegram_chat_id", "") or _setting(settings, "telegram_dev_chat_id", "")),
+            telegram_enabled=_bool_setting(settings, "qic_telegram_enabled", _bool_setting(settings, "agent_telegram_approval_enabled", False)),
+            telegram_bot_token=str(
+                _setting(settings, "qic_telegram_bot_token", "")
+                or _setting(settings, "agent_telegram_bot_token", "")
+                or _setting(settings, "telegram_bot_token", "")
+            ),
+            telegram_chat_id=str(
+                _setting(settings, "qic_telegram_chat_id", "")
+                or _setting(settings, "agent_telegram_chat_id", "")
+                or _setting(settings, "telegram_dev_chat_id", "")
+            ),
+            telegram_send_no_actionable=_bool_setting(settings, "qic_telegram_send_no_actionable", True),
+            telegram_min_priority=str(_setting(settings, "qic_telegram_min_priority", "MEDIUM")),
             dry_run=args.dry_run,
             force=args.force,
             use_qic_v2=not args.legacy_v1,

@@ -1,0 +1,45 @@
+{
+  "items": {
+    "edge_fc1437682982": {
+      "confidence": "LOW",
+      "edge_type": "OVERFIT_RISK",
+      "first_seen_at": "2026-07-06T15:11:08.966970+00:00",
+      "id": "edge_fc1437682982",
+      "implementation_priority": "LOW",
+      "last_evidence": 20,
+      "last_expected_pf": 2.6415,
+      "last_expected_total_r": 7.8114,
+      "last_seen_at": "2026-07-06T15:11:08.966970+00:00",
+      "last_trade_reduction_pct": 59.1837,
+      "notes": "",
+      "qic_proposal_ids": [
+        "cio_805ad892d491"
+      ],
+      "revalidation_history": [
+        {
+          "action": "PROPOSE_IMPLEMENTATION",
+          "evidence": 20,
+          "expected_pf": 2.6415,
+          "expected_total_r": 7.8114,
+          "timestamp": "2026-07-06T15:11:08.966970+00:00",
+          "trade_reduction_pct": 59.1837
+        }
+      ],
+      "risk_level": "HIGH",
+      "risk_objections": [
+        "high_trade_reduction"
+      ],
+      "rule_conditions": [
+        "exclude:liquidity_distance_bucket=2-4atr"
+      ],
+      "source": "single_filter",
+      "status": "candidate",
+      "times_approved": 0,
+      "times_proposed": 1,
+      "times_rejected": 0,
+      "times_seen": 1,
+      "title": "CIO proposal: exclude liquidity_distance_bucket=2-4atr"
+    }
+  },
+  "updated_at": "2026-07-06T15:11:08.966977+00:00"
+}

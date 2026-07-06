@@ -13,6 +13,12 @@ from trading_signals.agents.qic_reporting import write_hypothesis_ranking_report
 from trading_signals.agents.qic_variant_search import apply_variant_to_proposal, run_qic_variant_search
 from trading_signals.agents.research_agent import generate_research_proposals, load_research_reports
 from trading_signals.agents.simulator_agent import generate_simulator_proposals
+from trading_signals.agents.strategy_knowledge_base import (
+    enrich_proposal_with_knowledge,
+    load_strategy_knowledge_base,
+    upsert_knowledge_from_proposal,
+    write_strategy_knowledge_reports,
+)
 from trading_signals.agents.strategy_agent import generate_strategy_proposals
 from trading_signals.agents.telegram_approval import send_cio_proposal_for_approval, send_proposals_for_approval
 
@@ -27,6 +33,8 @@ def run_agent_committee(
     telegram_enabled: bool = False,
     telegram_bot_token: str = "",
     telegram_chat_id: str = "",
+    telegram_send_no_actionable: bool = True,
+    telegram_min_priority: str = "LOW",
     dry_run: bool = False,
     force: bool = False,
     use_qic_v2: bool = True,
@@ -50,6 +58,8 @@ def run_agent_committee(
             telegram_enabled=telegram_enabled,
             telegram_bot_token=telegram_bot_token,
             telegram_chat_id=telegram_chat_id,
+            telegram_send_no_actionable=telegram_send_no_actionable,
+            telegram_min_priority=telegram_min_priority,
             dry_run=dry_run,
         )
 
@@ -90,23 +100,32 @@ def run_quantum_investment_council_v2(
     telegram_enabled: bool = False,
     telegram_bot_token: str = "",
     telegram_chat_id: str = "",
+    telegram_send_no_actionable: bool = True,
+    telegram_min_priority: str = "LOW",
     dry_run: bool = False,
 ) -> dict[str, Any]:
     debate = run_debate_engine(reports_root=reports_root)
     consensus = build_cio_consensus(debate, min_confidence=min_confidence)
+    knowledge_path = data_path / "qic" / "strategy_knowledge_base.json"
+    knowledge_base = load_strategy_knowledge_base(knowledge_path)
     selection = _select_actionable_qic_proposal(
         debate=debate,
         data_path=data_path,
         output_path=output_path,
         min_confidence=min_confidence,
+        knowledge_base=knowledge_base,
     )
     proposal = selection.get("proposal")
+    if isinstance(proposal, dict):
+        upsert_knowledge_from_proposal(proposal, path=knowledge_path)
+        knowledge_base = load_strategy_knowledge_base(knowledge_path)
     consensus["single_proposal"] = proposal if isinstance(proposal, dict) else None
     consensus["hypothesis_ranking"] = {
         "final_action": selection.get("final_action"),
         "selected_rank": selection.get("selected_rank"),
     }
     write_hypothesis_ranking_report(output_path, selection)
+    write_strategy_knowledge_reports(kb=knowledge_base, output_path=output_path)
     proposals = [proposal] if isinstance(proposal, dict) else []
     proposal_path = data_path / "agent_proposals" / "proposals.jsonl"
     if proposals:
@@ -114,7 +133,7 @@ def run_quantum_investment_council_v2(
     memory = update_agent_memory(
         debate.get("interventions", []),
         proposal if isinstance(proposal, dict) else None,
-        path=data_path / "agent_proposals" / "agent_memory.json",
+        path=data_path / "qic" / "agent_memory.json",
     )
     paths = write_qic_reports(
         output_path=output_path,
@@ -122,15 +141,17 @@ def run_quantum_investment_council_v2(
         consensus=consensus,
         proposal=proposal if isinstance(proposal, dict) else None,
         agent_memory=memory,
+        strategy_knowledge_base=knowledge_base,
     )
     telegram_results = []
     if telegram_enabled:
+        priority_ok = _priority_rank((proposal or {}).get("implementation_priority")) >= _priority_rank(telegram_min_priority) if isinstance(proposal, dict) else False
         telegram_results = send_cio_proposal_for_approval(
-            proposal if isinstance(proposal, dict) else None,
+            proposal if isinstance(proposal, dict) and priority_ok else None,
             bot_token=telegram_bot_token,
             chat_id=telegram_chat_id,
             dry_run=dry_run,
-            no_actionable_summary=selection if selection.get("final_action") == "NO_ACTIONABLE_PROPOSAL" else None,
+            no_actionable_summary=selection if telegram_send_no_actionable and (not isinstance(proposal, dict) or not priority_ok) else None,
         )
     result = {
         "enabled": True,
@@ -152,6 +173,7 @@ def _select_actionable_qic_proposal(
     data_path: Path,
     output_path: Path,
     min_confidence: str,
+    knowledge_base: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     candidates = build_cio_hypothesis_candidates(debate, min_confidence=min_confidence)
     ranking_rows = []
@@ -163,6 +185,10 @@ def _select_actionable_qic_proposal(
     for candidate in candidates:
         proposal = candidate.get("proposal")
         row = _ranking_row(candidate)
+        if isinstance(proposal, dict):
+            proposal = enrich_proposal_with_knowledge(proposal, knowledge_base or {})
+            candidate["proposal"] = proposal
+            row.update(_proposal_summary(proposal))
         if selected_proposal is not None:
             row["status"] = "not_evaluated_after_selection"
             ranking_rows.append(row)
@@ -175,9 +201,11 @@ def _select_actionable_qic_proposal(
             last_variant_search = variant_search
             if variant_search.get("status") == "variant_found":
                 proposal = apply_variant_to_proposal(proposal, variant_search)
+                proposal = enrich_proposal_with_knowledge(proposal, knowledge_base or {})
                 row.update(_proposal_summary(proposal))
                 row["status"] = "selected"
                 row["discard_reason"] = ""
+                row["reason"] = "valid_variant_selected"
                 selected_proposal = proposal
                 selected_rank = int(candidate.get("rank") or 0)
                 final_action = str(proposal.get("action") or "PROPOSE_VARIANT")
@@ -185,14 +213,22 @@ def _select_actionable_qic_proposal(
                 continue
             row["status"] = "discarded"
             row["discard_reason"] = "no_valid_variant_found"
+            row["reason"] = "extreme_candidate_without_profitable_variant"
             ranking_rows.append(row)
             continue
-        if proposal.get("action") in {"IMPLEMENTATION_CANDIDATE", "SHADOW_VALIDATION_REQUIRED", "PROPOSE_VARIANT"}:
+        if proposal.get("action") in {
+            "IMPLEMENTATION_CANDIDATE",
+            "SHADOW_VALIDATION_REQUIRED",
+            "PROPOSE_VARIANT",
+            "REVALIDATE_KNOWN_EDGE",
+            "PROMOTE_TO_CONFIRMED_EDGE",
+        }:
             if proposal.get("action") == "IMPLEMENTATION_CANDIDATE":
                 proposal = dict(proposal)
                 proposal["action"] = "PROPOSE_IMPLEMENTATION"
             row.update(_proposal_summary(proposal))
             row["status"] = "selected"
+            row["reason"] = _selection_reason(proposal)
             selected_proposal = proposal
             selected_rank = int(candidate.get("rank") or 0)
             final_action = str(proposal.get("action") or "PROPOSE_IMPLEMENTATION")
@@ -200,6 +236,7 @@ def _select_actionable_qic_proposal(
             continue
         row["status"] = "discarded"
         row["discard_reason"] = f"non_actionable:{proposal.get('action')}"
+        row["reason"] = row["discard_reason"]
         ranking_rows.append(row)
 
     if selected_proposal is None and last_variant_search is None:
@@ -219,6 +256,7 @@ def _ranking_row(candidate: dict[str, Any]) -> dict[str, Any]:
         "rank": candidate.get("rank"),
         "status": candidate.get("status"),
         "discard_reason": candidate.get("discard_reason") or "",
+        "reason": candidate.get("discard_reason") or "",
         "risk_level": candidate.get("risk_level"),
         "trade_reduction_pct": candidate.get("trade_reduction_pct"),
     }
@@ -227,16 +265,35 @@ def _ranking_row(candidate: dict[str, Any]) -> dict[str, Any]:
     return row
 
 
+def _selection_reason(proposal: dict[str, Any]) -> str:
+    edge_type = proposal.get("edge_type") or (proposal.get("context") or {}).get("edge_type")
+    if edge_type == "STRUCTURAL_EDGE":
+        return "structural_edge_with_positive_simulation"
+    if proposal.get("action") == "PROMOTE_TO_CONFIRMED_EDGE":
+        return "known_edge_repeated_and_consistent"
+    if proposal.get("action") == "REVALIDATE_KNOWN_EDGE":
+        return "known_edge_requires_revalidation"
+    return "best_actionable_qic_candidate"
+
+
+def _priority_rank(value: Any) -> int:
+    return {"REJECT": 0, "LOW": 1, "MEDIUM": 2, "HIGH": 3}.get(str(value or "MEDIUM").upper(), 2)
+
+
 def _proposal_summary(proposal: dict[str, Any]) -> dict[str, Any]:
     context = proposal.get("context") if isinstance(proposal.get("context"), dict) else {}
     return {
         "action": proposal.get("action"),
+        "edge_type": proposal.get("edge_type") or context.get("edge_type"),
+        "implementation_priority": proposal.get("implementation_priority") or context.get("implementation_priority"),
+        "known_edge_status": proposal.get("known_edge_status") or context.get("known_edge_status"),
         "expected_pf": proposal.get("expected_pf"),
         "expected_total_r": proposal.get("expected_total_r"),
         "trades_lost": proposal.get("trades_lost"),
         "evidence": proposal.get("evidence"),
         "source": context.get("source"),
         "composite_score": context.get("composite_score"),
+        "complexity": context.get("complexity"),
     }
 
 

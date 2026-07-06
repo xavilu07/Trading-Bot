@@ -251,6 +251,13 @@ class Settings:
     )
     agent_telegram_chat_id: str = field(default_factory=lambda: os.getenv("AGENT_TELEGRAM_CHAT_ID", ""))
     agent_telegram_bot_token: str = field(default_factory=lambda: os.getenv("AGENT_TELEGRAM_BOT_TOKEN", ""))
+    qic_telegram_enabled: bool = field(default_factory=lambda: _bool_env("QIC_TELEGRAM_ENABLED", "false"))
+    qic_telegram_chat_id: str = field(default_factory=lambda: os.getenv("QIC_TELEGRAM_CHAT_ID", ""))
+    qic_telegram_bot_token: str = field(default_factory=lambda: os.getenv("QIC_TELEGRAM_BOT_TOKEN", ""))
+    qic_telegram_send_no_actionable: bool = field(
+        default_factory=lambda: _bool_env("QIC_TELEGRAM_SEND_NO_ACTIONABLE", "true")
+    )
+    qic_telegram_min_priority: str = field(default_factory=lambda: os.getenv("QIC_TELEGRAM_MIN_PRIORITY", "MEDIUM"))
     private_runtime_report_enabled: bool = field(
         default_factory=lambda: _bool_env("PRIVATE_RUNTIME_REPORT_ENABLED", "true")
     )

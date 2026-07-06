@@ -12,6 +12,7 @@ def write_qic_reports(
     consensus: dict[str, Any],
     proposal: dict[str, Any] | None,
     agent_memory: dict[str, Any],
+    strategy_knowledge_base: dict[str, Any] | None = None,
 ) -> dict[str, dict[str, Path]]:
     output_path.mkdir(parents=True, exist_ok=True)
     reports = {
@@ -19,6 +20,7 @@ def write_qic_reports(
         "consensus": consensus,
         "proposal": proposal or {"single_proposal": None, "reason": "no_proposal_selected"},
         "agent_memory": agent_memory,
+        "strategy_knowledge_base": strategy_knowledge_base or {"items": {}},
     }
     paths = {}
     for name, payload in reports.items():
@@ -48,14 +50,62 @@ def _markdown(name: str, payload: Any) -> str:
         lines.extend(_key_values(payload))
     elif name == "proposal":
         if isinstance(payload, dict) and payload.get("id"):
-            lines.extend(_key_values(payload))
+            lines.extend(_proposal_markdown(payload))
         else:
             lines.append("No CIO proposal selected.")
     elif name == "agent_memory":
         agents = payload.get("agents", {}) if isinstance(payload, dict) else {}
         rows = [{"agent": key, **value} for key, value in agents.items()]
         lines.extend(_table(rows, ["agent", "historical_precision", "proposals_accepted", "proposals_rejected", "proposals_pending", "total_interventions"]))
+    elif name == "strategy_knowledge_base":
+        items = list((payload.get("items") or {}).values()) if isinstance(payload, dict) else []
+        lines.extend(
+            _table(
+                items,
+                ["id", "status", "edge_type", "implementation_priority", "times_seen", "times_approved", "times_rejected", "last_expected_pf", "last_expected_total_r"],
+            )
+        )
     return "\n".join(lines) + "\n"
+
+
+def _proposal_markdown(payload: dict[str, Any]) -> list[str]:
+    context = payload.get("context") if isinstance(payload.get("context"), dict) else {}
+    fields = [
+        "id",
+        "action",
+        "edge_type",
+        "implementation_priority",
+        "known_edge_status",
+        "title",
+        "expected_pf",
+        "expected_total_r",
+        "baseline_trades",
+        "trades_lost",
+        "trade_reduction_pct",
+        "risk_level",
+        "risk_objections",
+        "confidence",
+        "evidence",
+        "knowledge_item_id",
+        "rationale",
+    ]
+    output = []
+    for key in fields:
+        value = payload.get(key, context.get(key))
+        if isinstance(value, (dict, list)):
+            value = json.dumps(value, sort_keys=True)
+        output.append(f"- {key}: {value}")
+    output.append("")
+    output.append("## Recommended Next Step")
+    if payload.get("edge_type") == "STRUCTURAL_EDGE":
+        output.append("Implementar con feature flag reversible y seguimiento DEV antes de activación permanente.")
+    elif payload.get("action") == "REVALIDATE_KNOWN_EDGE":
+        output.append("Revalidar edge conocido con muestra nueva antes de implementar.")
+    elif payload.get("action") == "PROMOTE_TO_CONFIRMED_EDGE":
+        output.append("Promover a edge confirmado; cualquier implementación sigue requiriendo aprobación manual.")
+    else:
+        output.append("Mantener como hipótesis QIC hasta tener evidencia suficiente.")
+    return output
 
 
 def _key_values(payload: dict[str, Any]) -> list[str]:
@@ -95,12 +145,15 @@ def _hypothesis_ranking_markdown(ranking: dict[str, Any]) -> str:
                 "rank",
                 "status",
                 "source",
+                "edge_type",
+                "known_edge_status",
                 "composite_score",
                 "action",
                 "risk_level",
                 "trade_reduction_pct",
                 "expected_pf",
                 "expected_total_r",
+                "reason",
                 "discard_reason",
             ],
         )
