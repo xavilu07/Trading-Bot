@@ -37,7 +37,8 @@ def test_variant_with_lower_reduction_is_selected(tmp_path: Path) -> None:
     assert result["status"] == "variant_found"
     assert selected["valid"] is True
     assert selected["trade_reduction_pct"] <= 60
-    assert selected["conditions"] == ["exclude rsi>=55"]
+    assert selected["profit_factor"] >= 1.05
+    assert selected["total_r"] > 0
     assert (tmp_path / "reports" / "qic" / "variant_search.json").exists()
     assert (tmp_path / "reports" / "qic" / "variant_search.md").exists()
 
@@ -56,7 +57,51 @@ def test_no_valid_variant_requires_manual_research(tmp_path: Path) -> None:
     assert result["status"] == "no_valid_variant"
     assert result["selected_variant"] is None
     assert updated["action"] == "REQUIRES_MANUAL_RESEARCH"
-    assert "no_valid_variant_found" in updated["risk_objections"]
+    assert "no_profitable_variant_found" in updated["risk_objections"]
+
+
+def test_pf_below_1_05_is_invalid_even_if_baseline_improves(tmp_path: Path) -> None:
+    _write_trade_rows(tmp_path / "data", _weak_improvement_rows())
+
+    result = run_qic_variant_search(
+        _extreme_proposal(),
+        data_path=tmp_path / "data",
+        reports_path=tmp_path / "reports" / "qic",
+        min_evidence=20,
+    )
+
+    assert result["status"] == "no_valid_variant"
+    assert any("profit_factor_below_1_05" in variant["invalid_reason"] for variant in result["variants"])
+
+
+def test_negative_total_r_variant_is_invalid(tmp_path: Path) -> None:
+    _write_trade_rows(tmp_path / "data", _negative_total_r_rows())
+
+    result = run_qic_variant_search(
+        _extreme_proposal(),
+        data_path=tmp_path / "data",
+        reports_path=tmp_path / "reports" / "qic",
+        min_evidence=20,
+    )
+
+    assert result["status"] == "no_valid_variant"
+    assert any("total_r_not_positive" in variant["invalid_reason"] for variant in result["variants"])
+
+
+def test_variant_report_includes_invalid_reason(tmp_path: Path) -> None:
+    _write_trade_rows(tmp_path / "data", _weak_improvement_rows())
+
+    run_qic_variant_search(
+        _extreme_proposal(),
+        data_path=tmp_path / "data",
+        reports_path=tmp_path / "reports" / "qic",
+        min_evidence=20,
+    )
+
+    report = (tmp_path / "reports" / "qic" / "variant_search.md").read_text(encoding="utf-8")
+    payload = json.loads((tmp_path / "reports" / "qic" / "variant_search.json").read_text(encoding="utf-8"))
+    assert "invalid_reason" in report
+    assert any(variant["invalid_reason"] for variant in payload["variants"])
 
 
 def test_qic_uses_variant_as_final_telegram_proposal(tmp_path: Path) -> None:
@@ -119,6 +164,23 @@ def _no_variant_rows() -> list[dict[str, object]]:
     rows = []
     rows.extend(_rows(70, result_r=1.0, volume_ratio=1.4, rsi=60))
     rows.extend(_rows(30, result_r=-1.0, volume_ratio=1.0, rsi=45))
+    return rows
+
+
+def _weak_improvement_rows() -> list[dict[str, object]]:
+    rows = []
+    rows.extend(_rows(25, result_r=-1.0, volume_ratio=1.3, rsi=50))
+    rows.extend(_rows(25, result_r=-0.5, volume_ratio=1.0, rsi=58))
+    rows.extend(_rows(25, result_r=0.4, volume_ratio=1.0, rsi=45))
+    rows.extend(_rows(25, result_r=-1.0, volume_ratio=1.0, rsi=45))
+    return rows
+
+
+def _negative_total_r_rows() -> list[dict[str, object]]:
+    rows = []
+    rows.extend(_rows(30, result_r=-1.0, volume_ratio=1.3, rsi=50))
+    rows.extend(_rows(20, result_r=-0.25, volume_ratio=1.0, rsi=58))
+    rows.extend(_rows(50, result_r=0.1, volume_ratio=1.0, rsi=45))
     return rows
 
 

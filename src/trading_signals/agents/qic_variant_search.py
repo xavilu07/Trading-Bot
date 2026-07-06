@@ -59,8 +59,9 @@ def run_qic_variant_search(
             "max_trade_reduction_pct": 60.0,
             "preferred_trade_reduction_pct": 40.0,
             "min_evidence": min_evidence,
-            "requires_pf_above_baseline": True,
-            "requires_total_r_above_baseline": True,
+            "min_removed_evidence": min_evidence,
+            "min_profit_factor": 1.05,
+            "requires_positive_total_r": True,
         },
         "selected_variant": selected,
         "variants": variants,
@@ -85,16 +86,19 @@ def evaluate_variants(
             continue
         seen.add(key)
         simulation = _simulate_variant(rows, baseline, candidate)
-        simulation["valid"] = _is_valid_variant(simulation, baseline, min_evidence=min_evidence)
+        invalid_reasons = _invalid_reasons(simulation, min_evidence=min_evidence)
+        simulation["valid"] = not invalid_reasons
+        simulation["invalid_reason"] = ", ".join(invalid_reasons)
         simulation["selection_score"] = _selection_score(simulation)
         evaluated.append(simulation)
     return sorted(
         evaluated,
         key=lambda item: (
             not bool(item.get("valid")),
-            float(item.get("trade_reduction_pct") or 0),
             -float(item.get("profit_factor") or 0),
             -float(item.get("total_r") or 0),
+            float(item.get("trade_reduction_pct") or 0),
+            -int(item.get("remaining_closed") or 0),
         ),
     )
 
@@ -192,8 +196,11 @@ def apply_variant_to_proposal(
 
     updated["action"] = "REQUIRES_MANUAL_RESEARCH"
     updated["hypothesis"] = "No statistically acceptable less-aggressive variant was found automatically."
-    updated["risk_objections"] = list(updated.get("risk_objections") or []) + ["no_valid_variant_found"]
-    updated["rationale"] = "QIC variant search found no variant satisfying reduction, PF, TotalR, and evidence criteria."
+    objections = list(updated.get("risk_objections") or [])
+    if "no_profitable_variant_found" not in objections:
+        objections.append("no_profitable_variant_found")
+    updated["risk_objections"] = objections
+    updated["rationale"] = "QIC variant search found no variant satisfying absolute PF, positive TotalR, reduction, and evidence criteria."
     return updated
 
 
@@ -315,13 +322,19 @@ def _simulate_exclusion_all(rows: list[dict[str, Any]], baseline: dict[str, Any]
     }
 
 
-def _is_valid_variant(simulation: dict[str, Any], baseline: dict[str, Any], *, min_evidence: int) -> bool:
-    return (
-        float(simulation.get("trade_reduction_pct") or 0) <= 60.0
-        and float(simulation.get("profit_factor") or 0) > float(baseline.get("profit_factor") or 0)
-        and float(simulation.get("total_r") or 0) > float(baseline.get("total_r") or 0)
-        and int(simulation.get("remaining_closed") or 0) >= min_evidence
-    )
+def _invalid_reasons(simulation: dict[str, Any], *, min_evidence: int) -> list[str]:
+    reasons = []
+    if float(simulation.get("profit_factor") or 0) < 1.05:
+        reasons.append("profit_factor_below_1_05")
+    if float(simulation.get("total_r") or 0) <= 0:
+        reasons.append("total_r_not_positive")
+    if float(simulation.get("trade_reduction_pct") or 0) > 60.0:
+        reasons.append("trade_reduction_above_60")
+    if int(simulation.get("remaining_closed") or 0) < min_evidence:
+        reasons.append("evidence_below_minimum")
+    if int(simulation.get("removed_closed") or 0) < min_evidence:
+        reasons.append("removed_evidence_below_minimum")
+    return reasons
 
 
 def _select_variant(valid_variants: list[dict[str, Any]]) -> dict[str, Any] | None:
@@ -331,10 +344,11 @@ def _select_variant(valid_variants: list[dict[str, Any]]) -> dict[str, Any] | No
         valid_variants,
         key=lambda item: (
             float(item.get("trade_reduction_pct") or 0) > 40.0,
-            float(item.get("trade_reduction_pct") or 0),
-            len(item.get("condition_details") or []),
             -float(item.get("profit_factor") or 0),
             -float(item.get("total_r") or 0),
+            float(item.get("trade_reduction_pct") or 0),
+            -int(item.get("remaining_closed") or 0),
+            len(item.get("condition_details") or []),
         ),
     )[0]
 
@@ -406,6 +420,7 @@ def _table(rows: list[dict[str, Any]]) -> list[str]:
         "conditions",
         "match_mode",
         "valid",
+        "invalid_reason",
         "risk_level",
         "trade_reduction_pct",
         "profit_factor",
