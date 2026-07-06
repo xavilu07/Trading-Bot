@@ -104,6 +104,48 @@ def test_variant_report_includes_invalid_reason(tmp_path: Path) -> None:
     assert any(variant["invalid_reason"] for variant in payload["variants"])
 
 
+def test_bucket_value_less_than_1atr_does_not_crash(tmp_path: Path) -> None:
+    _write_trade_rows(tmp_path / "data", _variant_rows())
+    proposal = _extreme_proposal()
+    proposal["context"] = {"conditions": ["exclude liquidity_distance_bucket=<1atr"]}
+
+    result = run_qic_variant_search(
+        proposal,
+        data_path=tmp_path / "data",
+        reports_path=tmp_path / "reports" / "qic",
+        min_evidence=20,
+    )
+
+    assert result["status"] in {"variant_found", "no_valid_variant"}
+    assert json.loads((tmp_path / "reports" / "qic" / "variant_search.json").read_text(encoding="utf-8"))
+
+
+def test_bucket_threshold_2_4atr_is_marked_non_numeric_without_crashing(tmp_path: Path) -> None:
+    _write_trade_rows(tmp_path / "data", _variant_rows())
+    proposal = _extreme_proposal()
+    proposal["context"] = {
+        "conditions": ["exclude liquidity_distance_bucket>=2-4atr"],
+        "condition_details": [
+            {
+                "feature": "liquidity_distance_bucket",
+                "operator": ">=",
+                "value": "2-4atr",
+                "label": "exclude liquidity_distance_bucket>=2-4atr",
+            }
+        ],
+    }
+
+    result = run_qic_variant_search(
+        proposal,
+        data_path=tmp_path / "data",
+        reports_path=tmp_path / "reports" / "qic",
+        min_evidence=20,
+    )
+
+    assert result["status"] == "no_valid_variant"
+    assert any("non_numeric_threshold" in variant["invalid_reason"] for variant in result["variants"])
+
+
 def test_qic_uses_variant_as_final_telegram_proposal(tmp_path: Path) -> None:
     _write_qic_reports(tmp_path)
     _write_trade_rows(tmp_path / "data", _variant_rows())
@@ -153,6 +195,25 @@ def test_top_extreme_without_variant_falls_through_to_second_candidate(tmp_path:
     assert ranking["selected_rank"] == 2
     assert result["telegram_results"][0]["status"] == "dry_run"
     assert "exclude htf_alignment=against" in result["telegram_results"][0]["payload"]["text"]
+
+
+def test_non_numeric_bucket_hypothesis_falls_through_to_next_candidate(tmp_path: Path) -> None:
+    _write_qic_reports_with_bucket_candidate_then_valid_second(tmp_path)
+    _write_trade_rows(tmp_path / "data", _variant_rows())
+
+    result = run_quantum_investment_council_v2(
+        reports_root=tmp_path / "reports",
+        data_path=tmp_path / "data",
+        output_path=tmp_path / "reports" / "qic",
+        min_confidence="LOW",
+        telegram_enabled=False,
+    )
+
+    ranking = json.loads((tmp_path / "reports" / "qic" / "hypothesis_ranking.json").read_text(encoding="utf-8"))
+    assert result["single_proposal"]["action"] == "PROPOSE_IMPLEMENTATION"
+    assert ranking["candidates"][0]["discard_reason"] == "no_valid_variant_found"
+    variant_report = json.loads((tmp_path / "reports" / "qic" / "variant_search.json").read_text(encoding="utf-8"))
+    assert any("non_numeric_threshold" in variant["invalid_reason"] for variant in variant_report["variants"])
 
 
 def test_all_invalid_candidates_emit_no_actionable_summary(tmp_path: Path) -> None:
@@ -351,6 +412,46 @@ def _write_qic_reports_all_extreme(tmp_path: Path) -> None:
     }
     (simulator / "single_filters.json").write_text(json.dumps({"simulations": [other_extreme]}), encoding="utf-8")
     (simulator / "double_filters.json").write_text(json.dumps({"simulations": [extreme]}), encoding="utf-8")
+    (simulator / "triple_filters.json").write_text(json.dumps({"simulations": []}), encoding="utf-8")
+    (simulator / "best_configs.json").write_text(json.dumps({"configs": []}), encoding="utf-8")
+    (simulator / "overview.json").write_text(json.dumps({"baseline": {"closed": 100}}), encoding="utf-8")
+    _write_empty_support_reports(tmp_path)
+
+
+def _write_qic_reports_with_bucket_candidate_then_valid_second(tmp_path: Path) -> None:
+    simulator = tmp_path / "reports" / "strategy_simulator"
+    simulator.mkdir(parents=True)
+    bucket_extreme = {
+        "simulation_type": "exclude",
+        "conditions": ["exclude liquidity_distance_bucket>=2-4atr"],
+        "condition_details": [
+            {
+                "feature": "liquidity_distance_bucket",
+                "operator": ">=",
+                "value": "2-4atr",
+                "label": "exclude liquidity_distance_bucket>=2-4atr",
+            }
+        ],
+        "trades_eliminated": 70,
+        "remaining_closed": 30,
+        "profit_factor": 10.0,
+        "total_r": 30.0,
+        "delta_total_r": 70.0,
+        "confidence": "LOW",
+    }
+    second = {
+        "simulation_type": "exclude",
+        "conditions": ["exclude htf_alignment=against"],
+        "condition_details": [{"feature": "htf_alignment", "operator": "==", "value": "against", "label": "exclude htf_alignment=against"}],
+        "trades_eliminated": 20,
+        "remaining_closed": 80,
+        "profit_factor": 1.25,
+        "total_r": 12.0,
+        "delta_total_r": 12.0,
+        "confidence": "LOW",
+    }
+    (simulator / "single_filters.json").write_text(json.dumps({"simulations": [second]}), encoding="utf-8")
+    (simulator / "double_filters.json").write_text(json.dumps({"simulations": [bucket_extreme]}), encoding="utf-8")
     (simulator / "triple_filters.json").write_text(json.dumps({"simulations": []}), encoding="utf-8")
     (simulator / "best_configs.json").write_text(json.dumps({"configs": []}), encoding="utf-8")
     (simulator / "overview.json").write_text(json.dumps({"baseline": {"closed": 100}}), encoding="utf-8")

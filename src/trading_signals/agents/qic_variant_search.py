@@ -11,6 +11,13 @@ from trading_signals.research.statistics import compute_metrics, confidence_leve
 
 
 DEFAULT_VARIANT_REPORTS_PATH = Path("reports") / "qic"
+CATEGORICAL_BUCKET_FEATURES = {
+    "liquidity_distance_bucket",
+    "volume_ratio_bucket",
+    "rsi_bucket",
+    "rr_bucket",
+    "score_bucket",
+}
 
 
 def run_qic_variant_search(
@@ -243,12 +250,16 @@ def _normalize_condition(condition: dict[str, Any]) -> dict[str, Any]:
 def _softened_condition(condition: dict[str, Any]) -> list[dict[str, Any]]:
     feature = str(condition.get("feature"))
     operator = str(condition.get("operator"))
+    if feature in CATEGORICAL_BUCKET_FEATURES:
+        return []
     value = _to_float(condition.get("value"))
+    if value is None:
+        return []
     thresholds: list[float] = []
     if operator == ">=" and feature == "volume_ratio":
-        thresholds = [threshold for threshold in (1.5, 1.8) if value is None or threshold > value]
+        thresholds = [threshold for threshold in (1.5, 1.8) if threshold > value]
     elif operator == ">=" and feature == "rsi":
-        thresholds = [threshold for threshold in (60.0, 65.0) if value is None or threshold > value]
+        thresholds = [threshold for threshold in (60.0, 65.0) if threshold > value]
     softened = []
     for threshold in thresholds:
         next_condition = {
@@ -273,6 +284,9 @@ def _softened_condition(condition: dict[str, Any]) -> list[dict[str, Any]]:
 def _simulate_variant(rows: list[dict[str, Any]], baseline: dict[str, Any], candidate: dict[str, Any]) -> dict[str, Any]:
     conditions = list(candidate.get("conditions") or [])
     match_mode = str(candidate.get("match_mode") or "any")
+    invalid_condition_reason = _invalid_condition_reason(conditions)
+    if invalid_condition_reason:
+        return _invalid_condition_result(baseline, candidate, invalid_condition_reason)
     if match_mode == "all":
         result = _simulate_exclusion_all(rows, baseline, conditions)
     else:
@@ -323,7 +337,7 @@ def _simulate_exclusion_all(rows: list[dict[str, Any]], baseline: dict[str, Any]
 
 
 def _invalid_reasons(simulation: dict[str, Any], *, min_evidence: int) -> list[str]:
-    reasons = []
+    reasons = [reason for reason in str(simulation.get("invalid_reason") or "").split(", ") if reason]
     if float(simulation.get("profit_factor") or 0) < 1.05:
         reasons.append("profit_factor_below_1_05")
     if float(simulation.get("total_r") or 0) <= 0:
@@ -362,6 +376,11 @@ def _parse_condition_label(label: str) -> dict[str, Any]:
     text = label.strip()
     if text.startswith("exclude "):
         text = text[len("exclude "):]
+    if "=" in text and "==" not in text and ">=" not in text and "<=" not in text:
+        feature, value = text.split("=", 1)
+        condition = {"feature": feature.strip(), "operator": "==", "value": _numeric_or_text(value.strip())}
+        condition["label"] = _condition_label(condition)
+        return condition
     for operator in (">=", "<=", "==", "<", ">"):
         if operator in text:
             feature, value = text.split(operator, 1)
@@ -369,6 +388,55 @@ def _parse_condition_label(label: str) -> dict[str, Any]:
             condition["label"] = _condition_label(condition)
             return condition
     return {}
+
+
+def _invalid_condition_reason(conditions: list[dict[str, Any]]) -> str:
+    for condition in conditions:
+        operator = str(condition.get("operator") or "")
+        if operator == "==":
+            continue
+        value = condition.get("value")
+        if _to_float(value) is None:
+            return "non_numeric_threshold"
+    return ""
+
+
+def _invalid_condition_result(
+    baseline: dict[str, Any],
+    candidate: dict[str, Any],
+    invalid_reason: str,
+) -> dict[str, Any]:
+    conditions = list(candidate.get("conditions") or [])
+    return {
+        "simulation_type": "exclude",
+        "conditions": [str(condition.get("label") or _condition_label(condition)) for condition in conditions],
+        "condition_details": conditions,
+        "trades_remaining": baseline.get("trades", 0),
+        "trades_eliminated": 0,
+        "remaining_closed": baseline.get("closed", 0),
+        "removed_closed": 0,
+        "winrate": baseline.get("winrate", 0),
+        "profit_factor": baseline.get("profit_factor", 0),
+        "total_r": baseline.get("total_r", 0),
+        "expectancy": baseline.get("expectancy", 0),
+        "avg_r": baseline.get("avg_r", 0),
+        "average_win": baseline.get("average_win", 0),
+        "average_loss": baseline.get("average_loss", 0),
+        "drawdown": baseline.get("drawdown", 0),
+        "trade_reduction_pct": 0.0,
+        "delta_pf": 0.0,
+        "delta_wr": 0.0,
+        "delta_total_r": 0.0,
+        "confidence": baseline.get("confidence", "LOW"),
+        "evidence": baseline.get("closed", 0),
+        "removed_metrics": {},
+        "variant_type": candidate.get("variant_type"),
+        "description": candidate.get("description"),
+        "match_mode": candidate.get("match_mode") or "any",
+        "risk_level": "LOW",
+        "risk_objections": [],
+        "invalid_reason": invalid_reason,
+    }
 
 
 def _condition_label(condition: dict[str, Any]) -> str:
