@@ -3,11 +3,14 @@ from __future__ import annotations
 import json
 import urllib.parse
 import urllib.request
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from trading_signals.agents.proposal_store import DEFAULT_PROPOSALS_PATH, update_proposal_status
 from trading_signals.agents.strategy_knowledge_base import DEFAULT_KNOWLEDGE_BASE_PATH, record_proposal_review
+
+DEFAULT_QIC_TELEGRAM_OFFSET_PATH = Path("data") / "qic" / "telegram_update_offset.json"
 
 
 def build_approval_payload(proposal: dict[str, Any], *, chat_id: str) -> dict[str, Any]:
@@ -30,6 +33,63 @@ def build_approval_payload(proposal: dict[str, Any], *, chat_id: str) -> dict[st
             ]
         },
     }
+
+
+def resolve_qic_telegram_config(settings: object) -> dict[str, Any]:
+    token = (
+        str(getattr(settings, "qic_telegram_bot_token", "") or "")
+        or str(getattr(settings, "agent_telegram_bot_token", "") or "")
+        or str(getattr(settings, "telegram_bot_token", "") or "")
+    )
+    chat_id = (
+        str(getattr(settings, "qic_telegram_chat_id", "") or "")
+        or str(getattr(settings, "agent_telegram_chat_id", "") or "")
+        or str(getattr(settings, "telegram_dev_chat_id", "") or "")
+    )
+    enabled = _as_bool(getattr(settings, "qic_telegram_enabled", False))
+    if not enabled:
+        enabled = _as_bool(getattr(settings, "agent_telegram_approval_enabled", False))
+    return {
+        "enabled": enabled,
+        "bot_token": token,
+        "chat_id": chat_id,
+        "send_no_actionable": _as_bool(getattr(settings, "qic_telegram_send_no_actionable", True)),
+        "min_priority": str(getattr(settings, "qic_telegram_min_priority", "MEDIUM") or "MEDIUM"),
+        "configured": bool(token and chat_id),
+    }
+
+
+def build_qic_test_payload(*, chat_id: str) -> dict[str, Any]:
+    return {
+        "chat_id": chat_id,
+        "text": (
+            "🤖 Quantum Investment Council\n\n"
+            "Telegram DEV correctamente configurado.\n\n"
+            "Si recibes este mensaje significa que el canal de comunicación está listo."
+        ),
+        "reply_markup": {"inline_keyboard": []},
+    }
+
+
+def send_qic_test_message(*, bot_token: str, chat_id: str, dry_run: bool = False) -> dict[str, Any]:
+    if not bot_token or not chat_id:
+        return {"status": "skipped", "reason": "qic_telegram_not_configured"}
+    results = []
+    for target_chat_id in _chat_ids(chat_id):
+        payload = build_qic_test_payload(chat_id=target_chat_id)
+        if dry_run:
+            results.append({"status": "dry_run", "proposal_id": "qic_test", "payload": payload})
+        else:
+            results.append(_send_payload(bot_token, payload, proposal_id="qic_test"))
+    if len(results) == 1:
+        return results[0]
+    if all(item.get("status") == "sent" for item in results):
+        status = "sent"
+    elif all(item.get("status") == "dry_run" for item in results):
+        status = "dry_run"
+    else:
+        status = "partial"
+    return {"status": status, "results": results}
 
 
 def format_proposal_message(proposal: dict[str, Any]) -> str:
@@ -70,11 +130,12 @@ def send_proposals_for_approval(
         return [{"status": "skipped", "reason": "telegram_approval_not_configured"}]
     results = []
     for proposal in proposals[:limit]:
-        payload = build_approval_payload(proposal, chat_id=chat_id)
-        if dry_run:
-            results.append({"status": "dry_run", "proposal_id": proposal["id"], "payload": payload})
-            continue
-        results.append(_send_payload(bot_token, payload, proposal_id=str(proposal["id"])))
+        for target_chat_id in _chat_ids(chat_id):
+            payload = build_approval_payload(proposal, chat_id=target_chat_id)
+            if dry_run:
+                results.append({"status": "dry_run", "proposal_id": proposal["id"], "payload": payload})
+                continue
+            results.append(_send_payload(bot_token, payload, proposal_id=str(proposal["id"])))
     return results
 
 
@@ -113,14 +174,18 @@ def send_no_actionable_summary(
 ) -> list[dict[str, Any]]:
     if not bot_token or not chat_id:
         return [{"status": "skipped", "reason": "telegram_approval_not_configured"}]
-    payload = {
-        "chat_id": chat_id,
-        "text": format_no_actionable_message(summary),
-        "reply_markup": {"inline_keyboard": []},
-    }
-    if dry_run:
-        return [{"status": "dry_run", "proposal_id": "no_actionable", "payload": payload}]
-    return [_send_payload(bot_token, payload, proposal_id="no_actionable")]
+    results = []
+    for target_chat_id in _chat_ids(chat_id):
+        payload = {
+            "chat_id": target_chat_id,
+            "text": format_no_actionable_message(summary),
+            "reply_markup": {"inline_keyboard": []},
+        }
+        if dry_run:
+            results.append({"status": "dry_run", "proposal_id": "no_actionable", "payload": payload})
+        else:
+            results.append(_send_payload(bot_token, payload, proposal_id="no_actionable"))
+    return results
 
 
 def format_no_actionable_message(summary: dict[str, Any]) -> str:
@@ -178,6 +243,71 @@ def handle_approval_callback(
     }
 
 
+def process_approval_update(
+    update: dict[str, Any],
+    *,
+    proposal_store_path: Path = DEFAULT_PROPOSALS_PATH,
+    knowledge_base_path: Path = DEFAULT_KNOWLEDGE_BASE_PATH,
+) -> dict[str, Any]:
+    callback = update.get("callback_query") if isinstance(update.get("callback_query"), dict) else {}
+    data = str(callback.get("data") or "")
+    actor = str((callback.get("from") or {}).get("id") or "telegram_dev")
+    if not data:
+        return {"handled": False, "reason": "missing_callback_data", "update_id": update.get("update_id")}
+    result = handle_approval_callback(
+        data,
+        proposal_store_path=proposal_store_path,
+        knowledge_base_path=knowledge_base_path,
+        actor=actor,
+    )
+    result["update_id"] = update.get("update_id")
+    result["callback_query_id"] = callback.get("id")
+    return result
+
+
+def poll_approval_callbacks(
+    *,
+    bot_token: str,
+    proposal_store_path: Path = DEFAULT_PROPOSALS_PATH,
+    knowledge_base_path: Path = DEFAULT_KNOWLEDGE_BASE_PATH,
+    offset_path: Path = DEFAULT_QIC_TELEGRAM_OFFSET_PATH,
+    limit: int = 20,
+    timeout: int = 0,
+    dry_run: bool = False,
+) -> dict[str, Any]:
+    if not bot_token:
+        return {"status": "skipped", "reason": "qic_telegram_bot_token_missing", "processed": []}
+    offset = _load_update_offset(offset_path)
+    updates_result = _get_updates(bot_token=bot_token, offset=offset, limit=limit, timeout=timeout, dry_run=dry_run)
+    updates = updates_result.get("updates") if isinstance(updates_result.get("updates"), list) else []
+    processed = []
+    max_update_id = offset - 1 if offset else -1
+    for update in updates:
+        if not isinstance(update, dict):
+            continue
+        result = process_approval_update(
+            update,
+            proposal_store_path=proposal_store_path,
+            knowledge_base_path=knowledge_base_path,
+        )
+        processed.append(result)
+        try:
+            max_update_id = max(max_update_id, int(update.get("update_id")))
+        except (TypeError, ValueError):
+            pass
+        callback_query_id = result.get("callback_query_id")
+        if callback_query_id and not dry_run:
+            _answer_callback_query(bot_token, str(callback_query_id), result)
+    if max_update_id >= 0 and not dry_run:
+        _save_update_offset(offset_path, max_update_id + 1)
+    return {
+        "status": updates_result.get("status", "ok"),
+        "offset": offset,
+        "next_offset": max_update_id + 1 if max_update_id >= 0 else offset,
+        "processed": processed,
+    }
+
+
 def _send_payload(bot_token: str, payload: dict[str, Any], *, proposal_id: str) -> dict[str, Any]:
     encoded = urllib.parse.urlencode(
         {
@@ -201,3 +331,64 @@ def _send_payload(bot_token: str, payload: dict[str, Any], *, proposal_id: str) 
         }
     except Exception as exc:  # pragma: no cover - network path
         return {"status": "failed", "proposal_id": proposal_id, "error_message": str(exc)}
+
+
+def _get_updates(*, bot_token: str, offset: int, limit: int, timeout: int, dry_run: bool) -> dict[str, Any]:
+    if dry_run:
+        return {"status": "dry_run", "updates": []}
+    query = urllib.parse.urlencode(
+        {
+            "offset": offset,
+            "limit": limit,
+            "timeout": timeout,
+            "allowed_updates": json.dumps(["callback_query"]),
+        }
+    )
+    req = urllib.request.Request(f"https://api.telegram.org/bot{bot_token}/getUpdates?{query}", method="GET")
+    try:
+        with urllib.request.urlopen(req, timeout=max(timeout + 10, 15)) as response:  # pragma: no cover - network path
+            body = json.loads(response.read().decode("utf-8"))
+        return {"status": "ok", "updates": body.get("result", []) if body.get("ok") else [], "raw": body}
+    except Exception as exc:  # pragma: no cover - network path
+        return {"status": "failed", "updates": [], "error_message": str(exc)}
+
+
+def _answer_callback_query(bot_token: str, callback_query_id: str, result: dict[str, Any]) -> None:
+    text = "QIC actualizado." if result.get("handled") else f"QIC: {result.get('reason', 'not handled')}"
+    encoded = urllib.parse.urlencode({"callback_query_id": callback_query_id, "text": text[:180]}).encode("utf-8")
+    req = urllib.request.Request(f"https://api.telegram.org/bot{bot_token}/answerCallbackQuery", data=encoded, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=10):  # pragma: no cover - network path
+            pass
+    except Exception:
+        pass
+
+
+def _load_update_offset(path: Path) -> int:
+    if not path.exists():
+        return 0
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        return int(raw.get("next_offset") or 0)
+    except (json.JSONDecodeError, TypeError, ValueError):
+        return 0
+
+
+def _save_update_offset(path: Path, next_offset: int) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps({"next_offset": next_offset, "updated_at": datetime.now(tz=UTC).isoformat()}, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+
+
+def _as_bool(value: Any) -> bool:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return value.strip().lower() in {"1", "true", "yes", "on"}
+    return bool(value)
+
+
+def _chat_ids(chat_id: str) -> list[str]:
+    return [item.strip() for item in str(chat_id).split(",") if item.strip()]
