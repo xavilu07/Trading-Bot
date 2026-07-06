@@ -112,8 +112,6 @@ def _proposal_from_simulation(
     action = "IMPLEMENTATION_CANDIDATE"
     if risk_level == "EXTREME":
         action = "REQUIRES_VARIANT_SEARCH"
-    elif risk_level == "HIGH":
-        action = "SHADOW_VALIDATION_REQUIRED"
     title_prefix = "CIO variant search required" if action == "REQUIRES_VARIANT_SEARCH" else "CIO proposal"
     title = f"{title_prefix}: {', '.join(str(item) for item in conditions) or 'prioritize simulated context'}"
     hypothesis = "Strategy Simulator indicates this single candidate has the strongest current evidence."
@@ -149,6 +147,9 @@ def _proposal_from_simulation(
             "condition_details": simulation.get("condition_details") or [],
             "baseline_trades": baseline_trades,
             "trade_reduction_pct": round(trade_reduction_pct, 4),
+            "source": simulation.get("source"),
+            "composite_score": simulation.get("composite_score"),
+            "complexity": simulation.get("complexity"),
         },
         rationale=_rationale(simulation, action, trade_reduction_pct),
     )
@@ -169,7 +170,7 @@ def _consensus_score(*, simulation: dict[str, Any], risk_level: str, research_re
     if normalized_risk == "EXTREME":
         score -= 0.5
     elif normalized_risk == "HIGH":
-        score -= 3
+        score -= 0.5
     elif normalized_risk == "MEDIUM":
         score -= 1
     return round(score, 4)

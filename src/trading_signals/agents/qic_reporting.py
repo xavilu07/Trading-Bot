@@ -94,6 +94,8 @@ def _hypothesis_ranking_markdown(ranking: dict[str, Any]) -> str:
             [
                 "rank",
                 "status",
+                "source",
+                "composite_score",
                 "action",
                 "risk_level",
                 "trade_reduction_pct",

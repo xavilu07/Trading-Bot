@@ -163,6 +163,10 @@ def _select_actionable_qic_proposal(
     for candidate in candidates:
         proposal = candidate.get("proposal")
         row = _ranking_row(candidate)
+        if selected_proposal is not None:
+            row["status"] = "not_evaluated_after_selection"
+            ranking_rows.append(row)
+            continue
         if not isinstance(proposal, dict):
             ranking_rows.append(row)
             continue
@@ -178,7 +182,7 @@ def _select_actionable_qic_proposal(
                 selected_rank = int(candidate.get("rank") or 0)
                 final_action = str(proposal.get("action") or "PROPOSE_VARIANT")
                 ranking_rows.append(row)
-                break
+                continue
             row["status"] = "discarded"
             row["discard_reason"] = "no_valid_variant_found"
             ranking_rows.append(row)
@@ -193,7 +197,7 @@ def _select_actionable_qic_proposal(
             selected_rank = int(candidate.get("rank") or 0)
             final_action = str(proposal.get("action") or "PROPOSE_IMPLEMENTATION")
             ranking_rows.append(row)
-            break
+            continue
         row["status"] = "discarded"
         row["discard_reason"] = f"non_actionable:{proposal.get('action')}"
         ranking_rows.append(row)
@@ -224,12 +228,15 @@ def _ranking_row(candidate: dict[str, Any]) -> dict[str, Any]:
 
 
 def _proposal_summary(proposal: dict[str, Any]) -> dict[str, Any]:
+    context = proposal.get("context") if isinstance(proposal.get("context"), dict) else {}
     return {
         "action": proposal.get("action"),
         "expected_pf": proposal.get("expected_pf"),
         "expected_total_r": proposal.get("expected_total_r"),
         "trades_lost": proposal.get("trades_lost"),
         "evidence": proposal.get("evidence"),
+        "source": context.get("source"),
+        "composite_score": context.get("composite_score"),
     }
 
 

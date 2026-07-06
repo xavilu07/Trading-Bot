@@ -216,6 +216,45 @@ def test_non_numeric_bucket_hypothesis_falls_through_to_next_candidate(tmp_path:
     assert any("non_numeric_threshold" in variant["invalid_reason"] for variant in variant_report["variants"])
 
 
+def test_moderate_candidate_can_beat_extreme_high_pf_candidate(tmp_path: Path) -> None:
+    _write_qic_reports_moderate_pool(tmp_path)
+    _write_trade_rows(tmp_path / "data", _variant_rows())
+
+    result = run_quantum_investment_council_v2(
+        reports_root=tmp_path / "reports",
+        data_path=tmp_path / "data",
+        output_path=tmp_path / "reports" / "qic",
+        min_confidence="LOW",
+        telegram_enabled=False,
+    )
+
+    proposal = result["single_proposal"]
+    ranking = json.loads((tmp_path / "reports" / "qic" / "hypothesis_ranking.json").read_text(encoding="utf-8"))
+    assert proposal["action"] == "PROPOSE_IMPLEMENTATION"
+    assert proposal["expected_pf"] == 1.13
+    assert proposal["trade_reduction_pct"] == 49.0
+    assert proposal["context"]["source"] == "single_filter"
+    assert ranking["candidates"][0]["source"] == "single_filter"
+    assert ranking["candidates"][0]["composite_score"] > ranking["candidates"][1]["composite_score"]
+
+
+def test_hypothesis_ranking_report_includes_source_and_composite_score(tmp_path: Path) -> None:
+    _write_qic_reports_moderate_pool(tmp_path)
+    _write_trade_rows(tmp_path / "data", _variant_rows())
+
+    run_quantum_investment_council_v2(
+        reports_root=tmp_path / "reports",
+        data_path=tmp_path / "data",
+        output_path=tmp_path / "reports" / "qic",
+        min_confidence="LOW",
+        telegram_enabled=False,
+    )
+
+    report = (tmp_path / "reports" / "qic" / "hypothesis_ranking.md").read_text(encoding="utf-8")
+    assert "source" in report
+    assert "composite_score" in report
+
+
 def test_all_invalid_candidates_emit_no_actionable_summary(tmp_path: Path) -> None:
     _write_qic_reports_all_extreme(tmp_path)
     _write_trade_rows(tmp_path / "data", _no_variant_rows())
@@ -455,6 +494,47 @@ def _write_qic_reports_with_bucket_candidate_then_valid_second(tmp_path: Path) -
     (simulator / "triple_filters.json").write_text(json.dumps({"simulations": []}), encoding="utf-8")
     (simulator / "best_configs.json").write_text(json.dumps({"configs": []}), encoding="utf-8")
     (simulator / "overview.json").write_text(json.dumps({"baseline": {"closed": 100}}), encoding="utf-8")
+    _write_empty_support_reports(tmp_path)
+
+
+def _write_qic_reports_moderate_pool(tmp_path: Path) -> None:
+    simulator = tmp_path / "reports" / "strategy_simulator"
+    simulator.mkdir(parents=True)
+    extreme = {
+        "simulation_type": "exclude",
+        "conditions": ["exclude volume_ratio>=1.2", "exclude rsi>=55"],
+        "condition_details": _extreme_conditions(),
+        "trades_eliminated": 900,
+        "remaining_closed": 100,
+        "profit_factor": 2.0,
+        "total_r": 80.0,
+        "delta_pf": 1.0,
+        "delta_total_r": 180.0,
+        "drawdown": -80.0,
+        "confidence": "LOW",
+    }
+    moderate = {
+        "simulation_type": "exclude",
+        "conditions": ["exclude htf_alignment=against"],
+        "condition_details": [{"feature": "htf_alignment", "operator": "==", "value": "against", "label": "exclude htf_alignment=against"}],
+        "trades_eliminated": 490,
+        "remaining_closed": 510,
+        "profit_factor": 1.13,
+        "total_r": 20.0,
+        "delta_pf": 0.13,
+        "delta_total_r": 120.0,
+        "drawdown": -60.0,
+        "confidence": "LOW",
+    }
+    (simulator / "single_filters.json").write_text(json.dumps({"simulations": [moderate]}), encoding="utf-8")
+    (simulator / "double_filters.json").write_text(json.dumps({"simulations": [extreme]}), encoding="utf-8")
+    (simulator / "triple_filters.json").write_text(json.dumps({"simulations": []}), encoding="utf-8")
+    (simulator / "best_configs.json").write_text(json.dumps({"configs": []}), encoding="utf-8")
+    (simulator / "recommendations.json").write_text(json.dumps({"recommendations": []}), encoding="utf-8")
+    (simulator / "overview.json").write_text(
+        json.dumps({"baseline": {"closed": 1000, "profit_factor": 1.0, "total_r": -100.0, "drawdown": -100.0}}),
+        encoding="utf-8",
+    )
     _write_empty_support_reports(tmp_path)
 
 

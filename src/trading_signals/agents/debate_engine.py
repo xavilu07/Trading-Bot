@@ -134,7 +134,7 @@ def risk_director_opinion(strategy: DebateIntervention, reports: dict[str, Any])
 
 def simulation_director_opinion(strategy: DebateIntervention, reports: dict[str, Any]) -> DebateIntervention:
     simulations = _simulator_candidates(reports)
-    simulations = sorted(simulations, key=lambda item: (float(item.get("delta_total_r") or item.get("total_r") or 0), float(item.get("profit_factor") or 0)), reverse=True)
+    simulations = sorted(simulations, key=lambda item: float(item.get("composite_score") or 0), reverse=True)
     best = simulations[0] if simulations else {}
     return DebateIntervention(
         agent="simulation_director",
@@ -144,7 +144,7 @@ def simulation_director_opinion(strategy: DebateIntervention, reports: dict[str,
         confidence=str(best.get("confidence") or "LOW").upper(),
         evidence=int(best.get("remaining_closed") or best.get("evidence") or 0),
         risk_level="LOW",
-        data={"best_simulation": best, "top_simulations": simulations[:10]},
+        data={"best_simulation": best, "top_simulations": simulations[:50]},
     )
 
 
@@ -192,26 +192,114 @@ def _top_conditions(rows: Any) -> list[dict[str, Any]]:
 
 def _simulator_candidates(reports: dict[str, Any]) -> list[dict[str, Any]]:
     simulator = reports.get("strategy_simulator", {})
+    baseline = simulator.get("overview", {}).get("baseline", {}) if isinstance(simulator.get("overview"), dict) else {}
     simulations = []
-    for section in ("single_filters", "double_filters", "triple_filters", "best_configs"):
+    for section, source, complexity in (
+        ("single_filters", "single_filter", 1),
+        ("double_filters", "double_filter", 2),
+        ("best_configs", "best_config", 2),
+    ):
         key = "configs" if section == "best_configs" else "simulations"
-        simulations.extend(simulator.get(section, {}).get(key, [])[:10])
-    for item in simulator.get("recommendations", {}).get("recommendations", [])[:10]:
+        for item in simulator.get(section, {}).get(key, [])[:100]:
+            if isinstance(item, dict):
+                simulations.append(_normalize_simulation_candidate(item, baseline, source=source, complexity=complexity))
+    for item in simulator.get("recommendations", {}).get("recommendations", [])[:100]:
         if not isinstance(item, dict) or str(item.get("action")) == "Insufficient data":
             continue
         simulations.append(
-            {
-                "simulation_type": "recommendation",
-                "conditions": item.get("conditions") or [],
-                "trades_eliminated": item.get("trades_lost", 0),
-                "remaining_closed": item.get("evidence", 0),
-                "profit_factor": item.get("expected_pf"),
-                "total_r": item.get("expected_total_r"),
-                "delta_total_r": item.get("expected_improvement", item.get("expected_total_r")),
-                "confidence": item.get("confidence", "LOW"),
-            }
+            _normalize_simulation_candidate(
+                {
+                    "simulation_type": "recommendation",
+                    "conditions": item.get("conditions") or [],
+                    "trades_eliminated": item.get("trades_lost", 0),
+                    "remaining_closed": item.get("evidence", 0),
+                    "profit_factor": item.get("expected_pf"),
+                    "total_r": item.get("expected_total_r"),
+                    "delta_total_r": item.get("expected_improvement", item.get("expected_total_r")),
+                    "confidence": item.get("confidence", "LOW"),
+                },
+                baseline,
+                source="recommendation",
+                complexity=2,
+            )
         )
     return [item for item in simulations if isinstance(item, dict)]
+
+
+def _normalize_simulation_candidate(
+    item: dict[str, Any],
+    baseline: dict[str, Any],
+    *,
+    source: str,
+    complexity: int,
+) -> dict[str, Any]:
+    candidate = dict(item)
+    baseline_closed = _float_value(baseline.get("closed")) or (
+        (_float_value(candidate.get("trades_eliminated")) or 0) + (_float_value(candidate.get("remaining_closed")) or 0)
+    )
+    trades_eliminated = _float_value(candidate.get("trades_eliminated")) or 0.0
+    remaining_closed = _float_value(candidate.get("remaining_closed") or candidate.get("evidence")) or 0.0
+    trade_reduction_pct = _float_value(candidate.get("trade_reduction_pct"))
+    if trade_reduction_pct is None:
+        trade_reduction_pct = round(trades_eliminated / baseline_closed * 100, 4) if baseline_closed else 0.0
+    candidate["source"] = source
+    candidate["complexity"] = complexity
+    candidate["trade_reduction_pct"] = trade_reduction_pct
+    candidate["remaining_closed"] = int(remaining_closed)
+    candidate["composite_score"] = _composite_score(candidate, baseline, source=source, complexity=complexity)
+    return candidate
+
+
+def _composite_score(candidate: dict[str, Any], baseline: dict[str, Any], *, source: str, complexity: int) -> float:
+    baseline_pf = _float_value(baseline.get("profit_factor")) or 0.0
+    baseline_total_r = _float_value(baseline.get("total_r")) or 0.0
+    baseline_closed = _float_value(baseline.get("closed")) or (
+        (_float_value(candidate.get("trades_eliminated")) or 0) + (_float_value(candidate.get("remaining_closed")) or 0)
+    )
+    baseline_drawdown = _float_value(baseline.get("drawdown")) or 0.0
+    profit_factor = _float_value(candidate.get("profit_factor")) or 0.0
+    total_r = _float_value(candidate.get("total_r")) or 0.0
+    remaining_closed = _float_value(candidate.get("remaining_closed")) or 0.0
+    trade_reduction_pct = _float_value(candidate.get("trade_reduction_pct")) or 0.0
+    delta_pf = _float_value(candidate.get("delta_pf"))
+    if delta_pf is None:
+        delta_pf = profit_factor - baseline_pf
+    delta_total_r = _float_value(candidate.get("delta_total_r"))
+    if delta_total_r is None:
+        delta_total_r = total_r - baseline_total_r
+    drawdown = _float_value(candidate.get("drawdown")) or baseline_drawdown
+    drawdown_improvement = drawdown - baseline_drawdown
+    retention = max(0.0, min(1.0, remaining_closed / baseline_closed)) if baseline_closed else 0.0
+    evidence_score = min(1.0, remaining_closed / 200.0) if remaining_closed else 0.0
+    total_scale = max(abs(baseline_total_r), 10.0)
+    score = 0.0
+    score += delta_pf * 18.0
+    score += (delta_total_r / total_scale) * 14.0
+    score += retention * 16.0
+    score += evidence_score * 10.0
+    score += min(max(drawdown_improvement, -10.0), 10.0)
+    if trade_reduction_pct <= 40:
+        score += 8.0
+    elif trade_reduction_pct <= 60:
+        score += 2.0
+    else:
+        score -= (trade_reduction_pct - 60.0) * 1.5
+    if source == "single_filter":
+        score += 4.0
+    elif complexity >= 3:
+        score -= 4.0
+    if profit_factor < 1.05 or total_r <= 0 or remaining_closed < 200:
+        score -= 25.0
+    return round(score, 4)
+
+
+def _float_value(value: Any) -> float | None:
+    try:
+        if value in (None, ""):
+            return None
+        return float(value)
+    except (TypeError, ValueError):
+        return None
 
 
 def _baseline_closed(reports: dict[str, Any]) -> int:
