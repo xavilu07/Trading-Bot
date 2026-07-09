@@ -34,6 +34,10 @@ def build_approval_payload(proposal: dict[str, Any], *, chat_id: str) -> dict[st
                 [
                     {"text": "🛠 Implementation Review", "callback_data": f"agent:implementation_review:{proposal_id}"},
                     {"text": "📦 Generate Patch", "callback_data": f"agent:generate_patch:{proposal_id}"},
+                    {"text": "👨‍💻 Generate Code", "callback_data": f"agent:generate_code:{proposal_id}"},
+                ],
+                [
+                    {"text": "🧩 Apply Patch", "callback_data": f"agent:apply_patch:{proposal_id}"},
                     {"text": "🧪 Start Shadow", "callback_data": f"agent:start_shadow:{proposal_id}"},
                 ]
             ]
@@ -236,6 +240,10 @@ def handle_approval_callback(
             knowledge_base_path=knowledge_base_path,
             qic_output_path=qic_output_path,
         )
+    if action == "generate_code":
+        return _handle_generate_code_callback(proposal_id, proposal_store_path=proposal_store_path, qic_output_path=qic_output_path)
+    if action == "apply_patch":
+        return _handle_apply_patch_callback(proposal_id, proposal_store_path=proposal_store_path, qic_output_path=qic_output_path)
     if action not in {"approve", "reject"}:
         return {"handled": False, "reason": "unsupported_action", "action": action}
     status = "approved_for_implementation_review" if action == "approve" else "rejected"
@@ -324,6 +332,77 @@ def _handle_generate_patch_callback(
         "proposal_id": proposal_id,
         "status": "patch_report_generated",
         "patch": {"status": patch.get("status"), "patch_applied": patch.get("patch_applied")},
+    }
+
+
+def _handle_generate_code_callback(
+    proposal_id: str,
+    *,
+    proposal_store_path: Path,
+    qic_output_path: Path,
+) -> dict[str, Any]:
+    from trading_signals.agents.implementation.code_engineer import run_code_engineer
+
+    report = run_code_engineer(
+        proposal_id=proposal_id,
+        proposal_store_path=proposal_store_path,
+        reports_path=qic_output_path,
+        dry_run=True,
+        apply=False,
+        run_tests=False,
+        allow_apply=False,
+    )
+    return {
+        "handled": True,
+        "action": "generate_code",
+        "proposal_id": proposal_id,
+        "status": report.get("status"),
+        "code_engineer": {
+            "files_planned": report.get("files_planned", []),
+            "blockers": report.get("blockers", []),
+            "tests_passed": report.get("tests_passed"),
+        },
+    }
+
+
+def _handle_apply_patch_callback(
+    proposal_id: str,
+    *,
+    proposal_store_path: Path,
+    qic_output_path: Path,
+) -> dict[str, Any]:
+    import os
+    from trading_signals.agents.implementation.code_engineer import run_code_engineer
+
+    enabled = _as_bool(os.getenv("QIC_CODE_ENGINEER_ENABLED", "false"))
+    allow_apply = _as_bool(os.getenv("QIC_CODE_ENGINEER_ALLOW_APPLY", "false"))
+    if not enabled or not allow_apply:
+        return {
+            "handled": True,
+            "action": "apply_patch",
+            "proposal_id": proposal_id,
+            "status": "blocked",
+            "reason": "qic_code_engineer_apply_disabled",
+        }
+    report = run_code_engineer(
+        proposal_id=proposal_id,
+        proposal_store_path=proposal_store_path,
+        reports_path=qic_output_path,
+        dry_run=False,
+        apply=True,
+        run_tests=True,
+        allow_apply=True,
+    )
+    return {
+        "handled": True,
+        "action": "apply_patch",
+        "proposal_id": proposal_id,
+        "status": report.get("status"),
+        "code_engineer": {
+            "files_modified": report.get("files_modified", []),
+            "tests_passed": report.get("tests_passed"),
+            "blockers": report.get("blockers", []),
+        },
     }
 
 

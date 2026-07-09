@@ -82,6 +82,9 @@ from trading_signals.application.use_cases.signal_update_v1 import (
     format_signal_update_v1_dev_message,
     write_signal_update_v1_shadow_report,
 )
+from trading_signals.application.use_cases.strategy_v2_1_htf_alignment_filter import (
+    apply_strategy_v2_1_htf_alignment_filter,
+)
 from trading_signals.data.market_data import market_data_status
 from trading_signals.diagnostics.logger import log_module_diagnostic
 from trading_signals.domain.entities.scan_run import ScanRun
@@ -933,6 +936,7 @@ def _signal_activity_entry(
     edge_knowledge_shadow: dict[str, object] | None = None,
     edge_optimizer_shadow: dict[str, object] | None = None,
     edge_optimizer_active: dict[str, object] | None = None,
+    strategy_v2_1_htf_alignment_filter: dict[str, object] | None = None,
 ) -> dict[str, object]:
     entry = analysis.entry_snapshot
     strategy_gate = module_diagnostics.get("strategy_gate", {})
@@ -996,6 +1000,11 @@ def _signal_activity_entry(
         "original_score": (edge_optimizer_active or {}).get("original_score"),
         "edge_optimizer_active_adjustment": (edge_optimizer_active or {}).get("active_adjustment"),
         "adjusted_score": (edge_optimizer_active or {}).get("adjusted_score"),
+        "strategy_v2_1_htf_alignment": (strategy_v2_1_htf_alignment_filter or {}).get("strategy_v2_1_htf_alignment"),
+        "strategy_v2_1_would_block": (strategy_v2_1_htf_alignment_filter or {}).get("strategy_v2_1_would_block"),
+        "strategy_v2_1_blocked": (strategy_v2_1_htf_alignment_filter or {}).get("strategy_v2_1_blocked"),
+        "strategy_v2_1_mode": (strategy_v2_1_htf_alignment_filter or {}).get("strategy_v2_1_mode"),
+        "strategy_v2_1_rejection_reason": (strategy_v2_1_htf_alignment_filter or {}).get("strategy_v2_1_rejection_reason"),
         "raw_summary": {
             "signal_id": signal.id,
             "evaluation_id": evaluation.id,
@@ -1397,6 +1406,64 @@ def run_market_scan(
                 if evaluation.decision != SignalDecision.NO_TRADE.value
                 else (_candidate_setup_type(analysis, evaluation) or _signal_setup_type(evaluation))
             )
+            strategy_v2_1_htf_alignment_filter = None
+            if settings.strategy_v2_1_htf_alignment_filter_enabled:
+                status, strategy_v2_1_result = apply_strategy_v2_1_htf_alignment_filter(
+                    evaluation=evaluation,
+                    signal=signal,
+                    status=status,
+                    enabled=settings.strategy_v2_1_htf_alignment_filter_enabled,
+                    mode=settings.strategy_v2_1_htf_alignment_filter_mode,
+                    direction=candidate_direction,
+                    higher_trend=analysis.higher_snapshot.trend,
+                )
+                strategy_v2_1_htf_alignment_filter = {
+                    "strategy_v2_1_htf_alignment": strategy_v2_1_result.get("htf_alignment"),
+                    "strategy_v2_1_would_block": strategy_v2_1_result.get("would_block"),
+                    "strategy_v2_1_blocked": strategy_v2_1_result.get("blocked"),
+                    "strategy_v2_1_mode": strategy_v2_1_result.get("mode"),
+                    "strategy_v2_1_rejection_reason": strategy_v2_1_result.get("rejection_reason"),
+                    **strategy_v2_1_result,
+                }
+                should_publish_decision = signal.decision in settings.publish_signal_decisions
+                log_json(
+                    logger,
+                    "strategy_v2_1_htf_alignment_filter_evaluated",
+                    symbol=symbol,
+                    direction=candidate_direction,
+                    setup_type=candidate_setup_type,
+                    score=evaluation.setup_score,
+                    htf_alignment=strategy_v2_1_result.get("htf_alignment"),
+                    would_block=strategy_v2_1_result.get("would_block"),
+                    blocked=strategy_v2_1_result.get("blocked"),
+                    mode=strategy_v2_1_result.get("mode"),
+                    reason=strategy_v2_1_result.get("reason"),
+                )
+                if strategy_v2_1_result.get("mode") == "shadow":
+                    log_json(
+                        logger,
+                        "strategy_v2_1_htf_alignment_shadow",
+                        symbol=symbol,
+                        direction=candidate_direction,
+                        setup_type=candidate_setup_type,
+                        score=evaluation.setup_score,
+                        htf_alignment=strategy_v2_1_result.get("htf_alignment"),
+                        would_block=strategy_v2_1_result.get("would_block"),
+                        reason=strategy_v2_1_result.get("reason"),
+                    )
+                if strategy_v2_1_result.get("blocked"):
+                    log_json(
+                        logger,
+                        "strategy_v2_1_htf_alignment_blocked",
+                        symbol=symbol,
+                        direction=candidate_direction,
+                        setup_type=candidate_setup_type,
+                        score=evaluation.setup_score,
+                        htf_alignment=strategy_v2_1_result.get("htf_alignment"),
+                        reason=strategy_v2_1_result.get("reason"),
+                    )
+                    scan_repo.save_evaluation(evaluation)
+                    signal_repo.save_signal(signal)
             elite_subprofile = apply_elite_subprofile_dev_tag(
                 evaluation,
                 setup_type=candidate_setup_type,
@@ -1617,6 +1684,7 @@ def run_market_scan(
                 pattern_memory["edge_knowledge_shadow"] = edge_knowledge_shadow.to_dict()
                 pattern_memory["edge_optimizer_shadow"] = edge_optimizer_shadow.to_dict()
                 pattern_memory["edge_optimizer_active"] = edge_optimizer_active.to_dict()
+                pattern_memory["strategy_v2_1_htf_alignment_filter"] = strategy_v2_1_htf_alignment_filter
                 log_performance_intelligence(
                     logger,
                     symbol=symbol,
@@ -2061,6 +2129,7 @@ def run_market_scan(
                     edge_knowledge_shadow=edge_knowledge_shadow.to_dict(),
                     edge_optimizer_shadow=edge_optimizer_shadow.to_dict(),
                     edge_optimizer_active=edge_optimizer_active.to_dict(),
+                    strategy_v2_1_htf_alignment_filter=strategy_v2_1_htf_alignment_filter,
                 )
             )
             multi_agent_shadow_decision = None

@@ -6,11 +6,13 @@ import json
 from pathlib import Path
 
 from trading_signals.agents.implementation.code_safety_director import code_safety_review
+from trading_signals.agents.implementation.code_engineer import run_code_engineer
 from trading_signals.agents.implementation.implementation_plan import build_implementation_plan
 from trading_signals.agents.implementation.implementation_review_council import (
     run_implementation_review,
     run_implementation_review_for_proposal_id,
 )
+from trading_signals.agents.implementation.patch_generator import generate_patch_report
 from trading_signals.agents.implementation.patch_generator import generate_patch_report
 from trading_signals.agents.implementation.rollback_plan import build_rollback_plan
 from trading_signals.agents.proposal_store import load_proposals, save_proposals
@@ -126,6 +128,105 @@ def test_telegram_generate_patch_only_after_allowed_review(tmp_path: Path) -> No
     assert json.loads((output_path / "generated_patch.json").read_text())["patch_applied"] is False
 
 
+def test_code_engineer_dry_run_generates_plan_without_modifying_files(tmp_path: Path) -> None:
+    proposal_store, reports_path, project_root = _prepare_code_engineer_fixture(tmp_path)
+
+    report = run_code_engineer(
+        proposal_id="cio_htf_against",
+        project_root=project_root,
+        proposal_store_path=proposal_store,
+        reports_path=reports_path,
+        dry_run=True,
+    )
+
+    assert report["status"] == "dry_run_generated"
+    assert report["files_modified"] == []
+    assert "src/trading_signals/application/use_cases/strategy_v2_1_htf_alignment_filter.py" in report["files_planned"]
+    assert not (project_root / "src/trading_signals/application/use_cases/strategy_v2_1_htf_alignment_filter.py").exists()
+
+
+def test_code_engineer_blocks_missing_preconditions(tmp_path: Path) -> None:
+    proposal_store = tmp_path / "proposals.jsonl"
+    save_proposals([_proposal()], proposal_store)
+
+    report = run_code_engineer(
+        proposal_id="cio_htf_against",
+        project_root=tmp_path / "project",
+        proposal_store_path=proposal_store,
+        reports_path=tmp_path / "reports" / "qic",
+        dry_run=True,
+    )
+
+    assert report["status"] == "failed_preconditions"
+    assert "implementation_review_missing" in report["blockers"]
+    assert "generated_patch_missing" in report["blockers"]
+
+
+def test_code_engineer_apply_requires_allow_apply(tmp_path: Path) -> None:
+    proposal_store, reports_path, project_root = _prepare_code_engineer_fixture(tmp_path)
+
+    report = run_code_engineer(
+        proposal_id="cio_htf_against",
+        project_root=project_root,
+        proposal_store_path=proposal_store,
+        reports_path=reports_path,
+        dry_run=False,
+        apply=True,
+        allow_apply=False,
+    )
+
+    assert report["status"] == "failed_preconditions"
+    assert "apply_not_allowed" in report["blockers"]
+
+
+def test_code_engineer_apply_writes_files_when_allowed(tmp_path: Path) -> None:
+    proposal_store, reports_path, project_root = _prepare_code_engineer_fixture(tmp_path)
+
+    report = run_code_engineer(
+        proposal_id="cio_htf_against",
+        project_root=project_root,
+        proposal_store_path=proposal_store,
+        reports_path=reports_path,
+        dry_run=False,
+        apply=True,
+        allow_apply=True,
+    )
+
+    assert report["status"] == "applied"
+    assert "src/trading_signals/application/use_cases/strategy_v2_1_htf_alignment_filter.py" in report["files_modified"]
+    assert "QIC Code Engineer" in (reports_path / "code_engineer.md").read_text()
+
+
+def test_telegram_generate_code_callback_runs_dry_run(tmp_path: Path) -> None:
+    proposal_store, reports_path, _project_root = _prepare_code_engineer_fixture(tmp_path)
+
+    result = handle_approval_callback(
+        "agent:generate_code:cio_htf_against",
+        proposal_store_path=proposal_store,
+        knowledge_base_path=tmp_path / "kb.json",
+        qic_output_path=reports_path,
+    )
+
+    assert result["handled"] is True
+    assert result["action"] == "generate_code"
+    assert result["status"] == "dry_run_generated"
+
+
+def test_telegram_apply_patch_blocked_by_default(tmp_path: Path) -> None:
+    proposal_store, reports_path, _project_root = _prepare_code_engineer_fixture(tmp_path)
+
+    result = handle_approval_callback(
+        "agent:apply_patch:cio_htf_against",
+        proposal_store_path=proposal_store,
+        knowledge_base_path=tmp_path / "kb.json",
+        qic_output_path=reports_path,
+    )
+
+    assert result["handled"] is True
+    assert result["status"] == "blocked"
+    assert result["reason"] == "qic_code_engineer_apply_disabled"
+
+
 def test_event_detector_detects_losing_streak_and_pending_approved(tmp_path: Path) -> None:
     trades_path = tmp_path / "data" / "paper_trading" / "trades.csv"
     trades_path.parent.mkdir(parents=True)
@@ -205,3 +306,17 @@ def _proposal(*, trade_reduction_pct: float = 48.9547) -> dict[str, object]:
             "baseline_total_r": -54.1711,
         },
     }
+
+
+def _prepare_code_engineer_fixture(tmp_path: Path) -> tuple[Path, Path, Path]:
+    proposal_store = tmp_path / "data" / "agent_proposals" / "proposals.jsonl"
+    reports_path = tmp_path / "reports" / "qic"
+    project_root = tmp_path / "project"
+    proposal = _proposal()
+    proposal["status"] = "approved_for_implementation_review"
+    save_proposals([proposal], proposal_store)
+    review = run_implementation_review(proposal, output_path=reports_path, knowledge_base_path=tmp_path / "kb.json")
+    patch = generate_patch_report(review, output_path=reports_path)
+    assert review["decision"] == "IMPLEMENTATION_ALLOWED"
+    assert patch["allowed_to_generate_patch"] is True
+    return proposal_store, reports_path, project_root

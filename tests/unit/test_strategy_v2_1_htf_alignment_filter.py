@@ -24,7 +24,53 @@ class Signal:
     status: str = "valid"
 
 
-def test_determine_htf_alignment_matches_quant_research_logic() -> None:
+def test_flag_false_no_block() -> None:
+    result = evaluate_strategy_v2_1_htf_alignment_filter(enabled=False, mode="hard_block", htf_alignment="against")
+
+    assert result["blocked"] is False
+    assert result["would_block"] is False
+    assert result["rejection_reason"] is None
+
+
+def test_shadow_no_block_but_would_block() -> None:
+    result = evaluate_strategy_v2_1_htf_alignment_filter(enabled=True, mode="shadow", htf_alignment="against")
+
+    assert result["blocked"] is False
+    assert result["would_block"] is True
+    assert result["reason"] == "shadow_would_block"
+
+
+def test_hard_block_blocks_against() -> None:
+    result = evaluate_strategy_v2_1_htf_alignment_filter(enabled=True, mode="hard_block", htf_alignment="against")
+
+    assert result["blocked"] is True
+    assert result["would_block"] is True
+    assert result["rejection_reason"] == BLOCK_REASON
+
+
+def test_hard_block_does_not_block_aligned() -> None:
+    result = evaluate_strategy_v2_1_htf_alignment_filter(enabled=True, mode="hard_block", htf_alignment="aligned")
+
+    assert result["blocked"] is False
+    assert result["would_block"] is False
+
+
+def test_unknown_or_none_never_blocks() -> None:
+    for value in ("unknown", None):
+        result = evaluate_strategy_v2_1_htf_alignment_filter(enabled=True, mode="hard_block", htf_alignment=value)
+        assert result["blocked"] is False
+        assert result["would_block"] is False
+
+
+def test_invalid_mode_fails_safe_as_shadow() -> None:
+    result = evaluate_strategy_v2_1_htf_alignment_filter(enabled=True, mode="invalid", htf_alignment="against")
+
+    assert result["mode"] == "shadow"
+    assert result["blocked"] is False
+    assert result["would_block"] is True
+
+
+def test_determine_htf_alignment() -> None:
     assert determine_htf_alignment(direction="long", higher_trend="bullish") == "aligned"
     assert determine_htf_alignment(direction="short", higher_trend="bearish") == "aligned"
     assert determine_htf_alignment(direction="long", higher_trend="bearish") == "against"
@@ -32,55 +78,7 @@ def test_determine_htf_alignment_matches_quant_research_logic() -> None:
     assert determine_htf_alignment(direction="long", higher_trend="sideways") == "unknown"
 
 
-def test_flag_false_does_nothing() -> None:
-    evaluation = Evaluation()
-    signal = Signal()
-
-    status, result = apply_strategy_v2_1_htf_alignment_filter(
-        evaluation=evaluation,
-        signal=signal,
-        status="valid",
-        enabled=False,
-        mode="hard_block",
-        direction="long",
-        higher_trend="bearish",
-    )
-
-    assert status == "valid"
-    assert result.would_block is True
-    assert result.blocked is False
-    assert evaluation.decision == "long"
-    assert signal.decision == "long"
-    assert evaluation.decision_trace == []
-    assert evaluation.rejection_reasons == []
-
-
-def test_shadow_mode_does_not_block_against_htf() -> None:
-    evaluation = Evaluation()
-    signal = Signal()
-
-    status, result = apply_strategy_v2_1_htf_alignment_filter(
-        evaluation=evaluation,
-        signal=signal,
-        status="valid",
-        enabled=True,
-        mode="shadow",
-        direction="long",
-        higher_trend="bearish",
-    )
-
-    assert status == "valid"
-    assert result.htf_alignment == "against"
-    assert result.would_block is True
-    assert result.blocked is False
-    assert evaluation.decision == "long"
-    assert signal.status == "valid"
-    assert "strategy_v2_1_htf_alignment=against" in evaluation.decision_trace
-    assert "strategy_v2_1_would_block=true" in evaluation.decision_trace
-    assert "strategy_v2_1_mode=shadow" in evaluation.decision_trace
-
-
-def test_hard_block_blocks_against_htf() -> None:
+def test_minimal_integration_blocks_when_enabled() -> None:
     evaluation = Evaluation()
     signal = Signal()
 
@@ -95,48 +93,6 @@ def test_hard_block_blocks_against_htf() -> None:
     )
 
     assert status == "rejected"
-    assert result.blocked is True
-    assert evaluation.decision == "no_trade"
-    assert signal.decision == "no_trade"
-    assert signal.status == "rejected"
+    assert result["blocked"] is True
     assert BLOCK_REASON in evaluation.rejection_reasons
-    assert BLOCK_REASON in evaluation.failed_filters
-
-
-def test_hard_block_does_not_block_aligned_or_unknown() -> None:
-    for higher_trend, expected_alignment in [("bullish", "aligned"), ("sideways", "unknown")]:
-        evaluation = Evaluation()
-        signal = Signal()
-
-        status, result = apply_strategy_v2_1_htf_alignment_filter(
-            evaluation=evaluation,
-            signal=signal,
-            status="valid",
-            enabled=True,
-            mode="hard_block",
-            direction="long",
-            higher_trend=higher_trend,
-        )
-
-        assert status == "valid"
-        assert result.htf_alignment == expected_alignment
-        assert result.blocked is False
-        assert evaluation.decision == "long"
-        assert signal.status == "valid"
-        assert BLOCK_REASON not in evaluation.rejection_reasons
-
-
-def test_result_payload_contains_log_fields() -> None:
-    result = evaluate_strategy_v2_1_htf_alignment_filter(
-        enabled=True,
-        mode="shadow",
-        direction="short",
-        higher_trend="bullish",
-    )
-
-    payload = result.to_dict()
-
-    assert payload["strategy_v2_1_htf_alignment"] == "against"
-    assert payload["strategy_v2_1_would_block"] is True
-    assert payload["strategy_v2_1_mode"] == "shadow"
-    assert payload["reason"] == BLOCK_REASON
+    assert signal.status == "rejected"

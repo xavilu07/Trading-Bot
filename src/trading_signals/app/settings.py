@@ -258,6 +258,22 @@ class Settings:
         default_factory=lambda: _bool_env("QIC_TELEGRAM_SEND_NO_ACTIONABLE", "true")
     )
     qic_telegram_min_priority: str = field(default_factory=lambda: os.getenv("QIC_TELEGRAM_MIN_PRIORITY", "MEDIUM"))
+    qic_scheduler_enabled: bool = field(default_factory=lambda: _bool_env("QIC_SCHEDULER_ENABLED", "false"))
+    qic_scheduler_interval_hours: float = field(
+        default_factory=lambda: float(os.getenv("QIC_SCHEDULER_INTERVAL_HOURS", "6"))
+    )
+    qic_daily_summary_enabled: bool = field(default_factory=lambda: _bool_env("QIC_DAILY_SUMMARY_ENABLED", "true"))
+    qic_daily_summary_hour: int = field(default_factory=lambda: int(os.getenv("QIC_DAILY_SUMMARY_HOUR", "9")))
+    qic_code_engineer_enabled: bool = field(default_factory=lambda: _bool_env("QIC_CODE_ENGINEER_ENABLED", "false"))
+    qic_code_engineer_allow_apply: bool = field(
+        default_factory=lambda: _bool_env("QIC_CODE_ENGINEER_ALLOW_APPLY", "false")
+    )
+    qic_code_engineer_auto_commit: bool = field(
+        default_factory=lambda: _bool_env("QIC_CODE_ENGINEER_AUTO_COMMIT", "false")
+    )
+    qic_code_engineer_max_autofix_attempts: int = field(
+        default_factory=lambda: int(os.getenv("QIC_CODE_ENGINEER_MAX_AUTOFIX_ATTEMPTS", "1"))
+    )
     private_runtime_report_enabled: bool = field(
         default_factory=lambda: _bool_env("PRIVATE_RUNTIME_REPORT_ENABLED", "true")
     )
