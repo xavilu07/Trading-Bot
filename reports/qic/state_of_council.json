@@ -1,0 +1,36 @@
+{
+  "agent_accuracy": {
+    "research_director": 50.0,
+    "risk_director": 50.0,
+    "simulation_director": 50.0,
+    "strategy_director": 50.0
+  },
+  "candidates": 0,
+  "confirmed_edges": 1,
+  "degraded": 0,
+  "last_cio_decision": {
+    "action": null,
+    "conditions": [],
+    "decision_id": "decision_20260709142620808492",
+    "edge_type": null,
+    "expected_metrics": {
+      "evidence": null,
+      "pf": null,
+      "total_r": null,
+      "trade_reduction_pct": null
+    },
+    "final_decision": "NO_ACTIONABLE_PROPOSAL",
+    "human_action": "",
+    "implementation_status": "",
+    "later_outcome": "",
+    "notes": "",
+    "proposal_id": null,
+    "timestamp": "2026-07-09T14:26:20.808618+00:00"
+  },
+  "last_telegram_action": null,
+  "open_blockers": [],
+  "pending_approval": 65,
+  "pending_implementation": 1,
+  "rejected": 0,
+  "total_known_edges": 1
+}

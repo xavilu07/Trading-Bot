@@ -7,15 +7,15 @@
         "Detected research patterns; not recommending implementation yet.",
         "Research response: risk objections noted; prefer shadow validation before production."
       ],
-      "hypotheses_opposed": 5,
-      "hypotheses_seen": 10,
-      "hypotheses_supported": 5,
+      "hypotheses_opposed": 8,
+      "hypotheses_seen": 16,
+      "hypotheses_supported": 8,
       "last_notes": [
         "recurring pattern: candidate:edge_fc1437682982",
         "risk objections: ['high_trade_reduction']",
-        "recurring pattern: candidate:edge_fc1437682982",
+        "recurring pattern: confirmed:edge_fc1437682982",
         "risk objections: ['high_trade_reduction']",
-        "recurring pattern: candidate:edge_fc1437682982",
+        "recurring pattern: confirmed:edge_fc1437682982",
         "risk objections: ['high_trade_reduction']",
         "recurring pattern: confirmed:edge_fc1437682982",
         "risk objections: ['high_trade_reduction']",
@@ -23,10 +23,10 @@
         "risk objections: ['high_trade_reduction']"
       ],
       "proposals_accepted": 0,
-      "proposals_pending": 10,
+      "proposals_pending": 16,
       "proposals_rejected": 0,
       "successful_revalidations": 0,
-      "total_interventions": 10
+      "total_interventions": 16
     },
     "risk_director": {
       "failed_revalidations": 0,
@@ -34,8 +34,8 @@
       "hypotheses": [
         "Attempted to reject weak or overfit rule candidates."
       ],
-      "hypotheses_opposed": 5,
-      "hypotheses_seen": 5,
+      "hypotheses_opposed": 8,
+      "hypotheses_seen": 8,
       "hypotheses_supported": 0,
       "last_notes": [
         "risk objections: ['high_trade_reduction']",
@@ -44,13 +44,15 @@
         "recurring pattern: candidate:edge_fc1437682982",
         "risk objections: ['high_trade_reduction']",
         "recurring pattern: confirmed:edge_fc1437682982",
+        "risk objections: ['high_trade_reduction']",
+        "recurring pattern: confirmed:edge_fc1437682982",
         "risk objections: ['high_trade_reduction']"
       ],
       "proposals_accepted": 0,
-      "proposals_pending": 5,
+      "proposals_pending": 8,
       "proposals_rejected": 0,
       "successful_revalidations": 0,
-      "total_interventions": 5
+      "total_interventions": 8
     },
     "simulation_director": {
       "failed_revalidations": 0,
@@ -59,8 +61,8 @@
         "Validated available candidates with Strategy Simulator outputs only."
       ],
       "hypotheses_opposed": 0,
-      "hypotheses_seen": 5,
-      "hypotheses_supported": 5,
+      "hypotheses_seen": 8,
+      "hypotheses_supported": 8,
       "last_notes": [
         "risk objections: ['high_trade_reduction']",
         "recurring pattern: candidate:edge_fc1437682982",
@@ -68,13 +70,15 @@
         "recurring pattern: candidate:edge_fc1437682982",
         "risk objections: ['high_trade_reduction']",
         "recurring pattern: confirmed:edge_fc1437682982",
+        "risk objections: ['high_trade_reduction']",
+        "recurring pattern: confirmed:edge_fc1437682982",
         "risk objections: ['high_trade_reduction']"
       ],
       "proposals_accepted": 0,
-      "proposals_pending": 5,
+      "proposals_pending": 8,
       "proposals_rejected": 0,
       "successful_revalidations": 0,
-      "total_interventions": 5
+      "total_interventions": 8
     },
     "strategy_director": {
       "failed_revalidations": 0,
@@ -83,8 +87,8 @@
         "Converted research patterns into possible strategy rules for debate."
       ],
       "hypotheses_opposed": 0,
-      "hypotheses_seen": 5,
-      "hypotheses_supported": 5,
+      "hypotheses_seen": 8,
+      "hypotheses_supported": 8,
       "last_notes": [
         "risk objections: ['high_trade_reduction']",
         "recurring pattern: candidate:edge_fc1437682982",
@@ -92,13 +96,15 @@
         "recurring pattern: candidate:edge_fc1437682982",
         "risk objections: ['high_trade_reduction']",
         "recurring pattern: confirmed:edge_fc1437682982",
+        "risk objections: ['high_trade_reduction']",
+        "recurring pattern: confirmed:edge_fc1437682982",
         "risk objections: ['high_trade_reduction']"
       ],
       "proposals_accepted": 0,
-      "proposals_pending": 5,
+      "proposals_pending": 8,
       "proposals_rejected": 0,
       "successful_revalidations": 0,
-      "total_interventions": 5
+      "total_interventions": 8
     }
   }
 }

@@ -1,0 +1,1483 @@
+{
+  "active_signal_state": {
+    "active_scope": "latest 500 published trade_signals with same symbol+direction",
+    "active_state_expiration_source": "none_found_in_trade_signal_schema",
+    "active_state_has_explicit_expiration": false,
+    "closure_detection": {
+      "expiration": "not stored on trade_signal active state",
+      "invalidation": "not stored on trade_signal active state",
+      "manual_lifecycle": "not stored on trade_signal active state",
+      "sl": "not stored on trade_signal active state",
+      "tp": "not stored on trade_signal active state"
+    },
+    "published_signals": 10,
+    "published_symbol_direction_pairs": 8,
+    "top_active_pairs": [
+      {
+        "latest_dedupe_key": "XRPUSDT|short|liquidity_sweep_mtf|v1|1h|2026-04-28T14:59:59.999000+00:00",
+        "latest_published_at": "2026-04-28T15:00:45.166925+00:00",
+        "latest_signal_id": "sig_23c36a41d54c",
+        "pair": "XRPUSDT|short",
+        "published_count": 2
+      },
+      {
+        "latest_dedupe_key": "ETHUSDT|long|liquidity_sweep_mtf|v1|1h|2026-05-04T14:59:59.999000+00:00",
+        "latest_published_at": "2026-05-04T15:39:56.744863+00:00",
+        "latest_signal_id": "sig_d9bf53436cfa",
+        "pair": "ETHUSDT|long",
+        "published_count": 2
+      },
+      {
+        "latest_dedupe_key": "BNBUSDT|short|liquidity_sweep_mtf|v1|1h|2026-04-29T13:59:59.999000+00:00",
+        "latest_published_at": "2026-04-29T14:31:33.492050+00:00",
+        "latest_signal_id": "sig_1631f34186d6",
+        "pair": "BNBUSDT|short",
+        "published_count": 1
+      },
+      {
+        "latest_dedupe_key": "DOGEUSDT|long|liquidity_sweep_mtf|v1|1h|2026-05-02T13:59:59.999000+00:00",
+        "latest_published_at": "2026-05-02T14:18:47.675842+00:00",
+        "latest_signal_id": "sig_64286992bce9",
+        "pair": "DOGEUSDT|long",
+        "published_count": 1
+      },
+      {
+        "latest_dedupe_key": "TAOUSDT|long|liquidity_sweep_mtf|v1|1h|2026-05-03T20:59:59.999000+00:00",
+        "latest_published_at": "2026-05-03T21:32:48.922905+00:00",
+        "latest_signal_id": "sig_41eae3d19cc3",
+        "pair": "TAOUSDT|long",
+        "published_count": 1
+      },
+      {
+        "latest_dedupe_key": "MANAUSDT|short|liquidity_sweep_mtf|v1|1h|2026-05-03T21:59:59.999000+00:00",
+        "latest_published_at": "2026-05-03T22:04:14.495927+00:00",
+        "latest_signal_id": "sig_b6535ceaf589",
+        "pair": "MANAUSDT|short",
+        "published_count": 1
+      },
+      {
+        "latest_dedupe_key": "ICPUSDT|short|liquidity_sweep_mtf|v1|1h|2026-05-03T21:59:59.999000+00:00",
+        "latest_published_at": "2026-05-03T22:04:08.780604+00:00",
+        "latest_signal_id": "sig_e84f188ec9e5",
+        "pair": "ICPUSDT|short",
+        "published_count": 1
+      },
+      {
+        "latest_dedupe_key": "BTCUSDT|long|liquidity_sweep_mtf|v1|1h|2026-05-04T14:59:59.999000+00:00",
+        "latest_published_at": "2026-05-04T15:39:54.864055+00:00",
+        "latest_signal_id": "sig_257347cad0f9",
+        "pair": "BTCUSDT|long",
+        "published_count": 1
+      }
+    ]
+  },
+  "breakdowns": {
+    "direction": [
+      {
+        "avg_score": 99.6364,
+        "count": 110,
+        "directional_confluence_passed": 1,
+        "rr_valid": 1,
+        "score_gte_90": 109,
+        "value": "long"
+      }
+    ],
+    "entry_context": [
+      {
+        "avg_score": 100.0,
+        "count": 109,
+        "directional_confluence_passed": 0,
+        "rr_valid": 0,
+        "score_gte_90": 109,
+        "value": "PULLBACK"
+      },
+      {
+        "avg_score": 60.0,
+        "count": 1,
+        "directional_confluence_passed": 1,
+        "rr_valid": 1,
+        "score_gte_90": 0,
+        "value": "BREAKOUT"
+      }
+    ],
+    "market_regime": [
+      {
+        "avg_score": 99.6364,
+        "count": 110,
+        "directional_confluence_passed": 1,
+        "rr_valid": 1,
+        "score_gte_90": 109,
+        "value": "HIGH_VOLATILITY"
+      }
+    ],
+    "score_bucket": [
+      {
+        "avg_score": 100.0,
+        "count": 109,
+        "directional_confluence_passed": 0,
+        "rr_valid": 0,
+        "score_gte_90": 109,
+        "value": "90+"
+      },
+      {
+        "avg_score": 60.0,
+        "count": 1,
+        "directional_confluence_passed": 1,
+        "rr_valid": 1,
+        "score_gte_90": 0,
+        "value": "60-69"
+      }
+    ],
+    "session": [
+      {
+        "avg_score": 100.0,
+        "count": 109,
+        "directional_confluence_passed": 0,
+        "rr_valid": 0,
+        "score_gte_90": 109,
+        "value": "UNKNOWN"
+      },
+      {
+        "avg_score": 60.0,
+        "count": 1,
+        "directional_confluence_passed": 1,
+        "rr_valid": 1,
+        "score_gte_90": 0,
+        "value": "NEW_YORK"
+      }
+    ],
+    "setup_type": [
+      {
+        "avg_score": 100.0,
+        "count": 109,
+        "directional_confluence_passed": 0,
+        "rr_valid": 0,
+        "score_gte_90": 109,
+        "value": "MAIN_SIGNAL"
+      },
+      {
+        "avg_score": 60.0,
+        "count": 1,
+        "directional_confluence_passed": 1,
+        "rr_valid": 1,
+        "score_gte_90": 0,
+        "value": "SECONDARY_SIGNAL"
+      }
+    ],
+    "symbol": [
+      {
+        "avg_score": 100.0,
+        "count": 109,
+        "directional_confluence_passed": 0,
+        "rr_valid": 0,
+        "score_gte_90": 109,
+        "value": "BTCUSDT"
+      },
+      {
+        "avg_score": 60.0,
+        "count": 1,
+        "directional_confluence_passed": 1,
+        "rr_valid": 1,
+        "score_gte_90": 0,
+        "value": "TAOUSDT"
+      }
+    ],
+    "trade_location": [
+      {
+        "avg_score": 100.0,
+        "count": 109,
+        "directional_confluence_passed": 0,
+        "rr_valid": 0,
+        "score_gte_90": 109,
+        "value": "UNKNOWN"
+      },
+      {
+        "avg_score": 60.0,
+        "count": 1,
+        "directional_confluence_passed": 1,
+        "rr_valid": 1,
+        "score_gte_90": 0,
+        "value": "near_resistance"
+      }
+    ]
+  },
+  "code_origin": {
+    "active_signal_scope": "latest 500 trade_signals, published_at not null, same symbol + direction",
+    "active_signal_state": [
+      "`signal_lifecycle.active_published_signals()` treats any latest-500 signal with matching `symbol`, `decision` and `published_at` as active.",
+      "There is no explicit TTL/expiry check in `active_published_signals()`; active state is inferred from published signal records.",
+      "`classify_signal_lifecycle()` allows `REENTRY` only when max reentries not exceeded and `has_reentry_confirmation()` passes.",
+      "`SIGNAL_UPDATE_V1` observes duplicate/lifecycle blocks only after the valid signal reaches the duplicate/lifecycle branch."
+    ],
+    "dedupe_key_formula": "symbol|decision|strategy_id|strategy_version|entry_timeframe|entry_snapshot.timestamp",
+    "duplicate_signal_suppressed": [
+      "`run_market_scan.build_signal_dedupe_key()` builds `symbol|decision|strategy_id|strategy_version|entry_timeframe|entry_snapshot.timestamp`.",
+      "`FileSignalRepository.has_published_dedupe_key()` checks latest 500 `trade_signals` for the exact same `dedupe_key` with `published_at`.",
+      "`_no_send_reason()` returns `duplicate_signal_suppressed` when a valid publishable signal has exact duplicate=true.",
+      "Later in the valid-but-not-published branch, `evaluation.rejection_reasons.append('duplicate_signal_suppressed')` records the block."
+    ],
+    "paper_rejected_duplicate": [
+      "`PaperTradingStore.upsert_candidate()` rejects if any existing paper trade has the same candidate `dedupe_key`.",
+      "`run_market_scan.py` maps that false upsert to `paper_rejected_duplicate` for main paper and candidate paper flows.",
+      "Paper dedupe is separate from public signal dedupe; it does not require Telegram publication."
+    ]
+  },
+  "conclusion": {
+    "options_considered": [
+      "mantener dedupe actual",
+      "reducir ventana",
+      "cerrar se\u00f1ales activas antes",
+      "permitir reentry controlado",
+      "mejorar SIGNAL_UPDATE_V1",
+      "separar dedupe p\u00fablico vs paper",
+      "datos insuficientes"
+    ],
+    "reasons": [
+      "Hay duplicados, pero no hay eventos runtime de SIGNAL_UPDATE_V1 que demuestren clasificaci\u00f3n efectiva.",
+      "La capa active same symbol+direction no tiene expiraci\u00f3n efectiva en trade_signals; cualquier se\u00f1al publicada reciente puede permanecer activa en la ventana latest-500.",
+      "La evidencia disponible sugiere mezcla entre dedupe exacto y bloqueo amplio symbol+direction; conviene separar dedupe p\u00fablico exacto de lifecycle/reentry.",
+      "paper_rejected_duplicate usa dedupe independiente de paper; conviene auditar si paper debe permitir reentries aunque p\u00fablico siga bloqueado."
+    ],
+    "recommended_action": "mejorar SIGNAL_UPDATE_V1"
+  },
+  "data_gaps": [
+    "No SIGNAL_UPDATE_V1 runtime events found; cannot verify live classification coverage.",
+    "trade_signals active-state model has no explicit TP/SL/expiration/invalidation close marker.",
+    "Some duplicate events lack the original signal dedupe key; exact-vs-broad analysis is partial."
+  ],
+  "dedupe_width_analysis": {
+    "active_state_total_pairs": 8,
+    "broad_symbol_direction_active_matches": 110,
+    "events_analyzed": 110,
+    "exact_key_matches": 0,
+    "missing_dedupe_key_events": 110,
+    "potentially_too_broad": true,
+    "published_pair_counts": {
+      "BNBUSDT|short": 1,
+      "BTCUSDT|long": 1,
+      "DOGEUSDT|long": 1,
+      "ETHUSDT|long": 2,
+      "ICPUSDT|short": 1,
+      "MANAUSDT|short": 1,
+      "TAOUSDT|long": 1,
+      "XRPUSDT|short": 2
+    },
+    "top_dedupe_keys": [],
+    "top_symbol_direction_pairs": [
+      {
+        "count": 109,
+        "pair": "BTCUSDT|long",
+        "published_refs": 1
+      },
+      {
+        "count": 1,
+        "pair": "TAOUSDT|long",
+        "published_refs": 1
+      }
+    ],
+    "unique_dedupe_keys": 0,
+    "unique_symbol_direction_pairs": 2
+  },
+  "generated_at": "2026-07-03T16:17:48+00:00",
+  "lifecycle_summary": {
+    "distinguishes_exact_same_entry": "exact dedupe handled before lifecycle through has_published_dedupe_key",
+    "distinguishes_new_snapshot": "SIGNAL_UPDATE_V1 compares active_dedupe_key != current_dedupe_key when active reference is available",
+    "distinguishes_reentry": "has_reentry_confirmation requires pullback_clear and BOS/candle/secondary confirmation",
+    "distinguishes_update": "SIGNAL_UPDATE_V1 classifies STRENGTHENED_SIGNAL, REENTRY_CANDIDATE, INVALIDATION_WARNING, NO_UPDATE",
+    "reasons_from_logs": {},
+    "signal_types_from_logs": {}
+  },
+  "metrics": {
+    "directional_confluence_passed": 1,
+    "new_snapshot_distinct": 0,
+    "no_material_update": 0,
+    "rr_valid": 1,
+    "score_gte_90": 109,
+    "total_duplicate_signal_suppressed": 110,
+    "total_paper_rejected_duplicate": 11,
+    "would_be_reentry_candidate": 0,
+    "would_be_strengthened_signal": 0
+  },
+  "mode": "offline_diagnostic_only",
+  "paper_duplicate_breakdowns": {
+    "direction": [
+      {
+        "count": 11,
+        "value": "UNKNOWN"
+      }
+    ],
+    "entry_context": [
+      {
+        "count": 4,
+        "value": "PULLBACK"
+      },
+      {
+        "count": 4,
+        "value": "BREAKOUT"
+      },
+      {
+        "count": 2,
+        "value": "CHOPPY_RANGE"
+      },
+      {
+        "count": 1,
+        "value": "EXHAUSTION"
+      }
+    ],
+    "market_regime": [
+      {
+        "count": 4,
+        "value": "TRENDING"
+      },
+      {
+        "count": 4,
+        "value": "HIGH_VOLATILITY"
+      },
+      {
+        "count": 3,
+        "value": "RANGING"
+      }
+    ],
+    "score_bucket": [
+      {
+        "count": 4,
+        "value": "50-59"
+      },
+      {
+        "count": 2,
+        "value": "0-49"
+      },
+      {
+        "count": 2,
+        "value": "60-69"
+      },
+      {
+        "count": 1,
+        "value": "70-79"
+      },
+      {
+        "count": 1,
+        "value": "80-89"
+      },
+      {
+        "count": 1,
+        "value": "90+"
+      }
+    ],
+    "session": [
+      {
+        "count": 9,
+        "value": "NEW_YORK"
+      },
+      {
+        "count": 1,
+        "value": "ASIA"
+      },
+      {
+        "count": 1,
+        "value": "LONDON"
+      }
+    ],
+    "symbol": [
+      {
+        "count": 1,
+        "value": "ETHUSDT"
+      },
+      {
+        "count": 1,
+        "value": "SOLUSDT"
+      },
+      {
+        "count": 1,
+        "value": "DOTUSDT"
+      },
+      {
+        "count": 1,
+        "value": "UNIUSDT"
+      },
+      {
+        "count": 1,
+        "value": "ETCUSDT"
+      },
+      {
+        "count": 1,
+        "value": "FTMUSDT"
+      },
+      {
+        "count": 1,
+        "value": "SANDUSDT"
+      },
+      {
+        "count": 1,
+        "value": "MANAUSDT"
+      },
+      {
+        "count": 1,
+        "value": "APEUSDT"
+      },
+      {
+        "count": 1,
+        "value": "TAOUSDT"
+      },
+      {
+        "count": 1,
+        "value": "ARBUSDT"
+      }
+    ]
+  },
+  "paper_duplicate_summary": {
+    "breakdowns": {
+      "direction": [
+        {
+          "count": 11,
+          "value": "UNKNOWN"
+        }
+      ],
+      "entry_context": [
+        {
+          "count": 4,
+          "value": "PULLBACK"
+        },
+        {
+          "count": 4,
+          "value": "BREAKOUT"
+        },
+        {
+          "count": 2,
+          "value": "CHOPPY_RANGE"
+        },
+        {
+          "count": 1,
+          "value": "EXHAUSTION"
+        }
+      ],
+      "market_regime": [
+        {
+          "count": 4,
+          "value": "TRENDING"
+        },
+        {
+          "count": 4,
+          "value": "HIGH_VOLATILITY"
+        },
+        {
+          "count": 3,
+          "value": "RANGING"
+        }
+      ],
+      "score_bucket": [
+        {
+          "count": 4,
+          "value": "50-59"
+        },
+        {
+          "count": 2,
+          "value": "0-49"
+        },
+        {
+          "count": 2,
+          "value": "60-69"
+        },
+        {
+          "count": 1,
+          "value": "70-79"
+        },
+        {
+          "count": 1,
+          "value": "80-89"
+        },
+        {
+          "count": 1,
+          "value": "90+"
+        }
+      ],
+      "session": [
+        {
+          "count": 9,
+          "value": "NEW_YORK"
+        },
+        {
+          "count": 1,
+          "value": "ASIA"
+        },
+        {
+          "count": 1,
+          "value": "LONDON"
+        }
+      ],
+      "symbol": [
+        {
+          "count": 1,
+          "value": "ETHUSDT"
+        },
+        {
+          "count": 1,
+          "value": "SOLUSDT"
+        },
+        {
+          "count": 1,
+          "value": "DOTUSDT"
+        },
+        {
+          "count": 1,
+          "value": "UNIUSDT"
+        },
+        {
+          "count": 1,
+          "value": "ETCUSDT"
+        },
+        {
+          "count": 1,
+          "value": "FTMUSDT"
+        },
+        {
+          "count": 1,
+          "value": "SANDUSDT"
+        },
+        {
+          "count": 1,
+          "value": "MANAUSDT"
+        },
+        {
+          "count": 1,
+          "value": "APEUSDT"
+        },
+        {
+          "count": 1,
+          "value": "TAOUSDT"
+        },
+        {
+          "count": 1,
+          "value": "ARBUSDT"
+        }
+      ]
+    },
+    "open_paper_trades": 8,
+    "paper_rows_with_duplicate_reason": 0,
+    "scheduler_events": 11
+  },
+  "production_changed": false,
+  "scope": "LIFECYCLE_DEDUPE_DEEP_DIVE_V1",
+  "severe_cases": {
+    "directional_confluence_passed": {
+      "count": 1,
+      "examples": [
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "BREAKOUT",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 60.0,
+          "session": "NEW_YORK",
+          "setup_type": "SECONDARY_SIGNAL",
+          "source": "scheduler_log",
+          "symbol": "TAOUSDT"
+        }
+      ]
+    },
+    "highest_score_examples": [
+      {
+        "dedupe_key": "",
+        "direction": "long",
+        "entry_context": "PULLBACK",
+        "market_regime": "HIGH_VOLATILITY",
+        "score": 100.0,
+        "session": "UNKNOWN",
+        "setup_type": "MAIN_SIGNAL",
+        "source": "signals_log",
+        "symbol": "BTCUSDT"
+      },
+      {
+        "dedupe_key": "",
+        "direction": "long",
+        "entry_context": "PULLBACK",
+        "market_regime": "HIGH_VOLATILITY",
+        "score": 100.0,
+        "session": "UNKNOWN",
+        "setup_type": "MAIN_SIGNAL",
+        "source": "signals_log",
+        "symbol": "BTCUSDT"
+      },
+      {
+        "dedupe_key": "",
+        "direction": "long",
+        "entry_context": "PULLBACK",
+        "market_regime": "HIGH_VOLATILITY",
+        "score": 100.0,
+        "session": "UNKNOWN",
+        "setup_type": "MAIN_SIGNAL",
+        "source": "signals_log",
+        "symbol": "BTCUSDT"
+      },
+      {
+        "dedupe_key": "",
+        "direction": "long",
+        "entry_context": "PULLBACK",
+        "market_regime": "HIGH_VOLATILITY",
+        "score": 100.0,
+        "session": "UNKNOWN",
+        "setup_type": "MAIN_SIGNAL",
+        "source": "signals_log",
+        "symbol": "BTCUSDT"
+      },
+      {
+        "dedupe_key": "",
+        "direction": "long",
+        "entry_context": "PULLBACK",
+        "market_regime": "HIGH_VOLATILITY",
+        "score": 100.0,
+        "session": "UNKNOWN",
+        "setup_type": "MAIN_SIGNAL",
+        "source": "signals_log",
+        "symbol": "BTCUSDT"
+      },
+      {
+        "dedupe_key": "",
+        "direction": "long",
+        "entry_context": "PULLBACK",
+        "market_regime": "HIGH_VOLATILITY",
+        "score": 100.0,
+        "session": "UNKNOWN",
+        "setup_type": "MAIN_SIGNAL",
+        "source": "signals_log",
+        "symbol": "BTCUSDT"
+      },
+      {
+        "dedupe_key": "",
+        "direction": "long",
+        "entry_context": "PULLBACK",
+        "market_regime": "HIGH_VOLATILITY",
+        "score": 100.0,
+        "session": "UNKNOWN",
+        "setup_type": "MAIN_SIGNAL",
+        "source": "signals_log",
+        "symbol": "BTCUSDT"
+      },
+      {
+        "dedupe_key": "",
+        "direction": "long",
+        "entry_context": "PULLBACK",
+        "market_regime": "HIGH_VOLATILITY",
+        "score": 100.0,
+        "session": "UNKNOWN",
+        "setup_type": "MAIN_SIGNAL",
+        "source": "signals_log",
+        "symbol": "BTCUSDT"
+      },
+      {
+        "dedupe_key": "",
+        "direction": "long",
+        "entry_context": "PULLBACK",
+        "market_regime": "HIGH_VOLATILITY",
+        "score": 100.0,
+        "session": "UNKNOWN",
+        "setup_type": "MAIN_SIGNAL",
+        "source": "signals_log",
+        "symbol": "BTCUSDT"
+      },
+      {
+        "dedupe_key": "",
+        "direction": "long",
+        "entry_context": "PULLBACK",
+        "market_regime": "HIGH_VOLATILITY",
+        "score": 100.0,
+        "session": "UNKNOWN",
+        "setup_type": "MAIN_SIGNAL",
+        "source": "signals_log",
+        "symbol": "BTCUSDT"
+      },
+      {
+        "dedupe_key": "",
+        "direction": "long",
+        "entry_context": "PULLBACK",
+        "market_regime": "HIGH_VOLATILITY",
+        "score": 100.0,
+        "session": "UNKNOWN",
+        "setup_type": "MAIN_SIGNAL",
+        "source": "signals_log",
+        "symbol": "BTCUSDT"
+      },
+      {
+        "dedupe_key": "",
+        "direction": "long",
+        "entry_context": "PULLBACK",
+        "market_regime": "HIGH_VOLATILITY",
+        "score": 100.0,
+        "session": "UNKNOWN",
+        "setup_type": "MAIN_SIGNAL",
+        "source": "signals_log",
+        "symbol": "BTCUSDT"
+      },
+      {
+        "dedupe_key": "",
+        "direction": "long",
+        "entry_context": "PULLBACK",
+        "market_regime": "HIGH_VOLATILITY",
+        "score": 100.0,
+        "session": "UNKNOWN",
+        "setup_type": "MAIN_SIGNAL",
+        "source": "signals_log",
+        "symbol": "BTCUSDT"
+      },
+      {
+        "dedupe_key": "",
+        "direction": "long",
+        "entry_context": "PULLBACK",
+        "market_regime": "HIGH_VOLATILITY",
+        "score": 100.0,
+        "session": "UNKNOWN",
+        "setup_type": "MAIN_SIGNAL",
+        "source": "signals_log",
+        "symbol": "BTCUSDT"
+      },
+      {
+        "dedupe_key": "",
+        "direction": "long",
+        "entry_context": "PULLBACK",
+        "market_regime": "HIGH_VOLATILITY",
+        "score": 100.0,
+        "session": "UNKNOWN",
+        "setup_type": "MAIN_SIGNAL",
+        "source": "signals_log",
+        "symbol": "BTCUSDT"
+      }
+    ],
+    "new_snapshot_distinct": 0,
+    "rr_valid": {
+      "count": 1,
+      "examples": [
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "BREAKOUT",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 60.0,
+          "session": "NEW_YORK",
+          "setup_type": "SECONDARY_SIGNAL",
+          "source": "scheduler_log",
+          "symbol": "TAOUSDT"
+        }
+      ]
+    },
+    "score_gte_70": {
+      "count": 109,
+      "examples": [
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        }
+      ]
+    },
+    "score_gte_80": {
+      "count": 109,
+      "examples": [
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        }
+      ]
+    },
+    "score_gte_90": {
+      "count": 109,
+      "examples": [
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        }
+      ]
+    },
+    "signal_status_valid": {
+      "count": 109,
+      "examples": [
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        },
+        {
+          "dedupe_key": "",
+          "direction": "long",
+          "entry_context": "PULLBACK",
+          "market_regime": "HIGH_VOLATILITY",
+          "score": 100.0,
+          "session": "UNKNOWN",
+          "setup_type": "MAIN_SIGNAL",
+          "source": "signals_log",
+          "symbol": "BTCUSDT"
+        }
+      ]
+    }
+  },
+  "signal_update_v1_summary": {
+    "assessment": [
+      "No runtime SIGNAL_UPDATE_V1 events found; current duplicate cases are not being captured or local logs predate runtime deployment.",
+      "SIGNAL_UPDATE_V1 report confirms duplicate_signal_suppressed still blocks publication."
+    ],
+    "by_update_type": {
+      "INVALIDATION_WARNING": 0,
+      "NO_UPDATE": 0,
+      "REENTRY_CANDIDATE": 0,
+      "STRENGTHENED_SIGNAL": 0
+    },
+    "latest_events": [],
+    "new_snapshot_true": 0,
+    "raw_by_update_type": {},
+    "reentry_confirmation_true": 0,
+    "report_summary": {
+      "by_update_type": {},
+      "latest_update_type": null,
+      "total_events": 0
+    },
+    "total_events": 0
+  },
+  "source_counts": {
+    "duplicate_signal_suppressed": 110,
+    "paper_rejected_duplicate": 11,
+    "paper_trade_rows": 49,
+    "published_trade_signals": 10,
+    "scheduler_json_events": 2287,
+    "signal_deliveries_json": 37,
+    "signals_log_rows": 466,
+    "trade_signals_json": 2069
+  },
+  "source_files": {
+    "paper_trades": "data/paper_trading/trades.csv",
+    "scheduler_log": "logs/scheduler.log",
+    "signal_deliveries_dir": "data/signal_deliveries",
+    "signal_update_shadow": "reports/signal_update_v1_shadow.json",
+    "signals_log": "data/bot_activity/signals_log.jsonl",
+    "trade_signals_dir": "data/trade_signals"
+  }
+}

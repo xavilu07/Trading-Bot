@@ -4,40 +4,15 @@
   "blockers": [
     "implementation_review_not_allowed"
   ],
-  "created_at": "2026-07-06T17:49:42.067727+00:00",
+  "created_at": "2026-07-09T14:24:21.326541+00:00",
   "feature_flags": [],
   "files_to_touch": [],
-  "knowledge_item_id": "edge_fc1437682982",
+  "knowledge_item_id": null,
   "patch_applied": false,
-  "proposal_id": "cio_805ad892d491",
-  "rollback_plan": {
-    "code_revert_required": false,
-    "created_at": "2026-07-06T17:49:42.066801+00:00",
-    "data_migration_required": false,
-    "feature_flags": [],
-    "knowledge_item_id": "edge_fc1437682982",
-    "proposal_id": "cio_805ad892d491",
-    "rollback_type": "feature_flag_disable",
-    "steps": [
-      "Disable feature flag",
-      "Restart only after manual approval if runtime config requires it",
-      "Verify QIC monitoring report returns to baseline behavior"
-    ]
-  },
+  "proposal_id": "cio_5909920e9f22",
+  "rollback_plan": {},
   "status": "blocked",
   "suggested_diff": "",
-  "tests_suggested": [
-    "python3 -m py_compile src/trading_signals/application/use_cases/strategy_v2_1_htf_alignment_filter.py",
-    "MPLBACKEND=Agg .venv/bin/pytest -q tests/unit/test_strategy_v2_1_htf_alignment_filter.py",
-    "MPLBACKEND=Agg .venv/bin/pytest -q",
-    "PYTHONPATH=src .venv/bin/python scripts/run_strategy_simulator.py --mode shadow --min-trades 1",
-    "PYTHONPATH=src .venv/bin/python scripts/run_agent_committee.py --force --dry-run --min-confidence LOW"
-  ],
-  "validation_commands": [
-    "python3 -m py_compile src/trading_signals/application/use_cases/strategy_v2_1_htf_alignment_filter.py",
-    "MPLBACKEND=Agg .venv/bin/pytest -q tests/unit/test_strategy_v2_1_htf_alignment_filter.py",
-    "MPLBACKEND=Agg .venv/bin/pytest -q",
-    "PYTHONPATH=src .venv/bin/python scripts/run_strategy_simulator.py --mode shadow --min-trades 1",
-    "PYTHONPATH=src .venv/bin/python scripts/run_agent_committee.py --force --dry-run --min-confidence LOW"
-  ]
+  "tests_suggested": [],
+  "validation_commands": []
 }

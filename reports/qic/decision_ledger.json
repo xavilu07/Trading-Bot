@@ -1,0 +1,147 @@
+{
+  "decisions": [
+    {
+      "action": "PROPOSE_IMPLEMENTATION",
+      "conditions": [
+        "exclude:htf_alignment=against"
+      ],
+      "decision_id": "decision_20260709142332333911",
+      "edge_type": "STRUCTURAL_EDGE",
+      "expected_metrics": {
+        "evidence": 586,
+        "pf": 1.113,
+        "total_r": 21.1506,
+        "trade_reduction_pct": 48.9547
+      },
+      "final_decision": "CODE_ENGINEER_STATUS",
+      "human_action": "",
+      "implementation_status": "blocked_preconditions",
+      "later_outcome": "",
+      "notes": "generated_patch_missing,implementation_review_missing,proposal_not_approved_for_implementation_review,required_feature_flags_missing,required_tests_missing,rollback_plan_missing",
+      "proposal_id": "cio_htf_against",
+      "timestamp": "2026-07-09T14:23:32.333998+00:00"
+    },
+    {
+      "action": "PROPOSE_IMPLEMENTATION",
+      "conditions": [
+        "exclude:htf_alignment=against"
+      ],
+      "decision_id": "decision_20260709142341702757",
+      "edge_type": "STRUCTURAL_EDGE",
+      "expected_metrics": {
+        "evidence": 586,
+        "pf": 1.113,
+        "total_r": 21.1506,
+        "trade_reduction_pct": 48.9547
+      },
+      "final_decision": "CODE_ENGINEER_STATUS",
+      "human_action": "",
+      "implementation_status": "blocked_preconditions",
+      "later_outcome": "",
+      "notes": "generated_patch_missing,implementation_review_missing,proposal_not_approved_for_implementation_review,required_feature_flags_missing,required_tests_missing,rollback_plan_missing",
+      "proposal_id": "cio_htf_against",
+      "timestamp": "2026-07-09T14:23:41.702821+00:00"
+    },
+    {
+      "action": "PROMOTE_TO_CONFIRMED_EDGE",
+      "conditions": [
+        "exclude:liquidity_distance_bucket=2-4atr"
+      ],
+      "decision_id": "decision_20260709142404770215",
+      "edge_type": "OVERFIT_RISK",
+      "expected_metrics": {
+        "evidence": 20,
+        "pf": 2.6415,
+        "total_r": 7.8114,
+        "trade_reduction_pct": 59.1837
+      },
+      "final_decision": "PROMOTE_TO_CONFIRMED_EDGE",
+      "human_action": "",
+      "implementation_status": "pending",
+      "later_outcome": "",
+      "notes": "",
+      "proposal_id": "cio_805ad892d491",
+      "timestamp": "2026-07-09T14:24:04.770349+00:00"
+    },
+    {
+      "action": null,
+      "conditions": [],
+      "decision_id": "decision_20260709142409181547",
+      "edge_type": null,
+      "expected_metrics": {
+        "evidence": null,
+        "pf": null,
+        "total_r": null,
+        "trade_reduction_pct": null
+      },
+      "final_decision": "NO_ACTIONABLE_PROPOSAL",
+      "human_action": "",
+      "implementation_status": "",
+      "later_outcome": "",
+      "notes": "",
+      "proposal_id": null,
+      "timestamp": "2026-07-09T14:24:09.181674+00:00"
+    },
+    {
+      "action": "PROPOSE_IMPLEMENTATION",
+      "conditions": [
+        "exclude:htf_alignment=against"
+      ],
+      "decision_id": "decision_20260709142456480449",
+      "edge_type": "STRUCTURAL_EDGE",
+      "expected_metrics": {
+        "evidence": 586,
+        "pf": 1.113,
+        "total_r": 21.1506,
+        "trade_reduction_pct": 48.9547
+      },
+      "final_decision": "CODE_ENGINEER_STATUS",
+      "human_action": "",
+      "implementation_status": "blocked_preconditions",
+      "later_outcome": "",
+      "notes": "generated_patch_missing,implementation_review_missing,proposal_not_approved_for_implementation_review,required_feature_flags_missing,required_tests_missing,rollback_plan_missing",
+      "proposal_id": "cio_htf_against",
+      "timestamp": "2026-07-09T14:24:56.480514+00:00"
+    },
+    {
+      "action": "PROPOSE_IMPLEMENTATION",
+      "conditions": [
+        "exclude:htf_alignment=against"
+      ],
+      "decision_id": "decision_20260709142616278527",
+      "edge_type": "STRUCTURAL_EDGE",
+      "expected_metrics": {
+        "evidence": 586,
+        "pf": 1.113,
+        "total_r": 21.1506,
+        "trade_reduction_pct": 48.9547
+      },
+      "final_decision": "CODE_ENGINEER_STATUS",
+      "human_action": "",
+      "implementation_status": "blocked_preconditions",
+      "later_outcome": "",
+      "notes": "generated_patch_missing,implementation_review_missing,proposal_not_approved_for_implementation_review,required_feature_flags_missing,required_tests_missing,rollback_plan_missing",
+      "proposal_id": "cio_htf_against",
+      "timestamp": "2026-07-09T14:26:16.278591+00:00"
+    },
+    {
+      "action": null,
+      "conditions": [],
+      "decision_id": "decision_20260709142620808492",
+      "edge_type": null,
+      "expected_metrics": {
+        "evidence": null,
+        "pf": null,
+        "total_r": null,
+        "trade_reduction_pct": null
+      },
+      "final_decision": "NO_ACTIONABLE_PROPOSAL",
+      "human_action": "",
+      "implementation_status": "",
+      "later_outcome": "",
+      "notes": "",
+      "proposal_id": null,
+      "timestamp": "2026-07-09T14:26:20.808618+00:00"
+    }
+  ]
+}

@@ -8,6 +8,9 @@ from pathlib import Path
 from typing import Any
 
 from trading_signals.agents.proposal_store import load_proposals
+from trading_signals.agents.decision_ledger import append_decision_ledger_entry
+from trading_signals.agents.research_memory import record_research_memory_decision
+from trading_signals.agents.strategy_knowledge_base import load_strategy_knowledge_base, save_strategy_knowledge_base
 
 CODE_ENGINEER_REPORT = "code_engineer"
 SUPPORTED_RULE = "exclude htf_alignment=against"
@@ -63,16 +66,22 @@ def run_code_engineer(
         "telegram_summary": "Code plan generated" if not blockers else "Code engineer blocked by preconditions",
     }
     if blockers:
-        return write_code_engineer_reports(report, output_path=reports_path)
+        written = write_code_engineer_reports(report, output_path=reports_path)
+        _update_learning_artifacts(written, proposal, proposal_store_path=proposal_store_path)
+        return written
     if apply:
         if dry_run:
             report["blockers"].append("apply_requested_with_dry_run")
             report["status"] = "failed_preconditions"
-            return write_code_engineer_reports(report, output_path=reports_path)
+            written = write_code_engineer_reports(report, output_path=reports_path)
+            _update_learning_artifacts(written, proposal, proposal_store_path=proposal_store_path)
+            return written
         if not allow_apply:
             report["blockers"].append("apply_not_allowed")
             report["status"] = "failed_preconditions"
-            return write_code_engineer_reports(report, output_path=reports_path)
+            written = write_code_engineer_reports(report, output_path=reports_path)
+            _update_learning_artifacts(written, proposal, proposal_store_path=proposal_store_path)
+            return written
         modified = _apply_generated_files(project_root, generated)
         report["files_modified"] = modified
         report["status"] = "applied"
@@ -83,7 +92,9 @@ def run_code_engineer(
         report["test_output_summary"] = test_result["summary"]
         if not test_result["passed"]:
             report["status"] = "failed_tests"
-    return write_code_engineer_reports(report, output_path=reports_path)
+    written = write_code_engineer_reports(report, output_path=reports_path)
+    _update_learning_artifacts(written, proposal, proposal_store_path=proposal_store_path)
+    return written
 
 
 def write_code_engineer_reports(report: dict[str, Any], *, output_path: Path) -> dict[str, Any]:
@@ -216,6 +227,46 @@ def _run_validation_tests(*, project_root: Path, max_autofix_attempts: int) -> d
 
 def _load_proposal(proposal_id: str, path: Path) -> dict[str, Any] | None:
     return next((item for item in load_proposals(path) if item.get("id") == proposal_id), None)
+
+
+def _update_learning_artifacts(report: dict[str, Any], proposal: dict[str, Any] | None, *, proposal_store_path: Path) -> None:
+    if not proposal:
+        return
+    qic_path = proposal_store_path.parent.parent / "qic" if proposal_store_path.parent.name == "agent_proposals" else Path("data") / "qic"
+    status = str(report.get("status") or "")
+    implementation_status = {
+        "failed_preconditions": "blocked_preconditions",
+        "dry_run_generated": "code_generated",
+        "applied": "patch_applied_shadow",
+        "failed_tests": "code_generated_tests_failed",
+    }.get(status, status)
+    record_research_memory_decision(
+        proposal,
+        implementation_status,
+        path=qic_path / "research_memory.json",
+        reason=",".join(str(item) for item in report.get("blockers", [])),
+    )
+    append_decision_ledger_entry(
+        proposal,
+        path=qic_path / "decision_ledger.jsonl",
+        final_decision="CODE_ENGINEER_STATUS",
+        implementation_status=implementation_status,
+        notes=",".join(str(item) for item in report.get("blockers", [])),
+    )
+    _update_strategy_kb_implementation_status(proposal, qic_path / "strategy_knowledge_base.json", implementation_status)
+
+
+def _update_strategy_kb_implementation_status(proposal: dict[str, Any], path: Path, status: str) -> None:
+    kb = load_strategy_knowledge_base(path)
+    item_id = str(proposal.get("knowledge_item_id") or (proposal.get("context") or {}).get("knowledge_item_id") or "")
+    item = (kb.get("items") or {}).get(item_id)
+    if not isinstance(item, dict):
+        return
+    item["implementation_status"] = status
+    history = list(item.get("implementation_history") or [])
+    history.append({"timestamp": _now(), "event": status, "proposal_id": proposal.get("id")})
+    item["implementation_history"] = history[-50:]
+    save_strategy_knowledge_base(kb, path)
 
 
 def _load_json(path: Path) -> dict[str, Any] | None:

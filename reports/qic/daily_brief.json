@@ -1,0 +1,191 @@
+{
+  "action_required": true,
+  "degraded_edges": [],
+  "events": [
+    {
+      "profit_factor": 0.8876,
+      "severity": "critical",
+      "type": "pf_degradation"
+    },
+    {
+      "count": 1,
+      "severity": "high",
+      "type": "code_engineer_blocked"
+    }
+  ],
+  "generated_at": "2026-07-09T14:26:20.812375+00:00",
+  "last_decision": {
+    "action": null,
+    "conditions": [],
+    "decision_id": "decision_20260709142620808492",
+    "edge_type": null,
+    "expected_metrics": {
+      "evidence": null,
+      "pf": null,
+      "total_r": null,
+      "trade_reduction_pct": null
+    },
+    "final_decision": "NO_ACTIONABLE_PROPOSAL",
+    "human_action": "",
+    "implementation_status": "",
+    "later_outcome": "",
+    "notes": "",
+    "proposal_id": null,
+    "timestamp": "2026-07-09T14:26:20.808618+00:00"
+  },
+  "new_edges": [
+    {
+      "best_pf_seen": 2.6415,
+      "best_total_r_seen": 7.8114,
+      "best_trade_reduction_pct": 59.1837,
+      "current_status": "candidate",
+      "decision_history": [
+        {
+          "action": "PROMOTE_TO_CONFIRMED_EDGE",
+          "event": "qic_proposal_seen",
+          "evidence": 20,
+          "expected_pf": 2.6415,
+          "expected_total_r": 7.8114,
+          "proposal_id": "cio_805ad892d491",
+          "status": "pending",
+          "timestamp": "2026-07-09T14:24:04.769867+00:00",
+          "trade_reduction_pct": 59.1837
+        }
+      ],
+      "evidence_history": [
+        {
+          "evidence": 20,
+          "pf": 2.6415,
+          "timestamp": "2026-07-09T14:24:04.769867+00:00",
+          "total_r": 7.8114,
+          "trade_reduction_pct": 59.1837
+        }
+      ],
+      "first_seen_at": "2026-07-09T14:24:04.769867+00:00",
+      "id": "research_fc1437682982",
+      "last_pf": 2.6415,
+      "last_revalidation_result": {
+        "conditions": [
+          "exclude:liquidity_distance_bucket=2-4atr"
+        ],
+        "current_evidence": 20.0,
+        "current_pf": 2.6415,
+        "current_total_r": 7.8114,
+        "knowledge_item_id": "edge_fc1437682982",
+        "new_trades": 0.0,
+        "previous_evidence": 20.0,
+        "previous_pf": 2.6415,
+        "previous_total_r": 7.8114,
+        "reason": "not_enough_new_trades",
+        "result": "insufficient_new_data"
+      },
+      "last_seen_at": "2026-07-09T14:24:04.769867+00:00",
+      "last_total_r": 7.8114,
+      "last_trade_reduction_pct": 59.1837,
+      "normalized_conditions": [
+        "exclude:liquidity_distance_bucket=2-4atr"
+      ],
+      "notes_by_agent": {},
+      "rejection_reasons": [],
+      "rollback_reasons": [],
+      "times_approved": 0,
+      "times_implemented": 0,
+      "times_proposed": 1,
+      "times_rejected": 0,
+      "times_rolled_back": 0,
+      "times_seen": 1,
+      "times_simulated": 1,
+      "title": "CIO proposal: exclude liquidity_distance_bucket=2-4atr"
+    }
+  ],
+  "pending_proposals": [
+    {
+      "confidence": "LOW",
+      "edge_type": "OVERFIT_RISK",
+      "first_seen_at": "2026-07-06T15:11:08.966970+00:00",
+      "id": "edge_fc1437682982",
+      "implementation_history": [
+        {
+          "decision": "NEEDS_MORE_RESEARCH",
+          "event": "implementation_review",
+          "timestamp": "2026-07-06T17:47:59.533593+00:00"
+        },
+        {
+          "decision": "NEEDS_MORE_RESEARCH",
+          "event": "implementation_review",
+          "timestamp": "2026-07-06T17:49:42.066812+00:00"
+        }
+      ],
+      "implementation_priority": "LOW",
+      "implementation_status": "approved_for_review",
+      "last_evidence": 20,
+      "last_expected_pf": 2.6415,
+      "last_expected_total_r": 7.8114,
+      "last_seen_at": "2026-07-09T14:24:04.767470+00:00",
+      "last_trade_reduction_pct": 59.1837,
+      "live_performance_after_implementation": {},
+      "monitoring_history": [],
+      "notes": "",
+      "qic_proposal_ids": [
+        "cio_805ad892d491"
+      ],
+      "revalidation_history": [
+        {
+          "action": "PROPOSE_IMPLEMENTATION",
+          "evidence": 20,
+          "expected_pf": 2.6415,
+          "expected_total_r": 7.8114,
+          "timestamp": "2026-07-06T15:11:08.966970+00:00",
+          "trade_reduction_pct": 59.1837
+        },
+        {
+          "action": "PROPOSE_IMPLEMENTATION",
+          "evidence": 20,
+          "expected_pf": 2.6415,
+          "expected_total_r": 7.8114,
+          "timestamp": "2026-07-06T15:39:51.404944+00:00",
+          "trade_reduction_pct": 59.1837
+        },
+        {
+          "action": "PROMOTE_TO_CONFIRMED_EDGE",
+          "evidence": 20,
+          "expected_pf": 2.6415,
+          "expected_total_r": 7.8114,
+          "timestamp": "2026-07-06T15:41:09.455186+00:00",
+          "trade_reduction_pct": 59.1837
+        },
+        {
+          "action": "PROMOTE_TO_CONFIRMED_EDGE",
+          "evidence": 20,
+          "expected_pf": 2.6415,
+          "expected_total_r": 7.8114,
+          "timestamp": "2026-07-06T17:47:48.491714+00:00",
+          "trade_reduction_pct": 59.1837
+        },
+        {
+          "action": "PROMOTE_TO_CONFIRMED_EDGE",
+          "evidence": 20,
+          "expected_pf": 2.6415,
+          "expected_total_r": 7.8114,
+          "timestamp": "2026-07-09T14:24:04.767470+00:00",
+          "trade_reduction_pct": 59.1837
+        }
+      ],
+      "risk_level": "HIGH",
+      "risk_objections": [
+        "high_trade_reduction"
+      ],
+      "rollback_history": [],
+      "rule_conditions": [
+        "exclude:liquidity_distance_bucket=2-4atr"
+      ],
+      "source": "single_filter",
+      "status": "confirmed",
+      "times_approved": 0,
+      "times_proposed": 5,
+      "times_rejected": 0,
+      "times_seen": 5,
+      "title": "CIO proposal: exclude liquidity_distance_bucket=2-4atr"
+    }
+  ]
+}

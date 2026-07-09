@@ -223,11 +223,23 @@ def test_qic_scheduler_settings_defaults_and_env(monkeypatch) -> None:
     assert settings.qic_scheduler_interval_hours == 6
     assert settings.qic_daily_summary_enabled is True
     assert settings.qic_daily_summary_hour == 9
+    assert settings.qic_daily_brief_enabled is True
+    assert settings.qic_weekly_research_review_enabled is True
+    assert settings.qic_revalidation_min_new_trades == 50
+    assert settings.qic_edge_confirmation_min_seen == 3
+    assert settings.qic_edge_reproposal_cooldown_days == 14
+    assert settings.qic_edge_degradation_pf_drop_pct == 15
 
     monkeypatch.setenv("QIC_SCHEDULER_ENABLED", "true")
     monkeypatch.setenv("QIC_SCHEDULER_INTERVAL_HOURS", "3")
     monkeypatch.setenv("QIC_DAILY_SUMMARY_ENABLED", "false")
     monkeypatch.setenv("QIC_DAILY_SUMMARY_HOUR", "10")
+    monkeypatch.setenv("QIC_DAILY_BRIEF_ENABLED", "false")
+    monkeypatch.setenv("QIC_WEEKLY_RESEARCH_REVIEW_ENABLED", "false")
+    monkeypatch.setenv("QIC_REVALIDATION_MIN_NEW_TRADES", "75")
+    monkeypatch.setenv("QIC_EDGE_CONFIRMATION_MIN_SEEN", "4")
+    monkeypatch.setenv("QIC_EDGE_REPROPOSAL_COOLDOWN_DAYS", "21")
+    monkeypatch.setenv("QIC_EDGE_DEGRADATION_PF_DROP_PCT", "20")
 
     settings = Settings()
 
@@ -235,6 +247,38 @@ def test_qic_scheduler_settings_defaults_and_env(monkeypatch) -> None:
     assert settings.qic_scheduler_interval_hours == 3
     assert settings.qic_daily_summary_enabled is False
     assert settings.qic_daily_summary_hour == 10
+    assert settings.qic_daily_brief_enabled is False
+    assert settings.qic_weekly_research_review_enabled is False
+    assert settings.qic_revalidation_min_new_trades == 75
+    assert settings.qic_edge_confirmation_min_seen == 4
+    assert settings.qic_edge_reproposal_cooldown_days == 21
+    assert settings.qic_edge_degradation_pf_drop_pct == 20
+
+
+def test_qic_code_engineer_settings_defaults_and_env(monkeypatch) -> None:
+    monkeypatch.delenv("QIC_CODE_ENGINEER_ENABLED", raising=False)
+    monkeypatch.delenv("QIC_CODE_ENGINEER_ALLOW_APPLY", raising=False)
+    monkeypatch.delenv("QIC_CODE_ENGINEER_AUTO_COMMIT", raising=False)
+    monkeypatch.delenv("QIC_CODE_ENGINEER_MAX_AUTOFIX_ATTEMPTS", raising=False)
+
+    settings = Settings()
+
+    assert settings.qic_code_engineer_enabled is False
+    assert settings.qic_code_engineer_allow_apply is False
+    assert settings.qic_code_engineer_auto_commit is False
+    assert settings.qic_code_engineer_max_autofix_attempts == 1
+
+    monkeypatch.setenv("QIC_CODE_ENGINEER_ENABLED", "true")
+    monkeypatch.setenv("QIC_CODE_ENGINEER_ALLOW_APPLY", "true")
+    monkeypatch.setenv("QIC_CODE_ENGINEER_AUTO_COMMIT", "true")
+    monkeypatch.setenv("QIC_CODE_ENGINEER_MAX_AUTOFIX_ATTEMPTS", "2")
+
+    settings = Settings()
+
+    assert settings.qic_code_engineer_enabled is True
+    assert settings.qic_code_engineer_allow_apply is True
+    assert settings.qic_code_engineer_auto_commit is True
+    assert settings.qic_code_engineer_max_autofix_attempts == 2
 
 
 def test_telegram_dev_chat_id_supports_multiple_ids(monkeypatch) -> None:

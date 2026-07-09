@@ -229,6 +229,11 @@ def upsert_knowledge_from_proposal(
         "risk_objections": proposal.get("risk_objections") or [],
         "edge_type": proposal.get("edge_type") or classification["edge_type"],
         "implementation_priority": proposal.get("implementation_priority") or classification["implementation_priority"],
+        "implementation_status": existing.get("implementation_status") or "not_started",
+        "implementation_history": list(existing.get("implementation_history") or []),
+        "rollback_history": list(existing.get("rollback_history") or []),
+        "monitoring_history": list(existing.get("monitoring_history") or []),
+        "live_performance_after_implementation": existing.get("live_performance_after_implementation") or {},
         "notes": notes or existing.get("notes", ""),
         "qic_proposal_ids": proposal_ids[-50:],
         "revalidation_history": history[-50:],
@@ -261,6 +266,10 @@ def record_proposal_review(
         item["times_approved"] = int(item.get("times_approved", 0)) + 1
         if item.get("edge_type") == "STRUCTURAL_EDGE" or int(item.get("times_approved", 0)) >= 1:
             item["status"] = "confirmed"
+        item["implementation_status"] = "approved_for_review"
+        history = list(item.get("implementation_history") or [])
+        history.append({"timestamp": _now(), "event": "approved_for_implementation_review", "proposal_id": proposal.get("id")})
+        item["implementation_history"] = history[-50:]
     elif normalized == "rejected":
         item["times_rejected"] = int(item.get("times_rejected", 0)) + 1
         item["status"] = "rejected"

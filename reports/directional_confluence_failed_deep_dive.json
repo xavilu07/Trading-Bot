@@ -1,0 +1,1611 @@
+{
+  "breakdowns": {
+    "direction": [
+      {
+        "avg_r": -0.3179,
+        "avg_score": 74.8214,
+        "closed_trades": 5,
+        "count": 49,
+        "gross_loss_r": 3.0,
+        "gross_win_r": 1.4104,
+        "losses": 3,
+        "profit_factor": 0.4701,
+        "total_r": -1.5896,
+        "value": "long",
+        "winrate": 40.0,
+        "wins": 2
+      },
+      {
+        "avg_r": -0.376,
+        "avg_score": 71.4773,
+        "closed_trades": 8,
+        "count": 33,
+        "gross_loss_r": 4.5083,
+        "gross_win_r": 1.5,
+        "losses": 7,
+        "profit_factor": 0.3327,
+        "total_r": -3.0083,
+        "value": "short",
+        "winrate": 12.5,
+        "wins": 1
+      }
+    ],
+    "entry_context": [
+      {
+        "avg_r": 0.0,
+        "avg_score": 79.6512,
+        "closed_trades": 0,
+        "count": 43,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "UNKNOWN",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": -0.2231,
+        "avg_score": 70.4762,
+        "closed_trades": 9,
+        "count": 21,
+        "gross_loss_r": 4.5083,
+        "gross_win_r": 2.5,
+        "losses": 7,
+        "profit_factor": 0.5545,
+        "total_r": -2.0083,
+        "value": "BREAKOUT",
+        "winrate": 22.2222,
+        "wins": 2
+      },
+      {
+        "avg_r": -0.5299,
+        "avg_score": 64.4444,
+        "closed_trades": 3,
+        "count": 9,
+        "gross_loss_r": 2.0,
+        "gross_win_r": 0.4104,
+        "losses": 2,
+        "profit_factor": 0.2052,
+        "total_r": -1.5896,
+        "value": "CHOPPY_RANGE",
+        "winrate": 33.3333,
+        "wins": 1
+      },
+      {
+        "avg_r": -1.0,
+        "avg_score": 61.875,
+        "closed_trades": 1,
+        "count": 8,
+        "gross_loss_r": 1.0,
+        "gross_win_r": 0.0,
+        "losses": 1,
+        "profit_factor": 0.0,
+        "total_r": -1.0,
+        "value": "EXHAUSTION",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": 0.0,
+        "avg_score": 45.0,
+        "closed_trades": 0,
+        "count": 1,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "IMPULSE",
+        "winrate": 0.0,
+        "wins": 0
+      }
+    ],
+    "market_regime": [
+      {
+        "avg_r": -0.6062,
+        "avg_score": 76.75,
+        "closed_trades": 5,
+        "count": 50,
+        "gross_loss_r": 3.0308,
+        "gross_win_r": 0.0,
+        "losses": 5,
+        "profit_factor": 0.0,
+        "total_r": -3.0308,
+        "value": "HIGH_VOLATILITY",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": -0.1959,
+        "avg_score": 63.0682,
+        "closed_trades": 8,
+        "count": 22,
+        "gross_loss_r": 4.4775,
+        "gross_win_r": 2.9104,
+        "losses": 5,
+        "profit_factor": 0.65,
+        "total_r": -1.5671,
+        "value": "RANGING",
+        "winrate": 37.5,
+        "wins": 3
+      },
+      {
+        "avg_r": 0.0,
+        "avg_score": 80.0,
+        "closed_trades": 0,
+        "count": 10,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "TRENDING",
+        "winrate": 0.0,
+        "wins": 0
+      }
+    ],
+    "score_bucket": [
+      {
+        "avg_r": 1.0,
+        "avg_score": 76.2879,
+        "closed_trades": 1,
+        "count": 33,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 1.0,
+        "losses": 0,
+        "profit_factor": "inf",
+        "total_r": 1.0,
+        "value": "70-79",
+        "winrate": 100.0,
+        "wins": 1
+      },
+      {
+        "avg_r": 0.3802,
+        "avg_score": 82.8804,
+        "closed_trades": 4,
+        "count": 23,
+        "gross_loss_r": 0.3895,
+        "gross_win_r": 1.9104,
+        "losses": 2,
+        "profit_factor": 4.9047,
+        "total_r": 1.5209,
+        "value": "80-89",
+        "winrate": 50.0,
+        "wins": 2
+      },
+      {
+        "avg_r": -0.8955,
+        "avg_score": 49.2857,
+        "closed_trades": 5,
+        "count": 14,
+        "gross_loss_r": 4.4775,
+        "gross_win_r": 0.0,
+        "losses": 5,
+        "profit_factor": 0.0,
+        "total_r": -4.4775,
+        "value": "<60",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": 0.0,
+        "avg_score": 65.1562,
+        "closed_trades": 0,
+        "count": 8,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "60-69",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": -0.8804,
+        "avg_score": 97.5,
+        "closed_trades": 3,
+        "count": 4,
+        "gross_loss_r": 2.6413,
+        "gross_win_r": 0.0,
+        "losses": 3,
+        "profit_factor": 0.0,
+        "total_r": -2.6413,
+        "value": "90+",
+        "winrate": 0.0,
+        "wins": 0
+      }
+    ],
+    "session": [
+      {
+        "avg_r": 0.0,
+        "avg_score": 74.0,
+        "closed_trades": 0,
+        "count": 65,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "UNKNOWN",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": -0.1709,
+        "avg_score": 69.0909,
+        "closed_trades": 8,
+        "count": 11,
+        "gross_loss_r": 3.867,
+        "gross_win_r": 2.5,
+        "losses": 6,
+        "profit_factor": 0.6465,
+        "total_r": -1.367,
+        "value": "LONDON",
+        "winrate": 25.0,
+        "wins": 2
+      },
+      {
+        "avg_r": -0.5299,
+        "avg_score": 77.5,
+        "closed_trades": 3,
+        "count": 4,
+        "gross_loss_r": 2.0,
+        "gross_win_r": 0.4104,
+        "losses": 2,
+        "profit_factor": 0.2052,
+        "total_r": -1.5896,
+        "value": "NEW_YORK",
+        "winrate": 33.3333,
+        "wins": 1
+      },
+      {
+        "avg_r": -0.8206,
+        "avg_score": 72.5,
+        "closed_trades": 2,
+        "count": 2,
+        "gross_loss_r": 1.6413,
+        "gross_win_r": 0.0,
+        "losses": 2,
+        "profit_factor": 0.0,
+        "total_r": -1.6413,
+        "value": "OVERLAP",
+        "winrate": 0.0,
+        "wins": 0
+      }
+    ],
+    "setup_type": [
+      {
+        "avg_r": 0.0,
+        "avg_score": 79.6512,
+        "closed_trades": 0,
+        "count": 43,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "UNKNOWN",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": -0.0854,
+        "avg_score": 71.1905,
+        "closed_trades": 7,
+        "count": 21,
+        "gross_loss_r": 2.5083,
+        "gross_win_r": 1.9104,
+        "losses": 5,
+        "profit_factor": 0.7616,
+        "total_r": -0.5979,
+        "value": "SECONDARY_SIGNAL",
+        "winrate": 28.5714,
+        "wins": 2
+      },
+      {
+        "avg_r": 0.0,
+        "avg_score": 62.9167,
+        "closed_trades": 0,
+        "count": 12,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "NO_SIGNAL",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": -0.6667,
+        "avg_score": 58.3333,
+        "closed_trades": 6,
+        "count": 6,
+        "gross_loss_r": 5.0,
+        "gross_win_r": 1.0,
+        "losses": 5,
+        "profit_factor": 0.2,
+        "total_r": -4.0,
+        "value": "MAIN_SIGNAL",
+        "winrate": 16.6667,
+        "wins": 1
+      }
+    ],
+    "symbol": [
+      {
+        "avg_r": 1.0,
+        "avg_score": 71.1607,
+        "closed_trades": 1,
+        "count": 14,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 1.0,
+        "losses": 0,
+        "profit_factor": "inf",
+        "total_r": 1.0,
+        "value": "BTCUSDT",
+        "winrate": 100.0,
+        "wins": 1
+      },
+      {
+        "avg_r": -0.5897,
+        "avg_score": 70.7955,
+        "closed_trades": 2,
+        "count": 11,
+        "gross_loss_r": 1.1795,
+        "gross_win_r": 0.0,
+        "losses": 2,
+        "profit_factor": 0.0,
+        "total_r": -1.1795,
+        "value": "ETHUSDT",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": -0.6171,
+        "avg_score": 80.4167,
+        "closed_trades": 3,
+        "count": 9,
+        "gross_loss_r": 1.8513,
+        "gross_win_r": 0.0,
+        "losses": 3,
+        "profit_factor": 0.0,
+        "total_r": -1.8513,
+        "value": "DOGEUSDT",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": -1.0,
+        "avg_score": 69.2857,
+        "closed_trades": 1,
+        "count": 7,
+        "gross_loss_r": 1.0,
+        "gross_win_r": 0.0,
+        "losses": 1,
+        "profit_factor": 0.0,
+        "total_r": -1.0,
+        "value": "SOLUSDT",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": 1.5,
+        "avg_score": 69.4643,
+        "closed_trades": 1,
+        "count": 7,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 1.5,
+        "losses": 0,
+        "profit_factor": "inf",
+        "total_r": 1.5,
+        "value": "BNBUSDT",
+        "winrate": 100.0,
+        "wins": 1
+      },
+      {
+        "avg_r": 0.4104,
+        "avg_score": 71.4286,
+        "closed_trades": 1,
+        "count": 7,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.4104,
+        "losses": 0,
+        "profit_factor": "inf",
+        "total_r": 0.4104,
+        "value": "AVAXUSDT",
+        "winrate": 100.0,
+        "wins": 1
+      },
+      {
+        "avg_r": -0.7388,
+        "avg_score": 66.75,
+        "closed_trades": 2,
+        "count": 5,
+        "gross_loss_r": 1.4775,
+        "gross_win_r": 0.0,
+        "losses": 2,
+        "profit_factor": 0.0,
+        "total_r": -1.4775,
+        "value": "XRPUSDT",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": -1.0,
+        "avg_score": 61.875,
+        "closed_trades": 1,
+        "count": 2,
+        "gross_loss_r": 1.0,
+        "gross_win_r": 0.0,
+        "losses": 1,
+        "profit_factor": 0.0,
+        "total_r": -1.0,
+        "value": "TRXUSDT",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": 0.0,
+        "avg_score": 77.5,
+        "closed_trades": 0,
+        "count": 2,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "UNIUSDT",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": 0.0,
+        "avg_score": 78.75,
+        "closed_trades": 0,
+        "count": 2,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "ALGOUSDT",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": 0.0,
+        "avg_score": 78.125,
+        "closed_trades": 0,
+        "count": 2,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "MANAUSDT",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": 0.0,
+        "avg_score": 86.25,
+        "closed_trades": 0,
+        "count": 1,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "BCHUSDT",
+        "winrate": 0.0,
+        "wins": 0
+      }
+    ],
+    "trade_location": [
+      {
+        "avg_r": 0.0,
+        "avg_score": 74.0,
+        "closed_trades": 0,
+        "count": 65,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "UNKNOWN",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": -0.375,
+        "avg_score": 71.0,
+        "closed_trades": 4,
+        "count": 5,
+        "gross_loss_r": 3.0,
+        "gross_win_r": 1.5,
+        "losses": 3,
+        "profit_factor": 0.5,
+        "total_r": -1.5,
+        "value": "near_support",
+        "winrate": 25.0,
+        "wins": 1
+      },
+      {
+        "avg_r": -0.605,
+        "avg_score": 77.0,
+        "closed_trades": 2,
+        "count": 5,
+        "gross_loss_r": 1.21,
+        "gross_win_r": 0.0,
+        "losses": 2,
+        "profit_factor": 0.0,
+        "total_r": -1.21,
+        "value": "mid_range",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": -0.0746,
+        "avg_score": 76.25,
+        "closed_trades": 4,
+        "count": 4,
+        "gross_loss_r": 1.2983,
+        "gross_win_r": 1.0,
+        "losses": 3,
+        "profit_factor": 0.7702,
+        "total_r": -0.2983,
+        "value": "discount_zone",
+        "winrate": 25.0,
+        "wins": 1
+      },
+      {
+        "avg_r": -0.2948,
+        "avg_score": 62.5,
+        "closed_trades": 2,
+        "count": 2,
+        "gross_loss_r": 1.0,
+        "gross_win_r": 0.4104,
+        "losses": 1,
+        "profit_factor": 0.4104,
+        "total_r": -0.5896,
+        "value": "premium_zone",
+        "winrate": 50.0,
+        "wins": 1
+      },
+      {
+        "avg_r": -1.0,
+        "avg_score": 45.0,
+        "closed_trades": 1,
+        "count": 1,
+        "gross_loss_r": 1.0,
+        "gross_win_r": 0.0,
+        "losses": 1,
+        "profit_factor": 0.0,
+        "total_r": -1.0,
+        "value": "near_resistance",
+        "winrate": 0.0,
+        "wins": 0
+      }
+    ]
+  },
+  "co_occurring_reasons": [
+    {
+      "count": 76,
+      "reason": "secondary_setup_requirements_failed"
+    },
+    {
+      "count": 64,
+      "reason": "market_structure_range_penalty"
+    },
+    {
+      "count": 27,
+      "reason": "distance_to_liquidity_penalty"
+    },
+    {
+      "count": 22,
+      "reason": "against_htf"
+    },
+    {
+      "count": 22,
+      "reason": "market_structure_range_penalty:10"
+    },
+    {
+      "count": 12,
+      "reason": "distance_to_liquidity_penalty:10"
+    },
+    {
+      "count": 10,
+      "reason": "secondary_confluence_bonus:+15"
+    },
+    {
+      "count": 8,
+      "reason": "dirty_sideways_market"
+    },
+    {
+      "count": 7,
+      "reason": "secondary_confluence_bonus:+30"
+    },
+    {
+      "count": 7,
+      "reason": "None"
+    },
+    {
+      "count": 6,
+      "reason": "secondary_confluence_bonus:+25"
+    },
+    {
+      "count": 4,
+      "reason": "low_volume"
+    }
+  ],
+  "code_origin": {
+    "approx_lines": "evaluate(): primary paths around lines 220-244, secondary paths around lines 245-281, fallback around lines 282-323",
+    "conditions": [
+      "Primary LONG passes only when entry trend is bullish, liquidity_sweep is bullish_sweep, market_structure is bullish/range, HTF is not bearish unless counter-HTF reversal is allowed, distance is not extreme, range quality is allowed when in range, and ASIA score is >= 85.",
+      "Primary SHORT passes only when entry trend is bearish, liquidity_sweep is bearish_sweep, market_structure is bearish/range, HTF is not bullish, distance is not extreme, range quality is allowed when in range, and ASIA score is >= 85.",
+      "Secondary LONG passes only outside ASIA with entry and HTF bullish, liquidity_sweep none, bullish BOS, volume confirmation, RSI alignment, nearest liquidity valid, structure valid, and score >= secondary threshold.",
+      "Secondary SHORT passes only outside ASIA with entry and HTF bearish, liquidity_sweep none, bearish BOS, volume confirmation, RSI alignment, nearest liquidity valid, structure valid, and score >= secondary threshold.",
+      "If neither primary nor secondary path passes, fallback_direction is inferred from liquidity_sweep or BOS.",
+      "If bullish entry contradicts bearish HTF and counter-HTF reversal is not allowed, the code records higher_timeframe_contradicts_long instead of directional_confluence_failed.",
+      "If bearish entry contradicts bullish HTF, the code records higher_timeframe_contradicts_short instead of directional_confluence_failed.",
+      "`directional_confluence_failed` is appended when no valid primary/secondary path exists, no HTF contradiction-specific reason is selected, and relaxed soft allowance is disabled or unavailable.",
+      "Soft allowance requires relaxed gates enabled, fallback direction present, score >= 80, no HTF contradiction for fallback, no distance_to_liquidity_extreme, and non-ASIA session."
+    ],
+    "file": "src/trading_signals/domain/strategies/liquidity_sweep_mtf_v1.py",
+    "interpretation": "`directional_confluence_failed` is not a single indicator failure. It is a final aggregate veto meaning the candidate could not satisfy the directional recipe for primary sweep, secondary continuation, or allowed relaxed fallback."
+  },
+  "conclusion": {
+    "evidence_classification": "PROTECTIVE",
+    "rationale": "Los casos cerrados asociados al veto muestran TotalR -4.5979 y PF 0.3876; la evidencia favorece protecci\u00f3n.",
+    "recommended_action": "mantener como hard veto"
+  },
+  "data_gaps": [
+    "No major data gaps detected in local files."
+  ],
+  "data_path": "data",
+  "generated_at": "2026-06-22T15:05:11+00:00",
+  "internal_condition_failures": [
+    {
+      "condition": "short_primary_sweep",
+      "count": 12
+    },
+    {
+      "condition": "short_secondary_bos",
+      "count": 12
+    },
+    {
+      "condition": "long_primary_trend",
+      "count": 10
+    },
+    {
+      "condition": "long_primary_sweep",
+      "count": 10
+    },
+    {
+      "condition": "long_primary_htf",
+      "count": 10
+    },
+    {
+      "condition": "long_secondary_trend_alignment",
+      "count": 10
+    },
+    {
+      "condition": "long_secondary_rsi",
+      "count": 10
+    },
+    {
+      "condition": "short_secondary_volume",
+      "count": 10
+    },
+    {
+      "condition": "short_secondary_structure",
+      "count": 9
+    },
+    {
+      "condition": "long_secondary_score",
+      "count": 6
+    },
+    {
+      "condition": "long_secondary_volume",
+      "count": 4
+    },
+    {
+      "condition": "short_secondary_score",
+      "count": 2
+    }
+  ],
+  "logs_path": "logs",
+  "mode": "offline_analysis_only",
+  "paper_evidence": {
+    "baseline_all_closed": {
+      "avg_r": -0.0628,
+      "closed_trades": 41,
+      "gross_loss_r": 22.9036,
+      "gross_win_r": 20.3282,
+      "losses": 27,
+      "profit_factor": 0.8876,
+      "total_r": -2.5754,
+      "winrate": 34.1463,
+      "wins": 14
+    },
+    "best_contexts": [
+      {
+        "avg_r": 0.0045,
+        "closed_trades": 5,
+        "context": "session+market_regime: LONDON + RANGING",
+        "gross_loss_r": 2.4775,
+        "gross_win_r": 2.5,
+        "losses": 3,
+        "profit_factor": 1.0091,
+        "total_r": 0.0225,
+        "winrate": 40.0,
+        "wins": 2
+      },
+      {
+        "avg_r": 0.0,
+        "closed_trades": 2,
+        "context": "direction+session: long + LONDON",
+        "gross_loss_r": 1.0,
+        "gross_win_r": 1.0,
+        "losses": 1,
+        "profit_factor": 1.0,
+        "total_r": 0.0,
+        "winrate": 50.0,
+        "wins": 1
+      },
+      {
+        "avg_r": -0.0746,
+        "closed_trades": 4,
+        "context": "trade_location: discount_zone",
+        "gross_loss_r": 1.2983,
+        "gross_win_r": 1.0,
+        "losses": 3,
+        "profit_factor": 0.7702,
+        "total_r": -0.2983,
+        "winrate": 25.0,
+        "wins": 1
+      },
+      {
+        "avg_r": -0.2948,
+        "closed_trades": 2,
+        "context": "trade_location: premium_zone",
+        "gross_loss_r": 1.0,
+        "gross_win_r": 0.4104,
+        "losses": 1,
+        "profit_factor": 0.4104,
+        "total_r": -0.5896,
+        "winrate": 50.0,
+        "wins": 1
+      },
+      {
+        "avg_r": -0.2948,
+        "closed_trades": 2,
+        "context": "direction+session: long + NEW_YORK",
+        "gross_loss_r": 1.0,
+        "gross_win_r": 0.4104,
+        "losses": 1,
+        "profit_factor": 0.4104,
+        "total_r": -0.5896,
+        "winrate": 50.0,
+        "wins": 1
+      },
+      {
+        "avg_r": -0.2948,
+        "closed_trades": 2,
+        "context": "direction+entry_context: long + CHOPPY_RANGE",
+        "gross_loss_r": 1.0,
+        "gross_win_r": 0.4104,
+        "losses": 1,
+        "profit_factor": 0.4104,
+        "total_r": -0.5896,
+        "winrate": 50.0,
+        "wins": 1
+      },
+      {
+        "avg_r": -0.2948,
+        "closed_trades": 2,
+        "context": "session+market_regime: NEW_YORK + RANGING",
+        "gross_loss_r": 1.0,
+        "gross_win_r": 0.4104,
+        "losses": 1,
+        "profit_factor": 0.4104,
+        "total_r": -0.5896,
+        "winrate": 50.0,
+        "wins": 1
+      },
+      {
+        "avg_r": -0.0854,
+        "closed_trades": 7,
+        "context": "setup_type: SECONDARY_SIGNAL",
+        "gross_loss_r": 2.5083,
+        "gross_win_r": 1.9104,
+        "losses": 5,
+        "profit_factor": 0.7616,
+        "total_r": -0.5979,
+        "winrate": 28.5714,
+        "wins": 2
+      },
+      {
+        "avg_r": -0.0854,
+        "closed_trades": 7,
+        "context": "setup_path: secondary_path_like",
+        "gross_loss_r": 2.5083,
+        "gross_win_r": 1.9104,
+        "losses": 5,
+        "profit_factor": 0.7616,
+        "total_r": -0.5979,
+        "winrate": 28.5714,
+        "wins": 2
+      },
+      {
+        "avg_r": -0.6413,
+        "closed_trades": 1,
+        "context": "direction+session: short + OVERLAP",
+        "gross_loss_r": 0.6413,
+        "gross_win_r": 0.0,
+        "losses": 1,
+        "profit_factor": 0.0,
+        "total_r": -0.6413,
+        "winrate": 0.0,
+        "wins": 0
+      }
+    ],
+    "overall": {
+      "avg_r": -0.3537,
+      "closed_trades": 13,
+      "gross_loss_r": 7.5083,
+      "gross_win_r": 2.9104,
+      "losses": 10,
+      "profit_factor": 0.3876,
+      "total_r": -4.5979,
+      "winrate": 23.0769,
+      "wins": 3
+    },
+    "worst_contexts": [
+      {
+        "avg_r": -0.6667,
+        "closed_trades": 6,
+        "context": "setup_type: MAIN_SIGNAL",
+        "gross_loss_r": 5.0,
+        "gross_win_r": 1.0,
+        "losses": 5,
+        "profit_factor": 0.2,
+        "total_r": -4.0,
+        "winrate": 16.6667,
+        "wins": 1
+      },
+      {
+        "avg_r": -0.6667,
+        "closed_trades": 6,
+        "context": "setup_path: primary_path_like",
+        "gross_loss_r": 5.0,
+        "gross_win_r": 1.0,
+        "losses": 5,
+        "profit_factor": 0.2,
+        "total_r": -4.0,
+        "winrate": 16.6667,
+        "wins": 1
+      },
+      {
+        "avg_r": -0.6062,
+        "closed_trades": 5,
+        "context": "market_regime: HIGH_VOLATILITY",
+        "gross_loss_r": 3.0308,
+        "gross_win_r": 0.0,
+        "losses": 5,
+        "profit_factor": 0.0,
+        "total_r": -3.0308,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": -0.376,
+        "closed_trades": 8,
+        "context": "direction: short",
+        "gross_loss_r": 4.5083,
+        "gross_win_r": 1.5,
+        "losses": 7,
+        "profit_factor": 0.3327,
+        "total_r": -3.0083,
+        "winrate": 12.5,
+        "wins": 1
+      },
+      {
+        "avg_r": -0.2231,
+        "closed_trades": 9,
+        "context": "entry_context: BREAKOUT",
+        "gross_loss_r": 4.5083,
+        "gross_win_r": 2.5,
+        "losses": 7,
+        "profit_factor": 0.5545,
+        "total_r": -2.0083,
+        "winrate": 22.2222,
+        "wins": 2
+      },
+      {
+        "avg_r": -0.8206,
+        "closed_trades": 2,
+        "context": "session: OVERLAP",
+        "gross_loss_r": 1.6413,
+        "gross_win_r": 0.0,
+        "losses": 2,
+        "profit_factor": 0.0,
+        "total_r": -1.6413,
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": -0.5299,
+        "closed_trades": 3,
+        "context": "session: NEW_YORK",
+        "gross_loss_r": 2.0,
+        "gross_win_r": 0.4104,
+        "losses": 2,
+        "profit_factor": 0.2052,
+        "total_r": -1.5896,
+        "winrate": 33.3333,
+        "wins": 1
+      },
+      {
+        "avg_r": -0.5299,
+        "closed_trades": 3,
+        "context": "entry_context: CHOPPY_RANGE",
+        "gross_loss_r": 2.0,
+        "gross_win_r": 0.4104,
+        "losses": 2,
+        "profit_factor": 0.2052,
+        "total_r": -1.5896,
+        "winrate": 33.3333,
+        "wins": 1
+      },
+      {
+        "avg_r": -0.3179,
+        "closed_trades": 5,
+        "context": "direction: long",
+        "gross_loss_r": 3.0,
+        "gross_win_r": 1.4104,
+        "losses": 3,
+        "profit_factor": 0.4701,
+        "total_r": -1.5896,
+        "winrate": 40.0,
+        "wins": 2
+      },
+      {
+        "avg_r": -0.1959,
+        "closed_trades": 8,
+        "context": "market_regime: RANGING",
+        "gross_loss_r": 4.4775,
+        "gross_win_r": 2.9104,
+        "losses": 5,
+        "profit_factor": 0.65,
+        "total_r": -1.5671,
+        "winrate": 37.5,
+        "wins": 3
+      }
+    ]
+  },
+  "reports_path": "reports",
+  "scope": "DIRECTIONAL_CONFLUENCE_FAILED_DEEP_DIVE",
+  "setup_path_breakdown": [
+    {
+      "avg_r": -0.0854,
+      "closed_trades": 7,
+      "count": 76,
+      "gross_loss_r": 2.5083,
+      "gross_win_r": 1.9104,
+      "losses": 5,
+      "path": "secondary_path_like",
+      "profit_factor": 0.7616,
+      "total_r": -0.5979,
+      "winrate": 28.5714,
+      "wins": 2
+    },
+    {
+      "avg_r": -0.6667,
+      "closed_trades": 6,
+      "count": 6,
+      "gross_loss_r": 5.0,
+      "gross_win_r": 1.0,
+      "losses": 5,
+      "path": "primary_path_like",
+      "profit_factor": 0.2,
+      "total_r": -4.0,
+      "winrate": 16.6667,
+      "wins": 1
+    }
+  ],
+  "severe_cases": {
+    "highest_score_examples": [
+      {
+        "direction": "short",
+        "entry_context": "BREAKOUT",
+        "market_regime": "HIGH_VOLATILITY",
+        "reasons": [
+          "directional_confluence_failed",
+          "secondary_setup_requirements_failed"
+        ],
+        "result_r": -0.6413,
+        "score": 100.0,
+        "session": "OVERLAP",
+        "setup_type": "SECONDARY_SIGNAL",
+        "source": "paper_trading",
+        "symbol": "DOGEUSDT",
+        "timestamp": "2026-04-29T17:01:29.578609+00:00",
+        "trade_location": "discount_zone"
+      },
+      {
+        "direction": "short",
+        "entry_context": "BREAKOUT",
+        "market_regime": "HIGH_VOLATILITY",
+        "reasons": [
+          "directional_confluence_failed",
+          "secondary_setup_requirements_failed"
+        ],
+        "result_r": -1.0,
+        "score": 100.0,
+        "session": "LONDON",
+        "setup_type": "SECONDARY_SIGNAL",
+        "source": "paper_trading",
+        "symbol": "DOGEUSDT",
+        "timestamp": "2026-05-01T10:12:58.032276+00:00",
+        "trade_location": "mid_range"
+      },
+      {
+        "direction": "long",
+        "entry_context": "BREAKOUT",
+        "market_regime": "HIGH_VOLATILITY",
+        "reasons": [
+          "directional_confluence_failed"
+        ],
+        "result_r": -1.0,
+        "score": 100.0,
+        "session": "NEW_YORK",
+        "setup_type": "MAIN_SIGNAL",
+        "source": "paper_trading",
+        "symbol": "APEUSDT",
+        "timestamp": "2026-05-03T21:32:44.888096+00:00",
+        "trade_location": "near_support"
+      },
+      {
+        "direction": "long",
+        "entry_context": "UNKNOWN",
+        "market_regime": "TRENDING",
+        "reasons": [
+          "directional_confluence_failed",
+          "distance_to_liquidity_extreme",
+          "secondary_setup_requirements_failed"
+        ],
+        "result_r": null,
+        "score": 90.0,
+        "session": "UNKNOWN",
+        "setup_type": "UNKNOWN",
+        "source": "shadow_signals",
+        "symbol": "BTCUSDT",
+        "timestamp": "2026-05-05T08:09:48.738340+00:00",
+        "trade_location": "UNKNOWN"
+      },
+      {
+        "direction": "long",
+        "entry_context": "UNKNOWN",
+        "market_regime": "HIGH_VOLATILITY",
+        "reasons": [
+          "directional_confluence_failed",
+          "market_structure_range_penalty",
+          "secondary_setup_requirements_failed"
+        ],
+        "result_r": null,
+        "score": 87.5,
+        "session": "UNKNOWN",
+        "setup_type": "UNKNOWN",
+        "source": "shadow_signals",
+        "symbol": "ETHUSDT",
+        "timestamp": "2026-05-04T16:10:59.062089+00:00",
+        "trade_location": "UNKNOWN"
+      },
+      {
+        "direction": "long",
+        "entry_context": "UNKNOWN",
+        "market_regime": "HIGH_VOLATILITY",
+        "reasons": [
+          "directional_confluence_failed",
+          "market_structure_range_penalty",
+          "secondary_setup_requirements_failed"
+        ],
+        "result_r": null,
+        "score": 87.5,
+        "session": "UNKNOWN",
+        "setup_type": "UNKNOWN",
+        "source": "shadow_signals",
+        "symbol": "DOGEUSDT",
+        "timestamp": "2026-05-04T16:11:03.181585+00:00",
+        "trade_location": "UNKNOWN"
+      },
+      {
+        "direction": "long",
+        "entry_context": "UNKNOWN",
+        "market_regime": "HIGH_VOLATILITY",
+        "reasons": [
+          "directional_confluence_failed",
+          "market_structure_range_penalty",
+          "secondary_setup_requirements_failed"
+        ],
+        "result_r": null,
+        "score": 87.5,
+        "session": "UNKNOWN",
+        "setup_type": "UNKNOWN",
+        "source": "shadow_signals",
+        "symbol": "ETHUSDT",
+        "timestamp": "2026-05-18T13:20:15.810082+00:00",
+        "trade_location": "UNKNOWN"
+      },
+      {
+        "direction": "long",
+        "entry_context": "UNKNOWN",
+        "market_regime": "HIGH_VOLATILITY",
+        "reasons": [
+          "directional_confluence_failed",
+          "market_structure_range_penalty",
+          "secondary_setup_requirements_failed"
+        ],
+        "result_r": null,
+        "score": 87.5,
+        "session": "UNKNOWN",
+        "setup_type": "UNKNOWN",
+        "source": "shadow_signals",
+        "symbol": "SOLUSDT",
+        "timestamp": "2026-05-18T13:20:16.548002+00:00",
+        "trade_location": "UNKNOWN"
+      },
+      {
+        "direction": "short",
+        "entry_context": "UNKNOWN",
+        "market_regime": "TRENDING",
+        "reasons": [
+          "directional_confluence_failed",
+          "secondary_setup_requirements_failed"
+        ],
+        "result_r": null,
+        "score": 86.25,
+        "session": "UNKNOWN",
+        "setup_type": "UNKNOWN",
+        "source": "shadow_signals",
+        "symbol": "BCHUSDT",
+        "timestamp": "2026-05-04T12:06:45.228873+00:00",
+        "trade_location": "UNKNOWN"
+      },
+      {
+        "direction": "long",
+        "entry_context": "UNKNOWN",
+        "market_regime": "TRENDING",
+        "reasons": [
+          "directional_confluence_failed",
+          "distance_to_liquidity_extreme",
+          "secondary_setup_requirements_failed"
+        ],
+        "result_r": null,
+        "score": 86.25,
+        "session": "UNKNOWN",
+        "setup_type": "UNKNOWN",
+        "source": "shadow_signals",
+        "symbol": "BTCUSDT",
+        "timestamp": "2026-05-05T10:10:31.166359+00:00",
+        "trade_location": "UNKNOWN"
+      },
+      {
+        "direction": "short",
+        "entry_context": "BREAKOUT",
+        "market_regime": "TRENDING",
+        "reasons": [
+          "directional_confluence_failed",
+          "distance_to_liquidity_penalty",
+          "secondary_setup_requirements_failed"
+        ],
+        "result_r": 0.3469,
+        "score": 85.0,
+        "session": "NEW_YORK",
+        "setup_type": "SECONDARY_SIGNAL",
+        "source": "paper_trading",
+        "symbol": "MANAUSDT",
+        "timestamp": "2026-05-03T21:32:43.883684+00:00",
+        "trade_location": "near_support"
+      },
+      {
+        "direction": "long",
+        "entry_context": "UNKNOWN",
+        "market_regime": "HIGH_VOLATILITY",
+        "reasons": [
+          "directional_confluence_failed",
+          "secondary_setup_requirements_failed"
+        ],
+        "result_r": null,
+        "score": 83.75,
+        "session": "UNKNOWN",
+        "setup_type": "UNKNOWN",
+        "source": "shadow_signals",
+        "symbol": "RUNEUSDT",
+        "timestamp": "2026-05-04T12:06:59.166092+00:00",
+        "trade_location": "UNKNOWN"
+      },
+      {
+        "direction": "short",
+        "entry_context": "UNKNOWN",
+        "market_regime": "HIGH_VOLATILITY",
+        "reasons": [
+          "directional_confluence_failed",
+          "secondary_setup_requirements_failed"
+        ],
+        "result_r": null,
+        "score": 83.75,
+        "session": "UNKNOWN",
+        "setup_type": "UNKNOWN",
+        "source": "shadow_signals",
+        "symbol": "ARUSDT",
+        "timestamp": "2026-05-04T21:05:48.929174+00:00",
+        "trade_location": "UNKNOWN"
+      },
+      {
+        "direction": "long",
+        "entry_context": "UNKNOWN",
+        "market_regime": "TRENDING",
+        "reasons": [
+          "directional_confluence_failed",
+          "distance_to_liquidity_penalty",
+          "secondary_setup_requirements_failed"
+        ],
+        "result_r": null,
+        "score": 83.75,
+        "session": "UNKNOWN",
+        "setup_type": "UNKNOWN",
+        "source": "shadow_signals",
+        "symbol": "BTCUSDT",
+        "timestamp": "2026-05-05T12:02:05.866150+00:00",
+        "trade_location": "UNKNOWN"
+      },
+      {
+        "direction": "long",
+        "entry_context": "UNKNOWN",
+        "market_regime": "HIGH_VOLATILITY",
+        "reasons": [
+          "directional_confluence_failed",
+          "market_structure_range_penalty",
+          "secondary_setup_requirements_failed"
+        ],
+        "result_r": null,
+        "score": 83.75,
+        "session": "UNKNOWN",
+        "setup_type": "UNKNOWN",
+        "source": "shadow_signals",
+        "symbol": "XRPUSDT",
+        "timestamp": "2026-05-18T13:20:17.317935+00:00",
+        "trade_location": "UNKNOWN"
+      }
+    ],
+    "liquidity_distance_passed": {
+      "avg_r": -0.3537,
+      "closed_trades": 13,
+      "count": 71,
+      "gross_loss_r": 7.5083,
+      "gross_win_r": 2.9104,
+      "losses": 10,
+      "profit_factor": 0.3876,
+      "total_r": -4.5979,
+      "winrate": 23.0769,
+      "wins": 3
+    },
+    "primary_path_like": {
+      "avg_r": -0.6667,
+      "closed_trades": 6,
+      "count": 6,
+      "gross_loss_r": 5.0,
+      "gross_win_r": 1.0,
+      "losses": 5,
+      "profit_factor": 0.2,
+      "total_r": -4.0,
+      "winrate": 16.6667,
+      "wins": 1
+    },
+    "rr_valid": {
+      "avg_r": -0.3537,
+      "closed_trades": 13,
+      "count": 17,
+      "gross_loss_r": 7.5083,
+      "gross_win_r": 2.9104,
+      "losses": 10,
+      "profit_factor": 0.3876,
+      "total_r": -4.5979,
+      "winrate": 23.0769,
+      "wins": 3
+    },
+    "score_gte_70": {
+      "avg_r": -0.015,
+      "closed_trades": 8,
+      "count": 60,
+      "gross_loss_r": 3.0308,
+      "gross_win_r": 2.9104,
+      "losses": 5,
+      "profit_factor": 0.9603,
+      "total_r": -0.1204,
+      "winrate": 37.5,
+      "wins": 3
+    },
+    "score_gte_80": {
+      "avg_r": -0.1601,
+      "closed_trades": 7,
+      "count": 27,
+      "gross_loss_r": 3.0308,
+      "gross_win_r": 1.9104,
+      "losses": 5,
+      "profit_factor": 0.6303,
+      "total_r": -1.1204,
+      "winrate": 28.5714,
+      "wins": 2
+    },
+    "score_gte_90": {
+      "avg_r": -0.8804,
+      "closed_trades": 3,
+      "count": 4,
+      "gross_loss_r": 2.6413,
+      "gross_win_r": 0.0,
+      "losses": 3,
+      "profit_factor": 0.0,
+      "total_r": -2.6413,
+      "winrate": 0.0,
+      "wins": 0
+    },
+    "secondary_path_like": {
+      "avg_r": -0.0854,
+      "closed_trades": 7,
+      "count": 76,
+      "gross_loss_r": 2.5083,
+      "gross_win_r": 1.9104,
+      "losses": 5,
+      "profit_factor": 0.7616,
+      "total_r": -0.5979,
+      "winrate": 28.5714,
+      "wins": 2
+    },
+    "trend_aligned": {
+      "avg_r": -0.3537,
+      "closed_trades": 13,
+      "count": 82,
+      "gross_loss_r": 7.5083,
+      "gross_win_r": 2.9104,
+      "losses": 10,
+      "profit_factor": 0.3876,
+      "total_r": -4.5979,
+      "winrate": 23.0769,
+      "wins": 3
+    }
+  },
+  "source_counts": {
+    "candidates_rejected": 22,
+    "paper_closed_with_target": 13,
+    "paper_rejection_context": 17,
+    "scheduler_log_json_events": 261,
+    "scheduler_log_lines": 330,
+    "shadow_signals": 43,
+    "signals_log": 22
+  },
+  "source_files": {
+    "paper_trades": "data/paper_trading/trades.csv",
+    "scheduler_log": "logs/scheduler.log",
+    "shadow_signals": "data/paper_trading/shadow_signals.csv",
+    "signals_log": "data/bot_activity/signals_log.jsonl"
+  },
+  "target_reason": "directional_confluence_failed",
+  "top_examples": [
+    {
+      "direction": "short",
+      "entry_context": "BREAKOUT",
+      "market_regime": "HIGH_VOLATILITY",
+      "reasons": [
+        "directional_confluence_failed",
+        "secondary_setup_requirements_failed"
+      ],
+      "result_r": -0.6413,
+      "score": 100.0,
+      "session": "OVERLAP",
+      "setup_type": "SECONDARY_SIGNAL",
+      "source": "paper_trading",
+      "symbol": "DOGEUSDT",
+      "timestamp": "2026-04-29T17:01:29.578609+00:00",
+      "trade_location": "discount_zone"
+    },
+    {
+      "direction": "short",
+      "entry_context": "BREAKOUT",
+      "market_regime": "HIGH_VOLATILITY",
+      "reasons": [
+        "directional_confluence_failed",
+        "secondary_setup_requirements_failed"
+      ],
+      "result_r": -1.0,
+      "score": 100.0,
+      "session": "LONDON",
+      "setup_type": "SECONDARY_SIGNAL",
+      "source": "paper_trading",
+      "symbol": "DOGEUSDT",
+      "timestamp": "2026-05-01T10:12:58.032276+00:00",
+      "trade_location": "mid_range"
+    },
+    {
+      "direction": "long",
+      "entry_context": "BREAKOUT",
+      "market_regime": "HIGH_VOLATILITY",
+      "reasons": [
+        "directional_confluence_failed"
+      ],
+      "result_r": -1.0,
+      "score": 100.0,
+      "session": "NEW_YORK",
+      "setup_type": "MAIN_SIGNAL",
+      "source": "paper_trading",
+      "symbol": "APEUSDT",
+      "timestamp": "2026-05-03T21:32:44.888096+00:00",
+      "trade_location": "near_support"
+    },
+    {
+      "direction": "long",
+      "entry_context": "UNKNOWN",
+      "market_regime": "TRENDING",
+      "reasons": [
+        "directional_confluence_failed",
+        "distance_to_liquidity_extreme",
+        "secondary_setup_requirements_failed"
+      ],
+      "result_r": null,
+      "score": 90.0,
+      "session": "UNKNOWN",
+      "setup_type": "UNKNOWN",
+      "source": "shadow_signals",
+      "symbol": "BTCUSDT",
+      "timestamp": "2026-05-05T08:09:48.738340+00:00",
+      "trade_location": "UNKNOWN"
+    },
+    {
+      "direction": "long",
+      "entry_context": "UNKNOWN",
+      "market_regime": "HIGH_VOLATILITY",
+      "reasons": [
+        "directional_confluence_failed",
+        "market_structure_range_penalty",
+        "secondary_setup_requirements_failed"
+      ],
+      "result_r": null,
+      "score": 87.5,
+      "session": "UNKNOWN",
+      "setup_type": "UNKNOWN",
+      "source": "shadow_signals",
+      "symbol": "ETHUSDT",
+      "timestamp": "2026-05-04T16:10:59.062089+00:00",
+      "trade_location": "UNKNOWN"
+    },
+    {
+      "direction": "long",
+      "entry_context": "UNKNOWN",
+      "market_regime": "HIGH_VOLATILITY",
+      "reasons": [
+        "directional_confluence_failed",
+        "market_structure_range_penalty",
+        "secondary_setup_requirements_failed"
+      ],
+      "result_r": null,
+      "score": 87.5,
+      "session": "UNKNOWN",
+      "setup_type": "UNKNOWN",
+      "source": "shadow_signals",
+      "symbol": "DOGEUSDT",
+      "timestamp": "2026-05-04T16:11:03.181585+00:00",
+      "trade_location": "UNKNOWN"
+    },
+    {
+      "direction": "long",
+      "entry_context": "UNKNOWN",
+      "market_regime": "HIGH_VOLATILITY",
+      "reasons": [
+        "directional_confluence_failed",
+        "market_structure_range_penalty",
+        "secondary_setup_requirements_failed"
+      ],
+      "result_r": null,
+      "score": 87.5,
+      "session": "UNKNOWN",
+      "setup_type": "UNKNOWN",
+      "source": "shadow_signals",
+      "symbol": "ETHUSDT",
+      "timestamp": "2026-05-18T13:20:15.810082+00:00",
+      "trade_location": "UNKNOWN"
+    },
+    {
+      "direction": "long",
+      "entry_context": "UNKNOWN",
+      "market_regime": "HIGH_VOLATILITY",
+      "reasons": [
+        "directional_confluence_failed",
+        "market_structure_range_penalty",
+        "secondary_setup_requirements_failed"
+      ],
+      "result_r": null,
+      "score": 87.5,
+      "session": "UNKNOWN",
+      "setup_type": "UNKNOWN",
+      "source": "shadow_signals",
+      "symbol": "SOLUSDT",
+      "timestamp": "2026-05-18T13:20:16.548002+00:00",
+      "trade_location": "UNKNOWN"
+    },
+    {
+      "direction": "short",
+      "entry_context": "UNKNOWN",
+      "market_regime": "TRENDING",
+      "reasons": [
+        "directional_confluence_failed",
+        "secondary_setup_requirements_failed"
+      ],
+      "result_r": null,
+      "score": 86.25,
+      "session": "UNKNOWN",
+      "setup_type": "UNKNOWN",
+      "source": "shadow_signals",
+      "symbol": "BCHUSDT",
+      "timestamp": "2026-05-04T12:06:45.228873+00:00",
+      "trade_location": "UNKNOWN"
+    },
+    {
+      "direction": "long",
+      "entry_context": "UNKNOWN",
+      "market_regime": "TRENDING",
+      "reasons": [
+        "directional_confluence_failed",
+        "distance_to_liquidity_extreme",
+        "secondary_setup_requirements_failed"
+      ],
+      "result_r": null,
+      "score": 86.25,
+      "session": "UNKNOWN",
+      "setup_type": "UNKNOWN",
+      "source": "shadow_signals",
+      "symbol": "BTCUSDT",
+      "timestamp": "2026-05-05T10:10:31.166359+00:00",
+      "trade_location": "UNKNOWN"
+    },
+    {
+      "direction": "short",
+      "entry_context": "BREAKOUT",
+      "market_regime": "TRENDING",
+      "reasons": [
+        "directional_confluence_failed",
+        "distance_to_liquidity_penalty",
+        "secondary_setup_requirements_failed"
+      ],
+      "result_r": 0.3469,
+      "score": 85.0,
+      "session": "NEW_YORK",
+      "setup_type": "SECONDARY_SIGNAL",
+      "source": "paper_trading",
+      "symbol": "MANAUSDT",
+      "timestamp": "2026-05-03T21:32:43.883684+00:00",
+      "trade_location": "near_support"
+    },
+    {
+      "direction": "long",
+      "entry_context": "UNKNOWN",
+      "market_regime": "HIGH_VOLATILITY",
+      "reasons": [
+        "directional_confluence_failed",
+        "secondary_setup_requirements_failed"
+      ],
+      "result_r": null,
+      "score": 83.75,
+      "session": "UNKNOWN",
+      "setup_type": "UNKNOWN",
+      "source": "shadow_signals",
+      "symbol": "RUNEUSDT",
+      "timestamp": "2026-05-04T12:06:59.166092+00:00",
+      "trade_location": "UNKNOWN"
+    }
+  ]
+}

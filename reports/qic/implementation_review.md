@@ -1,16 +1,11 @@
 # QIC Implementation Review
 
-- proposal_id: cio_805ad892d491
-- knowledge_item_id: edge_fc1437682982
-- decision: NEEDS_MORE_RESEARCH
+- proposal_id: cio_5909920e9f22
+- knowledge_item_id: None
+- decision: REJECT_IMPLEMENTATION
 - allowed_to_generate_patch: False
-- blockers: ['missing_feature_flag', 'no_testable_files_defined', 'unsupported_proposal_template']
+- blockers: ['proposal_not_found']
 
 ## Required Feature Flags
 
 ## Required Tests
-- flag false does not block
-- enabled hard_block blocks htf_alignment=against
-- aligned does not block
-- unknown does not block
-- rejection_reason recorded

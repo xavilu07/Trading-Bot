@@ -244,6 +244,9 @@ def _normalize_simulation_candidate(
         trade_reduction_pct = round(trades_eliminated / baseline_closed * 100, 4) if baseline_closed else 0.0
     candidate["source"] = source
     candidate["complexity"] = complexity
+    candidate["baseline_profit_factor"] = _float_value(baseline.get("profit_factor"))
+    candidate["baseline_total_r"] = _float_value(baseline.get("total_r"))
+    candidate["baseline_closed"] = int(baseline_closed)
     candidate["trade_reduction_pct"] = trade_reduction_pct
     candidate["remaining_closed"] = int(remaining_closed)
     candidate["composite_score"] = _composite_score(candidate, baseline, source=source, complexity=complexity)

@@ -1,9 +1,9 @@
 # QIC Code Engineer
 
-- proposal_id: cio_805ad892d491
+- proposal_id: cio_5909920e9f22
 - status: failed_preconditions
 - tests_passed: False
-- blockers: ['generated_patch_not_allowed', 'implementation_review_not_allowed', 'proposal_action_not_propose_implementation', 'proposal_not_approved_for_implementation_review', 'required_feature_flags_missing', 'unsupported_rule_for_code_engineer_v1']
+- blockers: ['generated_patch_not_allowed', 'implementation_review_not_allowed', 'multiple_strategy_rules_not_allowed', 'proposal_not_found', 'required_feature_flags_missing', 'required_tests_missing', 'rollback_plan_missing']
 
 ## Files Planned
 - src/trading_signals/application/use_cases/strategy_v2_1_htf_alignment_filter.py

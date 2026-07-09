@@ -1,7 +1,50 @@
 {
   "enabled": true,
+  "learning_loop": {
+    "revalidation_summary": {
+      "insufficient_new_data": 1
+    },
+    "state_of_council": {
+      "agent_accuracy": {
+        "research_director": 50.0,
+        "risk_director": 50.0,
+        "simulation_director": 50.0,
+        "strategy_director": 50.0
+      },
+      "candidates": 1,
+      "confirmed_edges": 0,
+      "degraded": 0,
+      "last_cio_decision": {
+        "action": "PROPOSE_IMPLEMENTATION",
+        "conditions": [
+          "exclude:htf_alignment=against"
+        ],
+        "decision_id": "decision_20260709142649382098",
+        "edge_type": "STRUCTURAL_EDGE",
+        "expected_metrics": {
+          "evidence": 586,
+          "pf": 1.113,
+          "total_r": 21.1506,
+          "trade_reduction_pct": 8.7108
+        },
+        "final_decision": "PROPOSE_IMPLEMENTATION",
+        "human_action": "",
+        "implementation_status": "pending",
+        "later_outcome": "",
+        "notes": "",
+        "proposal_id": "cio_5909920e9f22",
+        "timestamp": "2026-07-09T14:26:49.382213+00:00"
+      },
+      "last_telegram_action": null,
+      "open_blockers": [],
+      "pending_approval": 1,
+      "pending_implementation": 0,
+      "rejected": 0,
+      "total_known_edges": 1
+    }
+  },
   "proposal_count": 1,
-  "proposal_store": "/private/var/folders/nm/lmc3qnsn6zg53258_3m7pcl40000gn/T/pytest-of-xaviestruch/pytest-14/test_qic_persists_reports_and_0/data/agent_proposals/proposals.jsonl",
+  "proposal_store": "/private/var/folders/nm/lmc3qnsn6zg53258_3m7pcl40000gn/T/pytest-of-xaviestruch/pytest-6/test_qic_persists_reports_and_0/data/agent_proposals/proposals.jsonl",
   "proposals": [
     {
       "action": "PROPOSE_IMPLEMENTATION",
@@ -37,9 +80,18 @@
           "stage": "research_response"
         }
       ],
+      "baseline_pf": null,
+      "baseline_total_r": null,
       "baseline_trades": 1148,
+      "complexity": 1,
+      "composite_score": 155.6516,
+      "conditions": [
+        "exclude htf_alignment=against"
+      ],
       "confidence": "MEDIUM",
       "context": {
+        "baseline_pf": null,
+        "baseline_total_r": null,
         "baseline_trades": 1148,
         "complexity": 1,
         "composite_score": 155.6516,
@@ -53,19 +105,35 @@
         "conditions": [
           "exclude htf_alignment=against"
         ],
+        "edge_type": "STRUCTURAL_EDGE",
+        "implementation_priority": "HIGH",
+        "knowledge_item_id": "edge_8929c7bb8005",
+        "known_edge_status": "new",
+        "normalized_conditions": [
+          "exclude:htf_alignment=against"
+        ],
+        "overfit_score": 0.0,
         "source": "single_filter",
+        "structural_score": 99.04,
         "trade_reduction_pct": 8.7108
       },
-      "created_at": "2026-07-06T14:54:34.722567+00:00",
+      "created_at": "2026-07-09T14:26:49.380290+00:00",
+      "edge_type": "STRUCTURAL_EDGE",
       "evidence": 586,
       "expected_pf": 1.113,
       "expected_total_r": 21.1506,
       "hypothesis": "Strategy Simulator indicates this single candidate has the strongest current evidence.",
       "id": "cio_5909920e9f22",
+      "implementation_priority": "HIGH",
+      "knowledge_item_id": "edge_8929c7bb8005",
+      "known_edge_status": "new",
+      "overfit_score": 0.0,
       "rationale": "Expected PF 1.113 and TotalR 21.1506 after simulation.",
       "risk_level": "LOW",
       "risk_objections": [],
+      "source": "single_filter",
       "status": "pending",
+      "structural_score": 99.04,
       "title": "CIO proposal: exclude htf_alignment=against",
       "trade_reduction_pct": 8.7108,
       "trades_lost": 100
@@ -74,20 +142,24 @@
   "qic_v2": true,
   "reports": {
     "agent_memory": {
-      "json": "/private/var/folders/nm/lmc3qnsn6zg53258_3m7pcl40000gn/T/pytest-of-xaviestruch/pytest-14/test_qic_persists_reports_and_0/reports/qic/agent_memory.json",
-      "markdown": "/private/var/folders/nm/lmc3qnsn6zg53258_3m7pcl40000gn/T/pytest-of-xaviestruch/pytest-14/test_qic_persists_reports_and_0/reports/qic/agent_memory.md"
+      "json": "/private/var/folders/nm/lmc3qnsn6zg53258_3m7pcl40000gn/T/pytest-of-xaviestruch/pytest-6/test_qic_persists_reports_and_0/reports/qic/agent_memory.json",
+      "markdown": "/private/var/folders/nm/lmc3qnsn6zg53258_3m7pcl40000gn/T/pytest-of-xaviestruch/pytest-6/test_qic_persists_reports_and_0/reports/qic/agent_memory.md"
     },
     "consensus": {
-      "json": "/private/var/folders/nm/lmc3qnsn6zg53258_3m7pcl40000gn/T/pytest-of-xaviestruch/pytest-14/test_qic_persists_reports_and_0/reports/qic/consensus.json",
-      "markdown": "/private/var/folders/nm/lmc3qnsn6zg53258_3m7pcl40000gn/T/pytest-of-xaviestruch/pytest-14/test_qic_persists_reports_and_0/reports/qic/consensus.md"
+      "json": "/private/var/folders/nm/lmc3qnsn6zg53258_3m7pcl40000gn/T/pytest-of-xaviestruch/pytest-6/test_qic_persists_reports_and_0/reports/qic/consensus.json",
+      "markdown": "/private/var/folders/nm/lmc3qnsn6zg53258_3m7pcl40000gn/T/pytest-of-xaviestruch/pytest-6/test_qic_persists_reports_and_0/reports/qic/consensus.md"
     },
     "debate": {
-      "json": "/private/var/folders/nm/lmc3qnsn6zg53258_3m7pcl40000gn/T/pytest-of-xaviestruch/pytest-14/test_qic_persists_reports_and_0/reports/qic/debate.json",
-      "markdown": "/private/var/folders/nm/lmc3qnsn6zg53258_3m7pcl40000gn/T/pytest-of-xaviestruch/pytest-14/test_qic_persists_reports_and_0/reports/qic/debate.md"
+      "json": "/private/var/folders/nm/lmc3qnsn6zg53258_3m7pcl40000gn/T/pytest-of-xaviestruch/pytest-6/test_qic_persists_reports_and_0/reports/qic/debate.json",
+      "markdown": "/private/var/folders/nm/lmc3qnsn6zg53258_3m7pcl40000gn/T/pytest-of-xaviestruch/pytest-6/test_qic_persists_reports_and_0/reports/qic/debate.md"
     },
     "proposal": {
-      "json": "/private/var/folders/nm/lmc3qnsn6zg53258_3m7pcl40000gn/T/pytest-of-xaviestruch/pytest-14/test_qic_persists_reports_and_0/reports/qic/proposal.json",
-      "markdown": "/private/var/folders/nm/lmc3qnsn6zg53258_3m7pcl40000gn/T/pytest-of-xaviestruch/pytest-14/test_qic_persists_reports_and_0/reports/qic/proposal.md"
+      "json": "/private/var/folders/nm/lmc3qnsn6zg53258_3m7pcl40000gn/T/pytest-of-xaviestruch/pytest-6/test_qic_persists_reports_and_0/reports/qic/proposal.json",
+      "markdown": "/private/var/folders/nm/lmc3qnsn6zg53258_3m7pcl40000gn/T/pytest-of-xaviestruch/pytest-6/test_qic_persists_reports_and_0/reports/qic/proposal.md"
+    },
+    "strategy_knowledge_base": {
+      "json": "/private/var/folders/nm/lmc3qnsn6zg53258_3m7pcl40000gn/T/pytest-of-xaviestruch/pytest-6/test_qic_persists_reports_and_0/reports/qic/strategy_knowledge_base.json",
+      "markdown": "/private/var/folders/nm/lmc3qnsn6zg53258_3m7pcl40000gn/T/pytest-of-xaviestruch/pytest-6/test_qic_persists_reports_and_0/reports/qic/strategy_knowledge_base.md"
     }
   },
   "single_proposal": {
@@ -124,9 +196,18 @@
         "stage": "research_response"
       }
     ],
+    "baseline_pf": null,
+    "baseline_total_r": null,
     "baseline_trades": 1148,
+    "complexity": 1,
+    "composite_score": 155.6516,
+    "conditions": [
+      "exclude htf_alignment=against"
+    ],
     "confidence": "MEDIUM",
     "context": {
+      "baseline_pf": null,
+      "baseline_total_r": null,
       "baseline_trades": 1148,
       "complexity": 1,
       "composite_score": 155.6516,
@@ -140,19 +221,35 @@
       "conditions": [
         "exclude htf_alignment=against"
       ],
+      "edge_type": "STRUCTURAL_EDGE",
+      "implementation_priority": "HIGH",
+      "knowledge_item_id": "edge_8929c7bb8005",
+      "known_edge_status": "new",
+      "normalized_conditions": [
+        "exclude:htf_alignment=against"
+      ],
+      "overfit_score": 0.0,
       "source": "single_filter",
+      "structural_score": 99.04,
       "trade_reduction_pct": 8.7108
     },
-    "created_at": "2026-07-06T14:54:34.722567+00:00",
+    "created_at": "2026-07-09T14:26:49.380290+00:00",
+    "edge_type": "STRUCTURAL_EDGE",
     "evidence": 586,
     "expected_pf": 1.113,
     "expected_total_r": 21.1506,
     "hypothesis": "Strategy Simulator indicates this single candidate has the strongest current evidence.",
     "id": "cio_5909920e9f22",
+    "implementation_priority": "HIGH",
+    "knowledge_item_id": "edge_8929c7bb8005",
+    "known_edge_status": "new",
+    "overfit_score": 0.0,
     "rationale": "Expected PF 1.113 and TotalR 21.1506 after simulation.",
     "risk_level": "LOW",
     "risk_objections": [],
+    "source": "single_filter",
     "status": "pending",
+    "structural_score": 99.04,
     "title": "CIO proposal: exclude htf_alignment=against",
     "trade_reduction_pct": 8.7108,
     "trades_lost": 100

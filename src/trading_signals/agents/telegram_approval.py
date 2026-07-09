@@ -39,6 +39,11 @@ def build_approval_payload(proposal: dict[str, Any], *, chat_id: str) -> dict[st
                 [
                     {"text": "🧩 Apply Patch", "callback_data": f"agent:apply_patch:{proposal_id}"},
                     {"text": "🧪 Start Shadow", "callback_data": f"agent:start_shadow:{proposal_id}"},
+                ],
+                [
+                    {"text": "📚 History", "callback_data": f"agent:history:{proposal_id}"},
+                    {"text": "🧠 Edge Memory", "callback_data": f"agent:edge_memory:{proposal_id}"},
+                    {"text": "🧑‍⚖️ Agent Review", "callback_data": f"agent:agent_review:{proposal_id}"},
                 ]
             ]
         },
@@ -224,8 +229,21 @@ def handle_approval_callback(
     if len(parts) != 3 or parts[0] != "agent":
         return {"handled": False, "reason": "invalid_callback"}
     action, proposal_id = parts[1], parts[2]
-    if action in {"details", "debate", "revalidate", "alternative", "start_shadow"}:
+    if action in {"details", "debate", "alternative", "start_shadow"}:
         return {"handled": True, "action": action, "proposal_id": proposal_id, "status": "unchanged"}
+    if action == "history":
+        return _handle_history_callback(proposal_id, proposal_store_path=proposal_store_path, qic_output_path=qic_output_path)
+    if action == "edge_memory":
+        return _handle_edge_memory_callback(proposal_id, proposal_store_path=proposal_store_path, qic_output_path=qic_output_path)
+    if action == "agent_review":
+        return _handle_agent_review_callback(qic_output_path=qic_output_path)
+    if action == "revalidate":
+        return _handle_revalidate_callback(
+            proposal_id,
+            proposal_store_path=proposal_store_path,
+            knowledge_base_path=knowledge_base_path,
+            qic_output_path=qic_output_path,
+        )
     if action == "implementation_review":
         return _handle_implementation_review_callback(
             proposal_id,
@@ -269,6 +287,100 @@ def handle_approval_callback(
         "status": status if updated is not None else "not_found",
         "proposal": updated,
         "knowledge_item": knowledge_item,
+    }
+
+
+def _handle_history_callback(
+    proposal_id: str,
+    *,
+    proposal_store_path: Path,
+    qic_output_path: Path,
+) -> dict[str, Any]:
+    from trading_signals.agents.decision_ledger import load_decision_ledger, write_decision_ledger_reports
+
+    ledger_path = _qic_data_path(proposal_store_path) / "decision_ledger.jsonl"
+    write_decision_ledger_reports(ledger_path=ledger_path, output_path=qic_output_path)
+    decisions = load_decision_ledger(ledger_path)
+    return {
+        "handled": True,
+        "action": "history",
+        "proposal_id": proposal_id,
+        "status": "history_loaded",
+        "recent_decisions": decisions[-5:],
+    }
+
+
+def _handle_edge_memory_callback(
+    proposal_id: str,
+    *,
+    proposal_store_path: Path,
+    qic_output_path: Path,
+) -> dict[str, Any]:
+    from trading_signals.agents.proposal_store import load_proposals
+    from trading_signals.agents.research_memory import load_research_memory, write_research_memory_reports
+    from trading_signals.agents.strategy_knowledge_base import normalize_conditions
+
+    proposals = load_proposals(proposal_store_path)
+    proposal = next((item for item in proposals if item.get("id") == proposal_id), None)
+    memory_path = _qic_data_path(proposal_store_path) / "research_memory.json"
+    memory = load_research_memory(memory_path)
+    write_research_memory_reports(memory=memory, output_path=qic_output_path)
+    if not proposal:
+        return {"handled": True, "action": "edge_memory", "proposal_id": proposal_id, "status": "proposal_not_found"}
+    context = proposal.get("context") if isinstance(proposal.get("context"), dict) else {}
+    target = normalize_conditions(context.get("conditions") or proposal.get("conditions") or [])
+    match = next(
+        (item for item in (memory.get("experiments") or {}).values() if normalize_conditions(item.get("normalized_conditions") or []) == target),
+        None,
+    )
+    return {
+        "handled": True,
+        "action": "edge_memory",
+        "proposal_id": proposal_id,
+        "status": "edge_memory_loaded" if match else "edge_memory_not_found",
+        "edge_memory": match,
+    }
+
+
+def _handle_agent_review_callback(*, qic_output_path: Path) -> dict[str, Any]:
+    from trading_signals.agents.agent_self_evaluation import evaluate_agents
+
+    report = evaluate_agents(output_path=qic_output_path)
+    return {
+        "handled": True,
+        "action": "agent_review",
+        "status": "agent_review_loaded",
+        "agents": report.get("agents", {}),
+    }
+
+
+def _handle_revalidate_callback(
+    proposal_id: str,
+    *,
+    proposal_store_path: Path,
+    knowledge_base_path: Path,
+    qic_output_path: Path,
+) -> dict[str, Any]:
+    from trading_signals.agents.proposal_store import load_proposals
+    from trading_signals.agents.revalidation_engine import run_revalidation_engine
+    from trading_signals.agents.strategy_knowledge_base import normalize_conditions
+
+    data_path = _qic_data_path(proposal_store_path).parent
+    report = run_revalidation_engine(
+        knowledge_base_path=knowledge_base_path,
+        research_memory_path=data_path / "qic" / "research_memory.json",
+        reports_root=qic_output_path.parent,
+        output_path=qic_output_path,
+    )
+    proposal = next((item for item in load_proposals(proposal_store_path) if item.get("id") == proposal_id), None)
+    target = normalize_conditions((proposal.get("context") or {}).get("conditions") if isinstance((proposal or {}).get("context"), dict) else (proposal or {}).get("conditions") or [])
+    match = next((item for item in report.get("results", []) if normalize_conditions(item.get("conditions") or []) == target), None)
+    return {
+        "handled": True,
+        "action": "revalidate",
+        "proposal_id": proposal_id,
+        "status": "revalidated",
+        "revalidation": match or report.get("summary", {}),
     }
 
 
@@ -404,6 +516,13 @@ def _handle_apply_patch_callback(
             "blockers": report.get("blockers", []),
         },
     }
+
+
+def _qic_data_path(proposal_store_path: Path) -> Path:
+    # data/agent_proposals/proposals.jsonl -> data/qic
+    if proposal_store_path.parent.name == "agent_proposals":
+        return proposal_store_path.parent.parent / "qic"
+    return Path("data") / "qic"
 
 
 def process_approval_update(

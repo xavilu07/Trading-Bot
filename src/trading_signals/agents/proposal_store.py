@@ -45,7 +45,14 @@ def update_proposal_status(
     approval_metadata: dict[str, Any] | None = None,
 ) -> dict[str, Any] | None:
     normalized = status.lower()
-    if normalized not in {"pending", "approved", "rejected", "expired", "implemented"}:
+    if normalized not in {
+        "pending",
+        "approved",
+        "approved_for_implementation_review",
+        "rejected",
+        "expired",
+        "implemented",
+    }:
         raise ValueError(f"invalid proposal status: {status}")
     proposals = load_proposals(path)
     updated = None

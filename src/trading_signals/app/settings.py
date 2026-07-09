@@ -264,6 +264,22 @@ class Settings:
     )
     qic_daily_summary_enabled: bool = field(default_factory=lambda: _bool_env("QIC_DAILY_SUMMARY_ENABLED", "true"))
     qic_daily_summary_hour: int = field(default_factory=lambda: int(os.getenv("QIC_DAILY_SUMMARY_HOUR", "9")))
+    qic_daily_brief_enabled: bool = field(default_factory=lambda: _bool_env("QIC_DAILY_BRIEF_ENABLED", "true"))
+    qic_weekly_research_review_enabled: bool = field(
+        default_factory=lambda: _bool_env("QIC_WEEKLY_RESEARCH_REVIEW_ENABLED", "true")
+    )
+    qic_revalidation_min_new_trades: int = field(
+        default_factory=lambda: int(os.getenv("QIC_REVALIDATION_MIN_NEW_TRADES", "50"))
+    )
+    qic_edge_confirmation_min_seen: int = field(
+        default_factory=lambda: int(os.getenv("QIC_EDGE_CONFIRMATION_MIN_SEEN", "3"))
+    )
+    qic_edge_reproposal_cooldown_days: int = field(
+        default_factory=lambda: int(os.getenv("QIC_EDGE_REPROPOSAL_COOLDOWN_DAYS", "14"))
+    )
+    qic_edge_degradation_pf_drop_pct: float = field(
+        default_factory=lambda: float(os.getenv("QIC_EDGE_DEGRADATION_PF_DROP_PCT", "15"))
+    )
     qic_code_engineer_enabled: bool = field(default_factory=lambda: _bool_env("QIC_CODE_ENGINEER_ENABLED", "false"))
     qic_code_engineer_allow_apply: bool = field(
         default_factory=lambda: _bool_env("QIC_CODE_ENGINEER_ALLOW_APPLY", "false")

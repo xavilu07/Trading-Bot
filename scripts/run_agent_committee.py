@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from trading_signals.agents.committee import run_agent_committee
+from trading_signals.agents.telegram_approval import resolve_qic_telegram_config
 from trading_signals.app.settings import load_settings
 
 
@@ -39,6 +40,7 @@ def main(argv: list[str] | None = None) -> int:
 
     load_dotenv(args.env_file)
     settings = load_settings()
+    qic_telegram = resolve_qic_telegram_config(settings)
     try:
         result = run_agent_committee(
             reports_root=args.reports_root,
@@ -46,22 +48,18 @@ def main(argv: list[str] | None = None) -> int:
             output_path=args.output_path,
             enabled=_bool_setting(settings, "agent_committee_enabled", False),
             min_confidence=args.min_confidence or str(_setting(settings, "agent_committee_min_confidence", "MEDIUM")),
-            telegram_enabled=_bool_setting(settings, "qic_telegram_enabled", _bool_setting(settings, "agent_telegram_approval_enabled", False)),
-            telegram_bot_token=str(
-                _setting(settings, "qic_telegram_bot_token", "")
-                or _setting(settings, "agent_telegram_bot_token", "")
-                or _setting(settings, "telegram_bot_token", "")
-            ),
-            telegram_chat_id=str(
-                _setting(settings, "qic_telegram_chat_id", "")
-                or _setting(settings, "agent_telegram_chat_id", "")
-                or _setting(settings, "telegram_dev_chat_id", "")
-            ),
-            telegram_send_no_actionable=_bool_setting(settings, "qic_telegram_send_no_actionable", True),
-            telegram_min_priority=str(_setting(settings, "qic_telegram_min_priority", "MEDIUM")),
+            telegram_enabled=bool(qic_telegram["enabled"]),
+            telegram_bot_token=str(qic_telegram["bot_token"]),
+            telegram_chat_id=str(qic_telegram["chat_id"]),
+            telegram_send_no_actionable=bool(qic_telegram["send_no_actionable"]),
+            telegram_min_priority=str(qic_telegram["min_priority"]),
             dry_run=args.dry_run,
             force=args.force,
             use_qic_v2=not args.legacy_v1,
+            revalidation_min_new_trades=int(_setting(settings, "qic_revalidation_min_new_trades", 50)),
+            edge_confirmation_min_seen=int(_setting(settings, "qic_edge_confirmation_min_seen", 3)),
+            edge_reproposal_cooldown_days=int(_setting(settings, "qic_edge_reproposal_cooldown_days", 14)),
+            edge_degradation_pf_drop_pct=float(_setting(settings, "qic_edge_degradation_pf_drop_pct", 15)),
         )
     except Exception as exc:
         _write_failure_reports(args.output_path, exc)

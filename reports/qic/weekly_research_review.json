@@ -1,0 +1,284 @@
+{
+  "best_hypotheses": [
+    {
+      "best_pf_seen": 2.6415,
+      "best_total_r_seen": 7.8114,
+      "best_trade_reduction_pct": 59.1837,
+      "current_status": "candidate",
+      "decision_history": [
+        {
+          "action": "PROMOTE_TO_CONFIRMED_EDGE",
+          "event": "qic_proposal_seen",
+          "evidence": 20,
+          "expected_pf": 2.6415,
+          "expected_total_r": 7.8114,
+          "proposal_id": "cio_805ad892d491",
+          "status": "pending",
+          "timestamp": "2026-07-09T14:24:04.769867+00:00",
+          "trade_reduction_pct": 59.1837
+        }
+      ],
+      "evidence_history": [
+        {
+          "evidence": 20,
+          "pf": 2.6415,
+          "timestamp": "2026-07-09T14:24:04.769867+00:00",
+          "total_r": 7.8114,
+          "trade_reduction_pct": 59.1837
+        }
+      ],
+      "first_seen_at": "2026-07-09T14:24:04.769867+00:00",
+      "id": "research_fc1437682982",
+      "last_pf": 2.6415,
+      "last_revalidation_result": {
+        "conditions": [
+          "exclude:liquidity_distance_bucket=2-4atr"
+        ],
+        "current_evidence": 20.0,
+        "current_pf": 2.6415,
+        "current_total_r": 7.8114,
+        "knowledge_item_id": "edge_fc1437682982",
+        "new_trades": 0.0,
+        "previous_evidence": 20.0,
+        "previous_pf": 2.6415,
+        "previous_total_r": 7.8114,
+        "reason": "not_enough_new_trades",
+        "result": "insufficient_new_data"
+      },
+      "last_seen_at": "2026-07-09T14:24:04.769867+00:00",
+      "last_total_r": 7.8114,
+      "last_trade_reduction_pct": 59.1837,
+      "normalized_conditions": [
+        "exclude:liquidity_distance_bucket=2-4atr"
+      ],
+      "notes_by_agent": {},
+      "rejection_reasons": [],
+      "rollback_reasons": [],
+      "times_approved": 0,
+      "times_implemented": 0,
+      "times_proposed": 1,
+      "times_rejected": 0,
+      "times_rolled_back": 0,
+      "times_seen": 1,
+      "times_simulated": 1,
+      "title": "CIO proposal: exclude liquidity_distance_bucket=2-4atr"
+    },
+    {
+      "best_pf_seen": 1.113,
+      "best_total_r_seen": 21.1506,
+      "best_trade_reduction_pct": 48.9547,
+      "current_status": "candidate",
+      "decision_history": [
+        {
+          "action": "PROPOSE_IMPLEMENTATION",
+          "event": "decision:blocked_preconditions",
+          "evidence": 586,
+          "expected_pf": 1.113,
+          "expected_total_r": 21.1506,
+          "proposal_id": "cio_htf_against",
+          "status": null,
+          "timestamp": "2026-07-09T14:23:32.333610+00:00",
+          "trade_reduction_pct": 48.9547
+        },
+        {
+          "action": "PROPOSE_IMPLEMENTATION",
+          "event": "decision:blocked_preconditions",
+          "evidence": 586,
+          "expected_pf": 1.113,
+          "expected_total_r": 21.1506,
+          "proposal_id": "cio_htf_against",
+          "status": null,
+          "timestamp": "2026-07-09T14:23:41.702575+00:00",
+          "trade_reduction_pct": 48.9547
+        },
+        {
+          "action": "PROPOSE_IMPLEMENTATION",
+          "event": "decision:blocked_preconditions",
+          "evidence": 586,
+          "expected_pf": 1.113,
+          "expected_total_r": 21.1506,
+          "proposal_id": "cio_htf_against",
+          "status": null,
+          "timestamp": "2026-07-09T14:24:56.480228+00:00",
+          "trade_reduction_pct": 48.9547
+        },
+        {
+          "action": "PROPOSE_IMPLEMENTATION",
+          "event": "decision:blocked_preconditions",
+          "evidence": 586,
+          "expected_pf": 1.113,
+          "expected_total_r": 21.1506,
+          "proposal_id": "cio_htf_against",
+          "status": null,
+          "timestamp": "2026-07-09T14:26:16.278290+00:00",
+          "trade_reduction_pct": 48.9547
+        }
+      ],
+      "evidence_history": [
+        {
+          "evidence": 586,
+          "pf": 1.113,
+          "timestamp": "2026-07-09T14:23:32.333610+00:00",
+          "total_r": 21.1506,
+          "trade_reduction_pct": 48.9547
+        },
+        {
+          "evidence": 586,
+          "pf": 1.113,
+          "timestamp": "2026-07-09T14:23:41.702575+00:00",
+          "total_r": 21.1506,
+          "trade_reduction_pct": 48.9547
+        },
+        {
+          "evidence": 586,
+          "pf": 1.113,
+          "timestamp": "2026-07-09T14:24:56.480228+00:00",
+          "total_r": 21.1506,
+          "trade_reduction_pct": 48.9547
+        },
+        {
+          "evidence": 586,
+          "pf": 1.113,
+          "timestamp": "2026-07-09T14:26:16.278290+00:00",
+          "total_r": 21.1506,
+          "trade_reduction_pct": 48.9547
+        }
+      ],
+      "first_seen_at": "2026-07-09T14:23:32.333610+00:00",
+      "id": "research_8929c7bb8005",
+      "last_pf": 1.113,
+      "last_revalidation_result": {
+        "result": "edge_still_valid"
+      },
+      "last_seen_at": "2026-07-09T14:26:16.278290+00:00",
+      "last_total_r": 21.1506,
+      "last_trade_reduction_pct": 48.9547,
+      "normalized_conditions": [
+        "exclude:htf_alignment=against"
+      ],
+      "notes_by_agent": {},
+      "rejection_reasons": [],
+      "rollback_reasons": [],
+      "times_approved": 0,
+      "times_implemented": 0,
+      "times_proposed": 4,
+      "times_rejected": 0,
+      "times_rolled_back": 0,
+      "times_seen": 4,
+      "times_simulated": 4,
+      "title": "CIO proposal: exclude htf_alignment=against"
+    }
+  ],
+  "candidate_confirmations": [
+    {
+      "best_pf_seen": 1.113,
+      "best_total_r_seen": 21.1506,
+      "best_trade_reduction_pct": 48.9547,
+      "current_status": "candidate",
+      "decision_history": [
+        {
+          "action": "PROPOSE_IMPLEMENTATION",
+          "event": "decision:blocked_preconditions",
+          "evidence": 586,
+          "expected_pf": 1.113,
+          "expected_total_r": 21.1506,
+          "proposal_id": "cio_htf_against",
+          "status": null,
+          "timestamp": "2026-07-09T14:23:32.333610+00:00",
+          "trade_reduction_pct": 48.9547
+        },
+        {
+          "action": "PROPOSE_IMPLEMENTATION",
+          "event": "decision:blocked_preconditions",
+          "evidence": 586,
+          "expected_pf": 1.113,
+          "expected_total_r": 21.1506,
+          "proposal_id": "cio_htf_against",
+          "status": null,
+          "timestamp": "2026-07-09T14:23:41.702575+00:00",
+          "trade_reduction_pct": 48.9547
+        },
+        {
+          "action": "PROPOSE_IMPLEMENTATION",
+          "event": "decision:blocked_preconditions",
+          "evidence": 586,
+          "expected_pf": 1.113,
+          "expected_total_r": 21.1506,
+          "proposal_id": "cio_htf_against",
+          "status": null,
+          "timestamp": "2026-07-09T14:24:56.480228+00:00",
+          "trade_reduction_pct": 48.9547
+        },
+        {
+          "action": "PROPOSE_IMPLEMENTATION",
+          "event": "decision:blocked_preconditions",
+          "evidence": 586,
+          "expected_pf": 1.113,
+          "expected_total_r": 21.1506,
+          "proposal_id": "cio_htf_against",
+          "status": null,
+          "timestamp": "2026-07-09T14:26:16.278290+00:00",
+          "trade_reduction_pct": 48.9547
+        }
+      ],
+      "evidence_history": [
+        {
+          "evidence": 586,
+          "pf": 1.113,
+          "timestamp": "2026-07-09T14:23:32.333610+00:00",
+          "total_r": 21.1506,
+          "trade_reduction_pct": 48.9547
+        },
+        {
+          "evidence": 586,
+          "pf": 1.113,
+          "timestamp": "2026-07-09T14:23:41.702575+00:00",
+          "total_r": 21.1506,
+          "trade_reduction_pct": 48.9547
+        },
+        {
+          "evidence": 586,
+          "pf": 1.113,
+          "timestamp": "2026-07-09T14:24:56.480228+00:00",
+          "total_r": 21.1506,
+          "trade_reduction_pct": 48.9547
+        },
+        {
+          "evidence": 586,
+          "pf": 1.113,
+          "timestamp": "2026-07-09T14:26:16.278290+00:00",
+          "total_r": 21.1506,
+          "trade_reduction_pct": 48.9547
+        }
+      ],
+      "first_seen_at": "2026-07-09T14:23:32.333610+00:00",
+      "id": "research_8929c7bb8005",
+      "last_pf": 1.113,
+      "last_revalidation_result": {
+        "result": "edge_still_valid"
+      },
+      "last_seen_at": "2026-07-09T14:26:16.278290+00:00",
+      "last_total_r": 21.1506,
+      "last_trade_reduction_pct": 48.9547,
+      "normalized_conditions": [
+        "exclude:htf_alignment=against"
+      ],
+      "notes_by_agent": {},
+      "rejection_reasons": [],
+      "rollback_reasons": [],
+      "times_approved": 0,
+      "times_implemented": 0,
+      "times_proposed": 4,
+      "times_rejected": 0,
+      "times_rolled_back": 0,
+      "times_seen": 4,
+      "times_simulated": 4,
+      "title": "CIO proposal: exclude htf_alignment=against"
+    }
+  ],
+  "candidate_retirements": [],
+  "decisions_recorded": 7,
+  "discarded_hypotheses": [],
+  "generated_at": "2026-07-09T14:26:20.812563+00:00",
+  "known_edges": 1
+}

@@ -1,14 +1,1 @@
-{
-  "code_revert_required": false,
-  "created_at": "2026-07-06T17:49:42.066801+00:00",
-  "data_migration_required": false,
-  "feature_flags": [],
-  "knowledge_item_id": "edge_fc1437682982",
-  "proposal_id": "cio_805ad892d491",
-  "rollback_type": "feature_flag_disable",
-  "steps": [
-    "Disable feature flag",
-    "Restart only after manual approval if runtime config requires it",
-    "Verify QIC monitoring report returns to baseline behavior"
-  ]
-}
+{}

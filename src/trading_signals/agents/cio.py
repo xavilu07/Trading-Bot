@@ -146,6 +146,8 @@ def _proposal_from_simulation(
             "conditions": conditions,
             "condition_details": simulation.get("condition_details") or [],
             "baseline_trades": baseline_trades,
+            "baseline_pf": simulation.get("baseline_profit_factor"),
+            "baseline_total_r": simulation.get("baseline_total_r"),
             "trade_reduction_pct": round(trade_reduction_pct, 4),
             "source": simulation.get("source"),
             "composite_score": simulation.get("composite_score"),

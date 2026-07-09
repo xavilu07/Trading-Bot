@@ -80,7 +80,12 @@ def test_telegram_payload_includes_buttons() -> None:
         "🧪 Find Alternative",
         "🛠 Implementation Review",
         "📦 Generate Patch",
+        "👨‍💻 Generate Code",
+        "🧩 Apply Patch",
         "🧪 Start Shadow",
+        "📚 History",
+        "🧠 Edge Memory",
+        "🧑‍⚖️ Agent Review",
     ]
     assert buttons[0]["callback_data"] == "agent:approve:prop_1"
 

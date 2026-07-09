@@ -1,0 +1,1067 @@
+{
+  "breakdowns": {
+    "direction": [
+      {
+        "avg_r": 0.0,
+        "avg_score": 69.8214,
+        "closed_trades": 0,
+        "count": 28,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "long",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": 0.0,
+        "avg_score": 56.25,
+        "closed_trades": 0,
+        "count": 12,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "short",
+        "winrate": 0.0,
+        "wins": 0
+      }
+    ],
+    "entry_context": [
+      {
+        "avg_r": 0.0,
+        "avg_score": 70.2941,
+        "closed_trades": 0,
+        "count": 34,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "UNKNOWN",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": 0.0,
+        "avg_score": 40.0,
+        "closed_trades": 0,
+        "count": 6,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "EXHAUSTION",
+        "winrate": 0.0,
+        "wins": 0
+      }
+    ],
+    "market_regime": [
+      {
+        "avg_r": 0.0,
+        "avg_score": 65.0758,
+        "closed_trades": 0,
+        "count": 33,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "HIGH_VOLATILITY",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": 0.0,
+        "avg_score": 68.9286,
+        "closed_trades": 0,
+        "count": 7,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "RANGING",
+        "winrate": 0.0,
+        "wins": 0
+      }
+    ],
+    "score_bucket": [
+      {
+        "avg_r": 0.0,
+        "avg_score": 73.1944,
+        "closed_trades": 0,
+        "count": 18,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "70-79",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": 0.0,
+        "avg_score": 67.0312,
+        "closed_trades": 0,
+        "count": 16,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "60-69",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": 0.0,
+        "avg_score": 40.0,
+        "closed_trades": 0,
+        "count": 6,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "<60",
+        "winrate": 0.0,
+        "wins": 0
+      }
+    ],
+    "session": [
+      {
+        "avg_r": 0.0,
+        "avg_score": 65.75,
+        "closed_trades": 0,
+        "count": 40,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "UNKNOWN",
+        "winrate": 0.0,
+        "wins": 0
+      }
+    ],
+    "setup_type": [
+      {
+        "avg_r": 0.0,
+        "avg_score": 70.2941,
+        "closed_trades": 0,
+        "count": 34,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "UNKNOWN",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": 0.0,
+        "avg_score": 40.0,
+        "closed_trades": 0,
+        "count": 6,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "NO_SIGNAL",
+        "winrate": 0.0,
+        "wins": 0
+      }
+    ],
+    "symbol": [
+      {
+        "avg_r": 0.0,
+        "avg_score": 59.6875,
+        "closed_trades": 0,
+        "count": 8,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "DOGEUSDT",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": 0.0,
+        "avg_score": 58.3929,
+        "closed_trades": 0,
+        "count": 7,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "XRPUSDT",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": 0.0,
+        "avg_score": 70.8333,
+        "closed_trades": 0,
+        "count": 3,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "AVAXUSDT",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": 0.0,
+        "avg_score": 72.0833,
+        "closed_trades": 0,
+        "count": 3,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "SOLUSDT",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": 0.0,
+        "avg_score": 66.25,
+        "closed_trades": 0,
+        "count": 2,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "DOTUSDT",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": 0.0,
+        "avg_score": 72.5,
+        "closed_trades": 0,
+        "count": 2,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "AAVEUSDT",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": 0.0,
+        "avg_score": 68.75,
+        "closed_trades": 0,
+        "count": 2,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "SEIUSDT",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": 0.0,
+        "avg_score": 67.5,
+        "closed_trades": 0,
+        "count": 2,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "ETHUSDT",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": 0.0,
+        "avg_score": 71.25,
+        "closed_trades": 0,
+        "count": 1,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "ATOMUSDT",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": 0.0,
+        "avg_score": 70.0,
+        "closed_trades": 0,
+        "count": 1,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "BNBUSDT",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": 0.0,
+        "avg_score": 73.75,
+        "closed_trades": 0,
+        "count": 1,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "BTCUSDT",
+        "winrate": 0.0,
+        "wins": 0
+      },
+      {
+        "avg_r": 0.0,
+        "avg_score": 68.75,
+        "closed_trades": 0,
+        "count": 1,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "TRXUSDT",
+        "winrate": 0.0,
+        "wins": 0
+      }
+    ],
+    "trade_location": [
+      {
+        "avg_r": 0.0,
+        "avg_score": 65.75,
+        "closed_trades": 0,
+        "count": 40,
+        "gross_loss_r": 0.0,
+        "gross_win_r": 0.0,
+        "losses": 0,
+        "profit_factor": 0.0,
+        "total_r": 0.0,
+        "value": "UNKNOWN",
+        "winrate": 0.0,
+        "wins": 0
+      }
+    ]
+  },
+  "co_occurring_reasons": [
+    {
+      "count": 40,
+      "reason": "market_structure_range_penalty"
+    },
+    {
+      "count": 21,
+      "reason": "timeframe_alignment_penalty"
+    },
+    {
+      "count": 19,
+      "reason": "distance_to_liquidity_penalty"
+    },
+    {
+      "count": 6,
+      "reason": "market_structure_range_penalty:10"
+    },
+    {
+      "count": 6,
+      "reason": "distance_to_liquidity_penalty:10"
+    },
+    {
+      "count": 6,
+      "reason": "secondary_confluence_bonus:+15"
+    }
+  ],
+  "code_origin": {
+    "approx_lines": "evaluate(): final score check around lines 188-203",
+    "conditions": [
+      "`score` starts from `entry.setup_score`.",
+      "Before this check, score is modified by penalties such as timeframe alignment, range market structure, distance to liquidity, distance extreme, secondary setup failure, plus capped secondary confluence bonus.",
+      "`effective_setup_score_threshold = settings.setup_score_threshold + 10` during ASIA, otherwise `settings.setup_score_threshold`.",
+      "If `score >= effective_setup_score_threshold`, the strategy appends `quality_score`.",
+      "If `score < effective_setup_score_threshold`, the strategy appends `quality_score_failed`."
+    ],
+    "file": "src/trading_signals/domain/strategies/liquidity_sweep_mtf_v1.py",
+    "hard_veto_behavior": "`quality_score_failed` is included in the hard-failure set together with volatility/body/late-entry/pullback gates. When present, the strategy skips all primary, secondary, and fallback directional signal branches."
+  },
+  "conclusion": {
+    "evidence_classification": "INSUFFICIENT_DATA",
+    "rationale": "Hay pocos resultados paper cerrados asociados a este veto; no conviene relajar todav\u00eda.",
+    "recommended_action": "datos insuficientes"
+  },
+  "data_gaps": [
+    "No target records found in data/paper_trading/trades.csv.",
+    "No closed paper outcomes exist for target rows; outcome comparison is weak."
+  ],
+  "data_path": "data",
+  "generated_at": "2026-06-22T16:00:12+00:00",
+  "internal_condition_failures": [
+    {
+      "condition": "setup_score",
+      "count": 6
+    },
+    {
+      "condition": "short_primary_sweep",
+      "count": 6
+    },
+    {
+      "condition": "short_secondary_bos",
+      "count": 6
+    },
+    {
+      "condition": "short_secondary_volume",
+      "count": 6
+    },
+    {
+      "condition": "short_secondary_structure",
+      "count": 6
+    },
+    {
+      "condition": "short_secondary_score",
+      "count": 6
+    }
+  ],
+  "logs_path": "logs",
+  "mode": "offline_analysis_only",
+  "paper_evidence": {
+    "baseline_all_closed": {
+      "avg_r": -0.0628,
+      "closed_trades": 41,
+      "gross_loss_r": 22.9036,
+      "gross_win_r": 20.3282,
+      "losses": 27,
+      "profit_factor": 0.8876,
+      "total_r": -2.5754,
+      "winrate": 34.1463,
+      "wins": 14
+    },
+    "best_contexts": [],
+    "overall": {
+      "avg_r": 0.0,
+      "closed_trades": 0,
+      "gross_loss_r": 0.0,
+      "gross_win_r": 0.0,
+      "losses": 0,
+      "profit_factor": 0.0,
+      "total_r": 0.0,
+      "winrate": 0.0,
+      "wins": 0
+    },
+    "worst_contexts": []
+  },
+  "reports_path": "reports",
+  "scope": "QUALITY_SCORE_FAILED_DEEP_DIVE",
+  "severe_cases": {
+    "directional_confluence_passed": {
+      "avg_r": 0.0,
+      "closed_trades": 0,
+      "count": 0,
+      "gross_loss_r": 0.0,
+      "gross_win_r": 0.0,
+      "losses": 0,
+      "profit_factor": 0.0,
+      "total_r": 0.0,
+      "winrate": 0.0,
+      "wins": 0
+    },
+    "highest_score_examples": [
+      {
+        "direction": "long",
+        "entry_context": "UNKNOWN",
+        "market_regime": "HIGH_VOLATILITY",
+        "reasons": [
+          "distance_to_liquidity_penalty",
+          "market_structure_range_penalty",
+          "quality_score_failed"
+        ],
+        "result_r": null,
+        "score": 76.25,
+        "session": "UNKNOWN",
+        "setup_type": "UNKNOWN",
+        "source": "shadow_signals",
+        "symbol": "DOGEUSDT",
+        "timestamp": "2026-05-04T15:40:01.864421+00:00",
+        "trade_location": "UNKNOWN"
+      },
+      {
+        "direction": "long",
+        "entry_context": "UNKNOWN",
+        "market_regime": "HIGH_VOLATILITY",
+        "reasons": [
+          "market_structure_range_penalty",
+          "quality_score_failed",
+          "timeframe_alignment_penalty"
+        ],
+        "result_r": null,
+        "score": 75.0,
+        "session": "UNKNOWN",
+        "setup_type": "UNKNOWN",
+        "source": "shadow_signals",
+        "symbol": "SOLUSDT",
+        "timestamp": "2026-05-04T15:39:57.542352+00:00",
+        "trade_location": "UNKNOWN"
+      },
+      {
+        "direction": "long",
+        "entry_context": "UNKNOWN",
+        "market_regime": "HIGH_VOLATILITY",
+        "reasons": [
+          "market_structure_range_penalty",
+          "quality_score_failed",
+          "timeframe_alignment_penalty"
+        ],
+        "result_r": null,
+        "score": 75.0,
+        "session": "UNKNOWN",
+        "setup_type": "UNKNOWN",
+        "source": "shadow_signals",
+        "symbol": "XRPUSDT",
+        "timestamp": "2026-05-04T15:39:58.437836+00:00",
+        "trade_location": "UNKNOWN"
+      },
+      {
+        "direction": "long",
+        "entry_context": "UNKNOWN",
+        "market_regime": "HIGH_VOLATILITY",
+        "reasons": [
+          "market_structure_range_penalty",
+          "quality_score_failed",
+          "timeframe_alignment_penalty"
+        ],
+        "result_r": null,
+        "score": 75.0,
+        "session": "UNKNOWN",
+        "setup_type": "UNKNOWN",
+        "source": "shadow_signals",
+        "symbol": "AVAXUSDT",
+        "timestamp": "2026-05-04T15:40:03.910275+00:00",
+        "trade_location": "UNKNOWN"
+      },
+      {
+        "direction": "long",
+        "entry_context": "UNKNOWN",
+        "market_regime": "HIGH_VOLATILITY",
+        "reasons": [
+          "market_structure_range_penalty",
+          "quality_score_failed",
+          "timeframe_alignment_penalty"
+        ],
+        "result_r": null,
+        "score": 75.0,
+        "session": "UNKNOWN",
+        "setup_type": "UNKNOWN",
+        "source": "shadow_signals",
+        "symbol": "SOLUSDT",
+        "timestamp": "2026-05-04T16:11:00.278933+00:00",
+        "trade_location": "UNKNOWN"
+      },
+      {
+        "direction": "long",
+        "entry_context": "UNKNOWN",
+        "market_regime": "HIGH_VOLATILITY",
+        "reasons": [
+          "market_structure_range_penalty",
+          "quality_score_failed",
+          "timeframe_alignment_penalty"
+        ],
+        "result_r": null,
+        "score": 75.0,
+        "session": "UNKNOWN",
+        "setup_type": "UNKNOWN",
+        "source": "shadow_signals",
+        "symbol": "XRPUSDT",
+        "timestamp": "2026-05-04T16:11:01.011143+00:00",
+        "trade_location": "UNKNOWN"
+      },
+      {
+        "direction": "long",
+        "entry_context": "UNKNOWN",
+        "market_regime": "HIGH_VOLATILITY",
+        "reasons": [
+          "distance_to_liquidity_penalty",
+          "market_structure_range_penalty",
+          "quality_score_failed"
+        ],
+        "result_r": null,
+        "score": 73.75,
+        "session": "UNKNOWN",
+        "setup_type": "UNKNOWN",
+        "source": "shadow_signals",
+        "symbol": "BTCUSDT",
+        "timestamp": "2026-05-04T21:02:10.354246+00:00",
+        "trade_location": "UNKNOWN"
+      },
+      {
+        "direction": "short",
+        "entry_context": "UNKNOWN",
+        "market_regime": "HIGH_VOLATILITY",
+        "reasons": [
+          "distance_to_liquidity_penalty",
+          "market_structure_range_penalty",
+          "quality_score_failed"
+        ],
+        "result_r": null,
+        "score": 73.75,
+        "session": "UNKNOWN",
+        "setup_type": "UNKNOWN",
+        "source": "shadow_signals",
+        "symbol": "ARBUSDT",
+        "timestamp": "2026-05-04T21:05:35.146322+00:00",
+        "trade_location": "UNKNOWN"
+      },
+      {
+        "direction": "short",
+        "entry_context": "UNKNOWN",
+        "market_regime": "HIGH_VOLATILITY",
+        "reasons": [
+          "distance_to_liquidity_penalty",
+          "market_structure_range_penalty",
+          "quality_score_failed"
+        ],
+        "result_r": null,
+        "score": 73.75,
+        "session": "UNKNOWN",
+        "setup_type": "UNKNOWN",
+        "source": "shadow_signals",
+        "symbol": "AAVEUSDT",
+        "timestamp": "2026-05-04T21:05:37.065158+00:00",
+        "trade_location": "UNKNOWN"
+      },
+      {
+        "direction": "short",
+        "entry_context": "UNKNOWN",
+        "market_regime": "HIGH_VOLATILITY",
+        "reasons": [
+          "distance_to_liquidity_penalty",
+          "market_structure_range_penalty",
+          "quality_score_failed"
+        ],
+        "result_r": null,
+        "score": 73.75,
+        "session": "UNKNOWN",
+        "setup_type": "UNKNOWN",
+        "source": "shadow_signals",
+        "symbol": "NEARUSDT",
+        "timestamp": "2026-05-04T21:05:37.965134+00:00",
+        "trade_location": "UNKNOWN"
+      },
+      {
+        "direction": "short",
+        "entry_context": "UNKNOWN",
+        "market_regime": "HIGH_VOLATILITY",
+        "reasons": [
+          "distance_to_liquidity_penalty",
+          "market_structure_range_penalty",
+          "quality_score_failed"
+        ],
+        "result_r": null,
+        "score": 72.5,
+        "session": "UNKNOWN",
+        "setup_type": "UNKNOWN",
+        "source": "shadow_signals",
+        "symbol": "XRPUSDT",
+        "timestamp": "2026-05-18T12:21:08.255111+00:00",
+        "trade_location": "UNKNOWN"
+      },
+      {
+        "direction": "short",
+        "entry_context": "UNKNOWN",
+        "market_regime": "HIGH_VOLATILITY",
+        "reasons": [
+          "distance_to_liquidity_penalty",
+          "market_structure_range_penalty",
+          "quality_score_failed"
+        ],
+        "result_r": null,
+        "score": 72.5,
+        "session": "UNKNOWN",
+        "setup_type": "UNKNOWN",
+        "source": "shadow_signals",
+        "symbol": "DOGEUSDT",
+        "timestamp": "2026-05-18T12:21:10.051665+00:00",
+        "trade_location": "UNKNOWN"
+      },
+      {
+        "direction": "long",
+        "entry_context": "UNKNOWN",
+        "market_regime": "HIGH_VOLATILITY",
+        "reasons": [
+          "market_structure_range_penalty",
+          "quality_score_failed",
+          "timeframe_alignment_penalty"
+        ],
+        "result_r": null,
+        "score": 71.25,
+        "session": "UNKNOWN",
+        "setup_type": "UNKNOWN",
+        "source": "shadow_signals",
+        "symbol": "ATOMUSDT",
+        "timestamp": "2026-05-04T12:06:46.640464+00:00",
+        "trade_location": "UNKNOWN"
+      },
+      {
+        "direction": "long",
+        "entry_context": "UNKNOWN",
+        "market_regime": "HIGH_VOLATILITY",
+        "reasons": [
+          "market_structure_range_penalty",
+          "quality_score_failed",
+          "timeframe_alignment_penalty"
+        ],
+        "result_r": null,
+        "score": 71.25,
+        "session": "UNKNOWN",
+        "setup_type": "UNKNOWN",
+        "source": "shadow_signals",
+        "symbol": "AAVEUSDT",
+        "timestamp": "2026-05-04T12:06:51.806131+00:00",
+        "trade_location": "UNKNOWN"
+      },
+      {
+        "direction": "long",
+        "entry_context": "UNKNOWN",
+        "market_regime": "HIGH_VOLATILITY",
+        "reasons": [
+          "market_structure_range_penalty",
+          "quality_score_failed",
+          "timeframe_alignment_penalty"
+        ],
+        "result_r": null,
+        "score": 71.25,
+        "session": "UNKNOWN",
+        "setup_type": "UNKNOWN",
+        "source": "shadow_signals",
+        "symbol": "SEIUSDT",
+        "timestamp": "2026-05-04T12:06:53.408460+00:00",
+        "trade_location": "UNKNOWN"
+      }
+    ],
+    "liquidity_distance_passed": {
+      "avg_r": 0.0,
+      "closed_trades": 0,
+      "count": 34,
+      "gross_loss_r": 0.0,
+      "gross_win_r": 0.0,
+      "losses": 0,
+      "profit_factor": 0.0,
+      "total_r": 0.0,
+      "winrate": 0.0,
+      "wins": 0
+    },
+    "rr_valid": {
+      "avg_r": 0.0,
+      "closed_trades": 0,
+      "count": 0,
+      "gross_loss_r": 0.0,
+      "gross_win_r": 0.0,
+      "losses": 0,
+      "profit_factor": 0.0,
+      "total_r": 0.0,
+      "winrate": 0.0,
+      "wins": 0
+    },
+    "score_gte_70": {
+      "avg_r": 0.0,
+      "closed_trades": 0,
+      "count": 18,
+      "gross_loss_r": 0.0,
+      "gross_win_r": 0.0,
+      "losses": 0,
+      "profit_factor": 0.0,
+      "total_r": 0.0,
+      "winrate": 0.0,
+      "wins": 0
+    },
+    "score_gte_80": {
+      "avg_r": 0.0,
+      "closed_trades": 0,
+      "count": 0,
+      "gross_loss_r": 0.0,
+      "gross_win_r": 0.0,
+      "losses": 0,
+      "profit_factor": 0.0,
+      "total_r": 0.0,
+      "winrate": 0.0,
+      "wins": 0
+    },
+    "score_gte_90": {
+      "avg_r": 0.0,
+      "closed_trades": 0,
+      "count": 0,
+      "gross_loss_r": 0.0,
+      "gross_win_r": 0.0,
+      "losses": 0,
+      "profit_factor": 0.0,
+      "total_r": 0.0,
+      "winrate": 0.0,
+      "wins": 0
+    },
+    "trend_aligned": {
+      "avg_r": 0.0,
+      "closed_trades": 0,
+      "count": 40,
+      "gross_loss_r": 0.0,
+      "gross_win_r": 0.0,
+      "losses": 0,
+      "profit_factor": 0.0,
+      "total_r": 0.0,
+      "winrate": 0.0,
+      "wins": 0
+    }
+  },
+  "source_counts": {
+    "candidates_rejected": 6,
+    "paper_closed_with_target": 0,
+    "paper_rejection_context": 0,
+    "scheduler_log_json_events": 565,
+    "scheduler_log_lines": 637,
+    "shadow_signals": 34,
+    "signals_log": 6
+  },
+  "source_files": {
+    "paper_trades": "data/paper_trading/trades.csv",
+    "scheduler_log": "logs/scheduler.log",
+    "shadow_signals": "data/paper_trading/shadow_signals.csv",
+    "signals_log": "data/bot_activity/signals_log.jsonl"
+  },
+  "target_reason": "quality_score_failed",
+  "top_examples": [
+    {
+      "direction": "long",
+      "entry_context": "UNKNOWN",
+      "market_regime": "HIGH_VOLATILITY",
+      "reasons": [
+        "distance_to_liquidity_penalty",
+        "market_structure_range_penalty",
+        "quality_score_failed"
+      ],
+      "result_r": null,
+      "score": 76.25,
+      "session": "UNKNOWN",
+      "setup_type": "UNKNOWN",
+      "source": "shadow_signals",
+      "symbol": "DOGEUSDT",
+      "timestamp": "2026-05-04T15:40:01.864421+00:00",
+      "trade_location": "UNKNOWN"
+    },
+    {
+      "direction": "long",
+      "entry_context": "UNKNOWN",
+      "market_regime": "HIGH_VOLATILITY",
+      "reasons": [
+        "market_structure_range_penalty",
+        "quality_score_failed",
+        "timeframe_alignment_penalty"
+      ],
+      "result_r": null,
+      "score": 75.0,
+      "session": "UNKNOWN",
+      "setup_type": "UNKNOWN",
+      "source": "shadow_signals",
+      "symbol": "SOLUSDT",
+      "timestamp": "2026-05-04T15:39:57.542352+00:00",
+      "trade_location": "UNKNOWN"
+    },
+    {
+      "direction": "long",
+      "entry_context": "UNKNOWN",
+      "market_regime": "HIGH_VOLATILITY",
+      "reasons": [
+        "market_structure_range_penalty",
+        "quality_score_failed",
+        "timeframe_alignment_penalty"
+      ],
+      "result_r": null,
+      "score": 75.0,
+      "session": "UNKNOWN",
+      "setup_type": "UNKNOWN",
+      "source": "shadow_signals",
+      "symbol": "XRPUSDT",
+      "timestamp": "2026-05-04T15:39:58.437836+00:00",
+      "trade_location": "UNKNOWN"
+    },
+    {
+      "direction": "long",
+      "entry_context": "UNKNOWN",
+      "market_regime": "HIGH_VOLATILITY",
+      "reasons": [
+        "market_structure_range_penalty",
+        "quality_score_failed",
+        "timeframe_alignment_penalty"
+      ],
+      "result_r": null,
+      "score": 75.0,
+      "session": "UNKNOWN",
+      "setup_type": "UNKNOWN",
+      "source": "shadow_signals",
+      "symbol": "AVAXUSDT",
+      "timestamp": "2026-05-04T15:40:03.910275+00:00",
+      "trade_location": "UNKNOWN"
+    },
+    {
+      "direction": "long",
+      "entry_context": "UNKNOWN",
+      "market_regime": "HIGH_VOLATILITY",
+      "reasons": [
+        "market_structure_range_penalty",
+        "quality_score_failed",
+        "timeframe_alignment_penalty"
+      ],
+      "result_r": null,
+      "score": 75.0,
+      "session": "UNKNOWN",
+      "setup_type": "UNKNOWN",
+      "source": "shadow_signals",
+      "symbol": "SOLUSDT",
+      "timestamp": "2026-05-04T16:11:00.278933+00:00",
+      "trade_location": "UNKNOWN"
+    },
+    {
+      "direction": "long",
+      "entry_context": "UNKNOWN",
+      "market_regime": "HIGH_VOLATILITY",
+      "reasons": [
+        "market_structure_range_penalty",
+        "quality_score_failed",
+        "timeframe_alignment_penalty"
+      ],
+      "result_r": null,
+      "score": 75.0,
+      "session": "UNKNOWN",
+      "setup_type": "UNKNOWN",
+      "source": "shadow_signals",
+      "symbol": "XRPUSDT",
+      "timestamp": "2026-05-04T16:11:01.011143+00:00",
+      "trade_location": "UNKNOWN"
+    },
+    {
+      "direction": "long",
+      "entry_context": "UNKNOWN",
+      "market_regime": "HIGH_VOLATILITY",
+      "reasons": [
+        "distance_to_liquidity_penalty",
+        "market_structure_range_penalty",
+        "quality_score_failed"
+      ],
+      "result_r": null,
+      "score": 73.75,
+      "session": "UNKNOWN",
+      "setup_type": "UNKNOWN",
+      "source": "shadow_signals",
+      "symbol": "BTCUSDT",
+      "timestamp": "2026-05-04T21:02:10.354246+00:00",
+      "trade_location": "UNKNOWN"
+    },
+    {
+      "direction": "short",
+      "entry_context": "UNKNOWN",
+      "market_regime": "HIGH_VOLATILITY",
+      "reasons": [
+        "distance_to_liquidity_penalty",
+        "market_structure_range_penalty",
+        "quality_score_failed"
+      ],
+      "result_r": null,
+      "score": 73.75,
+      "session": "UNKNOWN",
+      "setup_type": "UNKNOWN",
+      "source": "shadow_signals",
+      "symbol": "ARBUSDT",
+      "timestamp": "2026-05-04T21:05:35.146322+00:00",
+      "trade_location": "UNKNOWN"
+    },
+    {
+      "direction": "short",
+      "entry_context": "UNKNOWN",
+      "market_regime": "HIGH_VOLATILITY",
+      "reasons": [
+        "distance_to_liquidity_penalty",
+        "market_structure_range_penalty",
+        "quality_score_failed"
+      ],
+      "result_r": null,
+      "score": 73.75,
+      "session": "UNKNOWN",
+      "setup_type": "UNKNOWN",
+      "source": "shadow_signals",
+      "symbol": "AAVEUSDT",
+      "timestamp": "2026-05-04T21:05:37.065158+00:00",
+      "trade_location": "UNKNOWN"
+    },
+    {
+      "direction": "short",
+      "entry_context": "UNKNOWN",
+      "market_regime": "HIGH_VOLATILITY",
+      "reasons": [
+        "distance_to_liquidity_penalty",
+        "market_structure_range_penalty",
+        "quality_score_failed"
+      ],
+      "result_r": null,
+      "score": 73.75,
+      "session": "UNKNOWN",
+      "setup_type": "UNKNOWN",
+      "source": "shadow_signals",
+      "symbol": "NEARUSDT",
+      "timestamp": "2026-05-04T21:05:37.965134+00:00",
+      "trade_location": "UNKNOWN"
+    },
+    {
+      "direction": "short",
+      "entry_context": "UNKNOWN",
+      "market_regime": "HIGH_VOLATILITY",
+      "reasons": [
+        "distance_to_liquidity_penalty",
+        "market_structure_range_penalty",
+        "quality_score_failed"
+      ],
+      "result_r": null,
+      "score": 72.5,
+      "session": "UNKNOWN",
+      "setup_type": "UNKNOWN",
+      "source": "shadow_signals",
+      "symbol": "XRPUSDT",
+      "timestamp": "2026-05-18T12:21:08.255111+00:00",
+      "trade_location": "UNKNOWN"
+    },
+    {
+      "direction": "short",
+      "entry_context": "UNKNOWN",
+      "market_regime": "HIGH_VOLATILITY",
+      "reasons": [
+        "distance_to_liquidity_penalty",
+        "market_structure_range_penalty",
+        "quality_score_failed"
+      ],
+      "result_r": null,
+      "score": 72.5,
+      "session": "UNKNOWN",
+      "setup_type": "UNKNOWN",
+      "source": "shadow_signals",
+      "symbol": "DOGEUSDT",
+      "timestamp": "2026-05-18T12:21:10.051665+00:00",
+      "trade_location": "UNKNOWN"
+    }
+  ]
+}

@@ -7,6 +7,7 @@ import time
 from pathlib import Path
 
 from trading_signals.agents.committee import run_agent_committee
+from trading_signals.agents.qic_autonomous_reports import write_autonomous_qic_reports
 from trading_signals.agents.qic_event_detector import detect_qic_events
 from trading_signals.agents.telegram_approval import resolve_qic_telegram_config
 from trading_signals.app.settings import load_settings
@@ -65,6 +66,19 @@ def run_qic_scheduler_cycle(*, settings: object, args: argparse.Namespace) -> di
         telegram_min_priority=str(qic_telegram["min_priority"]),
         dry_run=args.dry_run,
         force=True,
+        revalidation_min_new_trades=int(getattr(settings, "qic_revalidation_min_new_trades", 50)),
+        edge_confirmation_min_seen=int(getattr(settings, "qic_edge_confirmation_min_seen", 3)),
+        edge_reproposal_cooldown_days=int(getattr(settings, "qic_edge_reproposal_cooldown_days", 14)),
+        edge_degradation_pf_drop_pct=float(getattr(settings, "qic_edge_degradation_pf_drop_pct", 15)),
+    )
+    autonomous_reports = write_autonomous_qic_reports(
+        output_path=args.output_path,
+        knowledge_base_path=args.data_path / "qic" / "strategy_knowledge_base.json",
+        research_memory_path=args.data_path / "qic" / "research_memory.json",
+        decision_ledger_path=args.data_path / "qic" / "decision_ledger.jsonl",
+        events=events.get("events", []),
+        daily_enabled=bool(getattr(settings, "qic_daily_brief_enabled", True)),
+        weekly_enabled=bool(getattr(settings, "qic_weekly_research_review_enabled", True)),
     )
     proposal = result.get("single_proposal") if isinstance(result, dict) else None
     return {
@@ -76,6 +90,8 @@ def run_qic_scheduler_cycle(*, settings: object, args: argparse.Namespace) -> di
         "proposal_id": proposal.get("id") if isinstance(proposal, dict) else None,
         "telegram_enabled": bool(qic_telegram["enabled"]) and not args.dry_run,
         "trading_scheduler_touched": False,
+        "daily_brief_generated": autonomous_reports.get("daily_brief") is not None,
+        "weekly_research_review_generated": autonomous_reports.get("weekly_research_review") is not None,
     }
 
 
