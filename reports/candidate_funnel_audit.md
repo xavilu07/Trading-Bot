@@ -1,6 +1,6 @@
 # Candidate Funnel Audit
 
-Generated at: 2026-07-09T14:26:31.954228+00:00
+Generated at: 2026-07-09T14:42:43.244251+00:00
 Conclusion: no_clear_bottleneck
 Top disappearance stage: none (0)
 

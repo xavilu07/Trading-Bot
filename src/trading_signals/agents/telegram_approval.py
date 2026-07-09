@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from trading_signals.agents.proposal_store import DEFAULT_PROPOSALS_PATH, update_proposal_status
+from trading_signals.agents.qic_telegram_config import load_qic_telegram_config
 from trading_signals.agents.strategy_knowledge_base import DEFAULT_KNOWLEDGE_BASE_PATH, record_proposal_review
 
 DEFAULT_QIC_TELEGRAM_OFFSET_PATH = Path("data") / "qic" / "telegram_update_offset.json"
@@ -51,26 +52,33 @@ def build_approval_payload(proposal: dict[str, Any], *, chat_id: str) -> dict[st
 
 
 def resolve_qic_telegram_config(settings: object) -> dict[str, Any]:
-    token = (
-        str(getattr(settings, "qic_telegram_bot_token", "") or "")
-        or str(getattr(settings, "agent_telegram_bot_token", "") or "")
-        or str(getattr(settings, "telegram_bot_token", "") or "")
-    )
-    chat_id = (
-        str(getattr(settings, "qic_telegram_chat_id", "") or "")
-        or str(getattr(settings, "agent_telegram_chat_id", "") or "")
-        or str(getattr(settings, "telegram_dev_chat_id", "") or "")
-    )
-    enabled = _as_bool(getattr(settings, "qic_telegram_enabled", False))
+    config = load_qic_telegram_config()
+    token = str(config.get("bot_token") or "")
+    chat_id = str(config.get("chat_id") or "")
+    enabled = bool(config.get("enabled"))
     if not enabled:
-        enabled = _as_bool(getattr(settings, "agent_telegram_approval_enabled", False))
+        token = (
+            str(getattr(settings, "qic_telegram_bot_token", "") or "")
+            or str(getattr(settings, "agent_telegram_bot_token", "") or "")
+            or str(getattr(settings, "telegram_bot_token", "") or "")
+        )
+        chat_id = (
+            str(getattr(settings, "qic_telegram_chat_id", "") or "")
+            or str(getattr(settings, "agent_telegram_chat_id", "") or "")
+            or str(getattr(settings, "telegram_dev_chat_id", "") or "")
+        )
+        enabled = _as_bool(getattr(settings, "qic_telegram_enabled", False))
+        if not enabled:
+            enabled = _as_bool(getattr(settings, "agent_telegram_approval_enabled", False))
     return {
         "enabled": enabled,
         "bot_token": token,
+        "chat_ids": config.get("chat_ids") or _chat_ids(chat_id),
         "chat_id": chat_id,
         "send_no_actionable": _as_bool(getattr(settings, "qic_telegram_send_no_actionable", True)),
         "min_priority": str(getattr(settings, "qic_telegram_min_priority", "MEDIUM") or "MEDIUM"),
         "configured": bool(token and chat_id),
+        "source": config.get("source", "settings"),
     }
 
 

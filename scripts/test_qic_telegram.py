@@ -7,13 +7,12 @@ import time
 from pathlib import Path
 from typing import Any
 
+from trading_signals.agents.qic_telegram_config import load_qic_telegram_config
 from trading_signals.agents.telegram_approval import (
     poll_approval_callbacks,
-    resolve_qic_telegram_config,
     send_cio_proposal_for_approval,
     send_qic_test_message,
 )
-from trading_signals.app.settings import load_settings
 
 
 def load_dotenv(path: Path) -> None:
@@ -44,8 +43,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     load_dotenv(args.env_file)
-    settings = load_settings()
-    config = resolve_qic_telegram_config(settings)
+    config = load_qic_telegram_config(env_file=args.env_file)
     if not config["configured"]:
         print(
             json.dumps(

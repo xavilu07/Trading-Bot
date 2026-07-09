@@ -7,6 +7,7 @@ from pathlib import Path
 
 from trading_signals.agents.implementation.implementation_review_council import run_implementation_review_for_proposal_id
 from trading_signals.agents.implementation.patch_generator import generate_patch_report
+from trading_signals.agents.qic_telegram_config import load_qic_telegram_config
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -18,6 +19,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--apply-patch", action="store_true", default=False)
     parser.add_argument("--run-tests", action="store_true", default=False)
     args = parser.parse_args(argv)
+    qic_telegram = load_qic_telegram_config()
 
     review = run_implementation_review_for_proposal_id(
         args.proposal_id,
@@ -29,7 +31,16 @@ def main(argv: list[str] | None = None) -> int:
         {"status": "skipped", "reason": "run_tests_not_requested", "commands": review.get("validation_commands", [])},
         output_path=args.output_path,
     )
-    result = {"review": review, "patch": patch, "test_results": test_results}
+    result = {
+        "review": review,
+        "patch": patch,
+        "test_results": test_results,
+        "qic_telegram": {
+            "configured": bool(qic_telegram.get("configured")),
+            "source": qic_telegram.get("source"),
+            "chat_ids": qic_telegram.get("chat_ids", []),
+        },
+    }
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0 if review.get("decision") != "REJECT_IMPLEMENTATION" else 1
 

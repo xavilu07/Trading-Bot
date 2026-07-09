@@ -142,6 +142,67 @@
       "notes": "",
       "proposal_id": null,
       "timestamp": "2026-07-09T14:26:20.808618+00:00"
+    },
+    {
+      "action": "PROPOSE_IMPLEMENTATION",
+      "conditions": [
+        "exclude:htf_alignment=against"
+      ],
+      "decision_id": "decision_20260709142648681909",
+      "edge_type": "STRUCTURAL_EDGE",
+      "expected_metrics": {
+        "evidence": 586,
+        "pf": 1.113,
+        "total_r": 21.1506,
+        "trade_reduction_pct": 48.9547
+      },
+      "final_decision": "CODE_ENGINEER_STATUS",
+      "human_action": "",
+      "implementation_status": "blocked_preconditions",
+      "later_outcome": "",
+      "notes": "generated_patch_missing,implementation_review_missing,proposal_not_approved_for_implementation_review,required_feature_flags_missing,required_tests_missing,rollback_plan_missing",
+      "proposal_id": "cio_htf_against",
+      "timestamp": "2026-07-09T14:26:48.682014+00:00"
+    },
+    {
+      "action": "PROPOSE_IMPLEMENTATION",
+      "conditions": [
+        "exclude:htf_alignment=against"
+      ],
+      "decision_id": "decision_20260709144202077020",
+      "edge_type": "STRUCTURAL_EDGE",
+      "expected_metrics": {
+        "evidence": 586,
+        "pf": 1.113,
+        "total_r": 21.1506,
+        "trade_reduction_pct": 48.9547
+      },
+      "final_decision": "CODE_ENGINEER_STATUS",
+      "human_action": "",
+      "implementation_status": "blocked_preconditions",
+      "later_outcome": "",
+      "notes": "generated_patch_missing,implementation_review_missing,proposal_not_approved_for_implementation_review,required_feature_flags_missing,required_tests_missing,rollback_plan_missing",
+      "proposal_id": "cio_htf_against",
+      "timestamp": "2026-07-09T14:42:02.077079+00:00"
+    },
+    {
+      "action": null,
+      "conditions": [],
+      "decision_id": "decision_20260709144237780799",
+      "edge_type": null,
+      "expected_metrics": {
+        "evidence": null,
+        "pf": null,
+        "total_r": null,
+        "trade_reduction_pct": null
+      },
+      "final_decision": "NO_ACTIONABLE_PROPOSAL",
+      "human_action": "",
+      "implementation_status": "",
+      "later_outcome": "",
+      "notes": "",
+      "proposal_id": null,
+      "timestamp": "2026-07-09T14:42:37.780911+00:00"
     }
   ]
 }

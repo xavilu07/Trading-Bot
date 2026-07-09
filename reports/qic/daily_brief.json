@@ -13,11 +13,11 @@
       "type": "code_engineer_blocked"
     }
   ],
-  "generated_at": "2026-07-09T14:26:20.812375+00:00",
+  "generated_at": "2026-07-09T14:42:37.784251+00:00",
   "last_decision": {
     "action": null,
     "conditions": [],
-    "decision_id": "decision_20260709142620808492",
+    "decision_id": "decision_20260709144237780799",
     "edge_type": null,
     "expected_metrics": {
       "evidence": null,
@@ -31,7 +31,7 @@
     "later_outcome": "",
     "notes": "",
     "proposal_id": null,
-    "timestamp": "2026-07-09T14:26:20.808618+00:00"
+    "timestamp": "2026-07-09T14:42:37.780911+00:00"
   },
   "new_edges": [
     {

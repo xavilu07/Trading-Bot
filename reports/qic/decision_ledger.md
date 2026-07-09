@@ -1,6 +1,6 @@
 # QIC Decision Ledger
 
-Decisions: 7
+Decisions: 10
 
 | timestamp | proposal_id | final_decision | human_action | implementation_status |
 | --- | --- | --- | --- | --- |
@@ -11,3 +11,6 @@ Decisions: 7
 | 2026-07-09T14:24:56.480514+00:00 | cio_htf_against | CODE_ENGINEER_STATUS |  | blocked_preconditions |
 | 2026-07-09T14:26:16.278591+00:00 | cio_htf_against | CODE_ENGINEER_STATUS |  | blocked_preconditions |
 | 2026-07-09T14:26:20.808618+00:00 | None | NO_ACTIONABLE_PROPOSAL |  |  |
+| 2026-07-09T14:26:48.682014+00:00 | cio_htf_against | CODE_ENGINEER_STATUS |  | blocked_preconditions |
+| 2026-07-09T14:42:02.077079+00:00 | cio_htf_against | CODE_ENGINEER_STATUS |  | blocked_preconditions |
+| 2026-07-09T14:42:37.780911+00:00 | None | NO_ACTIONABLE_PROPOSAL |  |  |

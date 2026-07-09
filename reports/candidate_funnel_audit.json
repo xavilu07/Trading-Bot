@@ -1,7 +1,7 @@
 {
   "conclusion": "no_clear_bottleneck",
   "cycles_total": 1,
-  "generated_at": "2026-07-09T14:26:31.954228+00:00",
+  "generated_at": "2026-07-09T14:42:43.244251+00:00",
   "latest_cycle": {
     "counts": {
       "candidates_created": 1,
@@ -15,7 +15,7 @@
       "v1_skips_created": 0,
       "v1_trades_created": 0
     },
-    "finished_at": "2026-07-09T14:26:31.954195+00:00",
+    "finished_at": "2026-07-09T14:42:43.244214+00:00",
     "rejection_reasons": {
       "lifecycle_publishability": {},
       "publishing": {},
@@ -23,8 +23,8 @@
       "relaxation_shadow_v1": {},
       "score": {}
     },
-    "scan_run_id": "run_18024fb9797d",
-    "started_at": "2026-07-09T14:26:31.941689+00:00"
+    "scan_run_id": "run_d2376e86a0bb",
+    "started_at": "2026-07-09T14:42:43.231508+00:00"
   },
   "rolling_last_5_counts": {
     "candidates_created": 1,

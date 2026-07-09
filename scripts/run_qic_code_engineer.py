@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 
 from trading_signals.agents.implementation.code_engineer import run_code_engineer
+from trading_signals.agents.qic_telegram_config import load_qic_telegram_config
 from trading_signals.app.settings import load_settings
 
 
@@ -36,6 +37,7 @@ def main(argv: list[str] | None = None) -> int:
 
     load_dotenv(args.env_file)
     settings = load_settings()
+    qic_telegram = load_qic_telegram_config(env_file=args.env_file)
     allow_apply = bool(getattr(settings, "qic_code_engineer_enabled", False)) and bool(
         getattr(settings, "qic_code_engineer_allow_apply", False)
     )
@@ -54,6 +56,11 @@ def main(argv: list[str] | None = None) -> int:
         allow_apply=allow_apply,
         max_autofix_attempts=max_autofix,
     )
+    report["qic_telegram"] = {
+        "configured": bool(qic_telegram.get("configured")),
+        "source": qic_telegram.get("source"),
+        "chat_ids": qic_telegram.get("chat_ids", []),
+    }
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return 0 if report.get("status") not in {"failed_preconditions", "failed_tests"} else 1
 

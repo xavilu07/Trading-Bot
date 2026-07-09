@@ -780,7 +780,7 @@
       "risk_level": "LOW",
       "role": "Research Director",
       "stage": "research",
-      "timestamp": "2026-07-09T14:26:20.806454+00:00"
+      "timestamp": "2026-07-09T14:42:37.778385+00:00"
     },
     {
       "agent": "strategy_director",
@@ -793,7 +793,7 @@
       "risk_level": "MEDIUM",
       "role": "Strategy Director",
       "stage": "strategy",
-      "timestamp": "2026-07-09T14:26:20.806518+00:00"
+      "timestamp": "2026-07-09T14:42:37.778449+00:00"
     },
     {
       "agent": "risk_director",
@@ -1008,7 +1008,7 @@
       "risk_level": "HIGH",
       "role": "Risk Director",
       "stage": "risk",
-      "timestamp": "2026-07-09T14:26:20.806818+00:00"
+      "timestamp": "2026-07-09T14:42:37.778727+00:00"
     },
     {
       "agent": "simulation_director",
@@ -3347,7 +3347,7 @@
       "risk_level": "LOW",
       "role": "Simulation Director",
       "stage": "simulation",
-      "timestamp": "2026-07-09T14:26:20.807063+00:00"
+      "timestamp": "2026-07-09T14:42:37.778944+00:00"
     },
     {
       "agent": "research_director",
@@ -3620,7 +3620,7 @@
       "risk_level": "HIGH",
       "role": "Research Director",
       "stage": "research_response",
-      "timestamp": "2026-07-09T14:26:20.807070+00:00"
+      "timestamp": "2026-07-09T14:42:37.778951+00:00"
     }
   ],
   "pipeline": [
