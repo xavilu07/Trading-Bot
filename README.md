@@ -23,6 +23,18 @@ uvicorn trading_signals.interfaces.api.main:app --reload
 pytest
 ```
 
+## Quantum Investment Council
+
+El QIC autónomo es un control plane offline/DEV separado del scheduler de trading. Sus flags quedan apagados por defecto y no activa estrategia, live trading ni Telegram público.
+
+```bash
+PYTHONPATH=src .venv/bin/python scripts/run_qic_autonomous.py --once --dry-run
+PYTHONPATH=src .venv/bin/python scripts/run_qic_autonomous.py --health
+PYTHONPATH=src .venv/bin/python scripts/test_qic_end_to_end.py --dry-run
+```
+
+Arquitectura, systemd, Telegram, rollback y checklist VPS: [Planning/qic-autonomous-operations.md](Planning/qic-autonomous-operations.md).
+
 ## Telegram listener
 
 El listener de Telegram es un proceso separado del scanner de mercado.

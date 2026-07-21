@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from trading_signals.agents.strategy_knowledge_base import knowledge_item_id, normalize_conditions
+from trading_signals.agents.qic_runtime import atomic_write_json, atomic_write_text
 
 DEFAULT_RESEARCH_MEMORY_PATH = Path("data") / "qic" / "research_memory.json"
 
@@ -25,8 +26,7 @@ def load_research_memory(path: Path = DEFAULT_RESEARCH_MEMORY_PATH) -> dict[str,
 
 def save_research_memory(memory: dict[str, Any], path: Path = DEFAULT_RESEARCH_MEMORY_PATH) -> dict[str, Any]:
     memory["updated_at"] = _now()
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(memory, indent=2, sort_keys=True), encoding="utf-8")
+    atomic_write_json(path, memory)
     return memory
 
 
@@ -165,8 +165,8 @@ def write_research_memory_reports(
     output_path.mkdir(parents=True, exist_ok=True)
     json_path = output_path / "research_memory.json"
     md_path = output_path / "research_memory.md"
-    json_path.write_text(json.dumps(memory, indent=2, sort_keys=True), encoding="utf-8")
-    md_path.write_text(format_research_memory_markdown(memory), encoding="utf-8")
+    atomic_write_json(json_path, memory)
+    atomic_write_text(md_path, format_research_memory_markdown(memory))
     return {"json": json_path, "markdown": md_path}
 
 

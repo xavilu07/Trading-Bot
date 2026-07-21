@@ -1,9 +1,0 @@
-{
-  "allowed_to_generate_patch": false,
-  "blockers": [
-    "proposal_not_found"
-  ],
-  "created_at": "2026-07-09T14:24:21.325790+00:00",
-  "decision": "REJECT_IMPLEMENTATION",
-  "proposal_id": "cio_5909920e9f22"
-}

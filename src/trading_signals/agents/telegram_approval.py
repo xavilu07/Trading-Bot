@@ -9,9 +9,11 @@ from typing import Any
 
 from trading_signals.agents.proposal_store import DEFAULT_PROPOSALS_PATH, update_proposal_status
 from trading_signals.agents.qic_telegram_config import load_qic_telegram_config
+from trading_signals.agents.qic_runtime import append_jsonl, atomic_write_json, read_json_safe, utc_now
 from trading_signals.agents.strategy_knowledge_base import DEFAULT_KNOWLEDGE_BASE_PATH, record_proposal_review
 
 DEFAULT_QIC_TELEGRAM_OFFSET_PATH = Path("data") / "qic" / "telegram_update_offset.json"
+DEFAULT_QIC_CALLBACK_HISTORY_PATH = Path("data") / "qic" / "telegram_callbacks.jsonl"
 
 
 def build_approval_payload(proposal: dict[str, Any], *, chat_id: str) -> dict[str, Any]:
@@ -40,6 +42,16 @@ def build_approval_payload(proposal: dict[str, Any], *, chat_id: str) -> dict[st
                 [
                     {"text": "🧩 Apply Patch", "callback_data": f"agent:apply_patch:{proposal_id}"},
                     {"text": "🧪 Start Shadow", "callback_data": f"agent:start_shadow:{proposal_id}"},
+                ],
+                [
+                    {"text": "⏸ Postpone", "callback_data": f"agent:postpone:{proposal_id}"},
+                    {"text": "🧮 Simulate", "callback_data": f"agent:simulate:{proposal_id}"},
+                    {"text": "✅ Run Tests", "callback_data": f"agent:run_tests:{proposal_id}"},
+                ],
+                [
+                    {"text": "🧾 View Diff", "callback_data": f"agent:view_diff:{proposal_id}"},
+                    {"text": "↩️ Rollback", "callback_data": f"agent:rollback:{proposal_id}"},
+                    {"text": "📈 Impact", "callback_data": f"agent:impact:{proposal_id}"},
                 ],
                 [
                     {"text": "📚 History", "callback_data": f"agent:history:{proposal_id}"},
@@ -237,8 +249,23 @@ def handle_approval_callback(
     if len(parts) != 3 or parts[0] != "agent":
         return {"handled": False, "reason": "invalid_callback"}
     action, proposal_id = parts[1], parts[2]
-    if action in {"details", "debate", "alternative", "start_shadow"}:
-        return {"handled": True, "action": action, "proposal_id": proposal_id, "status": "unchanged"}
+    if action in {"details", "debate", "alternative", "start_shadow", "simulate", "run_tests", "view_diff", "rollback", "impact"}:
+        return _handle_safe_action_request(
+            action,
+            proposal_id,
+            proposal_store_path=proposal_store_path,
+            qic_output_path=qic_output_path,
+            actor=actor,
+        )
+    if action == "postpone":
+        updated = update_proposal_status(
+            proposal_id,
+            "postponed",
+            path=proposal_store_path,
+            actor=actor,
+            approval_metadata={"postponed": True},
+        )
+        return {"handled": updated is not None, "action": action, "proposal_id": proposal_id, "status": "postponed" if updated else "not_found"}
     if action == "history":
         return _handle_history_callback(proposal_id, proposal_store_path=proposal_store_path, qic_output_path=qic_output_path)
     if action == "edge_memory":
@@ -539,12 +566,34 @@ def process_approval_update(
     proposal_store_path: Path = DEFAULT_PROPOSALS_PATH,
     knowledge_base_path: Path = DEFAULT_KNOWLEDGE_BASE_PATH,
     qic_output_path: Path = Path("reports") / "qic",
+    authorized_chat_ids: list[str] | None = None,
+    callback_history_path: Path = DEFAULT_QIC_CALLBACK_HISTORY_PATH,
 ) -> dict[str, Any]:
+    if callback_history_path == DEFAULT_QIC_CALLBACK_HISTORY_PATH and proposal_store_path != DEFAULT_PROPOSALS_PATH:
+        callback_history_path = proposal_store_path.parent / "qic_telegram_callbacks.jsonl"
     callback = update.get("callback_query") if isinstance(update.get("callback_query"), dict) else {}
     data = str(callback.get("data") or "")
     actor = str((callback.get("from") or {}).get("id") or "telegram_dev")
+    chat_id = str(((callback.get("message") or {}).get("chat") or {}).get("id") or actor)
+    if authorized_chat_ids is not None and chat_id not in {str(item) for item in authorized_chat_ids}:
+        return {
+            "handled": False,
+            "reason": "unauthorized_chat",
+            "chat_id": chat_id,
+            "update_id": update.get("update_id"),
+            "callback_query_id": callback.get("id"),
+        }
     if not data:
         return {"handled": False, "reason": "missing_callback_data", "update_id": update.get("update_id")}
+    callback_id = str(callback.get("id") or "")
+    if callback_id and _callback_seen(callback_history_path, callback_id):
+        return {
+            "handled": True,
+            "reason": "duplicate_callback_ignored",
+            "idempotent": True,
+            "update_id": update.get("update_id"),
+            "callback_query_id": callback_id,
+        }
     result = handle_approval_callback(
         data,
         proposal_store_path=proposal_store_path,
@@ -553,8 +602,67 @@ def process_approval_update(
         actor=actor,
     )
     result["update_id"] = update.get("update_id")
-    result["callback_query_id"] = callback.get("id")
+    result["callback_query_id"] = callback_id
+    result["actor"] = actor
+    result["chat_id"] = chat_id
+    result["processed_at"] = utc_now()
+    if callback_id:
+        append_jsonl(
+            callback_history_path,
+            {
+                "callback_id": callback_id,
+                "update_id": update.get("update_id"),
+                "actor": actor,
+                "chat_id": chat_id,
+                "callback_data": data,
+                "processed_at": result["processed_at"],
+                "result": {"handled": result.get("handled"), "action": result.get("action"), "status": result.get("status"), "reason": result.get("reason")},
+            },
+        )
+    _record_telegram_decision(result, proposal_store_path=proposal_store_path, actor=actor)
     return result
+
+
+def process_telegram_update(
+    update: dict[str, Any],
+    *,
+    proposal_store_path: Path = DEFAULT_PROPOSALS_PATH,
+    knowledge_base_path: Path = DEFAULT_KNOWLEDGE_BASE_PATH,
+    qic_output_path: Path = Path("reports") / "qic",
+    authorized_chat_ids: list[str] | None = None,
+    callback_history_path: Path = DEFAULT_QIC_CALLBACK_HISTORY_PATH,
+) -> dict[str, Any]:
+    if isinstance(update.get("callback_query"), dict):
+        return process_approval_update(
+            update,
+            proposal_store_path=proposal_store_path,
+            knowledge_base_path=knowledge_base_path,
+            qic_output_path=qic_output_path,
+            authorized_chat_ids=authorized_chat_ids,
+            callback_history_path=callback_history_path,
+        )
+    message = update.get("message") if isinstance(update.get("message"), dict) else {}
+    chat_id = str((message.get("chat") or {}).get("id") or "")
+    if authorized_chat_ids is not None and chat_id not in {str(item) for item in authorized_chat_ids}:
+        return {"handled": False, "reason": "unauthorized_chat", "chat_id": chat_id, "update_id": update.get("update_id")}
+    text = str(message.get("text") or "").strip()
+    if not text.startswith("/"):
+        return {"handled": False, "reason": "unsupported_message", "chat_id": chat_id, "update_id": update.get("update_id")}
+    command = text.split()[0].split("@")[0].lower()
+    response = build_qic_command_response(
+        command,
+        proposal_store_path=proposal_store_path,
+        qic_output_path=qic_output_path,
+    )
+    return {
+        "handled": True,
+        "action": "command",
+        "command": command,
+        "chat_id": chat_id,
+        "update_id": update.get("update_id"),
+        "response_text": response,
+        "processed_at": utc_now(),
+    }
 
 
 def poll_approval_callbacks(
@@ -567,6 +675,8 @@ def poll_approval_callbacks(
     limit: int = 20,
     timeout: int = 0,
     dry_run: bool = False,
+    authorized_chat_ids: list[str] | None = None,
+    callback_history_path: Path = DEFAULT_QIC_CALLBACK_HISTORY_PATH,
 ) -> dict[str, Any]:
     if not bot_token:
         return {"status": "skipped", "reason": "qic_telegram_bot_token_missing", "processed": []}
@@ -578,11 +688,13 @@ def poll_approval_callbacks(
     for update in updates:
         if not isinstance(update, dict):
             continue
-        result = process_approval_update(
+        result = process_telegram_update(
             update,
             proposal_store_path=proposal_store_path,
             knowledge_base_path=knowledge_base_path,
             qic_output_path=qic_output_path,
+            authorized_chat_ids=authorized_chat_ids,
+            callback_history_path=callback_history_path,
         )
         processed.append(result)
         try:
@@ -592,6 +704,12 @@ def poll_approval_callbacks(
         callback_query_id = result.get("callback_query_id")
         if callback_query_id and not dry_run:
             _answer_callback_query(bot_token, str(callback_query_id), result)
+        if result.get("response_text") and result.get("chat_id") and not dry_run:
+            _send_payload(
+                bot_token,
+                {"chat_id": result["chat_id"], "text": result["response_text"], "reply_markup": {"inline_keyboard": []}},
+                proposal_id=f"command:{result.get('command')}",
+            )
     if max_update_id >= 0 and not dry_run:
         _save_update_offset(offset_path, max_update_id + 1)
     return {
@@ -635,7 +753,7 @@ def _get_updates(*, bot_token: str, offset: int, limit: int, timeout: int, dry_r
             "offset": offset,
             "limit": limit,
             "timeout": timeout,
-            "allowed_updates": json.dumps(["callback_query"]),
+            "allowed_updates": json.dumps(["callback_query", "message"]),
         }
     )
     req = urllib.request.Request(f"https://api.telegram.org/bot{bot_token}/getUpdates?{query}", method="GET")
@@ -669,11 +787,7 @@ def _load_update_offset(path: Path) -> int:
 
 
 def _save_update_offset(path: Path, next_offset: int) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps({"next_offset": next_offset, "updated_at": datetime.now(tz=UTC).isoformat()}, indent=2, sort_keys=True),
-        encoding="utf-8",
-    )
+    atomic_write_json(path, {"next_offset": next_offset, "updated_at": datetime.now(tz=UTC).isoformat()})
 
 
 def _as_bool(value: Any) -> bool:
@@ -686,3 +800,131 @@ def _as_bool(value: Any) -> bool:
 
 def _chat_ids(chat_id: str) -> list[str]:
     return [item.strip() for item in str(chat_id).split(",") if item.strip()]
+
+
+def build_qic_command_response(
+    command: str,
+    *,
+    proposal_store_path: Path = DEFAULT_PROPOSALS_PATH,
+    qic_output_path: Path = Path("reports") / "qic",
+) -> str:
+    proposals = _load_proposals_for_command(proposal_store_path)
+    if command in {"/start", "/help"}:
+        return (
+            "🤖 QIC DEV commands\n"
+            "/status /health /qic /research /proposals /pending /history\n"
+            "/performance /agents /memory /edges /errors /help"
+        )
+    if command == "/status":
+        run = read_json_safe(qic_output_path / "autonomous_run.json", {})
+        state = read_json_safe(qic_output_path / "state_of_council.json", {})
+        return _compact("QIC Status", {"run": run.get("status"), "run_id": run.get("run_id"), "score": (read_json_safe(qic_output_path / "system_health.json", {}) or {}).get("autonomous_score"), "pending": state.get("pending_approval")})
+    if command == "/health":
+        report = read_json_safe(qic_output_path / "system_health.json", {})
+        return _compact("QIC Health", {"status": report.get("status"), "score": report.get("autonomous_score"), "errors": report.get("recent_errors")})
+    if command == "/qic":
+        report = read_json_safe(qic_output_path / "proposal.json", {})
+        return _compact("Latest CIO proposal", {"id": report.get("id"), "action": report.get("action"), "title": report.get("title"), "risk": report.get("risk_level")})
+    if command == "/research":
+        report = read_json_safe(qic_output_path / "revalidation.json", {})
+        return _compact("Research", {"revalidation": report.get("summary"), "generated": report.get("status")})
+    if command in {"/proposals", "/pending"}:
+        selected = [item for item in proposals if command == "/proposals" or item.get("status") in {"pending", "postponed", "approved_for_implementation_review"}]
+        lines = [f"📋 {command[1:].title()}: {len(selected)}"]
+        lines.extend(f"- {item.get('id')} | {item.get('status')} | {item.get('risk_level')}" for item in selected[-8:])
+        return "\n".join(lines)
+    if command == "/history":
+        report = read_json_safe(qic_output_path / "decision_ledger.json", {})
+        decisions = report.get("decisions") if isinstance(report, dict) else []
+        lines = [f"📚 QIC History: {len(decisions or [])}"]
+        lines.extend(f"- {item.get('proposal_id')} | {item.get('final_decision')} | {item.get('human_action')}" for item in (decisions or [])[-8:])
+        return "\n".join(lines)
+    if command == "/performance":
+        overview = read_json_safe(qic_output_path.parent / "strategy_simulator" / "overview.json", {})
+        baseline = overview.get("baseline") if isinstance(overview, dict) else {}
+        return _compact("Performance", baseline or {})
+    if command == "/agents":
+        activity = read_json_safe(qic_output_path.parent.parent / "data" / "qic" / "agent_activity.json", {})
+        if not activity:
+            activity = read_json_safe(Path("data") / "qic" / "agent_activity.json", {})
+        lines = ["🧑‍⚖️ QIC Agents"]
+        lines.extend(f"- {name}: {item.get('last_status')} | 24h={item.get('executions_last_24h', 0)}" for name, item in (activity.get("agents") or {}).items())
+        return "\n".join(lines)
+    if command in {"/memory", "/edges"}:
+        filename = "research_memory.json" if command == "/memory" else "strategy_knowledge_base.json"
+        report = read_json_safe(qic_output_path / filename, {})
+        items = report.get("experiments") or report.get("items") or {}
+        return _compact(command[1:].title(), {"items": len(items), "updated_at": report.get("updated_at")})
+    if command == "/errors":
+        health = read_json_safe(qic_output_path / "system_health.json", {})
+        run = read_json_safe(qic_output_path / "autonomous_run.json", {})
+        return _compact("Recent errors", {"health_errors": health.get("recent_errors"), "run_errors": run.get("errors", [])[-5:]})
+    return "Unknown command. Use /help."
+
+
+def _handle_safe_action_request(
+    action: str,
+    proposal_id: str,
+    *,
+    proposal_store_path: Path,
+    qic_output_path: Path,
+    actor: str,
+) -> dict[str, Any]:
+    if action in {"details", "debate", "view_diff", "impact"}:
+        filename = {"details": "proposal.json", "debate": "debate.json", "view_diff": "generated_patch.json", "impact": "implementation_review.json"}[action]
+        return {"handled": True, "action": action, "proposal_id": proposal_id, "status": "loaded", "details": read_json_safe(qic_output_path / filename, {})}
+    if action in {"apply_patch", "rollback", "start_shadow"}:
+        return {"handled": True, "action": action, "proposal_id": proposal_id, "status": "blocked", "reason": "explicit_secure_flow_required"}
+    request = {
+        "request_id": f"telegram_{action}_{proposal_id}_{datetime.now(tz=UTC).strftime('%Y%m%d%H%M%S%f')}",
+        "action": action,
+        "proposal_id": proposal_id,
+        "actor": actor,
+        "created_at": utc_now(),
+        "status": "queued",
+    }
+    append_jsonl(_qic_data_path(proposal_store_path) / "action_requests.jsonl", request)
+    return {"handled": True, "action": action, "proposal_id": proposal_id, "status": "queued", "request_id": request["request_id"]}
+
+
+def _callback_seen(path: Path, callback_id: str) -> bool:
+    if not path.exists():
+        return False
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines()[-5000:]:
+        try:
+            item = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if str(item.get("callback_id") or "") == callback_id:
+            return True
+    return False
+
+
+def _record_telegram_decision(result: dict[str, Any], *, proposal_store_path: Path, actor: str) -> None:
+    if not result.get("handled") or result.get("idempotent"):
+        return
+    from trading_signals.agents.decision_ledger import append_decision_ledger_entry
+
+    proposals = _load_proposals_for_command(proposal_store_path)
+    proposal = next((item for item in proposals if item.get("id") == result.get("proposal_id")), None)
+    append_decision_ledger_entry(
+        proposal,
+        path=_qic_data_path(proposal_store_path) / "decision_ledger.jsonl",
+        final_decision=str(result.get("action") or "telegram_action"),
+        human_action=f"telegram:{result.get('action')}:{actor}",
+        implementation_status=str(result.get("status") or ""),
+    )
+
+
+def _load_proposals_for_command(path: Path) -> list[dict[str, Any]]:
+    from trading_signals.agents.proposal_store import load_proposals
+
+    return load_proposals(path)
+
+
+def _compact(title: str, values: dict[str, Any]) -> str:
+    lines = [f"🤖 {title}"]
+    for key, value in values.items():
+        rendered = json.dumps(value, ensure_ascii=False, sort_keys=True) if isinstance(value, (dict, list)) else str(value)
+        lines.append(f"{key}: {rendered}")
+    return "\n".join(lines)[:3900]

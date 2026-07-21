@@ -71,7 +71,7 @@ def test_telegram_payload_includes_buttons() -> None:
 
     assert payload["chat_id"] == "123"
     buttons = [button for row in payload["reply_markup"]["inline_keyboard"] for button in row]
-    assert [button["text"] for button in buttons] == [
+    expected = {
         "✅ Approve",
         "❌ Reject",
         "📊 Details",
@@ -86,7 +86,10 @@ def test_telegram_payload_includes_buttons() -> None:
         "📚 History",
         "🧠 Edge Memory",
         "🧑‍⚖️ Agent Review",
-    ]
+    }
+    labels = {button["text"] for button in buttons}
+    assert expected <= labels
+    assert {"⏸ Postpone", "🧮 Simulate", "✅ Run Tests", "🧾 View Diff", "↩️ Rollback", "📈 Impact"} <= labels
     assert buttons[0]["callback_data"] == "agent:approve:prop_1"
 
 

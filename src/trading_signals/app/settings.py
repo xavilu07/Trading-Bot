@@ -290,6 +290,71 @@ class Settings:
     qic_code_engineer_max_autofix_attempts: int = field(
         default_factory=lambda: int(os.getenv("QIC_CODE_ENGINEER_MAX_AUTOFIX_ATTEMPTS", "1"))
     )
+    qic_autonomous_enabled: bool = field(default_factory=lambda: _bool_env("QIC_AUTONOMOUS_ENABLED", "false"))
+    qic_autonomous_dry_run: bool = field(default_factory=lambda: _bool_env("QIC_AUTONOMOUS_DRY_RUN", "true"))
+    qic_timezone: str = field(default_factory=lambda: os.getenv("QIC_TIMEZONE", "Europe/Madrid"))
+    qic_phase_timeout_seconds: int = field(
+        default_factory=lambda: int(os.getenv("QIC_PHASE_TIMEOUT_SECONDS", "300"))
+    )
+    qic_phase_max_retries: int = field(default_factory=lambda: int(os.getenv("QIC_PHASE_MAX_RETRIES", "1")))
+    qic_enabled_agents: list[str] = field(
+        default_factory=lambda: _csv_env(
+            "QIC_ENABLED_AGENTS",
+            "research_director,strategy_director,risk_director,simulation_director",
+        )
+    )
+    qic_lock_stale_minutes: int = field(default_factory=lambda: int(os.getenv("QIC_LOCK_STALE_MINUTES", "120")))
+    qic_event_interval_hours: float = field(default_factory=lambda: float(os.getenv("QIC_EVENT_INTERVAL_HOURS", "1")))
+    qic_revalidation_interval_hours: float = field(
+        default_factory=lambda: float(os.getenv("QIC_REVALIDATION_INTERVAL_HOURS", "24"))
+    )
+    qic_health_interval_minutes: int = field(
+        default_factory=lambda: int(os.getenv("QIC_HEALTH_INTERVAL_MINUTES", "5"))
+    )
+    qic_weekly_research_review_weekday: int = field(
+        default_factory=lambda: int(os.getenv("QIC_WEEKLY_RESEARCH_REVIEW_WEEKDAY", "0"))
+    )
+    qic_weekly_research_review_hour: int = field(
+        default_factory=lambda: int(os.getenv("QIC_WEEKLY_RESEARCH_REVIEW_HOUR", "9"))
+    )
+    qic_weekly_research_review_minute: int = field(
+        default_factory=lambda: int(os.getenv("QIC_WEEKLY_RESEARCH_REVIEW_MINUTE", "15"))
+    )
+    qic_notification_cooldown_seconds: int = field(
+        default_factory=lambda: int(os.getenv("QIC_NOTIFICATION_COOLDOWN_SECONDS", "900"))
+    )
+    qic_notification_rate_limit_per_hour: int = field(
+        default_factory=lambda: int(os.getenv("QIC_NOTIFICATION_RATE_LIMIT_PER_HOUR", "20"))
+    )
+    qic_auto_apply_low_risk: bool = field(
+        default_factory=lambda: _bool_env("QIC_AUTO_APPLY_LOW_RISK", "false")
+    )
+    qic_auto_apply_medium_risk: bool = field(
+        default_factory=lambda: _bool_env("QIC_AUTO_APPLY_MEDIUM_RISK", "false")
+    )
+    qic_live_trading_changes_allowed: bool = field(
+        default_factory=lambda: _bool_env("QIC_LIVE_TRADING_CHANGES_ALLOWED", "false")
+    )
+    qic_auto_apply_max_files: int = field(default_factory=lambda: int(os.getenv("QIC_AUTO_APPLY_MAX_FILES", "8")))
+    qic_auto_apply_max_changed_lines: int = field(
+        default_factory=lambda: int(os.getenv("QIC_AUTO_APPLY_MAX_CHANGED_LINES", "400"))
+    )
+    qic_change_allowlist: list[str] = field(
+        default_factory=lambda: _csv_env(
+            "QIC_CHANGE_ALLOWLIST",
+            "src/trading_signals/agents,src/trading_signals/application/use_cases,tests,scripts,reports/qic,Planning,deploy/frontend,src/trading_signals/interfaces/frontend",
+        )
+    )
+    qic_change_denylist: list[str] = field(
+        default_factory=lambda: _csv_env(
+            "QIC_CHANGE_DENYLIST",
+            ".env,.env.*,config/qic_telegram.json,credentials,wallets,keys,live_trading,risk_plan,position_sizing",
+        )
+    )
+    qic_api_actions_enabled: bool = field(default_factory=lambda: _bool_env("QIC_API_ACTIONS_ENABLED", "false"))
+    qic_report_retention_days: int = field(default_factory=lambda: int(os.getenv("QIC_REPORT_RETENTION_DAYS", "90")))
+    qic_data_freshness_hours: int = field(default_factory=lambda: int(os.getenv("QIC_DATA_FRESHNESS_HOURS", "12")))
+    qic_report_freshness_hours: int = field(default_factory=lambda: int(os.getenv("QIC_REPORT_FRESHNESS_HOURS", "12")))
     private_runtime_report_enabled: bool = field(
         default_factory=lambda: _bool_env("PRIVATE_RUNTIME_REPORT_ENABLED", "true")
     )

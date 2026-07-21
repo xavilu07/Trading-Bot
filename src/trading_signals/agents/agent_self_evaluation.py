@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from trading_signals.agents.agent_memory import load_agent_memory
+from trading_signals.agents.qic_runtime import atomic_write_json, atomic_write_text
 
 
 def evaluate_agents(
@@ -45,8 +46,8 @@ def write_agent_self_evaluation_reports(report: dict[str, Any], *, output_path: 
     output_path.mkdir(parents=True, exist_ok=True)
     json_path = output_path / "agent_self_evaluation.json"
     md_path = output_path / "agent_self_evaluation.md"
-    json_path.write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
-    md_path.write_text(_markdown(report), encoding="utf-8")
+    atomic_write_json(json_path, report)
+    atomic_write_text(md_path, _markdown(report))
     return {"json": json_path, "markdown": md_path}
 
 

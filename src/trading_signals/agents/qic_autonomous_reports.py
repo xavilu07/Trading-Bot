@@ -8,6 +8,7 @@ from typing import Any
 from trading_signals.agents.decision_ledger import load_decision_ledger
 from trading_signals.agents.research_memory import load_research_memory
 from trading_signals.agents.strategy_knowledge_base import load_strategy_knowledge_base
+from trading_signals.agents.qic_runtime import atomic_write_json, atomic_write_text
 
 
 def write_autonomous_qic_reports(
@@ -63,8 +64,8 @@ def _weekly_review(kb: dict[str, Any], memory: dict[str, Any], ledger: list[dict
 def _write_pair(base_path: Path, payload: dict[str, Any], title: str) -> None:
     json_path = base_path.with_suffix(".json")
     md_path = base_path.with_suffix(".md")
-    json_path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
-    md_path.write_text(_markdown(payload, title), encoding="utf-8")
+    atomic_write_json(json_path, payload)
+    atomic_write_text(md_path, _markdown(payload, title))
 
 
 def _markdown(payload: dict[str, Any], title: str) -> str:

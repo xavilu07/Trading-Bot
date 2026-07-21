@@ -14,6 +14,8 @@
         --accent: #2f81f7;
         --good: #238636;
         --warn: #d29922;
+        --qic: #39c5bb;
+        --danger: #f85149;
       }
       body {
         margin: 0;
@@ -121,6 +123,22 @@
       .status-warn {
         color: var(--warn);
       }
+      .qic-section {
+        margin-top: 32px;
+        padding-top: 28px;
+        border-top: 1px solid var(--border);
+      }
+      .qic-section .pill {
+        background: rgba(57, 197, 187, 0.16);
+        color: #73e7dd;
+      }
+      .score {
+        color: var(--qic);
+        font-variant-numeric: tabular-nums;
+      }
+      .status-bad { color: var(--danger); }
+      .card[data-state="HEALTHY"] { border-color: rgba(57, 197, 187, 0.5); }
+      .card[data-state="UNHEALTHY"] { border-color: rgba(248, 81, 73, 0.65); }
     </style>
   </head>
   <body>
@@ -171,18 +189,81 @@
           <div id="top-rejections">Cargando...</div>
         </article>
       </section>
+
+      <section class="qic-section">
+        <div class="hero">
+          <span class="pill">Quantum Investment Council</span>
+          <h1>QIC Control Center</h1>
+          <p>Observabilidad autónoma, memoria, propuestas y cambios seguros. Las acciones HTTP están deshabilitadas sin autenticación administrativa.</p>
+        </div>
+        <div class="grid">
+          <article class="card" id="qic-health-card">
+            <h2>Autonomous Score</h2>
+            <p class="metric score" id="qic-score">-</p>
+            <p id="qic-health" class="muted">Cargando...</p>
+          </article>
+          <article class="card">
+            <h2>Último ciclo QIC</h2>
+            <pre id="qic-run">Cargando...</pre>
+          </article>
+          <article class="card">
+            <h2>Actividad</h2>
+            <pre id="qic-activity">Cargando...</pre>
+          </article>
+          <article class="card">
+            <h2>Memoria</h2>
+            <pre id="qic-memory">Cargando...</pre>
+          </article>
+          <article class="card wide">
+            <h2>Rendimiento QIC</h2>
+            <pre id="qic-performance">Cargando...</pre>
+          </article>
+          <article class="card wide">
+            <h2>Agentes</h2>
+            <div id="qic-agents">Cargando...</div>
+          </article>
+          <article class="card wide">
+            <h2>Propuestas</h2>
+            <div id="qic-proposals">Cargando...</div>
+          </article>
+          <article class="card wide">
+            <h2>Timeline</h2>
+            <div id="qic-timeline">Cargando...</div>
+          </article>
+          <article class="card wide">
+            <h2>Cambios de código</h2>
+            <div id="qic-changes">Cargando...</div>
+          </article>
+          <article class="card wide">
+            <h2>Errores y degradaciones</h2>
+            <div id="qic-errors">Cargando...</div>
+          </article>
+        </div>
+      </section>
     </main>
 
     <script>
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
       function formatRows(rows, columns) {
         if (!rows || rows.length === 0) {
           return '<p class="muted">Sin datos</p>';
         }
-        const head = columns.map((column) => `<th>${column.label}</th>`).join("");
+        const head = columns.map((column) => `<th>${escapeHtml(column.label)}</th>`).join("");
         const body = rows
           .map((row) => {
             const cells = columns
-              .map((column) => `<td>${column.value(row) ?? ""}</td>`)
+              .map((column) => {
+                const value = column.value(row);
+                return `<td>${escapeHtml(typeof value === "object" ? JSON.stringify(value) : value)}</td>`;
+              })
               .join("");
             return `<tr>${cells}</tr>`;
           })
@@ -231,9 +312,71 @@
         document.getElementById("updated").textContent = `Actualizado ${new Date().toLocaleString()}`;
       }
 
-      document.getElementById("refresh").addEventListener("click", loadDashboard);
+      async function loadQIC() {
+        const response = await fetch("/api/qic/control-center");
+        const data = await response.json();
+        const status = data.status || {};
+        const healthCard = document.getElementById("qic-health-card");
+        healthCard.dataset.state = status.health || "UNKNOWN";
+        document.getElementById("qic-score").textContent = `${status.autonomous_score || 0}/100`;
+        document.getElementById("qic-health").textContent = `${status.health || "UNKNOWN"} | dry-run=${status.dry_run !== false}`;
+        document.getElementById("qic-run").textContent = JSON.stringify({
+          run_id: status.last_run_id,
+          status: status.last_run_status,
+          finished_at: status.last_cycle,
+          next_execution: status.next_execution,
+          scheduler: status.scheduler,
+          telegram: status.telegram,
+          code_engineer: status.code_engineer?.status,
+          autonomous_enabled: status.autonomous_enabled,
+          auto_apply: status.auto_apply,
+        }, null, 2);
+        document.getElementById("qic-activity").textContent = JSON.stringify(data.activity || {}, null, 2);
+        document.getElementById("qic-memory").textContent = JSON.stringify(data.memory || {}, null, 2);
+        document.getElementById("qic-performance").textContent = JSON.stringify(data.performance || {}, null, 2);
+        const agents = Object.entries(data.agents || {}).map(([name, item]) => ({ name, ...item }));
+        document.getElementById("qic-agents").innerHTML = formatRows(agents, [
+          { label: "Agente", value: (row) => row.name },
+          { label: "Estado", value: (row) => row.last_status },
+          { label: "24h", value: (row) => row.executions_last_24h },
+          { label: "7d", value: (row) => row.executions_last_7d },
+          { label: "Precisión", value: (row) => row.accuracy_score },
+          { label: "Fallos", value: (row) => row.failures_total },
+        ]);
+        document.getElementById("qic-proposals").innerHTML = formatRows((data.proposals || []).slice(-20).reverse(), [
+          { label: "ID", value: (row) => row.id },
+          { label: "Estado", value: (row) => row.status },
+          { label: "Tipo", value: (row) => row.edge_type },
+          { label: "Riesgo", value: (row) => row.risk_level },
+          { label: "PF", value: (row) => row.expected_pf },
+          { label: "Total R", value: (row) => row.expected_total_r },
+        ]);
+        document.getElementById("qic-timeline").innerHTML = formatRows((data.timeline || []).slice(-30).reverse(), [
+          { label: "Timestamp", value: (row) => row.created_at || row.timestamp },
+          { label: "Evento", value: (row) => row.event_type || row.final_decision },
+          { label: "Prioridad", value: (row) => row.priority },
+          { label: "Contexto", value: (row) => row.context },
+        ]);
+        document.getElementById("qic-changes").innerHTML = formatRows((data.changes || []).slice(0, 20), [
+          { label: "ID", value: (row) => row.change_id },
+          { label: "Propuesta", value: (row) => row.proposal_id },
+          { label: "Riesgo", value: (row) => row.risk_level },
+          { label: "Estado", value: (row) => row.final_status },
+          { label: "Archivos", value: (row) => (row.files_changed || []).length },
+          { label: "Tests", value: (row) => row.validation?.tests_passed },
+        ]);
+        document.getElementById("qic-errors").innerHTML = formatRows((data.errors || []).slice(-20).reverse(), [
+          { label: "Componente", value: (row) => row.component },
+          { label: "Severidad", value: (row) => row.severity },
+          { label: "Mensaje", value: (row) => row.message },
+          { label: "Último", value: (row) => row.last_seen },
+        ]);
+      }
+
+      document.getElementById("refresh").addEventListener("click", () => Promise.all([loadDashboard(), loadQIC()]));
       loadHealth();
       loadDashboard();
+      loadQIC();
     </script>
   </body>
 </html>

@@ -1,0 +1,11 @@
+[Unit]
+Description=Run QIC event detector hourly
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+RandomizedDelaySec=60
+Unit=qic-events.service
+
+[Install]
+WantedBy=timers.target

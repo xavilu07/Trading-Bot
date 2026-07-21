@@ -6,6 +6,7 @@ import re
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+from trading_signals.agents.qic_runtime import atomic_write_json, atomic_write_text
 
 DEFAULT_KNOWLEDGE_BASE_PATH = Path("data") / "qic" / "strategy_knowledge_base.json"
 
@@ -25,8 +26,7 @@ def load_strategy_knowledge_base(path: Path = DEFAULT_KNOWLEDGE_BASE_PATH) -> di
 
 def save_strategy_knowledge_base(kb: dict[str, Any], path: Path = DEFAULT_KNOWLEDGE_BASE_PATH) -> dict[str, Any]:
     kb["updated_at"] = _now()
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(kb, indent=2, sort_keys=True), encoding="utf-8")
+    atomic_write_json(path, kb)
     return kb
 
 
@@ -288,8 +288,8 @@ def write_strategy_knowledge_reports(
     output_path.mkdir(parents=True, exist_ok=True)
     json_path = output_path / "strategy_knowledge_base.json"
     md_path = output_path / "strategy_knowledge_base.md"
-    json_path.write_text(json.dumps(kb, indent=2, sort_keys=True), encoding="utf-8")
-    md_path.write_text(format_strategy_knowledge_markdown(kb), encoding="utf-8")
+    atomic_write_json(json_path, kb)
+    atomic_write_text(md_path, format_strategy_knowledge_markdown(kb))
     return {"json": json_path, "markdown": md_path}
 
 

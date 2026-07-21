@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from typing import Any
+from trading_signals.agents.qic_runtime import atomic_write_json, atomic_write_text
 
 
 def write_qic_reports(
@@ -26,8 +27,8 @@ def write_qic_reports(
     for name, payload in reports.items():
         json_path = output_path / f"{name}.json"
         md_path = output_path / f"{name}.md"
-        json_path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
-        md_path.write_text(_markdown(name, payload), encoding="utf-8")
+        atomic_write_json(json_path, payload)
+        atomic_write_text(md_path, _markdown(name, payload))
         paths[name] = {"json": json_path, "markdown": md_path}
     return paths
 
@@ -36,8 +37,8 @@ def write_hypothesis_ranking_report(output_path: Path, ranking: dict[str, Any]) 
     output_path.mkdir(parents=True, exist_ok=True)
     json_path = output_path / "hypothesis_ranking.json"
     md_path = output_path / "hypothesis_ranking.md"
-    json_path.write_text(json.dumps(ranking, indent=2, sort_keys=True), encoding="utf-8")
-    md_path.write_text(_hypothesis_ranking_markdown(ranking), encoding="utf-8")
+    atomic_write_json(json_path, ranking)
+    atomic_write_text(md_path, _hypothesis_ranking_markdown(ranking))
     return {"json": json_path, "markdown": md_path}
 
 

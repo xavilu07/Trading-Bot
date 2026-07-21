@@ -11,3 +11,18 @@ logs/
 *.tar.gz
 telegram_state.json
 telegram_users.json
+
+# QIC runtime state and generated artifacts. Keep fixtures under tests/fixtures/qic.
+data/qic/
+data/agent_proposals/
+data/qic_backups/
+reports/qic/*.json
+reports/qic/*.md
+reports/qic/*.jsonl
+reports/qic/*.last_good
+reports/agent_committee/latest_proposals.json
+reports/agent_committee/latest_proposals.md
+reports/candidate_funnel_audit.json
+reports/candidate_funnel_audit.md
+logs/qic_*.jsonl
+config/qic_telegram.json

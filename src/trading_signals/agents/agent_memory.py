@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from typing import Any
+from trading_signals.agents.qic_runtime import atomic_write_json
 
 DEFAULT_MEMORY_PATH = Path("data") / "agent_proposals" / "agent_memory.json"
 
@@ -74,6 +75,5 @@ def update_agent_memory(
         accepted = int(item.get("proposals_accepted", 0))
         rejected = int(item.get("proposals_rejected", 0))
         item["historical_precision"] = round(accepted / (accepted + rejected), 4) if accepted + rejected else 0.0
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(memory, indent=2, sort_keys=True), encoding="utf-8")
+    atomic_write_json(path, memory)
     return memory

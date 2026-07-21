@@ -1,0 +1,11 @@
+[Unit]
+Description=Run QIC health check every five minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+Persistent=true
+Unit=qic-health.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Quantum Investment Council every six hours
+
+[Timer]
+OnCalendar=*-*-* 00/6:00:00 Europe/Madrid
+Persistent=true
+RandomizedDelaySec=120
+Unit=qic-autonomous.service
+
+[Install]
+WantedBy=timers.target

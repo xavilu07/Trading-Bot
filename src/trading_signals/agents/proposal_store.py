@@ -4,6 +4,7 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+from trading_signals.agents.qic_runtime import atomic_write_text
 
 DEFAULT_PROPOSALS_PATH = Path("data") / "agent_proposals" / "proposals.jsonl"
 
@@ -30,9 +31,8 @@ def save_proposals(proposals: list[dict[str, Any]], path: Path = DEFAULT_PROPOSA
         duplicate_id = _pending_duplicate_id(existing.values(), proposal)
         proposal_id = duplicate_id or str(proposal["id"])
         existing[proposal_id] = {**existing.get(proposal_id, {}), **proposal, "id": proposal_id}
-    path.parent.mkdir(parents=True, exist_ok=True)
     ordered = sorted(existing.values(), key=lambda item: str(item.get("created_at", "")))
-    path.write_text("\n".join(json.dumps(item, sort_keys=True) for item in ordered) + ("\n" if ordered else ""), encoding="utf-8")
+    atomic_write_text(path, "\n".join(json.dumps(item, sort_keys=True) for item in ordered) + ("\n" if ordered else ""))
     return ordered
 
 
@@ -49,6 +49,7 @@ def update_proposal_status(
         "pending",
         "approved",
         "approved_for_implementation_review",
+        "postponed",
         "rejected",
         "expired",
         "implemented",
@@ -69,8 +70,7 @@ def update_proposal_status(
             updated = proposal
             break
     if updated is not None:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text("\n".join(json.dumps(item, sort_keys=True) for item in proposals) + "\n", encoding="utf-8")
+        atomic_write_text(path, "\n".join(json.dumps(item, sort_keys=True) for item in proposals) + "\n")
     return updated
 
 

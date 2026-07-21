@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from trading_signals.agents.strategy_knowledge_base import normalize_conditions
+from trading_signals.agents.qic_runtime import atomic_write_json, atomic_write_text
 
 DEFAULT_DECISION_LEDGER_PATH = Path("data") / "qic" / "decision_ledger.jsonl"
 
@@ -70,8 +71,8 @@ def write_decision_ledger_reports(
     output_path.mkdir(parents=True, exist_ok=True)
     json_path = output_path / "decision_ledger.json"
     md_path = output_path / "decision_ledger.md"
-    json_path.write_text(json.dumps({"decisions": entries}, indent=2, sort_keys=True), encoding="utf-8")
-    md_path.write_text(_markdown(entries), encoding="utf-8")
+    atomic_write_json(json_path, {"decisions": entries})
+    atomic_write_text(md_path, _markdown(entries))
     return {"json": json_path, "markdown": md_path}
 
 

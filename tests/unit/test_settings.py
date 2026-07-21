@@ -281,6 +281,30 @@ def test_qic_code_engineer_settings_defaults_and_env(monkeypatch) -> None:
     assert settings.qic_code_engineer_max_autofix_attempts == 2
 
 
+def test_qic_autonomous_safety_defaults(monkeypatch) -> None:
+    for name in (
+        "QIC_AUTONOMOUS_ENABLED",
+        "QIC_AUTONOMOUS_DRY_RUN",
+        "QIC_AUTO_APPLY_LOW_RISK",
+        "QIC_AUTO_APPLY_MEDIUM_RISK",
+        "QIC_LIVE_TRADING_CHANGES_ALLOWED",
+        "QIC_API_ACTIONS_ENABLED",
+    ):
+        monkeypatch.delenv(name, raising=False)
+
+    settings = Settings()
+
+    assert settings.qic_autonomous_enabled is False
+    assert settings.qic_autonomous_dry_run is True
+    assert settings.qic_auto_apply_low_risk is False
+    assert settings.qic_auto_apply_medium_risk is False
+    assert settings.qic_live_trading_changes_allowed is False
+    assert settings.qic_api_actions_enabled is False
+    assert settings.qic_enabled_agents == ["research_director", "strategy_director", "risk_director", "simulation_director"]
+    assert ".env" in settings.qic_change_denylist
+    assert "live_trading" in settings.qic_change_denylist
+
+
 def test_telegram_dev_chat_id_supports_multiple_ids(monkeypatch) -> None:
     monkeypatch.setenv("TELEGRAM_DEV_CHAT_ID", "7437028098,1979812925")
 

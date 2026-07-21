@@ -1,0 +1,10 @@
+[Unit]
+Description=Run QIC maintenance daily
+
+[Timer]
+OnCalendar=*-*-* 02:30:00 Europe/Madrid
+Persistent=true
+Unit=qic-maintenance.service
+
+[Install]
+WantedBy=timers.target

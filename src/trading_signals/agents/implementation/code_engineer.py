@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import difflib
 import json
+import os
+import shutil
 import subprocess
+import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -11,6 +14,9 @@ from trading_signals.agents.proposal_store import load_proposals
 from trading_signals.agents.decision_ledger import append_decision_ledger_entry
 from trading_signals.agents.research_memory import record_research_memory_decision
 from trading_signals.agents.strategy_knowledge_base import load_strategy_knowledge_base, save_strategy_knowledge_base
+from trading_signals.agents.implementation.change_policy import classify_change_risk
+from trading_signals.agents.implementation.code_changes import CodeChangeManager
+from trading_signals.agents.qic_runtime import atomic_write_json, atomic_write_text
 
 CODE_ENGINEER_REPORT = "code_engineer"
 SUPPORTED_RULE = "exclude htf_alignment=against"
@@ -44,6 +50,11 @@ def run_code_engineer(
     files = _planned_files()
     generated = _generated_files()
     diff_summary = _diff_summary(project_root, generated)
+    risk = classify_change_risk(
+        files=files,
+        change_type=str((plan or {}).get("change_type") or ""),
+        proposal=proposal,
+    )
     report: dict[str, Any] = {
         "proposal_id": proposal_id,
         "created_at": _now(),
@@ -64,8 +75,54 @@ def run_code_engineer(
             "Feature flags remain false/shadow by default.",
         ],
         "telegram_summary": "Code plan generated" if not blockers else "Code engineer blocked by preconditions",
+        "risk_level": risk["risk_level"],
+        "risk_reasons": risk["reasons"],
+        "change_id": None,
     }
     if blockers:
+        written = write_code_engineer_reports(report, output_path=reports_path)
+        _update_learning_artifacts(written, proposal, proposal_store_path=proposal_store_path)
+        return written
+    test_result: dict[str, Any] | None = None
+    if run_tests:
+        test_result = _run_sandbox_validation(
+            project_root=project_root,
+            generated=generated,
+            max_autofix_attempts=max_autofix_attempts,
+        )
+        report["tests_run"] = test_result["commands"]
+        report["tests_passed"] = test_result["passed"]
+        report["test_output_summary"] = test_result["summary"]
+        if not test_result["passed"]:
+            report["status"] = "failed_tests"
+            report["blockers"].append("sandbox_validation_failed")
+            written = write_code_engineer_reports(report, output_path=reports_path)
+            _update_learning_artifacts(written, proposal, proposal_store_path=proposal_store_path)
+            return written
+    manager = CodeChangeManager(
+        project_root=project_root,
+        store_path=(proposal_store_path.parent.parent / "qic" / "code_changes.json") if proposal_store_path.parent.name == "agent_proposals" else Path("data") / "qic" / "code_changes.json",
+        backup_root=(proposal_store_path.parent.parent / "qic" / "change_backups") if proposal_store_path.parent.name == "agent_proposals" else Path("data") / "qic" / "change_backups",
+        allowlist=["src/trading_signals/agents", "src/trading_signals/application/use_cases", "tests", "scripts", "Planning", "reports/qic", "src/trading_signals/interfaces/frontend", "deploy/frontend"],
+    )
+    change = manager.create_change(
+        proposal_id=proposal_id,
+        risk_level=risk["risk_level"],
+        generated_files=generated,
+        validation={
+            "tests_passed": bool(test_result and test_result["passed"]),
+            "static_checks_passed": bool(test_result and test_result["passed"]),
+            "coverage_regression": False if test_result and test_result["passed"] else None,
+            "commands": list(test_result["commands"]) if test_result else [],
+        },
+        council_votes=(review or {}).get("agent_reviews") or {},
+        implementation_council_approved=bool((review or {}).get("allowed_to_generate_patch")),
+        approval_source="human" if apply else "none",
+    )
+    report["change_id"] = change.get("change_id")
+    if change.get("final_status") == "blocked_path_policy":
+        report["blockers"].append("change_path_policy_blocked")
+        report["status"] = "failed_preconditions"
         written = write_code_engineer_reports(report, output_path=reports_path)
         _update_learning_artifacts(written, proposal, proposal_store_path=proposal_store_path)
         return written
@@ -82,16 +139,50 @@ def run_code_engineer(
             written = write_code_engineer_reports(report, output_path=reports_path)
             _update_learning_artifacts(written, proposal, proposal_store_path=proposal_store_path)
             return written
-        modified = _apply_generated_files(project_root, generated)
-        report["files_modified"] = modified
-        report["status"] = "applied"
-    if run_tests and (apply or not dry_run):
-        test_result = _run_validation_tests(project_root=project_root, max_autofix_attempts=max_autofix_attempts)
-        report["tests_run"] = test_result["commands"]
-        report["tests_passed"] = test_result["passed"]
-        report["test_output_summary"] = test_result["summary"]
-        if not test_result["passed"]:
-            report["status"] = "failed_tests"
+        if not run_tests or not report["tests_passed"]:
+            report["blockers"].append("tests_required_before_apply")
+            report["status"] = "failed_preconditions"
+            written = write_code_engineer_reports(report, output_path=reports_path)
+            _update_learning_artifacts(written, proposal, proposal_store_path=proposal_store_path)
+            return written
+        applied = manager.apply(str(change["change_id"]), auto=False, manual_approval=True)
+        if applied.get("final_status") != "applied":
+            report["blockers"].extend(applied.get("blockers") or ["change_apply_failed"])
+            report["status"] = "failed_preconditions"
+        else:
+            report["files_modified"] = list(applied.get("files_changed") or [])
+            report["status"] = "applied"
+            post_apply = _run_validation_tests(project_root=project_root, max_autofix_attempts=max_autofix_attempts)
+            report["tests_run"] = [*report["tests_run"], *post_apply["commands"]]
+            report["tests_passed"] = bool(post_apply["passed"])
+            report["test_output_summary"] += f"\npost_apply:\n{post_apply['summary']}"
+            if not post_apply["passed"]:
+                rollback_result = manager.rollback(str(change["change_id"]), manual_approval=True)
+                rollback_validation = _run_validation_tests(
+                    project_root=project_root,
+                    max_autofix_attempts=0,
+                )
+                report["tests_run"] = [*report["tests_run"], *rollback_validation["commands"]]
+                report["test_output_summary"] += f"\npost_rollback:\n{rollback_validation['summary']}"
+                report["status"] = "failed_tests"
+                report["files_modified"] = []
+                report["blockers"].append("post_apply_validation_failed")
+                report["rollback_after_failed_tests"] = {
+                    "status": rollback_result.get("final_status") or rollback_result.get("status"),
+                    "rollback_id": rollback_result.get("rollback_id"),
+                    "tests_passed": rollback_validation["passed"],
+                }
+            else:
+                manager.verify(str(change["change_id"]))
+        manager.update_validation(
+            str(change["change_id"]),
+            {
+                "tests_passed": bool(report["tests_passed"]),
+                "static_checks_passed": bool(report["tests_passed"]),
+                "coverage_regression": False if report["tests_passed"] else None,
+                "commands": report["tests_run"],
+            },
+        )
     written = write_code_engineer_reports(report, output_path=reports_path)
     _update_learning_artifacts(written, proposal, proposal_store_path=proposal_store_path)
     return written
@@ -101,8 +192,8 @@ def write_code_engineer_reports(report: dict[str, Any], *, output_path: Path) ->
     output_path.mkdir(parents=True, exist_ok=True)
     json_path = output_path / f"{CODE_ENGINEER_REPORT}.json"
     md_path = output_path / f"{CODE_ENGINEER_REPORT}.md"
-    json_path.write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
-    md_path.write_text(_markdown(report), encoding="utf-8")
+    atomic_write_json(json_path, report)
+    atomic_write_text(md_path, _markdown(report))
     return report
 
 
@@ -223,6 +314,29 @@ def _run_validation_tests(*, project_root: Path, max_autofix_attempts: int) -> d
     if not passed and max_autofix_attempts > 0:
         summary += "\nautofix_attempted=false (no safe simple fix detected)"
     return {"commands": commands[: len(results)], "passed": passed, "summary": summary, "results": results}
+
+
+def _run_sandbox_validation(
+    *,
+    project_root: Path,
+    generated: dict[str, str],
+    max_autofix_attempts: int,
+) -> dict[str, Any]:
+    with tempfile.TemporaryDirectory(prefix="qic-code-engineer-") as temp_name:
+        sandbox = Path(temp_name) / "repo"
+        shutil.copytree(
+            project_root,
+            sandbox,
+            ignore=shutil.ignore_patterns(".git", ".venv", "data", "reports", "logs", "__pycache__", ".pytest_cache"),
+        )
+        source_venv = project_root / ".venv"
+        if source_venv.exists():
+            os.symlink(source_venv.resolve(), sandbox / ".venv", target_is_directory=True)
+        for relative, content in generated.items():
+            target = sandbox / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(content, encoding="utf-8")
+        return _run_validation_tests(project_root=sandbox, max_autofix_attempts=max_autofix_attempts)
 
 
 def _load_proposal(proposal_id: str, path: Path) -> dict[str, Any] | None:

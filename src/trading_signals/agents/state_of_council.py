@@ -8,6 +8,8 @@ from trading_signals.agents.decision_ledger import load_decision_ledger
 from trading_signals.agents.proposal_store import load_proposals
 from trading_signals.agents.research_memory import load_research_memory
 from trading_signals.agents.strategy_knowledge_base import load_strategy_knowledge_base
+from trading_signals.agents.agent_activity import load_agent_activity
+from trading_signals.agents.qic_runtime import atomic_write_json, atomic_write_text
 
 
 def build_state_of_council(
@@ -18,12 +20,16 @@ def build_state_of_council(
     agent_self_evaluation_path: Path = Path("reports") / "qic" / "agent_self_evaluation.json",
     decision_ledger_path: Path = Path("data") / "qic" / "decision_ledger.jsonl",
     output_path: Path = Path("reports") / "qic",
+    agent_activity_path: Path = Path("data") / "qic" / "agent_activity.json",
+    system_health_path: Path = Path("reports") / "qic" / "system_health.json",
 ) -> dict[str, Any]:
     kb = load_strategy_knowledge_base(knowledge_base_path)
     memory = load_research_memory(research_memory_path)
     proposals = load_proposals(proposal_store_path)
     agent_eval = _load_json(agent_self_evaluation_path)
     ledger = load_decision_ledger(decision_ledger_path)
+    activity = load_agent_activity(agent_activity_path)
+    health = _load_json(system_health_path)
     items = list((kb.get("items") or {}).values())
     experiments = list((memory.get("experiments") or {}).values())
     report = {
@@ -41,6 +47,12 @@ def build_state_of_council(
         "last_cio_decision": ledger[-1] if ledger else None,
         "last_telegram_action": _last_reviewed(proposals),
         "open_blockers": _open_blockers(items, experiments, proposals),
+        "autonomous_score": health.get("autonomous_score", 0),
+        "system_health": health.get("status", "UNKNOWN"),
+        "agent_activity": {
+            name: {**item, "operational_status": _agent_operational_status(item)}
+            for name, item in (activity.get("agents") or {}).items()
+        },
     }
     write_state_of_council_reports(report, output_path=output_path)
     return report
@@ -50,8 +62,8 @@ def write_state_of_council_reports(report: dict[str, Any], *, output_path: Path 
     output_path.mkdir(parents=True, exist_ok=True)
     json_path = output_path / "state_of_council.json"
     md_path = output_path / "state_of_council.md"
-    json_path.write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
-    md_path.write_text(_markdown(report), encoding="utf-8")
+    atomic_write_json(json_path, report)
+    atomic_write_text(md_path, _markdown(report))
     return {"json": json_path, "markdown": md_path}
 
 
@@ -102,7 +114,22 @@ def _markdown(report: dict[str, Any]) -> str:
         lines.append(f"- {key}: {report.get(key)}")
     lines.append(f"- open_blockers: {', '.join(report.get('open_blockers') or []) or 'none'}")
     lines.append("")
+    lines.append(f"- autonomous_score: {report.get('autonomous_score', 0)}")
+    lines.append(f"- system_health: {report.get('system_health', 'UNKNOWN')}")
+    lines.append("")
     lines.append("## Agent Accuracy")
     for name, score in (report.get("agent_accuracy") or {}).items():
         lines.append(f"- {name}: {score}")
     return "\n".join(lines) + "\n"
+
+
+def _agent_operational_status(item: dict[str, Any]) -> str:
+    if int(item.get("executions_total", 0)) == 0:
+        return "NO_DATA"
+    if str(item.get("last_status") or "").lower() == "failed":
+        return "FAILING"
+    if int(item.get("executions_last_24h", 0)) > 0:
+        return "ACTIVE"
+    if int(item.get("executions_last_7d", 0)) > 0:
+        return "DEGRADED"
+    return "INACTIVE"

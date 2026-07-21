@@ -1,0 +1,11 @@
+[Unit]
+Description=Quantum Investment Council Health Check
+
+[Service]
+Type=oneshot
+WorkingDirectory=/root/bot
+Environment=PYTHONPATH=/root/bot/src
+ExecStart=/root/bot/.venv/bin/python /root/bot/scripts/run_qic_autonomous.py --health --notify
+TimeoutStartSec=120
+StandardOutput=journal
+StandardError=journal

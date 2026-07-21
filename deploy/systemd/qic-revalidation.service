@@ -1,0 +1,11 @@
+[Unit]
+Description=Quantum Investment Council Daily Revalidation
+
+[Service]
+Type=oneshot
+WorkingDirectory=/root/bot
+Environment=PYTHONPATH=/root/bot/src
+ExecStart=/root/bot/.venv/bin/python /root/bot/scripts/run_qic_autonomous.py --once --phase revalidation --phase reports --phase notifications
+TimeoutStartSec=900
+StandardOutput=journal
+StandardError=journal

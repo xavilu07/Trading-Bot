@@ -44,6 +44,7 @@ def run_agent_committee(
     edge_confirmation_min_seen: int = 3,
     edge_reproposal_cooldown_days: int = 14,
     edge_degradation_pf_drop_pct: float = 15.0,
+    enabled_agents: list[str] | None = None,
 ) -> dict[str, Any]:
     if not enabled and not force:
         result = {
@@ -71,6 +72,7 @@ def run_agent_committee(
             edge_confirmation_min_seen=edge_confirmation_min_seen,
             edge_reproposal_cooldown_days=edge_reproposal_cooldown_days,
             edge_degradation_pf_drop_pct=edge_degradation_pf_drop_pct,
+            enabled_agents=enabled_agents,
         )
 
     reports = load_research_reports(reports_root)
@@ -117,8 +119,13 @@ def run_quantum_investment_council_v2(
     edge_confirmation_min_seen: int = 3,
     edge_reproposal_cooldown_days: int = 14,
     edge_degradation_pf_drop_pct: float = 15.0,
+    enabled_agents: list[str] | None = None,
 ) -> dict[str, Any]:
-    debate = run_debate_engine(reports_root=reports_root)
+    debate = run_debate_engine(
+        reports_root=reports_root,
+        activity_path=data_path / "qic" / "agent_activity.json",
+        enabled_agents=enabled_agents,
+    )
     consensus = build_cio_consensus(debate, min_confidence=min_confidence)
     knowledge_path = data_path / "qic" / "strategy_knowledge_base.json"
     knowledge_base = load_strategy_knowledge_base(knowledge_path)

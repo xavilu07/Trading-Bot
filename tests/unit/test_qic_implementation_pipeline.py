@@ -179,7 +179,7 @@ def test_code_engineer_apply_requires_allow_apply(tmp_path: Path) -> None:
     assert "apply_not_allowed" in report["blockers"]
 
 
-def test_code_engineer_apply_writes_files_when_allowed(tmp_path: Path) -> None:
+def test_code_engineer_apply_requires_tests_even_when_allowed(tmp_path: Path) -> None:
     proposal_store, reports_path, project_root = _prepare_code_engineer_fixture(tmp_path)
 
     report = run_code_engineer(
@@ -192,9 +192,9 @@ def test_code_engineer_apply_writes_files_when_allowed(tmp_path: Path) -> None:
         allow_apply=True,
     )
 
-    assert report["status"] == "applied"
-    assert "src/trading_signals/application/use_cases/strategy_v2_1_htf_alignment_filter.py" in report["files_modified"]
-    assert "QIC Code Engineer" in (reports_path / "code_engineer.md").read_text()
+    assert report["status"] == "failed_preconditions"
+    assert "tests_required_before_apply" in report["blockers"]
+    assert report["files_modified"] == []
 
 
 def test_telegram_generate_code_callback_runs_dry_run(tmp_path: Path) -> None:
@@ -258,11 +258,24 @@ def test_qic_scheduler_once_dry_run_does_not_touch_trading_scheduler(tmp_path: P
 
     calls = {}
 
-    def fake_run_agent_committee(**kwargs: object) -> dict[str, object]:
-        calls.update(kwargs)
-        return {"proposal_count": 0, "single_proposal": None}
+    class FakeOrchestrator:
+        def __init__(self, **kwargs: object) -> None:
+            calls.update(kwargs)
+            self.notifications = type("Notifications", (), {"enabled": False})()
 
-    monkeypatch.setattr("scripts.run_qic_scheduler.run_agent_committee", fake_run_agent_committee)
+        def run(self, **kwargs: object) -> dict[str, object]:
+            calls.update(kwargs)
+            return {
+                "status": "completed",
+                "run_id": "run_1",
+                "phase_results": {
+                    "events": {"result": {"critical": False, "events": []}},
+                    "research": {"result": {"proposal_count": 0, "single_proposal": None}},
+                    "reports": {"result": {"autonomous_reports": {"daily_brief": {}, "weekly_research_review": {}}}},
+                },
+            }
+
+    monkeypatch.setattr("scripts.run_qic_scheduler.AutonomousQICOrchestrator", FakeOrchestrator)
     args = argparse.Namespace(
         data_path=tmp_path / "data",
         reports_root=tmp_path / "reports",
@@ -274,7 +287,7 @@ def test_qic_scheduler_once_dry_run_does_not_touch_trading_scheduler(tmp_path: P
 
     assert result["trading_scheduler_touched"] is False
     assert calls["dry_run"] is True
-    assert calls["telegram_enabled"] is False
+    assert result["telegram_enabled"] is False
 
 
 def _proposal(*, trade_reduction_pct: float = 48.9547) -> dict[str, object]:

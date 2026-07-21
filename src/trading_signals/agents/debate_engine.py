@@ -1,25 +1,42 @@
 from __future__ import annotations
 
 from pathlib import Path
+from time import perf_counter
 from typing import Any
 
+from trading_signals.agents.agent_activity import record_agent_execution
+from trading_signals.agents.qic_runtime import utc_now
 from trading_signals.agents.qic_models import DebateIntervention
 from trading_signals.agents.risk_agent import classify_trade_reduction_risk
 from trading_signals.agents.research_agent import load_research_reports
 
 
-def run_debate_engine(*, reports_root: Path = Path("reports")) -> dict[str, Any]:
+def run_debate_engine(
+    *,
+    reports_root: Path = Path("reports"),
+    activity_path: Path = Path("data") / "qic" / "agent_activity.json",
+    enabled_agents: list[str] | None = None,
+) -> dict[str, Any]:
+    enabled = set(enabled_agents or ("research_director", "strategy_director", "risk_director", "simulation_director"))
     reports = load_research_reports(reports_root)
     interventions: list[DebateIntervention] = []
-    research = research_director_opinion(reports)
+    research = _run_or_skip("research_director", enabled, lambda: research_director_opinion(reports), activity_path, inputs=len(reports))
     interventions.append(research)
-    strategy = strategy_director_opinion(research)
+    strategy = _run_or_skip("strategy_director", enabled, lambda: strategy_director_opinion(research), activity_path, inputs=research.evidence)
     interventions.append(strategy)
-    risk = risk_director_opinion(strategy, reports)
+    risk = _run_or_skip("risk_director", enabled, lambda: risk_director_opinion(strategy, reports), activity_path, inputs=len(strategy.data.get("rule_candidates", [])))
     interventions.append(risk)
-    simulation = simulation_director_opinion(strategy, reports)
+    simulation = _run_or_skip("simulation_director", enabled, lambda: simulation_director_opinion(strategy, reports), activity_path, inputs=len(strategy.data.get("rule_candidates", [])))
     interventions.append(simulation)
-    interventions.append(research_response_opinion(research, risk, simulation))
+    interventions.append(
+        _run_or_skip(
+            "research_director",
+            enabled,
+            lambda: research_response_opinion(research, risk, simulation),
+            activity_path,
+            inputs=3,
+        )
+    )
     return {
         "pipeline": ["Research", "Strategy", "Risk", "Simulation", "Research", "CIO"],
         "interventions": [item.to_dict() for item in interventions],
@@ -27,7 +44,68 @@ def run_debate_engine(*, reports_root: Path = Path("reports")) -> dict[str, Any]
             key: sorted(value.keys()) if isinstance(value, dict) else []
             for key, value in reports.items()
         },
+        "enabled_agents": sorted(enabled),
     }
+
+
+def _run_or_skip(
+    agent: str,
+    enabled: set[str],
+    operation: Any,
+    activity_path: Path,
+    *,
+    inputs: int,
+) -> DebateIntervention:
+    if agent in enabled:
+        return _recorded_opinion(agent, operation, activity_path, inputs=inputs)
+    return DebateIntervention(
+        agent=agent,
+        role=agent.replace("_", " ").title(),
+        stage="disabled",
+        content="Agent disabled by QIC_ENABLED_AGENTS.",
+        confidence="LOW",
+        evidence=0,
+        risk_level="LOW",
+        data={"disabled": True},
+    )
+
+
+def _recorded_opinion(
+    agent: str,
+    operation: Any,
+    activity_path: Path,
+    *,
+    inputs: int,
+) -> DebateIntervention:
+    started_at = utc_now()
+    started = perf_counter()
+    try:
+        result = operation()
+    except Exception:
+        record_agent_execution(
+            agent,
+            started_at=started_at,
+            status="failed",
+            duration_ms=(perf_counter() - started) * 1000,
+            inputs_processed=inputs,
+            path=activity_path,
+        )
+        raise
+    record_agent_execution(
+        agent,
+        started_at=started_at,
+        status="completed",
+        duration_ms=(perf_counter() - started) * 1000,
+        inputs_processed=inputs,
+        outputs_generated=1,
+        supported=0 if result.risk_level in {"HIGH", "EXTREME"} else 1,
+        opposed=1 if result.risk_level in {"HIGH", "EXTREME"} else 0,
+        proposals_generated=len(result.data.get("rule_candidates", [])) if agent == "strategy_director" else 0,
+        proposals_blocked=len(result.data.get("risks", [])) if agent == "risk_director" else 0,
+        simulations_run=len(result.data.get("top_simulations", [])) if agent == "simulation_director" else 0,
+        path=activity_path,
+    )
+    return result
 
 
 def research_director_opinion(reports: dict[str, Any]) -> DebateIntervention:

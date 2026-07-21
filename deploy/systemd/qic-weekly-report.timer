@@ -1,0 +1,10 @@
+[Unit]
+Description=Generate QIC weekly review Monday at 09:15 Europe/Madrid
+
+[Timer]
+OnCalendar=Mon *-*-* 09:15:00 Europe/Madrid
+Persistent=true
+Unit=qic-weekly-report.service
+
+[Install]
+WantedBy=timers.target
