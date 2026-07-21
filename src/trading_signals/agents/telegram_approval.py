@@ -64,11 +64,7 @@ def build_approval_payload(proposal: dict[str, Any], *, chat_id: str) -> dict[st
 
 
 def resolve_qic_telegram_config(settings: object) -> dict[str, Any]:
-    config = load_qic_telegram_config()
-    token = str(config.get("bot_token") or "")
-    chat_id = str(config.get("chat_id") or "")
-    enabled = bool(config.get("enabled"))
-    if not enabled:
+    if _has_explicit_telegram_settings(settings):
         token = (
             str(getattr(settings, "qic_telegram_bot_token", "") or "")
             or str(getattr(settings, "agent_telegram_bot_token", "") or "")
@@ -82,16 +78,42 @@ def resolve_qic_telegram_config(settings: object) -> dict[str, Any]:
         enabled = _as_bool(getattr(settings, "qic_telegram_enabled", False))
         if not enabled:
             enabled = _as_bool(getattr(settings, "agent_telegram_approval_enabled", False))
+        chat_ids = _chat_ids(chat_id)
+        source = "settings"
+    else:
+        config = load_qic_telegram_config()
+        token = str(config.get("bot_token") or "")
+        chat_id = str(config.get("chat_id") or "")
+        enabled = _as_bool(config.get("enabled", False))
+        chat_ids = config.get("chat_ids") or _chat_ids(chat_id)
+        source = str(config.get("source") or "persistent_config")
     return {
         "enabled": enabled,
         "bot_token": token,
-        "chat_ids": config.get("chat_ids") or _chat_ids(chat_id),
+        "chat_ids": chat_ids,
         "chat_id": chat_id,
         "send_no_actionable": _as_bool(getattr(settings, "qic_telegram_send_no_actionable", True)),
         "min_priority": str(getattr(settings, "qic_telegram_min_priority", "MEDIUM") or "MEDIUM"),
         "configured": bool(token and chat_id),
-        "source": config.get("source", "settings"),
+        "source": source,
     }
+
+
+def _has_explicit_telegram_settings(settings: object) -> bool:
+    marker = getattr(settings, "qic_telegram_settings_explicit", None)
+    if marker is not None:
+        return _as_bool(marker)
+    names = (
+        "qic_telegram_enabled",
+        "qic_telegram_bot_token",
+        "qic_telegram_chat_id",
+        "agent_telegram_approval_enabled",
+        "agent_telegram_bot_token",
+        "agent_telegram_chat_id",
+        "telegram_bot_token",
+        "telegram_dev_chat_id",
+    )
+    return any(hasattr(settings, name) for name in names)
 
 
 def build_qic_test_payload(*, chat_id: str) -> dict[str, Any]:

@@ -139,7 +139,7 @@ def test_process_approval_update_handles_telegram_callback(tmp_path: Path) -> No
     assert load_proposals(path)[0]["reviewed_by"] == "123"
 
 
-def test_resolve_qic_telegram_config_prefers_qic_and_falls_back_to_dev() -> None:
+def test_resolve_qic_telegram_config_prefers_qic_and_falls_back_to_dev(monkeypatch) -> None:
     class Settings:
         qic_telegram_enabled = "true"
         qic_telegram_bot_token = ""
@@ -151,6 +151,17 @@ def test_resolve_qic_telegram_config_prefers_qic_and_falls_back_to_dev() -> None
         telegram_bot_token = "bot-token"
         telegram_dev_chat_id = "dev-chat"
 
+    monkeypatch.setattr(
+        "trading_signals.agents.telegram_approval.load_qic_telegram_config",
+        lambda: {
+            "enabled": True,
+            "bot_token": "persistent-token",
+            "chat_id": "persistent-chat",
+            "chat_ids": ["persistent-chat"],
+            "source": "json:test",
+        },
+    )
+
     config = resolve_qic_telegram_config(Settings())
 
     assert config["enabled"] is True
@@ -158,6 +169,13 @@ def test_resolve_qic_telegram_config_prefers_qic_and_falls_back_to_dev() -> None
     assert config["chat_id"] == "dev-chat"
     assert config["configured"] is True
     assert config["min_priority"] == "HIGH"
+    assert config["source"] == "settings"
+
+    persistent_config = resolve_qic_telegram_config(object())
+    assert persistent_config["enabled"] is True
+    assert persistent_config["bot_token"] == "persistent-token"
+    assert persistent_config["chat_ids"] == ["persistent-chat"]
+    assert persistent_config["source"] == "json:test"
 
 
 def test_qic_proposal_send_supports_multiple_dev_chat_ids() -> None:

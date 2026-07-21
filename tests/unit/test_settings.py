@@ -4,12 +4,15 @@ from trading_signals.app.settings import Settings
 
 
 def test_telegram_diagnostic_summary_settings_are_configurable(monkeypatch) -> None:
+    monkeypatch.delenv("TELEGRAM_ALLOWED_PRIVATE_CHAT_IDS", raising=False)
     monkeypatch.setenv("TELEGRAM_DIAGNOSTIC_SUMMARY_ENABLED", "false")
     monkeypatch.setenv("TELEGRAM_DIAGNOSTIC_SUMMARY_EVERY_CYCLES", "3")
     monkeypatch.setenv("BOT_HEALTH_TELEGRAM_ENABLED", "false")
     monkeypatch.setenv("BOT_HEALTH_MIN_SCORE", "80")
     monkeypatch.setenv("TELEGRAM_PUBLIC_CHAT_ID", "public-chat")
     monkeypatch.setenv("TELEGRAM_DEV_CHAT_ID", "dev-chat")
+    monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "test-token")
+    monkeypatch.setenv("TELEGRAM_LISTENER_SLEEP_SECONDS", "7")
 
     settings = Settings()
 
@@ -21,6 +24,8 @@ def test_telegram_diagnostic_summary_settings_are_configurable(monkeypatch) -> N
     assert settings.telegram_dev_chat_id == "dev-chat"
     assert settings.telegram_dev_chat_ids == ["dev-chat"]
     assert settings.telegram_allowed_private_chat_ids == ["dev-chat"]
+    assert settings.telegram_bot_token == "test-token"
+    assert settings.telegram_listener_sleep_seconds == 7
 
 
 def test_private_runtime_report_settings_defaults_and_env(monkeypatch) -> None:

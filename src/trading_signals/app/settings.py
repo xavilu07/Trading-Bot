@@ -10,6 +10,27 @@ def _csv_env(name: str, default: str) -> list[str]:
     return [item.strip() for item in raw.split(",") if item.strip()]
 
 
+def _csv_env_fallback(name: str, fallback_name: str) -> list[str]:
+    raw = os.getenv(name)
+    if raw is None:
+        raw = os.getenv(fallback_name, "")
+    return [item.strip() for item in raw.split(",") if item.strip()]
+
+
+def _qic_telegram_settings_explicit() -> bool:
+    names = (
+        "QIC_TELEGRAM_ENABLED",
+        "QIC_TELEGRAM_BOT_TOKEN",
+        "QIC_TELEGRAM_CHAT_ID",
+        "AGENT_TELEGRAM_APPROVAL_ENABLED",
+        "AGENT_TELEGRAM_BOT_TOKEN",
+        "AGENT_TELEGRAM_CHAT_ID",
+        "TELEGRAM_BOT_TOKEN",
+        "TELEGRAM_DEV_CHAT_ID",
+    )
+    return any(name in os.environ for name in names)
+
+
 def _publish_decisions_env(name: str, default: str) -> list[str]:
     values = [item.lower() for item in _csv_env(name, default)]
     if "both" in values:
@@ -169,13 +190,13 @@ class Settings:
     pair_universe_performance_lookback_days: float = field(
         default_factory=lambda: float(os.getenv("PAIR_UNIVERSE_PERFORMANCE_LOOKBACK_DAYS", "14"))
     )
-    telegram_bot_token: str = os.getenv("TELEGRAM_BOT_TOKEN", "")
+    telegram_bot_token: str = field(default_factory=lambda: os.getenv("TELEGRAM_BOT_TOKEN", ""))
     telegram_chat_ids: list[str] = field(default_factory=lambda: _csv_env("TELEGRAM_CHAT_IDS", ""))
     telegram_public_chat_id: str = field(default_factory=lambda: os.getenv("TELEGRAM_PUBLIC_CHAT_ID", ""))
     telegram_dev_chat_id: str = field(default_factory=lambda: os.getenv("TELEGRAM_DEV_CHAT_ID", ""))
     telegram_dev_chat_ids: list[str] = field(default_factory=lambda: _csv_env("TELEGRAM_DEV_CHAT_ID", ""))
     telegram_allowed_private_chat_ids: list[str] = field(
-        default_factory=lambda: _csv_env("TELEGRAM_ALLOWED_PRIVATE_CHAT_IDS", os.getenv("TELEGRAM_DEV_CHAT_ID", ""))
+        default_factory=lambda: _csv_env_fallback("TELEGRAM_ALLOWED_PRIVATE_CHAT_IDS", "TELEGRAM_DEV_CHAT_ID")
     )
     telegram_users_file: Path = field(
         default_factory=lambda: Path(os.getenv("TELEGRAM_USERS_FILE", "./telegram_users.json"))
@@ -183,7 +204,9 @@ class Settings:
     telegram_state_file: Path = field(
         default_factory=lambda: Path(os.getenv("TELEGRAM_STATE_FILE", "./telegram_state.json"))
     )
-    telegram_listener_sleep_seconds: int = int(os.getenv("TELEGRAM_LISTENER_SLEEP_SECONDS", "5"))
+    telegram_listener_sleep_seconds: int = field(
+        default_factory=lambda: int(os.getenv("TELEGRAM_LISTENER_SLEEP_SECONDS", "5"))
+    )
     telegram_diagnostic_summary_enabled: bool = field(
         default_factory=lambda: _bool_env("TELEGRAM_DIAGNOSTIC_SUMMARY_ENABLED", "true")
     )
@@ -254,6 +277,10 @@ class Settings:
     qic_telegram_enabled: bool = field(default_factory=lambda: _bool_env("QIC_TELEGRAM_ENABLED", "false"))
     qic_telegram_chat_id: str = field(default_factory=lambda: os.getenv("QIC_TELEGRAM_CHAT_ID", ""))
     qic_telegram_bot_token: str = field(default_factory=lambda: os.getenv("QIC_TELEGRAM_BOT_TOKEN", ""))
+    qic_telegram_settings_explicit: bool = field(
+        default_factory=_qic_telegram_settings_explicit,
+        repr=False,
+    )
     qic_telegram_send_no_actionable: bool = field(
         default_factory=lambda: _bool_env("QIC_TELEGRAM_SEND_NO_ACTIONABLE", "true")
     )
