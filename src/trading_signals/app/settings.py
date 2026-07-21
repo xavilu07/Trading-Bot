@@ -311,6 +311,9 @@ class Settings:
     qic_code_engineer_allow_apply: bool = field(
         default_factory=lambda: _bool_env("QIC_CODE_ENGINEER_ALLOW_APPLY", "false")
     )
+    qic_auto_apply_on_approval: bool = field(
+        default_factory=lambda: _bool_env("QIC_AUTO_APPLY_ON_APPROVAL", "false")
+    )
     qic_code_engineer_auto_commit: bool = field(
         default_factory=lambda: _bool_env("QIC_CODE_ENGINEER_AUTO_COMMIT", "false")
     )

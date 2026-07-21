@@ -150,6 +150,8 @@ def send_qic_test_message(*, bot_token: str, chat_id: str, dry_run: bool = False
 
 
 def format_proposal_message(proposal: dict[str, Any]) -> str:
+    from trading_signals.agents.implementation.approval_pipeline import approval_auto_apply_config
+
     context = proposal.get("context") if isinstance(proposal.get("context"), dict) else {}
     conditions = context.get("conditions") or proposal.get("conditions") or [proposal.get("title")]
     rule = ", ".join(str(item) for item in conditions if item)
@@ -157,6 +159,12 @@ def format_proposal_message(proposal: dict[str, Any]) -> str:
     baseline_total_r = context.get("baseline_total_r")
     remaining = int(proposal.get("baseline_trades") or 0) - int(proposal.get("trades_lost") or 0)
     recommendation = "Implementar con feature flag reversible." if proposal.get("edge_type") == "STRUCTURAL_EDGE" else "Revisar manualmente antes de cualquier cambio."
+    automation_notice = (
+        "Al pulsar Approve, el cambio se revisará, probará y aplicará automáticamente. "
+        "Si falla la validación, se realizará rollback."
+        if approval_auto_apply_config()["enabled"]
+        else "No se ejecutará ningún cambio automáticamente."
+    )
     return (
         "🤖 Quantum Investment Council\n\n"
         f"Decisión:\n{proposal.get('action')}\n\n"
@@ -171,7 +179,7 @@ def format_proposal_message(proposal: dict[str, Any]) -> str:
         f"Riesgo:\n{proposal.get('risk_level')}\n"
         f"Motivo:\n{', '.join(str(item) for item in proposal.get('risk_objections') or []) or 'none'}\n\n"
         f"Recomendación:\n{recommendation}\n\n"
-        "No se ejecutará ningún cambio automáticamente."
+        + automation_notice
     )
 
 
@@ -265,6 +273,7 @@ def handle_approval_callback(
     knowledge_base_path: Path = DEFAULT_KNOWLEDGE_BASE_PATH,
     qic_output_path: Path = Path("reports") / "qic",
     actor: str = "telegram_dev",
+    chat_id: str = "",
     rejection_reason: str = "",
 ) -> dict[str, Any]:
     parts = callback_data.split(":")
@@ -321,19 +330,28 @@ def handle_approval_callback(
         return _handle_apply_patch_callback(proposal_id, proposal_store_path=proposal_store_path, qic_output_path=qic_output_path)
     if action not in {"approve", "reject"}:
         return {"handled": False, "reason": "unsupported_action", "action": action}
-    status = "approved_for_implementation_review" if action == "approve" else "rejected"
+    if action == "approve":
+        return _handle_approve_callback(
+            proposal_id,
+            proposal_store_path=proposal_store_path,
+            knowledge_base_path=knowledge_base_path,
+            qic_output_path=qic_output_path,
+            actor=actor,
+            chat_id=chat_id,
+        )
+    status = "rejected"
     updated = update_proposal_status(
         proposal_id,
         status,
         path=proposal_store_path,
         actor=actor,
-        approval_metadata={"human_approved": action == "approve", "rejection_reason": rejection_reason} if rejection_reason or action == "approve" else {},
+        approval_metadata={"rejection_reason": rejection_reason} if rejection_reason else {},
     )
     knowledge_item = None
     if updated is not None:
         knowledge_item = record_proposal_review(
             updated,
-            "approved" if action == "approve" else "rejected",
+            "rejected",
             path=knowledge_base_path,
             rejection_reason=rejection_reason,
         )
@@ -344,6 +362,95 @@ def handle_approval_callback(
         "status": status if updated is not None else "not_found",
         "proposal": updated,
         "knowledge_item": knowledge_item,
+    }
+
+
+def _handle_approve_callback(
+    proposal_id: str,
+    *,
+    proposal_store_path: Path,
+    knowledge_base_path: Path,
+    qic_output_path: Path,
+    actor: str,
+    chat_id: str,
+) -> dict[str, Any]:
+    from trading_signals.agents.implementation.approval_pipeline import (
+        approval_auto_apply_config,
+        enqueue_approved_proposal_pipeline,
+    )
+    from trading_signals.agents.proposal_store import load_proposals
+
+    proposal = next((item for item in load_proposals(proposal_store_path) if item.get("id") == proposal_id), None)
+    if proposal is None:
+        return {
+            "handled": False,
+            "action": "approve",
+            "proposal_id": proposal_id,
+            "status": "not_found",
+            "reason": "proposal_not_found",
+        }
+    if proposal.get("status") == "implemented":
+        return {
+            "handled": True,
+            "action": "approve",
+            "proposal_id": proposal_id,
+            "status": "already_implemented",
+            "proposal": proposal,
+            "notification_text": "La propuesta ya está implementada; no se ejecutará de nuevo.",
+        }
+
+    already_approved = proposal.get("status") in {"approved", "approved_for_implementation_review"}
+    updated = proposal
+    knowledge_item = None
+    if not already_approved:
+        updated = update_proposal_status(
+            proposal_id,
+            "approved_for_implementation_review",
+            path=proposal_store_path,
+            actor=actor,
+            approval_metadata={"human_approved": True},
+        )
+        if updated is not None:
+            knowledge_item = record_proposal_review(updated, "approved", path=knowledge_base_path)
+    gate = approval_auto_apply_config()
+    if not gate["enabled"]:
+        return {
+            "handled": updated is not None,
+            "action": "approve",
+            "proposal_id": proposal_id,
+            "status": "approved_for_implementation_review" if updated is not None else "not_found",
+            "proposal": updated,
+            "knowledge_item": knowledge_item,
+            "auto_apply": gate,
+            "notification_text": "Propuesta aprobada, pero la aplicación automática está desactivada.",
+        }
+    queued = enqueue_approved_proposal_pipeline(
+        proposal_id=proposal_id,
+        proposal_store_path=proposal_store_path,
+        knowledge_base_path=knowledge_base_path,
+        reports_path=qic_output_path,
+        actor=actor,
+        chat_id=chat_id,
+    )
+    status = str(queued.get("status") or "implementation_queue_failed")
+    if status == "implementation_queued":
+        notification = "⏳ Propuesta aprobada. Iniciando revisión, generación y validación."
+    elif status == "already_running":
+        notification = "La propuesta ya se está procesando; no se ha iniciado un segundo pipeline."
+    elif status == "already_implemented":
+        notification = "La propuesta ya está implementada; no se ejecutará de nuevo."
+    else:
+        notification = "⛔ Propuesta aprobada, pero no se pudo iniciar el worker de implementación."
+    return {
+        "handled": True,
+        "action": "approve",
+        "proposal_id": proposal_id,
+        "status": status,
+        "proposal": updated,
+        "knowledge_item": knowledge_item,
+        "auto_apply": gate,
+        "approval_job": queued,
+        "notification_text": notification,
     }
 
 
@@ -622,6 +729,7 @@ def process_approval_update(
         knowledge_base_path=knowledge_base_path,
         qic_output_path=qic_output_path,
         actor=actor,
+        chat_id=chat_id,
     )
     result["update_id"] = update.get("update_id")
     result["callback_query_id"] = callback_id
@@ -732,6 +840,13 @@ def poll_approval_callbacks(
                 {"chat_id": result["chat_id"], "text": result["response_text"], "reply_markup": {"inline_keyboard": []}},
                 proposal_id=f"command:{result.get('command')}",
             )
+        if result.get("notification_text") and result.get("chat_id") and not dry_run:
+            send_qic_status_message(
+                bot_token=bot_token,
+                chat_id=str(result["chat_id"]),
+                text=str(result["notification_text"]),
+                proposal_id=str(result.get("proposal_id") or "approval"),
+            )
     if max_update_id >= 0 and not dry_run:
         _save_update_offset(offset_path, max_update_id + 1)
     return {
@@ -765,6 +880,22 @@ def _send_payload(bot_token: str, payload: dict[str, Any], *, proposal_id: str) 
         }
     except Exception as exc:  # pragma: no cover - network path
         return {"status": "failed", "proposal_id": proposal_id, "error_message": str(exc)}
+
+
+def send_qic_status_message(
+    *,
+    bot_token: str,
+    chat_id: str,
+    text: str,
+    proposal_id: str = "qic_status",
+) -> dict[str, Any]:
+    if not bot_token or not chat_id:
+        return {"status": "skipped", "proposal_id": proposal_id, "reason": "qic_telegram_not_configured"}
+    return _send_payload(
+        bot_token,
+        {"chat_id": chat_id, "text": text[:3900], "reply_markup": {"inline_keyboard": []}},
+        proposal_id=proposal_id,
+    )
 
 
 def _get_updates(*, bot_token: str, offset: int, limit: int, timeout: int, dry_run: bool) -> dict[str, Any]:

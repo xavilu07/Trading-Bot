@@ -263,6 +263,7 @@ def test_qic_scheduler_settings_defaults_and_env(monkeypatch) -> None:
 def test_qic_code_engineer_settings_defaults_and_env(monkeypatch) -> None:
     monkeypatch.delenv("QIC_CODE_ENGINEER_ENABLED", raising=False)
     monkeypatch.delenv("QIC_CODE_ENGINEER_ALLOW_APPLY", raising=False)
+    monkeypatch.delenv("QIC_AUTO_APPLY_ON_APPROVAL", raising=False)
     monkeypatch.delenv("QIC_CODE_ENGINEER_AUTO_COMMIT", raising=False)
     monkeypatch.delenv("QIC_CODE_ENGINEER_MAX_AUTOFIX_ATTEMPTS", raising=False)
 
@@ -270,11 +271,13 @@ def test_qic_code_engineer_settings_defaults_and_env(monkeypatch) -> None:
 
     assert settings.qic_code_engineer_enabled is False
     assert settings.qic_code_engineer_allow_apply is False
+    assert settings.qic_auto_apply_on_approval is False
     assert settings.qic_code_engineer_auto_commit is False
     assert settings.qic_code_engineer_max_autofix_attempts == 1
 
     monkeypatch.setenv("QIC_CODE_ENGINEER_ENABLED", "true")
     monkeypatch.setenv("QIC_CODE_ENGINEER_ALLOW_APPLY", "true")
+    monkeypatch.setenv("QIC_AUTO_APPLY_ON_APPROVAL", "true")
     monkeypatch.setenv("QIC_CODE_ENGINEER_AUTO_COMMIT", "true")
     monkeypatch.setenv("QIC_CODE_ENGINEER_MAX_AUTOFIX_ATTEMPTS", "2")
 
@@ -282,6 +285,7 @@ def test_qic_code_engineer_settings_defaults_and_env(monkeypatch) -> None:
 
     assert settings.qic_code_engineer_enabled is True
     assert settings.qic_code_engineer_allow_apply is True
+    assert settings.qic_auto_apply_on_approval is True
     assert settings.qic_code_engineer_auto_commit is True
     assert settings.qic_code_engineer_max_autofix_attempts == 2
 

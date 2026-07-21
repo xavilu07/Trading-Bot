@@ -11,6 +11,8 @@ QIC_AUTONOMOUS_ENABLED=false
 QIC_AUTONOMOUS_DRY_RUN=true
 QIC_TELEGRAM_ENABLED=false
 QIC_CODE_ENGINEER_ENABLED=false
+QIC_CODE_ENGINEER_ALLOW_APPLY=false
+QIC_AUTO_APPLY_ON_APPROVAL=false
 QIC_AUTO_APPLY_LOW_RISK=false
 QIC_AUTO_APPLY_MEDIUM_RISK=false
 QIC_LIVE_TRADING_CHANGES_ALLOWED=false
@@ -108,7 +110,21 @@ Supported commands:
 /performance /agents /memory /edges /errors /help
 ```
 
-Callbacks validate the chat, persist actor/time/callback ID, append the decision ledger, and are idempotent. Approval changes state only. API mutations remain disabled because the current dashboard has no secure admin authentication.
+Callbacks validate the chat, persist actor/time/callback ID, append the decision ledger, and are idempotent. Approval changes state only by default; the guarded worker described below is queued only when all three explicit auto-apply flags are enabled. API mutations remain disabled because the current dashboard has no secure admin authentication.
+
+### Auto-apply after Telegram approval
+
+Telegram `Approve` only queues automatic implementation when all three flags are true:
+
+```text
+QIC_AUTO_APPLY_ON_APPROVAL=true
+QIC_CODE_ENGINEER_ENABLED=true
+QIC_CODE_ENGINEER_ALLOW_APPLY=true
+```
+
+The default remains disabled. The callback first persists human approval, then writes a job under `data/qic/approval_jobs/` and starts `scripts/run_qic_approval_worker.py` without blocking the listener. The worker takes a per-proposal lock and runs Implementation Review, patch report generation, Code Engineer sandbox tests, guarded apply through `CodeChangeManager`, post-apply tests, and automatic rollback plus revalidation on failure. Proposal state becomes `implemented` only after a successful apply and post-apply validation.
+
+Per-proposal reports and worker logs are written to `reports/qic/approval_pipeline_<proposal_id>.{json,md,log}`. A blocked or rolled-back pipeline leaves the proposal at `approved_for_implementation_review`. Disable any of the three flags and restart only the QIC Telegram listener to stop new automatic jobs; running jobs retain the safety checks and rollback behavior of Code Engineer V1.
 
 ## Systemd units
 
