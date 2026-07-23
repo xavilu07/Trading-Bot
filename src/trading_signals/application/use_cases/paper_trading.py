@@ -10,6 +10,7 @@ from uuid import uuid4
 
 from trading_signals.domain.entities.market_snapshot import MarketSnapshot
 from trading_signals.domain.entities.risk_plan import RiskPlan
+from trading_signals.data.canonical_trade_source import TradingCostConfig, TradeUniverse, statistical_key
 
 
 PAPER_TRADE_FIELDS = [
@@ -62,6 +63,30 @@ PAPER_TRADE_FIELDS = [
     "tp_distance_atr",
     "late_entry_from_bos",
     "avoidance_warnings",
+    "universe",
+    "accepted",
+    "public_published",
+    "created_at",
+    "accepted_at",
+    "published_at",
+    "timeframe",
+    "candle_close",
+    "selected_engine",
+    "strategy_version",
+    "git_commit_sha",
+    "config_hash",
+    "runtime_flags",
+    "deployment_id",
+    "policy_version",
+    "experiment_id",
+    "statistical_key",
+    "gross_result_r",
+    "commission",
+    "spread",
+    "slippage",
+    "funding",
+    "total_cost",
+    "net_result_r",
 ]
 
 
@@ -106,6 +131,23 @@ class PaperTradeCandidate:
     tp_distance_atr: float | None
     late_entry_from_bos: bool
     avoidance_warnings: list[str]
+    universe: str = TradeUniverse.ACCEPTED.value
+    timeframe: str = "unknown"
+    candle_close: str = "unknown"
+    selected_engine: str = "unknown"
+    strategy_version: str = "unknown"
+    git_commit_sha: str = "unknown"
+    config_hash: str = "unknown"
+    runtime_flags: dict[str, object] | None = None
+    deployment_id: str = "unknown"
+    policy_version: str = "unknown"
+    experiment_id: str = "none"
+    commission: float = 0.02
+    spread: float = 0.01
+    slippage: float = 0.01
+    funding: float = 0.0
+    public_published: bool = False
+    published_at: str = ""
 
 
 class PaperTradingStore:
@@ -131,10 +173,17 @@ class PaperTradingStore:
 
     def upsert_candidate(self, candidate: PaperTradeCandidate) -> bool:
         trades: list[dict[str, object]] = list(self.list_trades())
-        if any(item.get("dedupe_key") == candidate.dedupe_key for item in trades):
+        row = asdict(candidate)
+        row["statistical_key"] = statistical_key(row)
+        if any(
+            item.get("dedupe_key") == candidate.dedupe_key
+            or item.get("statistical_key") == row["statistical_key"]
+            for item in trades
+        ):
             return False
         opened = datetime.fromisoformat(candidate.opened_at)
-        row = asdict(candidate)
+        total_cost = candidate.commission + candidate.spread + candidate.slippage + candidate.funding
+        accepted = candidate.universe == TradeUniverse.ACCEPTED.value
         row.update(
             {
                 "trade_id": f"paper_{uuid4().hex[:12]}",
@@ -143,6 +192,9 @@ class PaperTradingStore:
                 "candles_held": "0",
                 "status": "open",
                 "result_r": "0",
+                "gross_result_r": "0",
+                "net_result_r": "0",
+                "total_cost": f"{total_cost:.4f}",
                 "mfe_r": "0",
                 "mae_r": "0",
                 "entry_reasons": json.dumps(candidate.entry_reasons, ensure_ascii=False),
@@ -152,6 +204,12 @@ class PaperTradingStore:
                 "avoidance_warnings": json.dumps(candidate.avoidance_warnings, ensure_ascii=False),
                 "opened_hour_utc": str(opened.hour),
                 "opened_weekday": opened.strftime("%A"),
+                "accepted": str(accepted).lower(),
+                "public_published": str(candidate.public_published).lower(),
+                "created_at": candidate.opened_at,
+                "accepted_at": candidate.opened_at if accepted else "",
+                "published_at": candidate.published_at if candidate.public_published else "",
+                "runtime_flags": json.dumps(candidate.runtime_flags or {}, sort_keys=True),
             }
         )
         trades.append(row)
@@ -173,6 +231,10 @@ class PaperTradingStore:
                 status = "expired"
             trade["status"] = status
             trade["result_r"] = f"{result_r:.4f}"
+            trade["gross_result_r"] = f"{result_r:.4f}"
+            total_cost = sum(float(trade.get(field) or 0.0) for field in ("commission", "spread", "slippage", "funding"))
+            trade["total_cost"] = f"{total_cost:.4f}"
+            trade["net_result_r"] = f"{result_r - total_cost:.4f}" if status not in {"open", "tp1_hit"} else ""
             trade["mfe_r"] = f"{max(float(trade.get('mfe_r') or 0.0), mfe_r):.4f}"
             trade["mae_r"] = f"{min(float(trade.get('mae_r') or 0.0), mae_r):.4f}"
             trade["candles_held"] = str(candles_held)
@@ -276,6 +338,8 @@ def build_paper_candidate_from_decision(
     entry_or_rejection_reason: str,
     expires_after_candles: int,
     setup_context: dict[str, object],
+    trace: dict[str, object] | None = None,
+    universe: TradeUniverse | str = TradeUniverse.ACCEPTED,
 ) -> PaperTradeCandidate | None:
     context = paper_signal_context(evaluation_or_decision)
     return build_paper_candidate_from_signal(
@@ -295,6 +359,8 @@ def build_paper_candidate_from_decision(
         entry_or_rejection_reason=entry_or_rejection_reason,
         expires_after_candles=expires_after_candles,
         setup_context=setup_context,
+        trace=trace,
+        universe=universe,
     )
 
 
@@ -316,6 +382,8 @@ def build_paper_candidate_from_signal(
     entry_or_rejection_reason: str,
     expires_after_candles: int,
     setup_context: dict[str, object],
+    trace: dict[str, object] | None = None,
+    universe: TradeUniverse | str = TradeUniverse.ACCEPTED,
 ) -> PaperTradeCandidate | None:
     level = paper_level(score)
     if level is None:
@@ -332,6 +400,9 @@ def build_paper_candidate_from_signal(
     if rr_tp2 < 1.5:
         return None
     metadata = snapshot.metadata
+    trace = dict(trace or {})
+    cost = TradingCostConfig.from_env()
+    universe_value = TradeUniverse(str(universe)).value
     return PaperTradeCandidate(
         dedupe_key=f"{source_key}|paper",
         symbol=symbol,
@@ -372,6 +443,23 @@ def build_paper_candidate_from_signal(
         tp_distance_atr=setup_context.get("tp_distance_atr"),  # type: ignore[arg-type]
         late_entry_from_bos=bool(setup_context.get("late_entry_from_bos", False)),
         avoidance_warnings=list(setup_context.get("avoidance_warnings", [])),
+        universe=universe_value,
+        timeframe=snapshot.timeframe,
+        candle_close=snapshot.timestamp,
+        selected_engine=str(trace.get("selected_engine") or "unknown"),
+        strategy_version=str(trace.get("strategy_version") or "unknown"),
+        git_commit_sha=str(trace.get("git_commit_sha") or "unknown"),
+        config_hash=str(trace.get("config_hash") or "unknown"),
+        runtime_flags=dict(trace.get("runtime_flags") or {}),
+        deployment_id=str(trace.get("deployment_id") or "unknown"),
+        policy_version=str(trace.get("policy_version") or "unknown"),
+        experiment_id=str(trace.get("experiment_id") or ("none" if universe_value == TradeUniverse.ACCEPTED.value else "unknown")),
+        commission=cost.commission_r,
+        spread=cost.spread_r,
+        slippage=cost.slippage_r,
+        funding=cost.funding_r,
+        public_published=bool(trace.get("public_published", False)),
+        published_at=str(trace.get("published_at") or "") if trace.get("public_published") else "",
     )
 
 

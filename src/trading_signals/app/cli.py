@@ -29,6 +29,8 @@ from trading_signals.application.use_cases.private_runtime_report import (
 from trading_signals.application.use_cases.active_signal_cleanup_v1 import ActiveSignalCleanupConfig, run_active_signal_cleanup_v1
 from trading_signals.application.use_cases.run_market_scan import run_market_scan
 from trading_signals.infrastructure.logging.logger import log_json
+from trading_signals.data.canonical_trade_source import runtime_trace
+from trading_signals.runtime.scheduler_guard import DuplicateSchedulerError, SchedulerInstanceGuard
 
 
 def load_scheduler_results_window(path: Path) -> list[dict[str, object]]:
@@ -895,6 +897,17 @@ def main(argv: list[str] | None = None) -> int:
         interval = args.interval_seconds or settings.scan_interval_seconds
         summary_every_cycles = max(1, settings.telegram_diagnostic_summary_every_cycles)
         logger = container["logger"]
+        runtime_identity = runtime_trace(
+            root=Path.cwd(),
+            settings=settings,
+            deployment_id=settings.deployment_id,
+        )
+        try:
+            scheduler_guard = SchedulerInstanceGuard(settings.scheduler_lock_file, runtime_identity).acquire()
+        except DuplicateSchedulerError as exc:
+            log_json(logger, "scheduler_duplicate_blocked", error_message=str(exc), **runtime_identity)
+            return 2
+        log_json(logger, "scheduler_started", pid=__import__("os").getpid(), **runtime_identity)
         results_window = load_scheduler_results_window(settings.scheduler_diagnostic_state_file)
         heartbeat = load_scheduler_heartbeat(settings.scheduler_heartbeat_file)
         cycle_number = scheduler_heartbeat_cycle_number(heartbeat)
@@ -922,6 +935,7 @@ def main(argv: list[str] | None = None) -> int:
                         "cycle_number": cycle_number,
                         "status": str(heartbeat.get("status") or "ok"),
                         "last_error": heartbeat.get("last_error"),
+                        **runtime_identity,
                     },
                 )
                 result = run_market_scan(
@@ -981,6 +995,7 @@ def main(argv: list[str] | None = None) -> int:
                     "cycle_number": cycle_number,
                     "status": "ok",
                     "last_error": None,
+                    **runtime_identity,
                 }
                 try_save_scheduler_heartbeat(logger, settings.scheduler_heartbeat_file, heartbeat)
                 private_runtime_state = load_private_runtime_report_state(settings.private_runtime_report_state_file)
@@ -1054,6 +1069,7 @@ def main(argv: list[str] | None = None) -> int:
                         "message": str(exc),
                         "occurred_at": cycle_finished_at.isoformat(),
                     },
+                    **runtime_identity,
                 }
                 try_save_scheduler_heartbeat(logger, settings.scheduler_heartbeat_file, heartbeat)
                 log_json(

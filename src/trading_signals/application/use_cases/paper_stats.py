@@ -4,6 +4,7 @@ import csv
 import json
 from collections import Counter, defaultdict
 from pathlib import Path
+from trading_signals.data.canonical_trade_source import TradeUniverse, load_trade_universe
 
 
 CLOSED_STATUSES = {"tp2_hit", "sl_hit", "expired", "tp_hit"}
@@ -12,11 +13,7 @@ LOSS_STATUSES = {"sl_hit"}
 
 
 def load_paper_trades(data_path: Path) -> list[dict[str, str]]:
-    trades_file = data_path / "paper_trading" / "trades.csv"
-    if not trades_file.exists() or trades_file.stat().st_size == 0:
-        return []
-    with trades_file.open("r", encoding="utf-8", newline="") as handle:
-        return list(csv.DictReader(handle))
+    return load_trade_universe(data_path, TradeUniverse.ACCEPTED, closed_only=False)  # type: ignore[return-value]
 
 
 def build_paper_performance_summary(data_path: Path) -> dict[str, object]:

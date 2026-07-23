@@ -5,6 +5,7 @@ import json
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Iterable
+from trading_signals.data.canonical_trade_source import TradeUniverse, load_trade_universe
 
 from trading_signals.application.use_cases.intelligence_layer_health import (
     build_intelligence_layer_health,
@@ -35,7 +36,7 @@ def build_daily_dev_report(
 ) -> dict[str, object]:
     now_dt = now or datetime.now(timezone.utc)
     day = report_date or now_dt.date()
-    paper_trades = _read_csv(data_path / "paper_trading" / "trades.csv")
+    paper_trades = load_trade_universe(data_path, TradeUniverse.ACCEPTED, closed_only=False)
     live_trades = _read_csv(data_path / "live_trading" / "trades.csv")
     pattern_records = _read_jsonl(data_path / "pattern_memory" / "patterns.jsonl")
     closed_today = [trade for trade in paper_trades if _is_closed(trade) and _date_matches(trade, day)]
