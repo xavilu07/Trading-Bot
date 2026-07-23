@@ -4,7 +4,6 @@ import csv
 import hashlib
 import json
 import os
-import subprocess
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from enum import StrEnum
@@ -349,27 +348,6 @@ def deduplicate_statistical_rows(rows: Iterable[Mapping[str, Any]]) -> list[dict
     return sorted(by_key.values(), key=_sort_timestamp)
 
 
-def runtime_trace(
-    *,
-    root: Path,
-    settings: object | None = None,
-    deployment_id: str | None = None,
-    selected_engine: str = "unknown",
-    policy_version: str = "unknown",
-    experiment_id: str = "none",
-) -> dict[str, Any]:
-    flags = _runtime_flags(settings)
-    return {
-        "git_commit_sha": _git_sha(root),
-        "config_hash": hashlib.sha256(json.dumps(flags, sort_keys=True, default=str).encode()).hexdigest(),
-        "runtime_flags": flags,
-        "deployment_id": deployment_id or os.getenv("DEPLOYMENT_ID", "unknown"),
-        "selected_engine": selected_engine,
-        "policy_version": policy_version,
-        "experiment_id": experiment_id,
-    }
-
-
 def tokens(value: object) -> set[str]:
     if value is None:
         return set()
@@ -453,47 +431,6 @@ def _read_csv(path: Path) -> list[dict[str, str]]:
             return [dict(row) for row in csv.DictReader(handle)]
     except (OSError, csv.Error):
         return []
-
-
-def _runtime_flags(settings: object | None) -> dict[str, Any]:
-    if settings is None:
-        return {}
-    allowed = (
-        "app_env",
-        "entry_timeframe",
-        "higher_timeframe",
-        "use_modular_decision_engine",
-        "relaxed_strategy_gates_enabled",
-        "meta_decision_filter_enabled",
-        "edge_activation_mode",
-        "short_shadow_mode",
-        "adaptive_filter_enabled",
-        "adaptive_filter_mode",
-        "public_short_canary_enabled",
-        "protection_engine_mode",
-        "pair_universe_filter_mode",
-        "trading_commission_r",
-        "trading_spread_r",
-        "trading_slippage_r",
-        "trading_funding_r",
-    )
-    return {name: getattr(settings, name) for name in allowed if hasattr(settings, name)}
-
-
-def _git_sha(root: Path) -> str:
-    override = os.getenv("GIT_COMMIT_SHA")
-    if override:
-        return override
-    try:
-        return subprocess.run(
-            ["git", "-C", str(root), "rev-parse", "HEAD"],
-            text=True,
-            capture_output=True,
-            check=True,
-            timeout=2,
-        ).stdout.strip()
-    except (OSError, subprocess.SubprocessError):
-        return "unknown"
 
 
 def _cost(row: Mapping[str, Any], field: str, default: float, historical_unknown: bool) -> float:

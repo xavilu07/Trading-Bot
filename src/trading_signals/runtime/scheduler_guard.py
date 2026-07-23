@@ -6,6 +6,8 @@ import os
 from pathlib import Path
 from typing import IO, Any
 
+from trading_signals.runtime.identity import validate_runtime_identity
+
 
 class DuplicateSchedulerError(RuntimeError):
     pass
@@ -20,6 +22,7 @@ class SchedulerInstanceGuard:
         self._handle: IO[str] | None = None
 
     def acquire(self) -> "SchedulerInstanceGuard":
+        validate_runtime_identity(self.identity)
         self.path.parent.mkdir(parents=True, exist_ok=True)
         handle = self.path.open("a+", encoding="utf-8")
         try:

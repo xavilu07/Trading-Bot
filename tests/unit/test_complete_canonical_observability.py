@@ -17,9 +17,9 @@ from trading_signals.data.canonical_trade_source import (
     load_shadow_trades,
     load_trade_universe,
     normalize_trade_row,
-    runtime_trace,
 )
 from trading_signals.memory.edge_memory import build_edge_memory
+from trading_signals.runtime.identity import build_runtime_identity
 from trading_signals.runtime.scheduler_guard import DuplicateSchedulerError, SchedulerInstanceGuard
 
 
@@ -112,19 +112,48 @@ def test_metadata_is_complete_for_new_normalized_row() -> None:
     assert required <= row.keys()
 
 
-def test_runtime_trace_identifies_commit_config_and_deployment(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("GIT_COMMIT_SHA", "abc123")
-    trace = runtime_trace(root=tmp_path, settings=type("S", (), {"app_env": "test"})(), deployment_id="deploy-7")
-    assert trace["git_commit_sha"] == "abc123"
+def test_runtime_trace_identifies_commit_config_and_deployment() -> None:
+    settings = type(
+        "S",
+        (),
+        {
+            "app_env": "test",
+            "deployment_id": "deploy-7",
+            "selected_engine": "",
+            "strategy_version": "",
+            "policy_version": "",
+            "experiment_id": "none",
+            "runtime_allow_unknown_identity": False,
+            "use_modular_decision_engine": False,
+            "config_hash": "",
+            "git_commit_sha": "",
+        },
+    )()
+    trace = build_runtime_identity(root=Path(__file__).resolve().parents[2], settings=settings).to_dict()
+    assert len(trace["git_commit_sha"]) == 40
     assert trace["deployment_id"] == "deploy-7"
     assert len(trace["config_hash"]) == 64
 
 
 def test_scheduler_guard_detects_duplicate(tmp_path: Path) -> None:
-    first = SchedulerInstanceGuard(tmp_path / "scheduler.lock", {"git_commit_sha": "abc"}).acquire()
+    identity = {
+        "runtime_identity_schema": "runtime_identity.v1",
+        "git_commit_sha": "abc",
+        "deployment_id": "test",
+        "config_hash": "hash",
+        "selected_engine": "legacy",
+        "strategy_version": "v1",
+        "policy_version": "v1",
+        "experiment_id": "none",
+        "runtime_flags": {},
+        "pid": 1,
+        "started_at": "2026-07-23T00:00:00+00:00",
+        "release_cwd": "/tmp",
+    }
+    first = SchedulerInstanceGuard(tmp_path / "scheduler.lock", identity).acquire()
     try:
         with pytest.raises(DuplicateSchedulerError):
-            SchedulerInstanceGuard(tmp_path / "scheduler.lock", {"git_commit_sha": "def"}).acquire()
+            SchedulerInstanceGuard(tmp_path / "scheduler.lock", identity).acquire()
     finally:
         first.release()
 

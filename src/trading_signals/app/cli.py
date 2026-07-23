@@ -29,7 +29,11 @@ from trading_signals.application.use_cases.private_runtime_report import (
 from trading_signals.application.use_cases.active_signal_cleanup_v1 import ActiveSignalCleanupConfig, run_active_signal_cleanup_v1
 from trading_signals.application.use_cases.run_market_scan import run_market_scan
 from trading_signals.infrastructure.logging.logger import log_json
-from trading_signals.data.canonical_trade_source import runtime_trace
+from trading_signals.runtime.identity import (
+    RuntimeIdentityError,
+    build_runtime_identity,
+    heartbeat_with_identity,
+)
 from trading_signals.runtime.scheduler_guard import DuplicateSchedulerError, SchedulerInstanceGuard
 
 
@@ -861,6 +865,7 @@ def main(argv: list[str] | None = None) -> int:
     scheduler.add_argument("--symbols", default="")
     scheduler.add_argument("--dry-run", action="store_true")
     scheduler.add_argument("--interval-seconds", type=int, default=None)
+    scheduler.add_argument("--max-cycles", type=int, default=None, help=argparse.SUPPRESS)
     telegram_start = subparsers.add_parser("telegram-start")
     telegram_start.add_argument("--dry-run", action="store_true")
     telegram_listener = subparsers.add_parser("telegram-listener")
@@ -870,6 +875,15 @@ def main(argv: list[str] | None = None) -> int:
 
     container = build_container()
     if args.command == "scan":
+        try:
+            runtime_identity = build_runtime_identity(
+                root=Path.cwd(),
+                settings=container["settings"],
+                strict=not args.dry_run,
+            ).to_dict()
+        except RuntimeIdentityError as exc:
+            log_json(container["logger"], "runtime_identity_error", error_message=str(exc))
+            return 2
         symbols = [item.strip().upper() for item in args.symbols.split(",") if item.strip()] or None
         result = run_market_scan(
             settings=container["settings"],
@@ -888,6 +902,7 @@ def main(argv: list[str] | None = None) -> int:
             pattern_memory_store=container["pattern_memory_store"],
             symbols=symbols,
             dry_run=args.dry_run,
+            runtime_identity=runtime_identity,
         )
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0
@@ -897,20 +912,32 @@ def main(argv: list[str] | None = None) -> int:
         interval = args.interval_seconds or settings.scan_interval_seconds
         summary_every_cycles = max(1, settings.telegram_diagnostic_summary_every_cycles)
         logger = container["logger"]
-        runtime_identity = runtime_trace(
-            root=Path.cwd(),
-            settings=settings,
-            deployment_id=settings.deployment_id,
-        )
+        try:
+            runtime_contract = build_runtime_identity(
+                root=Path.cwd(),
+                settings=settings,
+                strict=not args.dry_run,
+            )
+        except RuntimeIdentityError as exc:
+            log_json(logger, "scheduler_identity_error", error_message=str(exc))
+            return 2
+        runtime_identity = runtime_contract.to_dict()
         try:
             scheduler_guard = SchedulerInstanceGuard(settings.scheduler_lock_file, runtime_identity).acquire()
         except DuplicateSchedulerError as exc:
             log_json(logger, "scheduler_duplicate_blocked", error_message=str(exc), **runtime_identity)
             return 2
-        log_json(logger, "scheduler_started", pid=__import__("os").getpid(), **runtime_identity)
+        log_json(logger, "scheduler_started", **runtime_identity)
         results_window = load_scheduler_results_window(settings.scheduler_diagnostic_state_file)
         heartbeat = load_scheduler_heartbeat(settings.scheduler_heartbeat_file)
         cycle_number = scheduler_heartbeat_cycle_number(heartbeat)
+        heartbeat = heartbeat_with_identity(
+            runtime_contract,
+            cycle_number=cycle_number,
+            status="starting",
+            last_error=None,
+        )
+        try_save_scheduler_heartbeat(logger, settings.scheduler_heartbeat_file, heartbeat)
         log_json(
             logger,
             "scheduler_diagnostic_counter_state",
@@ -927,16 +954,18 @@ def main(argv: list[str] | None = None) -> int:
                 try_save_scheduler_heartbeat(
                     logger,
                     settings.scheduler_heartbeat_file,
-                    {
-                        **heartbeat,
-                        "last_cycle_started_at": cycle_started_at.isoformat(),
-                        "last_cycle_finished_at": heartbeat.get("last_cycle_finished_at"),
-                        "last_cycle_duration_seconds": heartbeat.get("last_cycle_duration_seconds"),
-                        "cycle_number": cycle_number,
-                        "status": str(heartbeat.get("status") or "ok"),
-                        "last_error": heartbeat.get("last_error"),
-                        **runtime_identity,
-                    },
+                    heartbeat_with_identity(
+                        runtime_contract,
+                        **{
+                            **heartbeat,
+                            "last_cycle_started_at": cycle_started_at.isoformat(),
+                            "last_cycle_finished_at": heartbeat.get("last_cycle_finished_at"),
+                            "last_cycle_duration_seconds": heartbeat.get("last_cycle_duration_seconds"),
+                            "cycle_number": cycle_number,
+                            "status": str(heartbeat.get("status") or "ok"),
+                            "last_error": heartbeat.get("last_error"),
+                        },
+                    ),
                 )
                 result = run_market_scan(
                     settings=container["settings"],
@@ -955,6 +984,7 @@ def main(argv: list[str] | None = None) -> int:
                     pattern_memory_store=container["pattern_memory_store"],
                     symbols=symbols,
                     dry_run=args.dry_run,
+                    runtime_identity=runtime_identity,
                 )
                 print(json.dumps(result["scan_run"], ensure_ascii=False))
                 results_window.append(result)
@@ -988,15 +1018,15 @@ def main(argv: list[str] | None = None) -> int:
                 maybe_send_paper_daily_summary(container, dry_run=args.dry_run)
                 maybe_send_live_daily_summary(container, dry_run=args.dry_run)
                 cycle_finished_at = datetime.now(tz=UTC)
-                heartbeat = {
-                    "last_cycle_started_at": cycle_started_at.isoformat(),
-                    "last_cycle_finished_at": cycle_finished_at.isoformat(),
-                    "last_cycle_duration_seconds": _duration_seconds(cycle_started_at, cycle_finished_at),
-                    "cycle_number": cycle_number,
-                    "status": "ok",
-                    "last_error": None,
-                    **runtime_identity,
-                }
+                heartbeat = heartbeat_with_identity(
+                    runtime_contract,
+                    last_cycle_started_at=cycle_started_at.isoformat(),
+                    last_cycle_finished_at=cycle_finished_at.isoformat(),
+                    last_cycle_duration_seconds=_duration_seconds(cycle_started_at, cycle_finished_at),
+                    cycle_number=cycle_number,
+                    status="ok",
+                    last_error=None,
+                )
                 try_save_scheduler_heartbeat(logger, settings.scheduler_heartbeat_file, heartbeat)
                 private_runtime_state = load_private_runtime_report_state(settings.private_runtime_report_state_file)
                 if should_send_private_runtime_report(
@@ -1055,22 +1085,25 @@ def main(argv: list[str] | None = None) -> int:
                             error_type=type(exc).__name__,
                             error_message=str(exc),
                         )
+                if args.max_cycles is not None and cycle_number >= args.max_cycles:
+                    scheduler_guard.release()
+                    return 0
                 time.sleep(interval)
             except Exception as exc:  # pragma: no cover - defensive loop
                 cycle_finished_at = datetime.now(tz=UTC)
-                heartbeat = {
-                    "last_cycle_started_at": cycle_started_at.isoformat(),
-                    "last_cycle_finished_at": heartbeat.get("last_cycle_finished_at"),
-                    "last_cycle_duration_seconds": _duration_seconds(cycle_started_at, cycle_finished_at),
-                    "cycle_number": cycle_number,
-                    "status": "error",
-                    "last_error": {
+                heartbeat = heartbeat_with_identity(
+                    runtime_contract,
+                    last_cycle_started_at=cycle_started_at.isoformat(),
+                    last_cycle_finished_at=heartbeat.get("last_cycle_finished_at"),
+                    last_cycle_duration_seconds=_duration_seconds(cycle_started_at, cycle_finished_at),
+                    cycle_number=cycle_number,
+                    status="error",
+                    last_error={
                         "type": type(exc).__name__,
                         "message": str(exc),
                         "occurred_at": cycle_finished_at.isoformat(),
                     },
-                    **runtime_identity,
-                }
+                )
                 try_save_scheduler_heartbeat(logger, settings.scheduler_heartbeat_file, heartbeat)
                 log_json(
                     logger,

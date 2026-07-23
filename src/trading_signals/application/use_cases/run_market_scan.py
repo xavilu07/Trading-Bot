@@ -87,7 +87,8 @@ from trading_signals.application.use_cases.strategy_v2_1_htf_alignment_filter im
     apply_strategy_v2_1_htf_alignment_filter,
 )
 from trading_signals.data.market_data import market_data_status
-from trading_signals.data.canonical_trade_source import TradeUniverse, runtime_trace
+from trading_signals.data.canonical_trade_source import TradeUniverse
+from trading_signals.runtime.identity import build_runtime_identity, metadata_from_identity
 from trading_signals.diagnostics.logger import log_module_diagnostic
 from trading_signals.domain.entities.scan_run import ScanRun
 from trading_signals.domain.entities.system_error import SystemError
@@ -1143,6 +1144,7 @@ def run_market_scan(
     pattern_memory_store=None,
     symbols: list[str] | None = None,
     dry_run: bool = False,
+    runtime_identity: dict[str, object] | None = None,
 ) -> dict[str, object]:
     """Run the production scan while keeping the engine migration boundary explicit.
 
@@ -1157,6 +1159,11 @@ def run_market_scan(
     universe_validation = validate_symbol_universe(settings, market_data, effective_symbols)
     valid_symbols = [str(symbol) for symbol in universe_validation["valid_symbols"]]
     logger = logging.getLogger("trading_signals")
+    scan_runtime_identity = runtime_identity or build_runtime_identity(
+        root=Path.cwd(),
+        settings=settings,
+        strict=not dry_run,
+    ).to_dict()
     for skipped in universe_validation["skipped_symbols"]:
         if isinstance(skipped, dict):
             log_json(
@@ -1382,11 +1389,10 @@ def run_market_scan(
             signal_universe = TradeUniverse.ACCEPTED.value if signal_accepted else (
                 TradeUniverse.SHADOW.value if experimental_signal_saved else TradeUniverse.REJECTED.value
             )
-            signal_trace = runtime_trace(
-                root=Path.cwd(),
-                settings=settings,
+            signal_trace = metadata_from_identity(
+                scan_runtime_identity,
                 selected_engine=selected_decision.selected_engine,
-                policy_version=POLICY_VERSION,
+                strategy_version=evaluation.strategy_version,
                 experiment_id="none" if signal_accepted else ("shadow" if experimental_signal_saved else "unknown"),
             )
             signal = TradeSignal(
@@ -2046,13 +2052,11 @@ def run_market_scan(
                         expires_after_candles=settings.paper_trading_timeout_candles,
                         setup_context=setup_context,
                         trace={
-                            **runtime_trace(
-                                root=Path.cwd(),
-                                settings=settings,
+                            **metadata_from_identity(
+                                scan_runtime_identity,
                                 selected_engine=selected_decision.selected_engine,
-                                policy_version=POLICY_VERSION,
+                                strategy_version=evaluation.strategy_version,
                             ),
-                            "strategy_version": evaluation.strategy_version,
                             "public_published": public_published,
                             "published_at": _now_iso() if public_published else "",
                         },
@@ -2140,14 +2144,12 @@ def run_market_scan(
                                 expires_after_candles=settings.paper_trading_timeout_candles,
                                 setup_context=candidate_setup_context,
                                 trace={
-                                    **runtime_trace(
-                                        root=Path.cwd(),
-                                        settings=settings,
+                                    **metadata_from_identity(
+                                        scan_runtime_identity,
                                         selected_engine=selected_decision.selected_engine,
-                                        policy_version=POLICY_VERSION,
+                                        strategy_version=evaluation.strategy_version,
                                         experiment_id="rejected_candidate_counterfactual",
                                     ),
-                                    "strategy_version": evaluation.strategy_version,
                                 },
                                 universe=TradeUniverse.REJECTED,
                             )
@@ -2198,11 +2200,10 @@ def run_market_scan(
                     edge_optimizer_shadow=edge_optimizer_shadow.to_dict(),
                     edge_optimizer_active=edge_optimizer_active.to_dict(),
                     strategy_v2_1_htf_alignment_filter=strategy_v2_1_htf_alignment_filter,
-                    runtime_metadata=runtime_trace(
-                        root=Path.cwd(),
-                        settings=settings,
+                    runtime_metadata=metadata_from_identity(
+                        scan_runtime_identity,
                         selected_engine=selected_decision.selected_engine,
-                        policy_version=POLICY_VERSION,
+                        strategy_version=evaluation.strategy_version,
                         experiment_id="none" if evaluation.decision in {SignalDecision.LONG.value, SignalDecision.SHORT.value} else "unknown",
                     ),
                 )
