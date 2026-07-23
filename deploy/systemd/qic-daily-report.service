@@ -5,6 +5,7 @@ Description=Quantum Investment Council Daily Brief
 Type=oneshot
 WorkingDirectory=/root/bot
 Environment=PYTHONPATH=/root/bot/src
+EnvironmentFile=-/root/bot/.env
 ExecStart=/root/bot/.venv/bin/python /root/bot/scripts/run_qic_autonomous.py --once --phase reports --phase health --phase notifications
 TimeoutStartSec=300
 StandardOutput=journal

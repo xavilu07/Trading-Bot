@@ -5,6 +5,7 @@ Description=Quantum Investment Council Runtime Backup and Rotation
 Type=oneshot
 WorkingDirectory=/root/bot
 Environment=PYTHONPATH=/root/bot/src
+EnvironmentFile=-/root/bot/.env
 ExecStart=/root/bot/.venv/bin/python /root/bot/scripts/maintain_qic_runtime.py
 TimeoutStartSec=300
 StandardOutput=journal

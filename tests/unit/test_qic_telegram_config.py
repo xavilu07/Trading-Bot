@@ -99,7 +99,20 @@ def test_listener_startup_processes_callbacks_without_network(tmp_path: Path, mo
 
     monkeypatch.setattr("scripts.run_qic_telegram_listener.poll_approval_callbacks", fake_poll)
 
-    code = listener_main(["--once", "--dry-run", "--reports-path", str(tmp_path / "reports" / "qic")])
+    code = listener_main(
+        [
+            "--once",
+            "--dry-run",
+            "--reports-path",
+            str(tmp_path / "reports" / "qic"),
+            "--lock-path",
+            str(tmp_path / "data" / "qic" / "locks" / "telegram_listener.lock"),
+            "--offset-path",
+            str(tmp_path / "data" / "qic" / "telegram_update_offset.json"),
+            "--callback-history-path",
+            str(tmp_path / "data" / "qic" / "telegram_callbacks.jsonl"),
+        ]
+    )
 
     assert code == 0
     report = json.loads((tmp_path / "reports" / "qic" / "telegram_listener.json").read_text(encoding="utf-8"))
