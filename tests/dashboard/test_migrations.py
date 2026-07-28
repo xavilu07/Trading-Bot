@@ -29,6 +29,11 @@ EXPECTED_TABLES = {
     "market_data_sources",
     "signal_outcomes",
     "outcome_evidence",
+    "metric_definitions",
+    "metric_runs",
+    "metric_cohorts",
+    "metric_values",
+    "metric_exclusions",
 }
 
 
@@ -36,7 +41,7 @@ def test_empty_database_migrates_once_and_repeats_without_changes(tmp_path: Path
     database = tmp_path / "runtime/read-model.sqlite"
     connection = connect_writer(database, data_root=tmp_path / "data")
     try:
-        assert apply_migrations(connection) == (1, 2)
+        assert apply_migrations(connection) == (1, 2, 3)
         before = tuple(connection.execute("SELECT * FROM schema_migrations"))
         assert apply_migrations(connection) == ()
         assert tuple(connection.execute("SELECT * FROM schema_migrations")) == before
@@ -80,6 +85,14 @@ def test_schema_contains_only_declared_tables_and_required_indexes(tmp_path: Pat
             "idx_signal_outcomes_strategy",
             "idx_signal_outcomes_policy",
             "idx_outcome_evidence_outcome",
+            "idx_signal_outcomes_entry_eligibility",
+            "idx_signal_outcomes_lifecycle",
+            "idx_metric_runs_policy",
+            "idx_metric_runs_dataset",
+            "idx_metric_cohorts_dimension",
+            "idx_metric_cohorts_sample",
+            "idx_metric_values_definition",
+            "idx_metric_exclusions_reason",
         } <= indexes
         assert integrity_check(connection) == ("ok",)
         assert int(connection.execute("PRAGMA foreign_keys").fetchone()[0]) == 1
@@ -100,7 +113,7 @@ def test_applied_migration_checksum_mismatch_fails_safely(tmp_path: Path) -> Non
     database = tmp_path / "runtime/model.sqlite"
     connection = connect_writer(database, data_root=tmp_path / "data")
     try:
-        assert apply_migrations(connection, migrations_dir=migrations_dir) == (1, 2)
+        assert apply_migrations(connection, migrations_dir=migrations_dir) == (1, 2, 3)
         migration = migrations_dir / "0001_initial.sql"
         migration.write_text(migration.read_text(encoding="utf-8") + "\n-- incompatible\n", encoding="utf-8")
         with pytest.raises(MigrationChecksumError):
@@ -130,6 +143,45 @@ def test_existing_0001_database_migrates_forward_to_outcomes(
             "SELECT COUNT(*) FROM sqlite_master "
             "WHERE type='table' AND name='signal_outcomes'"
         ).fetchone()[0] == 1
+        assert integrity_check(connection) == ("ok",)
+    finally:
+        connection.close()
+
+
+def test_existing_0002_database_migrates_forward_to_metrics(
+    tmp_path: Path,
+) -> None:
+    migrations_dir = tmp_path / "migrations"
+    migrations_dir.mkdir()
+    source = default_migrations_dir()
+    shutil.copy2(source / "0001_initial.sql", migrations_dir / "0001_initial.sql")
+    shutil.copy2(
+        source / "0002_canonical_outcomes.sql",
+        migrations_dir / "0002_canonical_outcomes.sql",
+    )
+    database = tmp_path / "runtime/model.sqlite"
+    connection = connect_writer(database, data_root=tmp_path / "data")
+    try:
+        assert apply_migrations(connection, migrations_dir=migrations_dir) == (1, 2)
+        shutil.copy2(
+            source / "0003_canonical_metrics.sql",
+            migrations_dir / "0003_canonical_metrics.sql",
+        )
+        assert apply_migrations(connection, migrations_dir=migrations_dir) == (3,)
+        assert connection.execute(
+            "SELECT COUNT(*) FROM sqlite_master "
+            "WHERE type='table' AND name='metric_runs'"
+        ).fetchone()[0] == 1
+        columns = {
+            str(row[1])
+            for row in connection.execute("PRAGMA table_info(signal_outcomes)")
+        }
+        assert {
+            "entry_activated",
+            "entry_activated_at",
+            "entry_activation_candle_open",
+            "eligibility_status",
+        } <= columns
         assert integrity_check(connection) == ("ok",)
     finally:
         connection.close()

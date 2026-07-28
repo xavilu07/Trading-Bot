@@ -132,6 +132,24 @@ def test_outcomes_projection_is_idempotent_and_sources_are_untouched(
         assert connection.execute("SELECT COUNT(*) FROM signal_outcomes").fetchone()[0] == 1
         assert connection.execute("SELECT COUNT(*) FROM outcome_evidence").fetchone()[0] == 1
         assert connection.execute("SELECT COUNT(*) FROM outcome_policies").fetchone()[0] == 1
+        enriched = connection.execute(
+            """
+            SELECT entry_activated, entry_activated_at,
+                   entry_activation_candle_open, candles_until_entry,
+                   candles_after_entry, entry_lifecycle_status,
+                   eligibility_status
+            FROM signal_outcomes
+            """
+        ).fetchone()
+        assert tuple(enriched) == (
+            1,
+            "2026-07-28T11:00:00+00:00",
+            "2026-07-28T11:00:00+00:00",
+            1,
+            0,
+            "RESOLVED_WIN",
+            "ELIGIBLE_RESOLVED",
+        )
         assert integrity_check(connection) == ("ok",)
     finally:
         connection.close()

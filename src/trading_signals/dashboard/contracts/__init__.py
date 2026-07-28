@@ -39,6 +39,13 @@ from trading_signals.dashboard.contracts.outcomes import (
     OutcomeStatus,
     SignalOutcome,
 )
+from trading_signals.dashboard.contracts.metrics import (
+    EligibilityStatus,
+    EntryLifecycleStatus,
+    METRIC_CONTRACT_VERSION,
+    MetricValueContract,
+    SampleEvidenceLabel,
+)
 
 __all__ = [
     "CONTRACT_VERSION",
@@ -76,4 +83,9 @@ __all__ = [
     "OutcomeSignalIdentity",
     "OutcomeStatus",
     "SignalOutcome",
+    "EligibilityStatus",
+    "EntryLifecycleStatus",
+    "METRIC_CONTRACT_VERSION",
+    "MetricValueContract",
+    "SampleEvidenceLabel",
 ]

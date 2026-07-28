@@ -1,0 +1,19 @@
+{
+  "collision_rule": "same_candle_stop_and_target_is_ambiguous",
+  "conflicting_duplicate_rule": "exclude_as_conflicting_market_data",
+  "data_source": "persisted_local_market_snapshots",
+  "duplicate_candle_rule": "identical_open_timestamp_and_payload_is_counted_once",
+  "engine_version": "canonical-outcomes.v1",
+  "entry_activation": "post_decision_closed_candle_must_touch_fixed_entry",
+  "entry_barrier_order_rule": "intrabar_entry_and_barrier_order_without_open_at_entry_is_ambiguous",
+  "evaluation_start": "first_1h_boundary_at_or_after_decision_timestamp",
+  "expiry_rule": "expire_only_after_24_unique_contiguous_closed_1h_candles",
+  "gap_rule": "post_activation_open_beyond_a_barrier_resolves_at_candle_open",
+  "horizon_candles": 24,
+  "market_fingerprint_rule": "sha256_of_exact_normalized_evidence_window",
+  "missing_candle_rule": "open_if_not_yet_closed_otherwise_no_market_data_gap",
+  "policy_version": "closed-bars-entry-touch-v1",
+  "stop_rule": "fixed_risk_plan_stop_loss",
+  "target_rule": "fixed_single_risk_plan_take_profit_not_tracker_tp1",
+  "timeframe": "1h"
+}

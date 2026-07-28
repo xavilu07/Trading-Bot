@@ -21,6 +21,13 @@ from trading_signals.dashboard.outcomes.projector import (
     inspect_outcome,
     project_outcomes_once,
 )
+from trading_signals.dashboard.metrics.projector import (
+    MetricProjectionConfig,
+    compare_cohorts,
+    inspect_cohort,
+    inspect_metric,
+    project_metrics_once,
+)
 from trading_signals.interfaces.dashboard_api.settings import DashboardSettings
 
 
@@ -42,6 +49,10 @@ def build_parser() -> argparse.ArgumentParser:
             "inspect",
             "outcomes-once",
             "inspect-outcome",
+            "metrics-once",
+            "inspect-metric",
+            "inspect-cohort",
+            "compare-cohorts",
         ),
     )
     parser.add_argument("--sqlite-path", type=Path)
@@ -64,6 +75,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--as-of")
     parser.add_argument("--signal-key")
+    parser.add_argument("--metric-name")
+    parser.add_argument("--cohort")
+    parser.add_argument("--left-cohort")
+    parser.add_argument("--right-cohort")
     parser.add_argument(
         "--sources",
         default=",".join(PROJECTED_SOURCES),
@@ -162,12 +177,49 @@ def main(argv: Sequence[str] | None = None) -> int:
                     _outcome_config(arguments, config)
                 ).to_dict(),
             }
-        else:
+        elif arguments.operation == "inspect-outcome":
             if arguments.signal_key is None:
                 raise ValueError("inspect-outcome requires --signal-key")
             result = {
                 "operation": "inspect-outcome",
                 **inspect_outcome(config.sqlite_path, arguments.signal_key),
+            }
+        elif arguments.operation == "metrics-once":
+            result = {
+                "operation": "metrics-once",
+                "summary": project_metrics_once(
+                    MetricProjectionConfig(
+                        data_root=config.data_root,
+                        sqlite_path=config.sqlite_path,
+                    )
+                ).to_dict(),
+            }
+        elif arguments.operation == "inspect-metric":
+            if arguments.metric_name is None:
+                raise ValueError("inspect-metric requires --metric-name")
+            result = {
+                "operation": "inspect-metric",
+                **inspect_metric(config.sqlite_path, arguments.metric_name),
+            }
+        elif arguments.operation == "inspect-cohort":
+            if arguments.cohort is None:
+                raise ValueError("inspect-cohort requires --cohort")
+            result = {
+                "operation": "inspect-cohort",
+                **inspect_cohort(config.sqlite_path, arguments.cohort),
+            }
+        else:
+            if arguments.left_cohort is None or arguments.right_cohort is None:
+                raise ValueError(
+                    "compare-cohorts requires --left-cohort and --right-cohort"
+                )
+            result = {
+                "operation": "compare-cohorts",
+                **compare_cohorts(
+                    config.sqlite_path,
+                    arguments.left_cohort,
+                    arguments.right_cohort,
+                ),
             }
     except (OSError, RuntimeError, ValueError) as exc:
         code = getattr(exc, "code", "READ_MODEL_COMMAND_FAILED")

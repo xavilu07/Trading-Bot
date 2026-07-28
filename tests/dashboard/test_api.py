@@ -9,6 +9,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import httpx
+import pytest
 
 from trading_signals.dashboard.ingestion.projector import (
     ProjectorConfig,
@@ -90,7 +91,7 @@ def _build_read_model(root: Path, *, heartbeat_overrides: dict[str, object] | No
     _heartbeat(heartbeat, finished_at=datetime.now(timezone.utc), overrides=heartbeat_overrides)
     _cycle(root / "data/scan_runs/2026-07-28/run_fixture.json")
     config = _config(root)
-    assert migrate_read_model(config) == (1, 2)
+    assert migrate_read_model(config) == (1, 2, 3)
     summary = project_once(config)
     assert summary.totals["records_skipped"] == 0
     return config.sqlite_path
@@ -128,6 +129,22 @@ def test_api_exposes_only_foundation_get_routes(tmp_path: Path) -> None:
         ("/api/v1/system", "GET"),
         ("/api/v1/metadata/freshness", "GET"),
     }
+
+
+@pytest.mark.parametrize(
+    "path",
+    (
+        "/api/v1/metrics",
+        "/api/v1/outcomes",
+        "/api/v1/signals",
+        "/api/v1/cycles",
+    ),
+)
+def test_non_public_dashboard_data_routes_remain_absent(
+    tmp_path: Path,
+    path: str,
+) -> None:
+    assert _get(create_app(_settings(tmp_path)), path).status_code == 404
 
 
 def test_missing_database_is_clear_and_request_does_not_create_it(tmp_path: Path) -> None:

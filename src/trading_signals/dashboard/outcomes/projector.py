@@ -15,6 +15,10 @@ from trading_signals.dashboard.contracts import (
     SignalOutcome,
 )
 from trading_signals.dashboard.ingestion.sanitize import safe_text
+from trading_signals.dashboard.metrics.engine import (
+    MetricObservation,
+    classify_eligibility,
+)
 from trading_signals.dashboard.outcomes.engine import OutcomeSignal, evaluate_signal_outcome
 from trading_signals.dashboard.outcomes.sources import (
     RiskPlanCatalog,
@@ -169,6 +173,81 @@ def _outcome_id(outcome: SignalOutcome) -> str:
     return hashlib.sha256(f"signal_outcome:{material}".encode("utf-8")).hexdigest()
 
 
+def _entry_enrichment(
+    outcome: SignalOutcome,
+    outcome_id: str,
+) -> dict[str, object]:
+    activation = next(
+        (item for item in outcome.evidence if item.entry_touched),
+        None,
+    )
+    activated = activation is not None
+    evidence_id = (
+        hashlib.sha256(
+            f"{outcome_id}|{activation.candle_index}|{activation.open_at.isoformat()}".encode(
+                "utf-8"
+            )
+        ).hexdigest()
+        if activation
+        else None
+    )
+    exact_activation_at = (
+        activation.open_at
+        if activation is not None
+        and outcome.entry_price is not None
+        and activation.open_price == outcome.entry_price
+        else None
+    )
+    observation = MetricObservation(
+        outcome_id=outcome_id,
+        signal_projection_key=outcome.identity.projection_key,
+        symbol=outcome.identity.symbol,
+        direction=outcome.direction,
+        timeframe=outcome.timeframe,
+        setup=None,
+        strategy_version=outcome.identity.strategy_version,
+        policy_version=outcome.policy_version,
+        engine_version=outcome.engine_version,
+        market_data_fingerprint=outcome.market_source.source_fingerprint,
+        data_quality=outcome.data_quality.value,
+        terminal_status=outcome.terminal_status.value,
+        entry_timestamp=outcome.entry_timestamp,
+        entry_price=outcome.entry_price,
+        stop_price=outcome.stop_price,
+        target_price=outcome.target_price,
+        entry_activated=activated,
+        entry_activated_at=exact_activation_at,
+        entry_activation_candle_open=activation.open_at if activation else None,
+        candles_until_entry=activation.candle_index if activation else None,
+        candles_after_entry=(
+            outcome.candles_observed - activation.candle_index
+            if activation
+            else None
+        ),
+        ambiguity_reason=outcome.ambiguity_reason,
+    )
+    decision = classify_eligibility(observation)
+    return {
+        "entry_activated": int(activated),
+        "entry_activated_at": (
+            exact_activation_at.isoformat() if exact_activation_at else None
+        ),
+        "entry_activation_candle_open": (
+            activation.open_at.isoformat() if activation else None
+        ),
+        "entry_activation_evidence_id": evidence_id,
+        "candles_until_entry": activation.candle_index if activation else None,
+        "candles_after_entry": (
+            outcome.candles_observed - activation.candle_index
+            if activation
+            else None
+        ),
+        "entry_lifecycle_status": decision.lifecycle.value,
+        "eligibility_status": decision.status.value,
+        "eligibility_reason": decision.reason_code,
+    }
+
+
 def _persist_outcome(
     connection: sqlite3.Connection,
     outcome: SignalOutcome,
@@ -208,6 +287,7 @@ def _persist_outcome(
         ),
     )
     outcome_id = _outcome_id(outcome)
+    entry = _entry_enrichment(outcome, outcome_id)
     cursor = connection.execute(
         """
         INSERT OR IGNORE INTO signal_outcomes(
@@ -219,10 +299,14 @@ def _persist_outcome(
             ambiguity_reason, data_quality, policy_version, engine_version,
             market_data_fingerprint, source_fingerprint, git_commit_sha,
             deployment_id, config_hash, selected_engine, strategy_version,
-            signal_policy_version, experiment_id, computed_at
+            signal_policy_version, experiment_id, computed_at,
+            entry_activated, entry_activated_at,
+            entry_activation_candle_open, entry_activation_evidence_id,
+            candles_until_entry, candles_after_entry, entry_lifecycle_status,
+            eligibility_status, eligibility_reason
         ) VALUES (
             ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
         """,
         (
@@ -259,6 +343,15 @@ def _persist_outcome(
             safe_text(row["policy_version"]),
             safe_text(row["experiment_id"]),
             outcome.computed_at.isoformat(),
+            entry["entry_activated"],
+            entry["entry_activated_at"],
+            entry["entry_activation_candle_open"],
+            entry["entry_activation_evidence_id"],
+            entry["candles_until_entry"],
+            entry["candles_after_entry"],
+            entry["entry_lifecycle_status"],
+            entry["eligibility_status"],
+            entry["eligibility_reason"],
         ),
     )
     if cursor.rowcount != 1:

@@ -52,6 +52,45 @@ same 1h snapshot, and checked stop before target inside one OHLC candle. With a
 15-minute scheduler this made a 24-candle horizon expire in roughly six hours
 and silently resolved intrabar collisions as losses.
 
+## Canonical metric projection
+
+Migration `0003` enriches newly projected outcomes with demonstrable entry
+activation evidence and adds versioned metric tables. The frozen policy
+specification lives in
+`metrics/policies/closed-bars-entry-touch-v1.json`; its checksum is verified
+before a metric run.
+
+`metrics-once` reads only the configured SQLite read model. It neither runs
+ingestion nor outcomes and writes only `metric_*` tables. `inspect-metric`,
+`inspect-cohort`, and `compare-cohorts` open SQLite in strict read-only mode.
+Runs are keyed by the policy checksum and a deterministic fingerprint of the
+complete outcome dataset.
+
+Gross plan R is deliberately narrower than realized trading performance:
+
+- a resolved stop is `-1R`;
+- a resolved target is the fixed `RiskPlan.take_profit` distance divided by
+  the fixed entry-to-stop distance;
+- the old tracker TP1, partial-close suggestions, break-even alerts, fees,
+  slippage, position size, and monetary capital are not used;
+- an activated expiry has no demonstrated exit fill and therefore receives no
+  R value;
+- ambiguous, missing, conflicting, non-canonical, invalid-identity, and
+  version-mismatched outcomes do not enter the principal R cohort.
+
+Every persisted value retains a denominator, time range, policy, engine,
+cohort fingerprint, inclusion/exclusion rules, and a visible sample-size
+label. Wilson intervals describe resolved win-rate uncertainty. A
+seed-versioned deterministic bootstrap describes uncertainty around gross plan
+expectancy; neither implies statistical significance or future profitability.
+Overlapping or correlated signals are an analytical sequence, not proof that
+all positions could have been executed simultaneously.
+
+The historical `TradeSignal` entity does not persist setup type, so a missing
+setup remains `NO_EVIDENCE`; it is never inferred from unrelated reports.
+The API still exposes only health, system, and freshness, with
+`performance_metrics_enabled=false` and `outcomes_canonical=false`.
+
 ## Identity rules
 
 - A cycle uses its real `ScanRun.id`; a row without it is rejected.
@@ -77,6 +116,6 @@ checkpoint and return the closed artifact to `journal_mode=DELETE`. This keeps
 the completed file self-contained for atomic rebuild replacement and strictly
 read-only API access; WAL/SHM files remain runtime-only and are never tracked.
 
-No aggregate financial metric, cost model, agent receipt, counterfactual,
-frontend, public outcome endpoint, or deployment functionality belongs to this
-phase.
+No monetary metric, cost model, capital simulation, agent receipt,
+counterfactual, frontend, public metric/outcome endpoint, or deployment
+functionality belongs to this phase.

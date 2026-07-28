@@ -12,6 +12,7 @@ import json
 import sys
 import trading_signals.interfaces.dashboard_api.main
 import trading_signals.dashboard.outcomes.projector
+import trading_signals.dashboard.metrics.projector
 import trading_signals.dashboard.cli
 blocked = [
     name for name in sys.modules
