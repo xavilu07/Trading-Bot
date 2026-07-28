@@ -25,6 +25,10 @@ EXPECTED_TABLES = {
     "system_snapshots",
     "cycles",
     "signals",
+    "outcome_policies",
+    "market_data_sources",
+    "signal_outcomes",
+    "outcome_evidence",
 }
 
 
@@ -32,7 +36,7 @@ def test_empty_database_migrates_once_and_repeats_without_changes(tmp_path: Path
     database = tmp_path / "runtime/read-model.sqlite"
     connection = connect_writer(database, data_root=tmp_path / "data")
     try:
-        assert apply_migrations(connection) == (1,)
+        assert apply_migrations(connection) == (1, 2)
         before = tuple(connection.execute("SELECT * FROM schema_migrations"))
         assert apply_migrations(connection) == ()
         assert tuple(connection.execute("SELECT * FROM schema_migrations")) == before
@@ -70,6 +74,12 @@ def test_schema_contains_only_declared_tables_and_required_indexes(tmp_path: Pat
             "idx_signals_symbol",
             "idx_signals_decision",
             "idx_signals_strategy",
+            "idx_signal_outcomes_status",
+            "idx_signal_outcomes_entry_timestamp",
+            "idx_signal_outcomes_symbol",
+            "idx_signal_outcomes_strategy",
+            "idx_signal_outcomes_policy",
+            "idx_outcome_evidence_outcome",
         } <= indexes
         assert integrity_check(connection) == ("ok",)
         assert int(connection.execute("PRAGMA foreign_keys").fetchone()[0]) == 1
@@ -90,11 +100,36 @@ def test_applied_migration_checksum_mismatch_fails_safely(tmp_path: Path) -> Non
     database = tmp_path / "runtime/model.sqlite"
     connection = connect_writer(database, data_root=tmp_path / "data")
     try:
-        assert apply_migrations(connection, migrations_dir=migrations_dir) == (1,)
+        assert apply_migrations(connection, migrations_dir=migrations_dir) == (1, 2)
         migration = migrations_dir / "0001_initial.sql"
         migration.write_text(migration.read_text(encoding="utf-8") + "\n-- incompatible\n", encoding="utf-8")
         with pytest.raises(MigrationChecksumError):
             apply_migrations(connection, migrations_dir=migrations_dir)
+        assert integrity_check(connection) == ("ok",)
+    finally:
+        connection.close()
+
+
+def test_existing_0001_database_migrates_forward_to_outcomes(
+    tmp_path: Path,
+) -> None:
+    migrations_dir = tmp_path / "migrations"
+    migrations_dir.mkdir()
+    source = default_migrations_dir()
+    shutil.copy2(source / "0001_initial.sql", migrations_dir / "0001_initial.sql")
+    database = tmp_path / "runtime/model.sqlite"
+    connection = connect_writer(database, data_root=tmp_path / "data")
+    try:
+        assert apply_migrations(connection, migrations_dir=migrations_dir) == (1,)
+        shutil.copy2(
+            source / "0002_canonical_outcomes.sql",
+            migrations_dir / "0002_canonical_outcomes.sql",
+        )
+        assert apply_migrations(connection, migrations_dir=migrations_dir) == (2,)
+        assert connection.execute(
+            "SELECT COUNT(*) FROM sqlite_master "
+            "WHERE type='table' AND name='signal_outcomes'"
+        ).fetchone()[0] == 1
         assert integrity_check(connection) == ("ok",)
     finally:
         connection.close()

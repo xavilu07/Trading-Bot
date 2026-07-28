@@ -90,7 +90,7 @@ def _build_read_model(root: Path, *, heartbeat_overrides: dict[str, object] | No
     _heartbeat(heartbeat, finished_at=datetime.now(timezone.utc), overrides=heartbeat_overrides)
     _cycle(root / "data/scan_runs/2026-07-28/run_fixture.json")
     config = _config(root)
-    assert migrate_read_model(config) == (1,)
+    assert migrate_read_model(config) == (1, 2)
     summary = project_once(config)
     assert summary.totals["records_skipped"] == 0
     return config.sqlite_path
@@ -149,6 +149,7 @@ def test_health_is_read_only_and_has_no_performance_metrics(tmp_path: Path) -> N
     assert payload["read_only"] is True
     assert payload["operational_controls_enabled"] is False
     assert payload["performance_metrics_enabled"] is False
+    assert payload["outcomes_canonical"] is False
     assert payload["read_model"]["status"] == "HEALTHY"
     serialized = json.dumps(payload).lower()
     for forbidden in ("win_rate", "profit_factor", "total_r", "drawdown", "equity_curve"):
@@ -163,6 +164,9 @@ def test_system_reads_projected_fields_without_exposing_paths(tmp_path: Path) ->
     assert payload["scheduler"]["status"] == "HEALTHY"
     assert payload["strategy"]["git_commit_sha"] == "a" * 40
     assert payload["last_cycle"]["cycle_number"] == 42
+    assert payload["read_only"] is True
+    assert payload["operational_controls_enabled"] is False
+    assert payload["performance_metrics_enabled"] is False
     assert payload["outcomes_canonical"] is False
     assert str(tmp_path) not in json.dumps(payload)
 
@@ -209,6 +213,10 @@ def test_metadata_comes_from_read_model_and_is_redacted(tmp_path: Path) -> None:
     payload = response.json()
     assert response.status_code == 200
     assert len(payload["items"]) == 32
+    assert payload["read_only"] is True
+    assert payload["operational_controls_enabled"] is False
+    assert payload["performance_metrics_enabled"] is False
+    assert payload["outcomes_canonical"] is False
     by_name = {item["source_id"]: item for item in payload["items"]}
     assert by_name["signal_activity_active"]["availability"] == "NOT_CONFIGURED"
     assert by_name["paper_trades"]["canonicality"] == "MIXED"

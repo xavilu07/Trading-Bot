@@ -71,3 +71,81 @@ def test_cli_rejects_unknown_sources_and_dangerous_paths(tmp_path: Path, capsys)
     output = json.loads(capsys.readouterr().out)
     assert output["status"] == "error"
     assert not (tmp_path / "data/read-model.sqlite").exists()
+
+
+def test_cli_outcomes_once_and_inspect_outcome_are_finite(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    signal = tmp_path / "data/trade_signals/2026-07-28/sig-one.json"
+    signal.parent.mkdir(parents=True)
+    signal.write_text(
+        json.dumps(
+            {
+                "id": "sig-one",
+                "risk_plan_id": "risk-one",
+                "symbol": "BTCUSDT",
+                "decision": "long",
+                "status": "valid",
+                "entry_timeframe": "1h",
+                "created_at": "2026-07-28T10:15:00+00:00",
+                "strategy_version": "v1",
+            }
+        ),
+        encoding="utf-8",
+    )
+    risk = tmp_path / "data/risk_plans/2026-07-28/risk-one.json"
+    risk.parent.mkdir(parents=True)
+    risk.write_text(
+        json.dumps(
+            {
+                "id": "risk-one",
+                "entry": 100,
+                "stop_loss": 95,
+                "take_profit": 110,
+            }
+        ),
+        encoding="utf-8",
+    )
+    market = tmp_path / "data/market_snapshots/2026-07-28/snapshot.json"
+    market.parent.mkdir(parents=True)
+    market.write_text(
+        json.dumps(
+            {
+                "symbol": "BTCUSDT",
+                "timeframe": "1h",
+                "timestamp": "2026-07-28T11:59:59.999000+00:00",
+                "open": 100,
+                "high": 111,
+                "low": 99,
+                "close": 110,
+            }
+        ),
+        encoding="utf-8",
+    )
+    args = _base_args(tmp_path)
+    assert main(["migrate", *args]) == 0
+    capsys.readouterr()
+    assert main(["project-once", *args, "--sources", "trade_signals"]) == 0
+    capsys.readouterr()
+    assert (
+        main(
+            [
+                "outcomes-once",
+                *args,
+                "--horizon-candles",
+                "1",
+                "--as-of",
+                "2026-07-28T13:00:00+00:00",
+            ]
+        )
+        == 0
+    )
+    outcome = json.loads(capsys.readouterr().out)
+    assert outcome["summary"]["status_counts"] == {"WIN": 1}
+    database = tmp_path / "runtime/read-model.sqlite"
+    before = database.read_bytes()
+    assert main(["inspect-outcome", *args, "--signal-key", "sig-one"]) == 0
+    inspected = json.loads(capsys.readouterr().out)
+    assert inspected["status"] == "ok"
+    assert database.read_bytes() == before

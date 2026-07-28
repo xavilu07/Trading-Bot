@@ -26,6 +26,19 @@ from trading_signals.dashboard.contracts.models import (
     SystemStatus,
     TradeSummary,
 )
+from trading_signals.dashboard.contracts.outcomes import (
+    OUTCOME_CONTRACT_VERSION,
+    OUTCOME_ENGINE_VERSION,
+    CollisionPolicy,
+    EntryActivationPolicy,
+    OutcomeCandleEvidence,
+    OutcomeDataQuality,
+    OutcomeEvaluationPolicy,
+    OutcomeMarketSource,
+    OutcomeSignalIdentity,
+    OutcomeStatus,
+    SignalOutcome,
+)
 
 __all__ = [
     "CONTRACT_VERSION",
@@ -52,4 +65,15 @@ __all__ = [
     "StrategyIdentity",
     "SystemStatus",
     "TradeSummary",
+    "OUTCOME_CONTRACT_VERSION",
+    "OUTCOME_ENGINE_VERSION",
+    "CollisionPolicy",
+    "EntryActivationPolicy",
+    "OutcomeCandleEvidence",
+    "OutcomeDataQuality",
+    "OutcomeEvaluationPolicy",
+    "OutcomeMarketSource",
+    "OutcomeSignalIdentity",
+    "OutcomeStatus",
+    "SignalOutcome",
 ]

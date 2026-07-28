@@ -201,6 +201,10 @@ class MetadataFreshness(ContractModel):
     contract_version: str = CONTRACT_VERSION
     generated_at: UtcDatetime
     items: tuple[MetadataFreshnessItem, ...]
+    read_only: bool = True
+    operational_controls_enabled: bool = False
+    performance_metrics_enabled: bool = False
+    outcomes_canonical: bool = False
 
 
 class SystemStatus(ContractModel):
@@ -211,6 +215,8 @@ class SystemStatus(ContractModel):
     last_cycle: CycleSummary
     components: tuple[ComponentStatus, ...]
     read_only: bool = True
+    operational_controls_enabled: bool = False
+    performance_metrics_enabled: bool = False
     outcomes_canonical: bool = False
 
 
@@ -222,6 +228,7 @@ class ApiHealth(ContractModel):
     read_only: bool = True
     operational_controls_enabled: bool = False
     performance_metrics_enabled: bool = False
+    outcomes_canonical: bool = False
 
 
 class ErrorDetail(ContractModel):

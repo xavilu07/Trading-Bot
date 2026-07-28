@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import argparse
 import json
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Sequence
 
+from trading_signals.dashboard.contracts import CollisionPolicy
 from trading_signals.dashboard.ingestion.projector import (
     PROJECTED_SOURCES,
     ProjectorConfig,
@@ -12,6 +14,12 @@ from trading_signals.dashboard.ingestion.projector import (
     migrate_read_model,
     project_once,
     rebuild_read_model,
+)
+from trading_signals.dashboard.outcomes.projector import (
+    OutcomeProjectionConfig,
+    default_outcome_policy,
+    inspect_outcome,
+    project_outcomes_once,
 )
 from trading_signals.interfaces.dashboard_api.settings import DashboardSettings
 
@@ -25,7 +33,17 @@ def build_parser() -> argparse.ArgumentParser:
         prog="quantum-dashboard-read-model",
         description="Finite, manual projector for the rebuildable dashboard SQLite read model.",
     )
-    parser.add_argument("operation", choices=("migrate", "project-once", "rebuild", "inspect"))
+    parser.add_argument(
+        "operation",
+        choices=(
+            "migrate",
+            "project-once",
+            "rebuild",
+            "inspect",
+            "outcomes-once",
+            "inspect-outcome",
+        ),
+    )
     parser.add_argument("--sqlite-path", type=Path)
     parser.add_argument("--manifest-path", type=Path, default=_default_manifest())
     parser.add_argument("--bot-root", type=Path)
@@ -34,6 +52,18 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--runtime-root", type=Path)
     parser.add_argument("--active-signal-log", type=Path)
     parser.add_argument("--scheduler-lock", type=Path)
+    parser.add_argument("--risk-plans-root", type=Path)
+    parser.add_argument("--market-snapshots-root", type=Path)
+    parser.add_argument("--policy-version", default="closed-bars-entry-touch-v1")
+    parser.add_argument("--outcome-timeframe", default="1h")
+    parser.add_argument("--horizon-candles", type=int, default=24)
+    parser.add_argument(
+        "--collision-policy",
+        choices=tuple(item.value for item in CollisionPolicy),
+        default=CollisionPolicy.AMBIGUOUS.value,
+    )
+    parser.add_argument("--as-of")
+    parser.add_argument("--signal-key")
     parser.add_argument(
         "--sources",
         default=",".join(PROJECTED_SOURCES),
@@ -80,6 +110,38 @@ def _config(arguments: argparse.Namespace) -> ProjectorConfig:
     )
 
 
+def _parse_as_of(raw: str | None) -> datetime:
+    if raw is None:
+        return datetime.now(tz=UTC)
+    parsed = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ValueError("as-of timestamp must be timezone-aware")
+    return parsed.astimezone(UTC)
+
+
+def _outcome_config(
+    arguments: argparse.Namespace,
+    projector: ProjectorConfig,
+) -> OutcomeProjectionConfig:
+    return OutcomeProjectionConfig(
+        data_root=projector.data_root,
+        sqlite_path=projector.sqlite_path,
+        risk_plans_root=(
+            arguments.risk_plans_root or projector.data_root / "risk_plans"
+        ).expanduser().resolve(strict=False),
+        market_snapshots_root=(
+            arguments.market_snapshots_root or projector.data_root / "market_snapshots"
+        ).expanduser().resolve(strict=False),
+        policy=default_outcome_policy(
+            timeframe=arguments.outcome_timeframe,
+            horizon_candles=arguments.horizon_candles,
+            policy_version=arguments.policy_version,
+            collision_policy=CollisionPolicy(arguments.collision_policy),
+        ),
+        as_of=_parse_as_of(arguments.as_of),
+    )
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     arguments = parser.parse_args(argv)
@@ -91,8 +153,22 @@ def main(argv: Sequence[str] | None = None) -> int:
             result = {"operation": "project-once", "summary": project_once(config).to_dict()}
         elif arguments.operation == "rebuild":
             result = {"operation": "rebuild", "summary": rebuild_read_model(config).to_dict()}
-        else:
+        elif arguments.operation == "inspect":
             result = {"operation": "inspect", **inspect_read_model(config.sqlite_path)}
+        elif arguments.operation == "outcomes-once":
+            result = {
+                "operation": "outcomes-once",
+                "summary": project_outcomes_once(
+                    _outcome_config(arguments, config)
+                ).to_dict(),
+            }
+        else:
+            if arguments.signal_key is None:
+                raise ValueError("inspect-outcome requires --signal-key")
+            result = {
+                "operation": "inspect-outcome",
+                **inspect_outcome(config.sqlite_path, arguments.signal_key),
+            }
     except (OSError, RuntimeError, ValueError) as exc:
         code = getattr(exc, "code", "READ_MODEL_COMMAND_FAILED")
         print(json.dumps({"status": "error", "code": str(code)[:80]}, sort_keys=True))

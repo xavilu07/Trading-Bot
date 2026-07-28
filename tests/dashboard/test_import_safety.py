@@ -11,6 +11,8 @@ def test_import_has_no_operational_initialization_or_filesystem_writes(tmp_path:
 import json
 import sys
 import trading_signals.interfaces.dashboard_api.main
+import trading_signals.dashboard.outcomes.projector
+import trading_signals.dashboard.cli
 blocked = [
     name for name in sys.modules
     if name in {
