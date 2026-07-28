@@ -5,6 +5,9 @@ __pycache__/
 logs/
 /data/
 *.pyc
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
 .DS_Store
 
 .runtime/

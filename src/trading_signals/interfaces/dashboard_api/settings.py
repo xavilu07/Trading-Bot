@@ -18,6 +18,7 @@ class DashboardSettings:
     data_root: Path
     reports_root: Path
     runtime_root: Path
+    read_model_path: Path | None = None
     active_signal_log: Path | None = None
     scheduler_lock: Path | None = None
     api_host: str = "127.0.0.1"
@@ -40,6 +41,14 @@ class DashboardSettings:
             data_root=data_root,
             reports_root=reports_root,
             runtime_root=runtime_root,
+            read_model_path=Path(
+                os.getenv(
+                    "DASHBOARD_READ_MODEL_PATH",
+                    str(runtime_root / "dashboard-v2" / "read-model.sqlite"),
+                )
+            )
+            .expanduser()
+            .resolve(strict=False),
             active_signal_log=_optional_path("DASHBOARD_ACTIVE_SIGNAL_LOG"),
             scheduler_lock=_optional_path("DASHBOARD_SCHEDULER_LOCK"),
             api_host=os.getenv("DASHBOARD_API_HOST", "127.0.0.1"),
@@ -57,3 +66,9 @@ class DashboardSettings:
             "active_signal_log": self.active_signal_log,
             "scheduler_lock": self.scheduler_lock,
         }
+
+    def resolved_read_model_path(self) -> Path:
+        return (
+            self.read_model_path
+            or (self.runtime_root / "dashboard-v2" / "read-model.sqlite")
+        ).expanduser().resolve(strict=False)

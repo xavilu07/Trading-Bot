@@ -16,3 +16,16 @@ user, read-only filesystem permissions, and a protected Nginx route.
 `dashboard.env.example` contains names and non-secret defaults only. Active
 release-relative sources must be configured explicitly; the API does not infer
 or import the scheduler runtime.
+
+The read model has a finite manual CLI and no daemon:
+
+```text
+python -m trading_signals.dashboard.cli migrate
+python -m trading_signals.dashboard.cli project-once
+python -m trading_signals.dashboard.cli rebuild
+python -m trading_signals.dashboard.cli inspect
+```
+
+`rebuild` uses a validated temporary SQLite file in the configured target
+directory and atomically replaces only that target after schema and integrity
+validation. These commands are not invoked by API requests.

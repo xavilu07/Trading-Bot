@@ -218,6 +218,7 @@ class ApiHealth(ContractModel):
     contract_version: str = CONTRACT_VERSION
     generated_at: UtcDatetime
     api: StatusEvidence
+    read_model: StatusEvidence | None = None
     read_only: bool = True
     operational_controls_enabled: bool = False
     performance_metrics_enabled: bool = False

@@ -15,21 +15,22 @@ from trading_signals.dashboard.contracts import (
     StatusEvidence,
     SystemStatus,
 )
-from trading_signals.dashboard.ingestion import SourceCatalog
-from trading_signals.dashboard.queries import build_freshness, build_system_status
+from trading_signals.dashboard.queries.read_model import (
+    build_freshness_from_read_model,
+    build_system_from_read_model,
+    read_model_evidence,
+)
 from trading_signals.interfaces.dashboard_api.settings import DashboardSettings
 
 
 def create_app(settings: DashboardSettings | None = None) -> FastAPI:
     configured = settings or DashboardSettings.from_env()
-    catalog = SourceCatalog.load_default(configured.source_variables())
     app = FastAPI(
         title="Quantum Bot Dashboard Read-Only API",
         version="1.0.0-foundation",
         description="Isolated foundation API. It exposes no operational controls or performance metrics.",
     )
     app.state.dashboard_settings = configured
-    app.state.source_catalog = catalog
 
     @app.get("/api/v1/health", response_model=ApiHealth)
     async def health() -> ApiHealth:
@@ -53,15 +54,20 @@ def create_app(settings: DashboardSettings | None = None) -> FastAPI:
                 ),
                 classification=DataClassification.REAL,
             ),
+            read_model=read_model_evidence(configured.resolved_read_model_path(), now=now),
         )
 
     @app.get("/api/v1/system", response_model=SystemStatus)
     async def system(request: Request) -> SystemStatus:
-        return build_system_status(request.app.state.source_catalog)
+        return build_system_from_read_model(
+            request.app.state.dashboard_settings.resolved_read_model_path()
+        )
 
     @app.get("/api/v1/metadata/freshness", response_model=MetadataFreshness)
     async def metadata_freshness(request: Request) -> MetadataFreshness:
-        return build_freshness(request.app.state.source_catalog)
+        return build_freshness_from_read_model(
+            request.app.state.dashboard_settings.resolved_read_model_path()
+        )
 
     return app
 

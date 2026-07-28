@@ -51,7 +51,14 @@ class SourceCatalog:
 
     @classmethod
     def load_default(cls, variables: Mapping[str, Path | None]) -> SourceCatalog:
-        manifest_path = Path(__file__).with_name("sources.v1.json")
+        return cls.load_path(Path(__file__).with_name("sources.v1.json"), variables)
+
+    @classmethod
+    def load_path(
+        cls,
+        manifest_path: Path,
+        variables: Mapping[str, Path | None],
+    ) -> SourceCatalog:
         raw = json.loads(manifest_path.read_text(encoding="utf-8"))
         definitions = tuple(SourceDefinition.model_validate(item) for item in raw["sources"])
         names = [item.name for item in definitions]
