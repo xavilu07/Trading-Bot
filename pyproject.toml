@@ -29,6 +29,7 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 "trading_signals.dashboard.metrics" = ["policies/*.json"]
+"trading_signals.paper_trace" = ["policies/*.json"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src", "."]

@@ -1136,6 +1136,7 @@ def run_market_scan(
     diagnostics_store,
     metrics,
     paper_trading_store=None,
+    paper_trace_service=None,
     relaxation_shadow_store=None,
     experimental_signal_store=None,
     shadow_signal_store=None,
@@ -1206,6 +1207,8 @@ def run_market_scan(
     for symbol in valid_symbols:
         try:
             analysis = analyze_symbol(market_data=market_data, settings=settings, scan_run_id=scan_run.id, symbol=symbol)
+            if paper_trace_service is not None:
+                paper_trace_service.advance_snapshot(analysis.entry_snapshot)
             paper_updates = []
             if settings.paper_trading_enabled and paper_trading_store is not None:
                 paper_updates = paper_trading_store.update_open_trades_for_snapshot(
@@ -2064,6 +2067,18 @@ def run_market_scan(
                     )
                     if paper_tradeable and paper_candidate is not None and paper_candidate.risk_reward_tp2 >= settings.paper_trading_min_rr:
                         paper_trade_created = paper_trading_store.upsert_candidate(paper_candidate)
+                        if paper_trade_created and paper_trace_service is not None:
+                            paper_trace_service.observe_signal(
+                                signal=signal,
+                                risk_plan=risk_plan,
+                                evaluation=evaluation,
+                                entry_snapshot=analysis.entry_snapshot,
+                                higher_snapshot=analysis.higher_snapshot,
+                                setup_type=_signal_setup_type(evaluation),
+                                settings=settings,
+                                runtime_identity=scan_runtime_identity,
+                                accepted=True,
+                            )
                     if not paper_trade_created:
                         if paper_level_label(evaluation.setup_score) == "BELOW_LOW":
                             reason = "paper_rejected_below_low"
