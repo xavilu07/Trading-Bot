@@ -435,6 +435,14 @@ class Settings:
             Path(value) if (value := os.getenv("PAPER_TRACE_STORE_PATH", "").strip()) else None
         )
     )
+    paper_trace_allowed_root: Path | None = field(
+        default_factory=lambda: (
+            Path(value) if (value := os.getenv("PAPER_TRACE_ALLOWED_ROOT", "").strip()) else None
+        )
+    )
+    paper_trace_max_bytes: str = field(
+        default_factory=lambda: os.getenv("PAPER_TRACE_MAX_BYTES", "").strip()
+    )
     paper_fill_policy_id: str = field(
         default_factory=lambda: os.getenv(
             "PAPER_FILL_POLICY_ID",

@@ -409,6 +409,7 @@ def advance_trace(
                     )
         if (
             replay_receipts(builder.receipts).order is PaperOrderState.PENDING
+            and replay_receipts(builder.receipts).trace_blocked_reason is None
             and replay_receipts(builder.receipts).candles_before_entry >= identity.horizon_candles
         ):
             emitted.append(

@@ -118,10 +118,65 @@ def test_enabled_never_falls_back_to_data_root(tmp_path: Path) -> None:
         data_storage_path=data,
         paper_trace_enabled=True,
         paper_trace_store_path=data / "trace.jsonl",
+        paper_trace_allowed_root=tmp_path,
+        paper_trace_max_bytes="1048576",
     )
     with pytest.raises(PaperTraceConfigurationError, match="PAPER_TRACE_STORE_PATH_UNSAFE"):
         build_paper_trace_service(settings)
     assert not (data / "trace.jsonl").exists()
+
+
+def test_enabled_requires_explicit_root_and_capacity(tmp_path: Path) -> None:
+    runtime = tmp_path / "runtime"
+    runtime.mkdir(mode=0o700)
+    settings = Settings(
+        data_storage_path=tmp_path / "data",
+        paper_trace_enabled=True,
+        paper_trace_store_path=runtime / "trace.jsonl",
+    )
+    with pytest.raises(
+        PaperTraceConfigurationError,
+        match="PAPER_TRACE_ALLOWED_ROOT_REQUIRED",
+    ):
+        build_paper_trace_service(settings)
+
+    settings.paper_trace_allowed_root = runtime
+    with pytest.raises(
+        PaperTraceConfigurationError,
+        match="PAPER_TRACE_MAX_BYTES_INVALID",
+    ):
+        build_paper_trace_service(settings)
+
+    settings.paper_trace_max_bytes = "1048576"
+    service = build_paper_trace_service(settings)
+    assert service is not None
+    assert service.store.max_bytes == 1048576
+    assert not (runtime / "trace.jsonl").exists()
+
+
+def test_unknown_policy_and_unexpected_boolean_fail_closed(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    runtime = tmp_path / "runtime"
+    runtime.mkdir(mode=0o700)
+    settings = Settings(
+        data_storage_path=tmp_path / "data",
+        paper_trace_enabled=True,
+        paper_trace_store_path=runtime / "trace.jsonl",
+        paper_trace_allowed_root=runtime,
+        paper_trace_max_bytes="1048576",
+        paper_fill_policy_id="unknown-policy",
+    )
+    with pytest.raises(
+        PaperTraceConfigurationError,
+        match="PAPER_TRACE_POLICY_CONFIGURATION_UNSUPPORTED",
+    ):
+        build_paper_trace_service(settings)
+    assert not (runtime / "trace.jsonl").exists()
+
+    monkeypatch.setenv("PAPER_TRACE_ENABLED", "unexpected")
+    assert Settings().paper_trace_enabled is False
 
 
 def test_historical_trade_signal_schema_remains_readable() -> None:

@@ -1126,6 +1126,28 @@ def build_parallel_module_diagnostics(
     return modules
 
 
+def _paper_trace_shadow_call(service, operation: str, logger, *args, **kwargs):
+    """Run optional shadow telemetry without changing the operational flow."""
+
+    try:
+        method = getattr(service, operation)
+        return method(*args, **kwargs)
+    except Exception as exc:
+        error_code = str(
+            getattr(exc, "code", f"PAPER_TRACE_{type(exc).__name__.upper()}")
+        )[:100]
+        isolate = getattr(service, "isolate", None)
+        if callable(isolate):
+            isolate(error_code)
+        log_json(
+            logger,
+            "paper_trace_shadow_isolated",
+            operation=operation,
+            error_code=error_code,
+        )
+        return None
+
+
 def run_market_scan(
     *,
     settings: Settings,
@@ -1208,7 +1230,12 @@ def run_market_scan(
         try:
             analysis = analyze_symbol(market_data=market_data, settings=settings, scan_run_id=scan_run.id, symbol=symbol)
             if paper_trace_service is not None:
-                paper_trace_service.advance_snapshot(analysis.entry_snapshot)
+                _paper_trace_shadow_call(
+                    paper_trace_service,
+                    "advance_snapshot",
+                    logger,
+                    analysis.entry_snapshot,
+                )
             paper_updates = []
             if settings.paper_trading_enabled and paper_trading_store is not None:
                 paper_updates = paper_trading_store.update_open_trades_for_snapshot(
@@ -2068,7 +2095,10 @@ def run_market_scan(
                     if paper_tradeable and paper_candidate is not None and paper_candidate.risk_reward_tp2 >= settings.paper_trading_min_rr:
                         paper_trade_created = paper_trading_store.upsert_candidate(paper_candidate)
                         if paper_trade_created and paper_trace_service is not None:
-                            paper_trace_service.observe_signal(
+                            _paper_trace_shadow_call(
+                                paper_trace_service,
+                                "observe_signal",
+                                logger,
                                 signal=signal,
                                 risk_plan=risk_plan,
                                 evaluation=evaluation,

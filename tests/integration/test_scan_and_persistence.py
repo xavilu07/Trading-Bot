@@ -164,6 +164,64 @@ def test_scan_creates_paper_trade_for_real_signal(tmp_path: Path) -> None:
     assert signal["policy_version"] != "unknown"
 
 
+def test_trace_store_failure_does_not_change_operational_scan(tmp_path: Path) -> None:
+    class ExplodingTraceService:
+        def __init__(self) -> None:
+            self.isolated = None
+
+        def advance_snapshot(self, snapshot) -> None:
+            raise RuntimeError("private-store-detail-must-not-escape")
+
+        def observe_signal(self, **kwargs) -> None:
+            if self.isolated is None:
+                raise AssertionError("circuit breaker did not isolate trace")
+
+        def isolate(self, error_code: str) -> None:
+            if self.isolated is None:
+                self.isolated = error_code
+
+    settings = Settings(
+        data_storage_path=tmp_path,
+        telegram_chat_ids=["dry"],
+        publish_signal_decisions=["long"],
+    )
+    dataset = generate_trend_dataset(direction="up")
+    market_data = FakeMarketDataClient(
+        {
+            ("BTCUSDT", "1h"): dataset,
+            ("BTCUSDT", "4h"): dataset,
+        }
+    )
+    store = FileStore(tmp_path)
+    paper_store = PaperTradingStore(tmp_path)
+    trace_service = ExplodingTraceService()
+
+    result = run_market_scan(
+        settings=settings,
+        market_data=market_data,
+        scan_repo=FileScanRunRepository(store),
+        signal_repo=FileSignalRepository(store),
+        notifier=TelegramNotifier(
+            "",
+            ["dry"],
+            tmp_path / "telegram_users.json",
+            tmp_path / "telegram_state.json",
+        ),
+        diagnostics_store=FileStore(tmp_path / "diagnostics"),
+        metrics=NoopMetrics(),
+        paper_trading_store=paper_store,
+        paper_trace_service=trace_service,
+        symbols=["BTCUSDT"],
+        dry_run=True,
+    )
+
+    assert result["scan_run"]["symbols_processed"] == 1
+    assert result["scan_run"]["errors_count"] == 0
+    assert result["results"][0]["paper_trade_created"] is True
+    assert len(paper_store.list_trades()) == 1
+    assert trace_service.isolated == "PAPER_TRACE_RUNTIMEERROR"
+
+
 def test_scan_creates_live_trade_for_real_published_signal(tmp_path: Path) -> None:
     settings = Settings(
         data_storage_path=tmp_path,

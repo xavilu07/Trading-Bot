@@ -63,6 +63,7 @@ def market_context_fingerprint(entry_snapshot: object, higher_snapshot: object) 
             "high": getattr(snapshot, "high", None),
             "low": getattr(snapshot, "low", None),
             "close": getattr(snapshot, "close", None),
+            "source": getattr(snapshot, "source", None),
             "trend": getattr(snapshot, "trend", None),
             "market_structure": getattr(snapshot, "market_structure", None),
             "liquidity_sweep": getattr(snapshot, "liquidity_sweep", None),

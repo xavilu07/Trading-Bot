@@ -98,18 +98,26 @@ The selected operational boundary is a separate append-only JSONL file:
 
 - no dependency on dashboard SQLite, FastAPI, or the operational container;
 - explicit absolute `.jsonl` path required;
-- path beneath the bot data root and symlinks rejected;
+- an explicit allowed runtime root is required;
+- paths beneath the bot data root, paths outside that root, and symlinks are
+  rejected;
+- the parent must be owned by the runtime user with no group/other access;
+- existing store files must be regular, owned by the runtime user, and have no
+  group/other access; reads and writes use `O_NOFOLLOW`;
 - advisory exclusive lock, `O_APPEND`, complete canonical line, flush, and
-  `fsync` before success;
+  file plus parent-directory `fsync` before success;
 - mode `0600`;
+- an explicit maximum byte capacity is required by runtime configuration;
 - complete final newline required;
 - hash-chain verification on every read and before append.
 
 The writer never repairs a corrupt or truncated store automatically. Recovery
 copies the last known valid file to a new safe path, validates the chain, and
 then changes configuration in a separately approved deployment. Rotation is
-not implemented in v1; it remains a deployment prerequisite once volume
-requires it.
+not implemented in v1. The Phase 6 shadow window therefore uses a hard
+capacity limit and read-only monitoring; reaching the limit isolates trace
+collection without affecting the scanner. Segmented rotation remains a
+separate design before indefinite operation.
 
 ## Feature flags
 
@@ -118,6 +126,8 @@ All defaults are inert:
 ```text
 PAPER_TRACE_ENABLED=false
 PAPER_TRACE_STORE_PATH=
+PAPER_TRACE_ALLOWED_ROOT=
+PAPER_TRACE_MAX_BYTES=
 PAPER_FILL_POLICY_ID=paper-closed-bar-touch-modeled-fill-v1
 PAPER_EXPIRY_POLICY_ID=position-expired-unresolved-v1
 PAPER_FEE_MODEL_ID=NO_FEE_MODEL
@@ -127,7 +137,11 @@ PAPER_TRACE_STRICT_IDENTITY=true
 
 Disabled means no path resolution, file creation, lock, thread, process,
 network request, Telegram message, or behavior change. Enabled without an
-explicit safe path fails closed; there is no fallback under `data`.
+explicit safe path, allowed root, and positive byte limit fails closed; there
+is no fallback under `data`. Configuration and runtime trace errors are logged
+with a sane code, open a process-local circuit breaker, and disable only shadow
+trace collection. They never abort a symbol scan, alter a paper candidate, or
+change publication.
 
 ## Manual validation, replay, and projection
 
@@ -136,11 +150,11 @@ The CLI is finite and network-free:
 ```text
 python -m trading_signals.paper_trace.cli trace-policy
 python -m trading_signals.paper_trace.cli trace-simulate --dry-run
-python -m trading_signals.paper_trace.cli trace-validate --store-path <trace.jsonl> --data-root <protected-data-root>
-python -m trading_signals.paper_trace.cli trace-inspect --store-path <trace.jsonl> --data-root <protected-data-root> --trace-id <id>
-python -m trading_signals.paper_trace.cli trace-replay --store-path <trace.jsonl> --data-root <protected-data-root> --trace-id <id>
-python -m trading_signals.paper_trace.cli trace-store-health --store-path <trace.jsonl> --data-root <protected-data-root>
-python -m trading_signals.paper_trace.cli trace-project --store-path <trace.jsonl> --data-root <protected-data-root> --sqlite-path <temporary.sqlite> --dry-run
+python -m trading_signals.paper_trace.cli trace-validate --store-path <trace.jsonl> --data-root <protected-data-root> --allowed-root <runtime-root> --max-bytes <limit>
+python -m trading_signals.paper_trace.cli trace-inspect --store-path <trace.jsonl> --data-root <protected-data-root> --allowed-root <runtime-root> --trace-id <id>
+python -m trading_signals.paper_trace.cli trace-replay --store-path <trace.jsonl> --data-root <protected-data-root> --allowed-root <runtime-root> --trace-id <id>
+python -m trading_signals.paper_trace.cli trace-store-health --store-path <trace.jsonl> --data-root <protected-data-root> --allowed-root <runtime-root> --max-bytes <limit>
+python -m trading_signals.paper_trace.cli trace-project --store-path <trace.jsonl> --data-root <protected-data-root> --allowed-root <runtime-root> --sqlite-path <temporary.sqlite> --dry-run
 ```
 
 `trace-project` verifies receipts and replay before writing only to the
@@ -168,3 +182,28 @@ exits, trailing stop, break-even, or monetary PnL. Correlation group and agent
 decision ID remain absent unless a producer provides them prospectively.
 JSONL rotation and multi-host coordination require a future design. Receipts
 describe a simulation, never real trading.
+
+## Phase 6 audit corrections
+
+The independent activation audit found and corrected three release blockers:
+
+- trace exceptions previously escaped into the per-symbol operational handler;
+- Binance's `close_time` is one millisecond before the timeframe boundary,
+  while Bybit reports the boundary, so subtracting one duration directly could
+  skip the first eligible hourly candle;
+- an existing file with unsafe permissions and a path-swap race were not
+  rejected.
+
+The adapter now accepts only exact close boundaries or the demonstrated
+sub-two-second pre-boundary representation and normalizes evidence to exact UTC
+open/close boundaries. The market provider is included in the evidence
+fingerprint. Ambiguous entry at the last entry-horizon candle remains ambiguous
+and is not also mislabeled as never activated.
+
+For the initial 72-hour shadow window, a conservative upper bound is 504 new
+traces (seven symbols times 24 hourly candles times three days), approximately
+56 receipts per trace. At the measured synthetic average of roughly 1.5 KiB
+per receipt this is about 42 MiB. A 256 MiB hard limit provides more than six
+times that bound, while read-only monitoring alerts at 75 percent. This bound
+does not justify indefinite operation or remove the need for segmented
+rotation.

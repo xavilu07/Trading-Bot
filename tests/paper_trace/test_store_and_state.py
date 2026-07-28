@@ -20,6 +20,7 @@ from trading_signals.paper_trace.store import JsonlTraceStore, TraceStoreError
 def test_jsonl_store_is_append_only_durable_and_idempotent(tmp_path, identity_factory) -> None:
     runtime = tmp_path / "runtime"
     runtime.mkdir()
+    runtime.chmod(0o700)
     store = JsonlTraceStore(runtime / "trace.jsonl", data_root=tmp_path / "data")
     result = start_trace(
         identity_factory(),
@@ -37,6 +38,7 @@ def test_jsonl_store_is_append_only_durable_and_idempotent(tmp_path, identity_fa
 def test_store_detects_truncation_and_tampering(tmp_path, identity_factory) -> None:
     runtime = tmp_path / "runtime"
     runtime.mkdir()
+    runtime.chmod(0o700)
     path = runtime / "trace.jsonl"
     store = JsonlTraceStore(path, data_root=tmp_path / "data")
     result = start_trace(
@@ -68,6 +70,7 @@ def test_store_rejects_data_root_relative_and_dangerous_paths(tmp_path) -> None:
 def test_store_detects_broken_chain(tmp_path, identity_factory) -> None:
     runtime = tmp_path / "runtime"
     runtime.mkdir()
+    runtime.chmod(0o700)
     store = JsonlTraceStore(runtime / "trace.jsonl", data_root=tmp_path / "data")
     result = start_trace(
         identity_factory(),

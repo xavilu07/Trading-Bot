@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from trading_signals.app.settings import load_settings
-from trading_signals.infrastructure.logging.logger import configure_logger
+from trading_signals.infrastructure.logging.logger import configure_logger, log_json
 from trading_signals.infrastructure.metrics.noop_metrics import NoopMetrics
 from trading_signals.infrastructure.notifications.telegram_notifier import TelegramNotifier
 from trading_signals.infrastructure.persistence.file_store import FileStore
@@ -14,15 +14,29 @@ from trading_signals.application.use_cases.modular_paper import ModularSignalSto
 from trading_signals.application.use_cases.shadow_paper import ShadowSignalStore
 from trading_signals.infrastructure.exchange.provider_factory import build_market_data_provider
 from trading_signals.memory.pattern_store import PatternMemoryStore
-from trading_signals.paper_trace.service import build_paper_trace_service
+from trading_signals.paper_trace.service import (
+    PaperTraceConfigurationError,
+    build_paper_trace_service,
+)
 
 
 def build_container() -> dict[str, object]:
     settings = load_settings()
+    logger = configure_logger(settings.log_level)
+    try:
+        paper_trace_service = build_paper_trace_service(settings)
+    except PaperTraceConfigurationError as exc:
+        paper_trace_service = None
+        log_json(
+            logger,
+            "paper_trace_shadow_isolated",
+            operation="configure",
+            error_code=exc.code,
+        )
     store = FileStore(settings.data_storage_path)
     return {
         "settings": settings,
-        "logger": configure_logger(settings.log_level),
+        "logger": logger,
         "market_data": build_market_data_provider(settings),
         "scan_repo": FileScanRunRepository(store),
         "signal_repo": FileSignalRepository(store),
@@ -38,7 +52,7 @@ def build_container() -> dict[str, object]:
         ),
         "diagnostics_store": FileStore(settings.diagnostics_path),
         "paper_trading_store": PaperTradingStore(settings.data_storage_path),
-        "paper_trace_service": build_paper_trace_service(settings),
+        "paper_trace_service": paper_trace_service,
         "relaxation_shadow_store": RelaxationShadowV1Store(settings.data_storage_path),
         "experimental_signal_store": ExperimentalSignalStore(settings.data_storage_path),
         "shadow_signal_store": ShadowSignalStore(settings.data_storage_path),

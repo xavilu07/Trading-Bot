@@ -37,6 +37,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--store-path", type=Path)
     parser.add_argument("--data-root", type=Path)
+    parser.add_argument("--allowed-root", type=Path)
+    parser.add_argument("--max-bytes", type=int)
     parser.add_argument("--sqlite-path", type=Path)
     parser.add_argument("--trace-id")
     parser.add_argument("--dry-run", action="store_true")
@@ -49,6 +51,12 @@ def _store(arguments: argparse.Namespace) -> JsonlTraceStore:
     return JsonlTraceStore(
         arguments.store_path.expanduser(),
         data_root=arguments.data_root.expanduser(),
+        allowed_root=(
+            arguments.allowed_root.expanduser()
+            if arguments.allowed_root is not None
+            else None
+        ),
+        max_bytes=arguments.max_bytes,
     )
 
 

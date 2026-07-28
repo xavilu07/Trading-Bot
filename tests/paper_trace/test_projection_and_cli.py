@@ -14,6 +14,7 @@ from trading_signals.paper_trace.store import JsonlTraceStore
 def _store_with_trace(tmp_path: Path, identity_factory) -> tuple[Path, object]:
     runtime = tmp_path / "runtime"
     runtime.mkdir()
+    runtime.chmod(0o700)
     path = runtime / "trace.jsonl"
     result = start_trace(
         identity_factory(),

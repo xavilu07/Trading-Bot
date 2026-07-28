@@ -215,6 +215,7 @@ class TraceCandle:
     low_price: float
     close_price: float
     closed: bool = True
+    market_source: str = "UNSPECIFIED"
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "open_at", utc_datetime(self.open_at, code="CANDLE_OPEN_NOT_UTC"))
@@ -241,6 +242,7 @@ class TraceCandle:
             "low": self.low_price,
             "close": self.close_price,
             "closed": self.closed,
+            "market_source": self.market_source,
         }
 
     @property
