@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from trading_signals.data.canonical_trade_source import TradeUniverse, load_trade_universe
 from trading_signals.research.statistics import to_float
 
 
@@ -13,10 +14,11 @@ DEFAULT_DATA_PATH = Path("data")
 
 def load_research_dataset(data_path: Path = DEFAULT_DATA_PATH) -> dict[str, Any]:
     trades_path = data_path / "paper_trading" / "trades.csv"
-    raw_rows = _read_csv(trades_path)
+    raw_rows = load_trade_universe(data_path, universe=TradeUniverse.ACCEPTED)
     rows = [normalize_trade(row) for row in raw_rows]
     return {
         "source": str(trades_path),
+        "universe": TradeUniverse.ACCEPTED.value,
         "rows": rows,
         "columns": list(raw_rows[0].keys()) if raw_rows else [],
         "auxiliary_sources": auxiliary_sources(data_path),

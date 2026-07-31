@@ -112,3 +112,33 @@ cada `3600` segundos. Puedes ajustar el intervalo con:
 ```bash
 EXPERIMENTAL_OUTCOMES_INTERVAL_SECONDS=3600 make experimental-outcomes-up
 ```
+
+## Contrato canónico de observabilidad
+
+Los lectores productivos deben usar
+`trading_signals.data.canonical_trade_source` y declarar un universo:
+
+- `accepted`: operaciones aceptadas/tradeables; es el valor por defecto para
+  KPI, QIC y Edge Memory.
+- `published`: vista de `accepted` limitada a publicaciones públicas
+  confirmadas. La intención o un fallo de Telegram nunca cuentan.
+- `rejected`: contrafactuales rechazados, disponibles solo para investigación.
+- `shadow`: experimentos no productivos.
+- `unknown`: clasificación histórica conservadora cuando la evidencia no basta.
+
+Los resultados nuevos guardan `gross_result_r`, costes por componente,
+`total_cost` y `net_result_r`. Los defaults conservadores, expresados en R por
+operación, son comisión `0.02`, spread `0.01`, slippage `0.01` y funding `0`.
+Se pueden sobrescribir con `TRADING_COMMISSION_R`, `TRADING_SPREAD_R`,
+`TRADING_SLIPPAGE_R` y `TRADING_FUNDING_R`. Las filas históricas sin costes no
+se recalculan ni se falsean: se leen con coste cero y `costs_known=false`.
+
+No existe una migración destructiva. El loader normaliza en memoria los CSV
+antiguos y el escritor añade las columnas nuevas cuando una operación vuelve a
+guardarse. Antes de desplegar, se debe respaldar `data/`, comprobar el esquema
+en una copia y conservar el CSV de producción sin reescritura masiva.
+
+Cada scheduler adquiere el lock configurado por `SCHEDULER_LOCK_FILE` (por
+defecto `.runtime/scheduler.lock`). El arranque, los heartbeats y el lock
+incluyen SHA de Git, hash de configuración segura y `DEPLOYMENT_ID`, permitiendo
+identificar el proceso activo y bloquear una segunda instancia.

@@ -9,6 +9,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from trading_signals.data.canonical_trade_source import TradeUniverse, load_trade_universe
 
 CLOSED_STATUSES = {"expired", "sl_hit", "tp1_hit", "tp2_hit"}
 OPEN_STATUSES = {"open", "pending"}
@@ -73,7 +74,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def generate_report(*, data_path: Path, reports_path: Path) -> dict[str, Any]:
     trades_path = data_path / "paper_trading" / "trades.csv"
-    rows = load_trade_rows(trades_path)
+    rows = load_trade_universe(data_path, universe=TradeUniverse.ACCEPTED)
     normalized = [normalize_trade(row) for row in rows]
     closed = [row for row in normalized if row["is_closed"]]
     open_trades = [row for row in normalized if row["is_open"]]
@@ -81,6 +82,7 @@ def generate_report(*, data_path: Path, reports_path: Path) -> dict[str, Any]:
     result = {
         "generated_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "source": str(trades_path),
+        "universe": TradeUniverse.ACCEPTED.value,
         "rows_loaded": len(rows),
         "closed_statuses": sorted(CLOSED_STATUSES),
         "open_statuses": sorted(OPEN_STATUSES),

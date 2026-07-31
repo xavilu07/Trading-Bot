@@ -4,6 +4,7 @@ import csv
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
+from trading_signals.data.canonical_trade_source import load_canonical_closed_trades
 
 
 CLOSED_STATUSES = {"expired", "sl_hit", "tp1_hit", "tp2_hit"}
@@ -26,7 +27,7 @@ GROUP_DEFINITIONS: tuple[tuple[str, tuple[str, ...]], ...] = (
 
 
 def build_edge_memory(data_path: Path, min_sample_size: int = 15) -> dict[str, Any]:
-    rows = _read_closed_trades(data_path / "paper_trading" / "trades.csv")
+    rows = load_canonical_closed_trades(data_path)
     groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for row in rows:
         for group_name, fields in GROUP_DEFINITIONS:
@@ -54,6 +55,7 @@ def build_edge_memory(data_path: Path, min_sample_size: int = 15) -> dict[str, A
     edges.sort(key=lambda item: (item["meets_min_sample"], item["edge_score"], item["sample_size"]), reverse=True)
     return {
         "version": "EDGE_MEMORY_V1",
+        "universe": "accepted",
         "data_file": str(data_path / "paper_trading" / "trades.csv"),
         "closed_trades": len(rows),
         "min_sample_size": min_sample_size,
@@ -126,7 +128,7 @@ def _read_closed_trades(path: Path) -> list[dict[str, Any]]:
 
 
 def _metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
-    values = [_float(row.get("result_r")) for row in rows]
+    values = [_float(row.get("net_result_r")) for row in rows]
     values = [value for value in values if value is not None]
     wins = [value for value in values if value > 0]
     losses = [value for value in values if value < 0]

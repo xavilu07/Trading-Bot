@@ -5,6 +5,7 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+from trading_signals.data.canonical_trade_source import load_canonical_closed_trades
 
 from trading_signals.agents.proposal_store import DEFAULT_PROPOSALS_PATH, load_proposals
 from trading_signals.agents.research_memory import load_research_memory
@@ -79,6 +80,8 @@ def detect_qic_events(
 
 
 def _load_closed_trades(path: Path) -> list[dict[str, Any]]:
+    if path.name == "trades.csv" and path.parent.name == "paper_trading":
+        return load_canonical_closed_trades(path.parent.parent)
     if not path.exists():
         return []
     with path.open(newline="", encoding="utf-8") as handle:

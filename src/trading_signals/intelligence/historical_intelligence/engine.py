@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from trading_signals.data.canonical_trade_source import canonical_trades_path, normalize_for_research
+from trading_signals.data.canonical_trade_source import TradeUniverse, canonical_trades_path, load_trade_universe
 from trading_signals.intelligence.historical_intelligence.discovery import discover_negative_edges, discover_positive_edges
 from trading_signals.intelligence.historical_intelligence.dna import build_dna_profiles
 from trading_signals.intelligence.historical_intelligence.metrics import compute_metrics, group_by_dimensions, group_metrics, summarize_statuses
@@ -118,17 +118,7 @@ def generate_historical_intelligence(
 
 
 def load_historical_trades(data_path: Path) -> list[dict[str, Any]]:
-    path = canonical_trades_path(data_path)
-    if not path.exists() or path.stat().st_size == 0:
-        return []
-    rows: list[dict[str, Any]] = []
-    with path.open("r", encoding="utf-8", newline="") as handle:
-        for raw in csv.DictReader(handle):
-            normalized = normalize_for_research(raw)
-            if normalized is None:
-                normalized = _normalize_open_or_unknown(raw)
-            rows.append(_enrich_row(normalized))
-    return rows
+    return [_enrich_row(row) for row in load_trade_universe(data_path, TradeUniverse.ACCEPTED, closed_only=False)]
 
 
 def _normalize_open_or_unknown(row: dict[str, Any]) -> dict[str, Any]:
