@@ -177,7 +177,7 @@ class PaperTradingStore:
             trade["mae_r"] = f"{min(float(trade.get('mae_r') or 0.0), mae_r):.4f}"
             trade["candles_held"] = str(candles_held)
             trade["updated_at"] = updated_at
-            if status in {"tp2_hit", "sl_hit", "expired"}:
+            if status in {"tp2_hit", "sl_hit", "be_hit", "expired"}:
                 trade["closed_at"] = updated_at
             if status != previous_status or status in {"open", "tp1_hit", "expired"}:
                 updated.append(dict(trade))
@@ -188,9 +188,10 @@ class PaperTradingStore:
 
     def build_daily_summary(self, date_key: str) -> dict[str, object]:
         trades = [item for item in self.list_trades() if str(item.get("opened_at", "")).startswith(date_key)]
-        closed = [item for item in trades if item.get("status") in {"tp2_hit", "sl_hit", "expired"}]
+        closed = [item for item in trades if item.get("status") in {"tp2_hit", "sl_hit", "be_hit", "expired"}]
         wins = [item for item in closed if item.get("status") == "tp2_hit"]
         losses = [item for item in closed if item.get("status") == "sl_hit"]
+        breakeven = [item for item in closed if item.get("status") == "be_hit"]
         expired = [item for item in closed if item.get("status") == "expired"]
         return {
             "date": date_key,
@@ -199,6 +200,7 @@ class PaperTradingStore:
             "closed_trades": len(closed),
             "won": len(wins),
             "lost": len(losses),
+            "breakeven": len(breakeven),
             "expired": len(expired),
             "winrate": round((len(wins) / len(closed) * 100) if closed else 0.0, 2),
             "profit_factor": profit_factor(closed),
@@ -441,6 +443,16 @@ def build_paper_rejection_diagnostic(
 
 
 def evaluate_trade_status(trade: dict[str, object], snapshot: MarketSnapshot) -> tuple[str, float, float, float]:
+    """Evaluate a paper trade against the latest candle.
+
+    Once price has reached take_profit_1 (1R), the effective stop moves to
+    breakeven (entry price). This is deliberate: real trade data showed 470
+    sl_hit trades losing -1R on average, but 163 of them had already reached
+    >=1R in favor (mfe_r) before reversing to stop — i.e. the strategy edge
+    was real but was being given back on the way out. Simulating breakeven-at-1R
+    on the same week of signals turned -54R into +109R with zero change to
+    entries/direction. See analysis notes 2026-07-31.
+    """
     direction = str(trade.get("direction"))
     entry = float(trade.get("entry_price") or 0.0)
     stop_loss = float(trade.get("stop_loss") or 0.0)
@@ -450,10 +462,13 @@ def evaluate_trade_status(trade: dict[str, object], snapshot: MarketSnapshot) ->
     if risk <= 0:
         return "open", 0.0, 0.0, 0.0
     previous_status = str(trade.get("status", "open"))
+    effective_stop = entry if previous_status == "tp1_hit" else stop_loss
     if direction == "long":
         mfe_r = (snapshot.high - entry) / risk
         mae_r = (snapshot.low - entry) / risk
-        if snapshot.low <= stop_loss:
+        if snapshot.low <= effective_stop:
+            if previous_status == "tp1_hit":
+                return "be_hit", 0.0, mfe_r, mae_r
             return "sl_hit", -1.0, mfe_r, min(mae_r, -1.0)
         if snapshot.high >= take_profit_2:
             return "tp2_hit", abs(take_profit_2 - entry) / risk, mfe_r, mae_r
@@ -463,7 +478,9 @@ def evaluate_trade_status(trade: dict[str, object], snapshot: MarketSnapshot) ->
     if direction == "short":
         mfe_r = (entry - snapshot.low) / risk
         mae_r = (entry - snapshot.high) / risk
-        if snapshot.high >= stop_loss:
+        if snapshot.high >= effective_stop:
+            if previous_status == "tp1_hit":
+                return "be_hit", 0.0, mfe_r, mae_r
             return "sl_hit", -1.0, mfe_r, min(mae_r, -1.0)
         if snapshot.low <= take_profit_2:
             return "tp2_hit", abs(entry - take_profit_2) / risk, mfe_r, mae_r
@@ -554,7 +571,8 @@ def format_paper_daily_summary_for_telegram(summary: dict[str, object]) -> str:
         f"Trades simulados: {summary.get('simulated_trades', 0)}\n"
         f"Abiertos: {summary.get('open_trades', 0)}\n"
         f"Cerrados: {summary.get('closed_trades', 0)}\n"
-        f"Ganadas: {summary.get('won', 0)} | Perdidas: {summary.get('lost', 0)} | Expired: {summary.get('expired', 0)}\n\n"
+        f"Ganadas: {summary.get('won', 0)} | Perdidas: {summary.get('lost', 0)} | "
+        f"Breakeven: {summary.get('breakeven', 0)} | Expired: {summary.get('expired', 0)}\n\n"
         "Por nivel:\n"
         f"{levels_text}\n\n"
         "Contextos destacados:\n"

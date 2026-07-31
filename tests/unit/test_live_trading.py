@@ -268,7 +268,7 @@ def test_public_update_event_is_not_duplicated(tmp_path) -> None:
     create_live_trade(store, public_published=True)
     snapshot = build_snapshot(scan_run_id="run_test", symbol="BTCUSDT", timeframe="1h", trend="bullish", structure="bullish", sweep="none", score=80.0, distance=1.0)
     snapshot.high = 106.0
-    snapshot.low = 100.0
+    snapshot.low = 101.0
     snapshot.close = 105.0
 
     first = store.update_open_trades_for_snapshot(
@@ -320,7 +320,7 @@ def test_breakeven_alert_only_once(tmp_path) -> None:
     create_live_trade(store)
     snapshot = build_snapshot(scan_run_id="run_test", symbol="BTCUSDT", timeframe="1h", trend="bullish", structure="bullish", sweep="none", score=80.0, distance=1.0)
     snapshot.high = 106.0
-    snapshot.low = 100.0
+    snapshot.low = 101.0
     snapshot.close = 105.0
 
     first = store.update_open_trades_for_snapshot(
@@ -343,6 +343,48 @@ def test_breakeven_alert_only_once(tmp_path) -> None:
     assert [event["event_type"] for event in first] == ["breakeven"]
     assert second == []
     assert store.list_trades()[0]["breakeven_triggered"] == "true"
+
+
+def test_live_trade_closes_at_breakeven_after_reversal(tmp_path) -> None:
+    """Once the breakeven alert has fired, a reversal back to entry closes
+    the trade at 0R (breakeven_hit) instead of riding to the original -1R
+    stop. This is what the bot's own 'move SL to entry' alert is for; before
+    this fix the tracked result ignored the alert and kept recording -1R."""
+    store = LiveTradingStore(tmp_path)
+    create_live_trade(store)
+    trigger_snapshot = build_snapshot(scan_run_id="run_test", symbol="BTCUSDT", timeframe="1h", trend="bullish", structure="bullish", sweep="none", score=80.0, distance=1.0)
+    trigger_snapshot.high = 106.0
+    trigger_snapshot.low = 101.0
+    trigger_snapshot.close = 105.0
+
+    triggered = store.update_open_trades_for_snapshot(
+        trigger_snapshot,
+        updated_at="2026-01-01T01:00:00+00:00",
+        breakeven_enabled=True,
+        breakeven_trigger_r=1.0,
+        partial_tp_enabled=False,
+        partial_tp_trigger_r=1.5,
+    )
+    assert [event["event_type"] for event in triggered] == ["breakeven"]
+
+    reversal_snapshot = build_snapshot(scan_run_id="run_test", symbol="BTCUSDT", timeframe="1h", trend="bearish", structure="bearish", sweep="none", score=80.0, distance=1.0)
+    reversal_snapshot.high = 104.0
+    reversal_snapshot.low = 100.0
+    reversal_snapshot.close = 100.0
+
+    closed = store.update_open_trades_for_snapshot(
+        reversal_snapshot,
+        updated_at="2026-01-01T02:00:00+00:00",
+        breakeven_enabled=True,
+        breakeven_trigger_r=1.0,
+        partial_tp_enabled=False,
+        partial_tp_trigger_r=1.5,
+    )
+
+    assert [event["event_type"] for event in closed] == ["breakeven_hit"]
+    trade = store.list_trades()[0]
+    assert trade["status"] == "breakeven_hit"
+    assert trade["result_r"] == "0.0000"
 
 
 def test_partial_tp_alert_only_once(tmp_path) -> None:
