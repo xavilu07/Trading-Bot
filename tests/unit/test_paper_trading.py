@@ -328,11 +328,82 @@ def test_paper_trade_status_hits_tp1_then_tp2(tmp_path) -> None:
         distance=1.0,
     )
     tp2_snapshot.high = 111.0
-    tp2_snapshot.low = 100.0
+    tp2_snapshot.low = 101.0
     updates = store.update_open_trades_for_snapshot(tp2_snapshot, "2026-01-01T02:00:00+00:00")
 
     assert updates[0]["status"] == "tp2_hit"
     assert updates[0]["result_r"] == "2.0000"
+
+
+def test_paper_trade_status_reverses_to_breakeven_after_tp1(tmp_path) -> None:
+    """After TP1 (1R) is reached, the effective stop moves to entry: a
+    reversal that would have hit the original stop instead closes at
+    breakeven (be_hit, 0R) rather than a full -1R loss."""
+    store = PaperTradingStore(tmp_path)
+    base_snapshot = build_snapshot(
+        scan_run_id="run_test",
+        symbol="BTCUSDT",
+        timeframe="1h",
+        trend="bullish",
+        structure="bullish",
+        sweep="none",
+        score=70.0,
+        distance=1.0,
+    )
+    candidate = build_paper_candidate_from_signal(
+        symbol="BTCUSDT",
+        direction="long",
+        setup_type="MAIN_SIGNAL",
+        score=80.0,
+        risk_plan=build_risk_plan("long"),
+        opened_at="2026-01-01T00:00:00+00:00",
+        entry_reasons=[],
+        conditions_passed=[],
+        conditions_failed=[],
+        source_key="BTCUSDT|long|test-be",
+        snapshot=base_snapshot,
+        higher_trend="bullish",
+        entry_or_rejection_reason="paper_tradeable",
+        expires_after_candles=24,
+        setup_context=SETUP_CONTEXT,
+    )
+    assert candidate is not None
+    store.upsert_candidate(candidate)
+
+    tp1_snapshot = build_snapshot(
+        scan_run_id="run_test",
+        symbol="BTCUSDT",
+        timeframe="1h",
+        trend="bullish",
+        structure="bullish",
+        sweep="none",
+        score=70.0,
+        distance=1.0,
+    )
+    tp1_snapshot.high = 106.0
+    tp1_snapshot.low = 99.0
+    updates = store.update_open_trades_for_snapshot(tp1_snapshot, "2026-01-01T01:00:00+00:00")
+    assert updates[0]["status"] == "tp1_hit"
+
+    reversal_snapshot = build_snapshot(
+        scan_run_id="run_test",
+        symbol="BTCUSDT",
+        timeframe="1h",
+        trend="bullish",
+        structure="bearish",
+        sweep="none",
+        score=70.0,
+        distance=1.0,
+    )
+    # Price falls all the way back to the original stop (95), which would
+    # have been a full -1R loss before the breakeven fix.
+    reversal_snapshot.high = 104.0
+    reversal_snapshot.low = 95.0
+    updates = store.update_open_trades_for_snapshot(reversal_snapshot, "2026-01-01T02:00:00+00:00")
+
+    assert updates[0]["status"] == "be_hit"
+    assert updates[0]["result_r"] == "0.0000"
+    assert updates[0]["closed_at"] == "2026-01-01T02:00:00+00:00"
 
 
 def test_paper_trade_status_hits_sl() -> None:

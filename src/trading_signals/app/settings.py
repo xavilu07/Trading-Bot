@@ -54,7 +54,10 @@ class Settings:
     scan_symbols: list[str] = field(
         default_factory=lambda: _csv_env(
             "SCAN_SYMBOLS",
-            "BTCUSDT,ETHUSDT,SOLUSDT,XRPUSDT,BNBUSDT,DOGEUSDT,AVAXUSDT",
+            # XRPUSDT removed 2026-07-31: worst-performing pair in the live universe
+            # (PF 0.71, -28.16R over 240 trades, week of 2026-07-24/31) with no
+            # positive cut in any session/regime/context breakdown.
+            "BTCUSDT,ETHUSDT,SOLUSDT,BNBUSDT,DOGEUSDT,AVAXUSDT",
         )
     )
     entry_timeframe: str = os.getenv("ENTRY_TIMEFRAME", "1h")

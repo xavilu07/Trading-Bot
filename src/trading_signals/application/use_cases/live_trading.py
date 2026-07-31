@@ -137,9 +137,10 @@ class LiveTradingStore:
         for trade in trades:
             if trade.get("symbol") != snapshot.symbol or trade.get("status") != "open":
                 continue
-            status, result_r, current_r = evaluate_live_trade(trade, snapshot)
+            breakeven_active = breakeven_enabled and str(trade.get("breakeven_triggered", "false")).lower() == "true"
+            status, result_r, current_r = evaluate_live_trade(trade, snapshot, breakeven_active=breakeven_active)
             trade["updated_at"] = updated_at
-            if status in {"tp_hit", "sl_hit"}:
+            if status in {"tp_hit", "sl_hit", "breakeven_hit"}:
                 trade["status"] = status
                 trade["result_r"] = f"{result_r:.4f}"
                 trade["closed_at"] = updated_at
@@ -162,7 +163,7 @@ class LiveTradingStore:
 
     def build_daily_summary(self, date_key: str) -> dict[str, object]:
         trades = [item for item in self.list_trades() if str(item.get("created_at", "")).startswith(date_key)]
-        closed = [item for item in trades if item.get("status") in {"tp_hit", "sl_hit", "breakeven", "expired"}]
+        closed = [item for item in trades if item.get("status") in {"tp_hit", "sl_hit", "breakeven_hit", "expired"}]
         wins = [item for item in closed if item.get("status") == "tp_hit"]
         losses = [item for item in closed if item.get("status") == "sl_hit"]
         return {
@@ -265,7 +266,17 @@ def build_live_candidate_from_signal(
     )
 
 
-def evaluate_live_trade(trade: dict[str, object], snapshot: MarketSnapshot) -> tuple[str, float, float]:
+def evaluate_live_trade(
+    trade: dict[str, object], snapshot: MarketSnapshot, *, breakeven_active: bool = False
+) -> tuple[str, float, float]:
+    """Evaluate a live-tracked trade.
+
+    When breakeven_active is True (the bot already sent the "move SL to
+    entry" alert), the effective stop for closing the trade is the entry
+    price instead of the original stop_loss. Without this, the tracker kept
+    recording a full -1R loss even after suggesting breakeven, understating
+    what disciplined execution of the bot's own alerts would achieve.
+    """
     direction = str(trade.get("direction"))
     entry = float(trade.get("entry") or 0.0)
     stop_loss = float(trade.get("stop_loss") or 0.0)
@@ -273,17 +284,18 @@ def evaluate_live_trade(trade: dict[str, object], snapshot: MarketSnapshot) -> t
     risk = abs(entry - stop_loss)
     if risk <= 0:
         return "open", 0.0, 0.0
+    effective_stop = entry if breakeven_active else stop_loss
     if direction == "long":
         current_r = (snapshot.close - entry) / risk
-        if snapshot.low <= stop_loss:
-            return "sl_hit", -1.0, current_r
+        if snapshot.low <= effective_stop:
+            return ("breakeven_hit", 0.0, current_r) if breakeven_active else ("sl_hit", -1.0, current_r)
         if snapshot.high >= take_profit:
             return "tp_hit", abs(take_profit - entry) / risk, current_r
         return "open", current_r, current_r
     if direction == "short":
         current_r = (entry - snapshot.close) / risk
-        if snapshot.high >= stop_loss:
-            return "sl_hit", -1.0, current_r
+        if snapshot.high >= effective_stop:
+            return ("breakeven_hit", 0.0, current_r) if breakeven_active else ("sl_hit", -1.0, current_r)
         if snapshot.low <= take_profit:
             return "tp_hit", abs(entry - take_profit) / risk, current_r
         return "open", current_r, current_r
@@ -315,6 +327,15 @@ def format_live_trade_event_for_telegram(event: dict[str, object], *, partial_pe
             f"- Setup: {setup}\n"
             f"- Entry: {trade.get('entry', '-')}\n"
             f"- SL: {trade.get('stop_loss', '-')}\n"
+            f"- Resultado: {trade.get('result_r', '0')}R"
+        )
+    if event_type == "breakeven_hit":
+        return (
+            "🛡️ Cerrado en breakeven\n"
+            f"- Símbolo: {trade.get('symbol', '-')}\n"
+            f"- Dirección: {direction}\n"
+            f"- Setup: {setup}\n"
+            f"- Entry: {trade.get('entry', '-')}\n"
             f"- Resultado: {trade.get('result_r', '0')}R"
         )
     if event_type == "breakeven":

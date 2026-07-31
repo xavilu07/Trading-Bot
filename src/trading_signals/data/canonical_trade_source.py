@@ -8,7 +8,9 @@ from typing import Any
 
 
 CANONICAL_TRADES_RELATIVE_PATH = Path("paper_trading") / "trades.csv"
-CLOSED_STATUSES = {"tp2_hit", "tp_hit", "sl_hit", "expired", "breakeven", "closed", "win", "loss"}
+CLOSED_STATUSES = {
+    "tp2_hit", "tp_hit", "sl_hit", "expired", "breakeven", "be_hit", "breakeven_hit", "closed", "win", "loss",
+}
 WIN_STATUSES = {"tp2_hit", "tp_hit", "win"}
 
 
