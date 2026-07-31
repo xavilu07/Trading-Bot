@@ -5,6 +5,7 @@ import json
 from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
+from trading_signals.data.canonical_trade_source import TradeUniverse, load_trade_universe
 from typing import Any
 
 
@@ -53,7 +54,7 @@ def build_private_runtime_report(
     now: datetime | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     now = now or datetime.now(tz=UTC)
-    trades = _read_csv(data_path / "paper_trading" / "trades.csv")
+    trades = load_trade_universe(data_path, TradeUniverse.ACCEPTED, closed_only=False)
     previous_trades = state.get("known_paper_trades")
     previous_map = previous_trades if isinstance(previous_trades, dict) else {}
     current_map = {_trade_key(row, index): _trade_state(row) for index, row in enumerate(trades)}

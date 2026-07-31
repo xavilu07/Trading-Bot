@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 
 from trading_signals.application.use_cases.dashboard_reader import build_dashboard_summary
 from trading_signals.application.use_cases.paper_stats import build_paper_performance_summary
+from trading_signals.data.canonical_trade_source import TradeUniverse, load_trade_universe
 
 router = APIRouter(prefix="/ai", tags=["ai"])
 
@@ -109,7 +110,7 @@ def _build_trading_context() -> dict[str, Any]:
 
     paper_summary = build_paper_performance_summary(data_path)
     dashboard_summary = build_dashboard_summary(data_path=data_path, latest_limit=10)
-    paper_trades = _read_csv(paper_trades_path)
+    paper_trades = load_trade_universe(data_path, universe=TradeUniverse.ACCEPTED)
     live_trades = _read_csv(live_trades_path)
     signals_log = _read_jsonl_tail(signals_log_path, limit=30)
 
@@ -126,6 +127,7 @@ def _build_trading_context() -> dict[str, Any]:
         "trades_csv": {
             "paper": {
                 "path": str(paper_trades_path),
+                "universe": TradeUniverse.ACCEPTED.value,
                 "rows": len(paper_trades),
                 "latest_rows": _latest_trade_rows(paper_trades, limit=20),
             },

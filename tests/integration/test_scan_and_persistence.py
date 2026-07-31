@@ -148,6 +148,20 @@ def test_scan_creates_paper_trade_for_real_signal(tmp_path: Path) -> None:
     assert len(trades) == 1
     assert trades[0]["symbol"] == "BTCUSDT"
     assert trades[0]["status"] == "open"
+    signal = result["results"][0]["signal"]
+    for field in (
+        "git_commit_sha",
+        "deployment_id",
+        "config_hash",
+        "selected_engine",
+        "strategy_version",
+        "policy_version",
+        "experiment_id",
+    ):
+        assert trades[0][field] == signal[field]
+    assert signal["selected_engine"] != "unknown"
+    assert signal["strategy_version"]
+    assert signal["policy_version"] != "unknown"
 
 
 def test_scan_creates_live_trade_for_real_published_signal(tmp_path: Path) -> None:

@@ -44,7 +44,7 @@ def _bool_env(name: str, default: str) -> bool:
 
 @dataclass(slots=True)
 class Settings:
-    app_env: str = os.getenv("APP_ENV", "development")
+    app_env: str = field(default_factory=lambda: os.getenv("APP_ENV", "development"))
     log_level: str = os.getenv("LOG_LEVEL", "INFO")
     market_data_provider: str = os.getenv("MARKET_DATA_PROVIDER", "binance")
     binance_base_url: str = os.getenv("BINANCE_BASE_URL", "https://api.binance.com/api/v3")
@@ -403,6 +403,23 @@ class Settings:
     scheduler_heartbeat_file: Path = field(
         default_factory=lambda: Path(os.getenv("SCHEDULER_HEARTBEAT_FILE", "./data/runtime/scheduler_heartbeat.json"))
     )
+    scheduler_lock_file: Path = field(
+        default_factory=lambda: Path(os.getenv("SCHEDULER_LOCK_FILE", "./data/runtime/scheduler.lock"))
+    )
+    deployment_id: str = field(default_factory=lambda: os.getenv("DEPLOYMENT_ID", "unknown"))
+    git_commit_sha: str = field(default_factory=lambda: os.getenv("GIT_COMMIT_SHA", ""))
+    selected_engine: str = field(default_factory=lambda: os.getenv("SELECTED_ENGINE", ""))
+    strategy_version: str = field(default_factory=lambda: os.getenv("STRATEGY_VERSION", ""))
+    policy_version: str = field(default_factory=lambda: os.getenv("POLICY_VERSION", ""))
+    experiment_id: str = field(default_factory=lambda: os.getenv("EXPERIMENT_ID", "none"))
+    config_hash: str = field(default_factory=lambda: os.getenv("CONFIG_HASH", ""))
+    runtime_allow_unknown_identity: bool = field(
+        default_factory=lambda: _bool_env("RUNTIME_ALLOW_UNKNOWN_IDENTITY", "false")
+    )
+    trading_commission_r: float = field(default_factory=lambda: float(os.getenv("TRADING_COMMISSION_R", "0.02")))
+    trading_spread_r: float = field(default_factory=lambda: float(os.getenv("TRADING_SPREAD_R", "0.01")))
+    trading_slippage_r: float = field(default_factory=lambda: float(os.getenv("TRADING_SLIPPAGE_R", "0.01")))
+    trading_funding_r: float = field(default_factory=lambda: float(os.getenv("TRADING_FUNDING_R", "0")))
     paper_trading_enabled: bool = field(default_factory=lambda: _bool_env("PAPER_TRADING_ENABLED", "true"))
     paper_trading_strong_candidate_min_score: float = float(os.getenv("PAPER_TRADING_STRONG_CANDIDATE_MIN_SCORE", "35"))
     paper_trading_timeout_candles: int = int(os.getenv("PAPER_TRADING_TIMEOUT_CANDLES", "24"))

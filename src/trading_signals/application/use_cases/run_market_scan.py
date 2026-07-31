@@ -5,6 +5,7 @@ from collections import Counter
 from dataclasses import asdict
 from datetime import UTC, datetime
 from inspect import Parameter, signature
+from pathlib import Path
 from uuid import uuid4
 
 from trading_signals.app.settings import Settings
@@ -18,7 +19,7 @@ from trading_signals.analysis.market_regime import analyze_market_regime
 from trading_signals.analysis.momentum import analyze_momentum
 from trading_signals.analysis.risk import analyze_risk
 from trading_signals.analysis.trend import analyze_trend
-from trading_signals.application.policies.public_safety_policy import evaluate_public_safety_policy
+from trading_signals.application.policies.public_safety_policy import POLICY_VERSION, evaluate_public_safety_policy
 from trading_signals.application.policies.public_canary_policy import PublicShortCanaryConfig, evaluate_public_short_canary
 from trading_signals.application.use_cases.analyze_symbol import analyze_symbol
 from trading_signals.application.use_cases.candidate_funnel import (
@@ -86,6 +87,8 @@ from trading_signals.application.use_cases.strategy_v2_1_htf_alignment_filter im
     apply_strategy_v2_1_htf_alignment_filter,
 )
 from trading_signals.data.market_data import market_data_status
+from trading_signals.data.canonical_trade_source import TradeUniverse
+from trading_signals.runtime.identity import build_runtime_identity, metadata_from_identity
 from trading_signals.diagnostics.logger import log_module_diagnostic
 from trading_signals.domain.entities.scan_run import ScanRun
 from trading_signals.domain.entities.system_error import SystemError
@@ -937,6 +940,7 @@ def _signal_activity_entry(
     edge_optimizer_shadow: dict[str, object] | None = None,
     edge_optimizer_active: dict[str, object] | None = None,
     strategy_v2_1_htf_alignment_filter: dict[str, object] | None = None,
+    runtime_metadata: dict[str, object] | None = None,
 ) -> dict[str, object]:
     entry = analysis.entry_snapshot
     strategy_gate = module_diagnostics.get("strategy_gate", {})
@@ -951,6 +955,11 @@ def _signal_activity_entry(
             *([str(paper_rejection.get("rejection_reason"))] if paper_rejection else []),
         ]
     ))
+    metadata = dict(runtime_metadata or {})
+    accepted = evaluation.decision in {SignalDecision.LONG.value, SignalDecision.SHORT.value}
+    universe = TradeUniverse.ACCEPTED.value if accepted else (
+        TradeUniverse.SHADOW.value if experimental_signal_saved else TradeUniverse.REJECTED.value
+    )
     return {
         "timestamp": timestamp,
         "symbol": symbol,
@@ -961,6 +970,10 @@ def _signal_activity_entry(
             paper_trade_created=paper_trade_created,
             experimental_signal_saved=experimental_signal_saved,
         ),
+        "universe": universe,
+        "accepted": accepted,
+        "created_at": timestamp,
+        "accepted_at": timestamp if accepted else None,
         "setup_type": _signal_setup_type(evaluation) if evaluation.decision != SignalDecision.NO_TRADE.value else (_candidate_setup_type(analysis, evaluation) or "NO_SIGNAL"),
         "reasons": strategy_details.get("reason_final") or "|".join(evaluation.rejection_reasons) or signal_decision.decision,
         "rejection_reasons": rejection_reasons,
@@ -980,6 +993,15 @@ def _signal_activity_entry(
         "entry_context": setup_context.get("entry_context"),
         "source_engine": getattr(signal_decision, "source_engine", selected_engine),
         "public_published": public_published,
+        "published_at": timestamp if public_published else None,
+        "strategy_version": evaluation.strategy_version,
+        "git_commit_sha": metadata.get("git_commit_sha", "unknown"),
+        "config_hash": metadata.get("config_hash", "unknown"),
+        "runtime_flags": metadata.get("runtime_flags", {}),
+        "deployment_id": metadata.get("deployment_id", "unknown"),
+        "selected_engine": selected_engine,
+        "policy_version": metadata.get("policy_version", POLICY_VERSION),
+        "experiment_id": metadata.get("experiment_id", "none" if accepted else "unknown"),
         "public_block_reason": public_block_reason,
         "public_canary_decision": (public_canary or {}).get("public_canary_decision"),
         "public_canary_match": (public_canary or {}).get("public_canary_match"),
@@ -1122,6 +1144,7 @@ def run_market_scan(
     pattern_memory_store=None,
     symbols: list[str] | None = None,
     dry_run: bool = False,
+    runtime_identity: dict[str, object] | None = None,
 ) -> dict[str, object]:
     """Run the production scan while keeping the engine migration boundary explicit.
 
@@ -1136,6 +1159,11 @@ def run_market_scan(
     universe_validation = validate_symbol_universe(settings, market_data, effective_symbols)
     valid_symbols = [str(symbol) for symbol in universe_validation["valid_symbols"]]
     logger = logging.getLogger("trading_signals")
+    scan_runtime_identity = runtime_identity or build_runtime_identity(
+        root=Path.cwd(),
+        settings=settings,
+        strict=not dry_run,
+    ).to_dict()
     for skipped in universe_validation["skipped_symbols"]:
         if isinstance(skipped, dict):
             log_json(
@@ -1356,6 +1384,17 @@ def run_market_scan(
                 if modular_row is not None:
                     modular_signal_saved = modular_signal_store.upsert_signal(modular_row)
 
+            signal_created_at = _now_iso()
+            signal_accepted = evaluation.decision in {SignalDecision.LONG.value, SignalDecision.SHORT.value}
+            signal_universe = TradeUniverse.ACCEPTED.value if signal_accepted else (
+                TradeUniverse.SHADOW.value if experimental_signal_saved else TradeUniverse.REJECTED.value
+            )
+            signal_trace = metadata_from_identity(
+                scan_runtime_identity,
+                selected_engine=selected_decision.selected_engine,
+                strategy_version=evaluation.strategy_version,
+                experiment_id="none" if signal_accepted else ("shadow" if experimental_signal_saved else "unknown"),
+            )
             signal = TradeSignal(
                 id=f"sig_{uuid4().hex[:12]}",
                 scan_run_id=scan_run.id,
@@ -1371,7 +1410,17 @@ def run_market_scan(
                 higher_timeframe=evaluation.higher_timeframe,
                 entry_snapshot_id=evaluation.entry_snapshot_id,
                 higher_snapshot_id=evaluation.higher_snapshot_id,
-                created_at=_now_iso(),
+                created_at=signal_created_at,
+                accepted_at=signal_created_at if signal_accepted else None,
+                universe=signal_universe,
+                accepted=signal_accepted,
+                git_commit_sha=str(signal_trace["git_commit_sha"]),
+                config_hash=str(signal_trace["config_hash"]),
+                runtime_flags=dict(signal_trace["runtime_flags"]),
+                deployment_id=str(signal_trace["deployment_id"]),
+                selected_engine=str(signal_trace["selected_engine"]),
+                policy_version=str(signal_trace["policy_version"]),
+                experiment_id=str(signal_trace["experiment_id"]),
             )
             signal_repo.save_signal(signal)
             deliveries = []
@@ -1901,6 +1950,8 @@ def run_market_scan(
                 if any(item.status == "sent" for item in deliveries):
                     increment_candidate_funnel(candidate_funnel, "published_signals")
                     public_published = any(item.channel == "telegram_public" and item.status == "sent" for item in deliveries)
+                    signal.public_published = public_published
+                    signal.public_published_at = _now_iso() if public_published else None
                     signal.status = SignalStatus.PUBLISHED.value
                     signal.published_at = _now_iso()
                     signal.updated_at = signal.published_at
@@ -2000,6 +2051,16 @@ def run_market_scan(
                         entry_or_rejection_reason=paper_tradeable_reason,
                         expires_after_candles=settings.paper_trading_timeout_candles,
                         setup_context=setup_context,
+                        trace={
+                            **metadata_from_identity(
+                                scan_runtime_identity,
+                                selected_engine=selected_decision.selected_engine,
+                                strategy_version=evaluation.strategy_version,
+                            ),
+                            "public_published": public_published,
+                            "published_at": _now_iso() if public_published else "",
+                        },
+                        universe=TradeUniverse.ACCEPTED,
                     )
                     if paper_tradeable and paper_candidate is not None and paper_candidate.risk_reward_tp2 >= settings.paper_trading_min_rr:
                         paper_trade_created = paper_trading_store.upsert_candidate(paper_candidate)
@@ -2082,6 +2143,15 @@ def run_market_scan(
                                 entry_or_rejection_reason=str(candidate_rejected.get("rejection_reason", paper_tradeable_reason)),
                                 expires_after_candles=settings.paper_trading_timeout_candles,
                                 setup_context=candidate_setup_context,
+                                trace={
+                                    **metadata_from_identity(
+                                        scan_runtime_identity,
+                                        selected_engine=selected_decision.selected_engine,
+                                        strategy_version=evaluation.strategy_version,
+                                        experiment_id="rejected_candidate_counterfactual",
+                                    ),
+                                },
+                                universe=TradeUniverse.REJECTED,
                             )
                             if paper_tradeable and paper_candidate is not None and paper_candidate.risk_reward_tp2 >= settings.paper_trading_min_rr:
                                 paper_trade_created = paper_trading_store.upsert_candidate(paper_candidate)
@@ -2130,6 +2200,12 @@ def run_market_scan(
                     edge_optimizer_shadow=edge_optimizer_shadow.to_dict(),
                     edge_optimizer_active=edge_optimizer_active.to_dict(),
                     strategy_v2_1_htf_alignment_filter=strategy_v2_1_htf_alignment_filter,
+                    runtime_metadata=metadata_from_identity(
+                        scan_runtime_identity,
+                        selected_engine=selected_decision.selected_engine,
+                        strategy_version=evaluation.strategy_version,
+                        experiment_id="none" if evaluation.decision in {SignalDecision.LONG.value, SignalDecision.SHORT.value} else "unknown",
+                    ),
                 )
             )
             multi_agent_shadow_decision = None
