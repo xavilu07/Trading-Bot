@@ -103,6 +103,7 @@ from trading_signals.memory.signal_activity_log import append_signal_log
 from trading_signals.notifications.telegram import telegram_status
 from trading_signals.risk.kill_switch import evaluate_kill_switch
 from trading_signals.risk.protection_engine import ProtectionEngineConfig, evaluate_protection_engine
+from trading_signals.risk.trading_pause import is_trading_paused
 from trading_signals.strategy.decision_engine import (
     build_signal_decision_from_modules,
     build_signal_decision_from_strategy_evaluation,
@@ -1729,6 +1730,10 @@ def run_market_scan(
                 max_weekly_drawdown_r=settings.max_weekly_drawdown_r,
                 cooldown_hours=settings.kill_switch_cooldown_hours,
             )
+            # Manual-latch pause (scripts/run_kill_switch_monitor.py + resume_trading.py):
+            # unlike kill_switch_status above (which self-resumes once its rolling loss
+            # window ages out), this only clears when a human runs resume_trading.py.
+            trading_paused_state = is_trading_paused(settings.data_storage_path / "runtime" / "trading_paused.json")
             pattern_memory = None
             performance_gate = None
             pattern_record = None
@@ -2059,7 +2064,7 @@ def run_market_scan(
             paper_trade_created = False
             paper_candidate_detected = False
             paper_rejection = None
-            if settings.paper_trading_enabled and paper_trading_store is not None:
+            if settings.paper_trading_enabled and paper_trading_store is not None and not trading_paused_state.get("paused"):
                 paper_tradeable, paper_tradeable_reason = paper_market_is_tradeable(
                     analysis.entry_snapshot,
                     atr_min_threshold=settings.paper_trading_atr_min_threshold,

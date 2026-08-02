@@ -17,20 +17,6 @@ def _csv_env_fallback(name: str, fallback_name: str) -> list[str]:
     return [item.strip() for item in raw.split(",") if item.strip()]
 
 
-def _qic_telegram_settings_explicit() -> bool:
-    names = (
-        "QIC_TELEGRAM_ENABLED",
-        "QIC_TELEGRAM_BOT_TOKEN",
-        "QIC_TELEGRAM_CHAT_ID",
-        "AGENT_TELEGRAM_APPROVAL_ENABLED",
-        "AGENT_TELEGRAM_BOT_TOKEN",
-        "AGENT_TELEGRAM_CHAT_ID",
-        "TELEGRAM_BOT_TOKEN",
-        "TELEGRAM_DEV_CHAT_ID",
-    )
-    return any(name in os.environ for name in names)
-
-
 def _publish_decisions_env(name: str, default: str) -> list[str]:
     values = [item.lower() for item in _csv_env(name, default)]
     if "both" in values:
@@ -277,10 +263,6 @@ class Settings:
     qic_telegram_enabled: bool = field(default_factory=lambda: _bool_env("QIC_TELEGRAM_ENABLED", "false"))
     qic_telegram_chat_id: str = field(default_factory=lambda: os.getenv("QIC_TELEGRAM_CHAT_ID", ""))
     qic_telegram_bot_token: str = field(default_factory=lambda: os.getenv("QIC_TELEGRAM_BOT_TOKEN", ""))
-    qic_telegram_settings_explicit: bool = field(
-        default_factory=_qic_telegram_settings_explicit,
-        repr=False,
-    )
     qic_telegram_send_no_actionable: bool = field(
         default_factory=lambda: _bool_env("QIC_TELEGRAM_SEND_NO_ACTIONABLE", "true")
     )

@@ -251,6 +251,13 @@ def run_approved_proposal_pipeline(
                 approval_metadata={"change_id": engineer.get("change_id"), "auto_apply_pipeline": True},
             )
             base["proposal_status"] = updated.get("status") if updated else None
+            base["git_commit"] = _commit_applied_change(
+                project_root=project_root,
+                files_modified=list(engineer.get("files_modified") or []),
+                proposal_id=proposal_id,
+                title=proposal.get("title"),
+                change_id=engineer.get("change_id"),
+            )
             return _finish(base, status="applied", stage="completed", bot_operational=True, reports_path=reports_path)
         if engineer.get("rollback_after_failed_tests"):
             rollback = engineer["rollback_after_failed_tests"]
@@ -277,6 +284,53 @@ def run_approved_proposal_pipeline(
         lock.release()
 
 
+def _commit_applied_change(
+    *,
+    project_root: Path,
+    files_modified: list[str],
+    proposal_id: str,
+    title: str | None,
+    change_id: str | None,
+) -> dict[str, Any]:
+    # Best-effort audit trail: code_engineer/CodeChangeManager only writes files to disk and
+    # tracks them in its own JSON ledger, never in git — without this, an applied change is
+    # invisible to `git status`/`git log` and can be silently overwritten by the next
+    # `git pull` in scripts/deploy_restart.sh. Never blocks "applied" status on failure: the
+    # code change already passed tests and is live regardless of whether git tracking works.
+    if not files_modified:
+        return {"status": "skipped", "reason": "no_files_modified"}
+    try:
+        add = subprocess.run(
+            ["git", "add", *files_modified],
+            cwd=project_root,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        if add.returncode != 0:
+            return {"status": "failed", "reason": "git_add_failed", "detail": add.stderr[-500:]}
+        message = f"QIC auto-apply: {title or proposal_id}\n\nproposal_id={proposal_id}\nchange_id={change_id}"
+        commit = subprocess.run(
+            ["git", "commit", "-m", message],
+            cwd=project_root,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        if commit.returncode != 0:
+            return {"status": "failed", "reason": "git_commit_failed", "detail": commit.stderr[-500:]}
+        sha = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"],
+            cwd=project_root,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        ).stdout.strip()
+        return {"status": "committed", "sha": sha, "revert_command": f"git revert --no-edit {sha}"}
+    except (OSError, subprocess.SubprocessError) as exc:
+        return {"status": "failed", "reason": f"{type(exc).__name__}:{exc}"}
+
+
 def format_approval_pipeline_message(report: dict[str, Any]) -> str:
     status = str(report.get("status") or "unknown")
     if status == "applied":
@@ -289,6 +343,7 @@ def format_approval_pipeline_message(report: dict[str, Any]) -> str:
     tests = report.get("tests_run") or []
     blockers = report.get("blockers") or []
     rollback = report.get("rollback") or {}
+    git_commit = report.get("git_commit") or {}
     lines = [
         heading,
         f"ID: {report.get('proposal_id')}",
@@ -303,6 +358,11 @@ def format_approval_pipeline_message(report: dict[str, Any]) -> str:
         f"Rollback: {rollback.get('status') or 'no'}; tests={rollback.get('tests_passed', 'n/a')}",
         f"Bot operativo: {'SÍ' if report.get('bot_operational') else 'NO/REQUIERE REVISIÓN'}",
     ]
+    if git_commit:
+        if git_commit.get("status") == "committed":
+            lines.append(f"Git: commit {git_commit.get('sha')} — revertir con `{git_commit.get('revert_command')}`")
+        elif git_commit.get("status") == "failed":
+            lines.append(f"Git: NO se pudo commitear ({git_commit.get('reason')}) — revisar manualmente")
     return "\n".join(lines)[:3900]
 
 
