@@ -31,6 +31,20 @@ def test_run_agent_committee_script_tolerates_missing_qic_settings(monkeypatch, 
 
     monkeypatch.setattr(script, "load_settings", lambda: MinimalSettings())
     monkeypatch.setattr(script, "run_agent_committee", fake_run_agent_committee)
+    # resolve_qic_telegram_config() now resolves token/chat via load_qic_telegram_config()
+    # (single source of truth shared with the listener) instead of reading it off the
+    # settings object, so "missing qic settings" must be simulated there, not on Settings.
+    monkeypatch.setattr(
+        "trading_signals.agents.telegram_approval.load_qic_telegram_config",
+        lambda: {
+            "enabled": False,
+            "configured": False,
+            "bot_token": "",
+            "chat_id": "",
+            "chat_ids": [],
+            "source": "missing",
+        },
+    )
 
     rc = script.main(
         [

@@ -103,6 +103,7 @@ from trading_signals.memory.signal_activity_log import append_signal_log
 from trading_signals.notifications.telegram import telegram_status
 from trading_signals.risk.kill_switch import evaluate_kill_switch
 from trading_signals.risk.protection_engine import ProtectionEngineConfig, evaluate_protection_engine
+from trading_signals.risk.trading_pause import is_trading_paused
 from trading_signals.strategy.decision_engine import (
     build_signal_decision_from_modules,
     build_signal_decision_from_strategy_evaluation,
@@ -1126,6 +1127,28 @@ def build_parallel_module_diagnostics(
     return modules
 
 
+def _paper_trace_shadow_call(service, operation: str, logger, *args, **kwargs):
+    """Run optional shadow telemetry without changing the operational flow."""
+
+    try:
+        method = getattr(service, operation)
+        return method(*args, **kwargs)
+    except Exception as exc:
+        error_code = str(
+            getattr(exc, "code", f"PAPER_TRACE_{type(exc).__name__.upper()}")
+        )[:100]
+        isolate = getattr(service, "isolate", None)
+        if callable(isolate):
+            isolate(error_code)
+        log_json(
+            logger,
+            "paper_trace_shadow_isolated",
+            operation=operation,
+            error_code=error_code,
+        )
+        return None
+
+
 def run_market_scan(
     *,
     settings: Settings,
@@ -1136,6 +1159,7 @@ def run_market_scan(
     diagnostics_store,
     metrics,
     paper_trading_store=None,
+    paper_trace_service=None,
     relaxation_shadow_store=None,
     experimental_signal_store=None,
     shadow_signal_store=None,
@@ -1206,6 +1230,13 @@ def run_market_scan(
     for symbol in valid_symbols:
         try:
             analysis = analyze_symbol(market_data=market_data, settings=settings, scan_run_id=scan_run.id, symbol=symbol)
+            if paper_trace_service is not None:
+                _paper_trace_shadow_call(
+                    paper_trace_service,
+                    "advance_snapshot",
+                    logger,
+                    analysis.entry_snapshot,
+                )
             paper_updates = []
             if settings.paper_trading_enabled and paper_trading_store is not None:
                 paper_updates = paper_trading_store.update_open_trades_for_snapshot(
@@ -1699,6 +1730,10 @@ def run_market_scan(
                 max_weekly_drawdown_r=settings.max_weekly_drawdown_r,
                 cooldown_hours=settings.kill_switch_cooldown_hours,
             )
+            # Manual-latch pause (scripts/run_kill_switch_monitor.py + resume_trading.py):
+            # unlike kill_switch_status above (which self-resumes once its rolling loss
+            # window ages out), this only clears when a human runs resume_trading.py.
+            trading_paused_state = is_trading_paused(settings.data_storage_path / "runtime" / "trading_paused.json")
             pattern_memory = None
             performance_gate = None
             pattern_record = None
@@ -2029,7 +2064,7 @@ def run_market_scan(
             paper_trade_created = False
             paper_candidate_detected = False
             paper_rejection = None
-            if settings.paper_trading_enabled and paper_trading_store is not None:
+            if settings.paper_trading_enabled and paper_trading_store is not None and not trading_paused_state.get("paused"):
                 paper_tradeable, paper_tradeable_reason = paper_market_is_tradeable(
                     analysis.entry_snapshot,
                     atr_min_threshold=settings.paper_trading_atr_min_threshold,
@@ -2064,6 +2099,21 @@ def run_market_scan(
                     )
                     if paper_tradeable and paper_candidate is not None and paper_candidate.risk_reward_tp2 >= settings.paper_trading_min_rr:
                         paper_trade_created = paper_trading_store.upsert_candidate(paper_candidate)
+                        if paper_trade_created and paper_trace_service is not None:
+                            _paper_trace_shadow_call(
+                                paper_trace_service,
+                                "observe_signal",
+                                logger,
+                                signal=signal,
+                                risk_plan=risk_plan,
+                                evaluation=evaluation,
+                                entry_snapshot=analysis.entry_snapshot,
+                                higher_snapshot=analysis.higher_snapshot,
+                                setup_type=_signal_setup_type(evaluation),
+                                settings=settings,
+                                runtime_identity=scan_runtime_identity,
+                                accepted=True,
+                            )
                     if not paper_trade_created:
                         if paper_level_label(evaluation.setup_score) == "BELOW_LOW":
                             reason = "paper_rejected_below_low"

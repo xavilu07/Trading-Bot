@@ -3,6 +3,7 @@ from __future__ import annotations
 import difflib
 import json
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -17,9 +18,59 @@ from trading_signals.agents.strategy_knowledge_base import load_strategy_knowled
 from trading_signals.agents.implementation.change_policy import classify_change_risk
 from trading_signals.agents.implementation.code_changes import CodeChangeManager
 from trading_signals.agents.qic_runtime import atomic_write_json, atomic_write_text
+from trading_signals.research.simulator import (
+    BANNED_FILTER_FEATURES,
+    SAFE_CATEGORICAL_FEATURES,
+    SAFE_NUMERIC_THRESHOLDS,
+)
 
 CODE_ENGINEER_REPORT = "code_engineer"
-SUPPORTED_RULE = "exclude htf_alignment=against"
+# Condition fields the generator is allowed to write filters against — the same allowlist
+# QIC's own simulator already treats as safe to form hypotheses over. Anything outside this
+# set (or resembling risk/execution fields) falls back to "needs manual implementation"
+# instead of generating code for it; see _parse_conditions.
+MAX_CONDITIONS = 4
+_ALLOWED_CONDITION_FIELDS = (set(SAFE_CATEGORICAL_FEATURES) | set(SAFE_NUMERIC_THRESHOLDS)) - set(
+    BANNED_FILTER_FEATURES
+)
+_CONDITION_OPERATOR_PATTERN = re.compile(r"(<=|>=|==|!=|<|>|=)")
+
+
+def _parse_condition(raw: Any) -> dict[str, str] | None:
+    text = str(raw or "").strip()
+    lowered = text.lower()
+    if lowered.startswith("exclude:"):
+        text = text[len("exclude:"):].strip()
+    elif lowered.startswith("exclude "):
+        text = text[len("exclude "):].strip()
+    else:
+        return None
+    match = _CONDITION_OPERATOR_PATTERN.search(text)
+    if not match:
+        return None
+    feature = text[: match.start()].strip()
+    value = text[match.end():].strip()
+    if not feature or not value or feature not in _ALLOWED_CONDITION_FIELDS:
+        return None
+    operator = "==" if match.group(1) in {"=", "=="} else match.group(1)
+    return {"feature": feature, "operator": operator, "value": value}
+
+
+def _parse_conditions(raw_conditions: list[Any]) -> list[dict[str, str]] | None:
+    if not raw_conditions or len(raw_conditions) > MAX_CONDITIONS:
+        return None
+    parsed: list[dict[str, str]] = []
+    for raw in raw_conditions:
+        condition = _parse_condition(raw)
+        if condition is None:
+            return None
+        parsed.append(condition)
+    return parsed
+
+
+def _condition_slug(proposal_id: str) -> str:
+    slug = re.sub(r"[^a-z0-9_]+", "_", str(proposal_id or "").strip().lower()).strip("_")
+    return slug or "unnamed"
 
 
 def run_code_engineer(
@@ -47,8 +98,10 @@ def run_code_engineer(
         rollback=rollback,
         proposal_id=proposal_id,
     )
-    files = _planned_files()
-    generated = _generated_files()
+    conditions_raw = (plan or {}).get("rule_conditions") or (proposal or {}).get("conditions") or []
+    conditions = _parse_conditions(conditions_raw) or []
+    files = _planned_files(proposal_id)
+    generated = _generated_files(proposal_id, conditions) if conditions else {}
     diff_summary = _diff_summary(project_root, generated)
     risk = classify_change_risk(
         files=files,
@@ -88,6 +141,7 @@ def run_code_engineer(
         test_result = _run_sandbox_validation(
             project_root=project_root,
             generated=generated,
+            files=files,
             max_autofix_attempts=max_autofix_attempts,
         )
         report["tests_run"] = test_result["commands"]
@@ -152,7 +206,7 @@ def run_code_engineer(
         else:
             report["files_modified"] = list(applied.get("files_changed") or [])
             report["status"] = "applied"
-            post_apply = _run_validation_tests(project_root=project_root, max_autofix_attempts=max_autofix_attempts)
+            post_apply = _run_validation_tests(project_root=project_root, files=files, max_autofix_attempts=max_autofix_attempts)
             report["tests_run"] = [*report["tests_run"], *post_apply["commands"]]
             report["tests_passed"] = bool(post_apply["passed"])
             report["test_output_summary"] += f"\npost_apply:\n{post_apply['summary']}"
@@ -160,6 +214,7 @@ def run_code_engineer(
                 rollback_result = manager.rollback(str(change["change_id"]), manual_approval=True)
                 rollback_validation = _run_validation_tests(
                     project_root=project_root,
+                    files=files,
                     max_autofix_attempts=0,
                 )
                 report["tests_run"] = [*report["tests_run"], *rollback_validation["commands"]]
@@ -237,26 +292,37 @@ def _precondition_blockers(
     if not tests:
         blockers.append("required_tests_missing")
     conditions = (plan or {}).get("rule_conditions") or (proposal or {}).get("conditions") or []
-    if len(conditions) != 1:
-        blockers.append("multiple_strategy_rules_not_allowed")
-    if conditions and SUPPORTED_RULE not in str(conditions[0]).lower():
+    if not conditions:
+        blockers.append("no_strategy_rules_provided")
+    elif len(conditions) > MAX_CONDITIONS:
+        blockers.append("too_many_strategy_rules")
+    elif _parse_conditions(conditions) is None:
         blockers.append("unsupported_rule_for_code_engineer_v1")
-    forbidden = [file_path for file_path in _planned_files() if _is_forbidden_file(file_path)]
+    forbidden = [file_path for file_path in _planned_files(proposal_id) if _is_forbidden_file(file_path)]
     blockers.extend(f"forbidden_file:{item}" for item in forbidden)
     return sorted(set(blockers))
 
 
-def _planned_files() -> list[str]:
+def _module_name(proposal_id: str) -> str:
+    return f"strategy_v2_1_condition_filter_{_condition_slug(proposal_id)}"
+
+
+def _planned_files(proposal_id: str) -> list[str]:
+    module_name = _module_name(proposal_id)
     return [
-        "src/trading_signals/application/use_cases/strategy_v2_1_htf_alignment_filter.py",
-        "tests/unit/test_strategy_v2_1_htf_alignment_filter.py",
+        f"src/trading_signals/application/use_cases/{module_name}.py",
+        f"tests/unit/test_{module_name}.py",
     ]
 
 
-def _generated_files() -> dict[str, str]:
+def _generated_files(proposal_id: str, conditions: list[dict[str, str]]) -> dict[str, str]:
+    if not conditions:
+        return {}
+    module_name = _module_name(proposal_id)
+    module_file, test_file = _planned_files(proposal_id)
     return {
-        "src/trading_signals/application/use_cases/strategy_v2_1_htf_alignment_filter.py": _filter_source(),
-        "tests/unit/test_strategy_v2_1_htf_alignment_filter.py": _filter_tests_source(),
+        module_file: _filter_source(module_name=module_name, conditions=conditions),
+        test_file: _filter_tests_source(module_name=module_name, conditions=conditions),
     }
 
 
@@ -290,10 +356,11 @@ def _apply_generated_files(project_root: Path, generated: dict[str, str]) -> lis
     return modified
 
 
-def _run_validation_tests(*, project_root: Path, max_autofix_attempts: int) -> dict[str, Any]:
+def _run_validation_tests(*, project_root: Path, files: list[str], max_autofix_attempts: int) -> dict[str, Any]:
+    module_file, test_file = files[0], files[1]
     commands = [
-        "python3 -m py_compile src/trading_signals/application/use_cases/strategy_v2_1_htf_alignment_filter.py",
-        "MPLBACKEND=Agg .venv/bin/pytest -q tests/unit/test_strategy_v2_1_htf_alignment_filter.py",
+        f"python3 -m py_compile {module_file}",
+        f"MPLBACKEND=Agg .venv/bin/pytest -q {test_file}",
         "MPLBACKEND=Agg .venv/bin/pytest -q tests/unit/test_settings.py",
     ]
     results = []
@@ -320,6 +387,7 @@ def _run_sandbox_validation(
     *,
     project_root: Path,
     generated: dict[str, str],
+    files: list[str],
     max_autofix_attempts: int,
 ) -> dict[str, Any]:
     with tempfile.TemporaryDirectory(prefix="qic-code-engineer-") as temp_name:
@@ -336,7 +404,7 @@ def _run_sandbox_validation(
             target = sandbox / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text(content, encoding="utf-8")
-        return _run_validation_tests(project_root=sandbox, max_autofix_attempts=max_autofix_attempts)
+        return _run_validation_tests(project_root=sandbox, files=files, max_autofix_attempts=max_autofix_attempts)
 
 
 def _load_proposal(proposal_id: str, path: Path) -> dict[str, Any] | None:
@@ -439,77 +507,99 @@ def _markdown(report: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def _filter_source() -> str:
-    return '''from __future__ import annotations
+def _matching_value(operator: str, value: str) -> str:
+    if operator == "==":
+        return value
+    if operator == "!=":
+        return f"{value}_other"
+    try:
+        number = float(value)
+    except ValueError:
+        return value
+    if operator == "<":
+        return str(number - 1)
+    if operator == ">":
+        return str(number + 1)
+    return str(number)
+
+
+def _filter_source(*, module_name: str, conditions: list[dict[str, str]]) -> str:
+    conditions_literal = json.dumps(conditions, indent=4)
+    return f'''from __future__ import annotations
 
 from typing import Any
 
-BLOCK_REASON = "strategy_v2_1_htf_alignment_against"
-VALID_MODES = {"shadow", "hard_block"}
+BLOCK_REASON = "{module_name}"
+VALID_MODES = {{"shadow", "hard_block"}}
+CONDITIONS: list[dict[str, str]] = {conditions_literal}
 
 
-def evaluate_strategy_v2_1_htf_alignment_filter(
+def _matches(actual: Any, operator: str, expected: str) -> bool:
+    if operator == "==":
+        return str(actual if actual is not None else "").strip().lower() == str(expected).strip().lower()
+    if operator == "!=":
+        return str(actual if actual is not None else "").strip().lower() != str(expected).strip().lower()
+    try:
+        actual_number = float(actual)
+        expected_number = float(expected)
+    except (TypeError, ValueError):
+        return False
+    if operator == "<":
+        return actual_number < expected_number
+    if operator == "<=":
+        return actual_number <= expected_number
+    if operator == ">":
+        return actual_number > expected_number
+    if operator == ">=":
+        return actual_number >= expected_number
+    return False
+
+
+def evaluate_{module_name}(
     *,
     enabled: bool,
     mode: str,
-    htf_alignment: str | None,
-    current_decision: str | None = None,
     context: dict[str, Any] | None = None,
+    current_decision: str | None = None,
 ) -> dict[str, Any]:
     normalized_mode = str(mode or "shadow").strip().lower()
     if normalized_mode not in VALID_MODES:
         normalized_mode = "shadow"
-    normalized_alignment = str(htf_alignment or "unknown").strip().lower()
-    if normalized_alignment in {"", "none", "null"}:
-        normalized_alignment = "unknown"
-    would_block = bool(enabled) and normalized_alignment == "against"
+    ctx = context or {{}}
+    matched = bool(CONDITIONS) and all(_matches(ctx.get(item["feature"]), item["operator"], item["value"]) for item in CONDITIONS)
+    would_block = bool(enabled) and matched
     blocked = bool(would_block and normalized_mode == "hard_block")
-    return {
+    return {{
         "enabled": bool(enabled),
         "mode": normalized_mode,
-        "htf_alignment": normalized_alignment,
+        "matched_conditions": matched,
         "would_block": would_block,
         "blocked": blocked,
         "rejection_reason": BLOCK_REASON if blocked else None,
-        "reason": _reason(enabled=bool(enabled), mode=normalized_mode, htf_alignment=normalized_alignment, blocked=blocked, would_block=would_block),
+        "reason": _reason(enabled=bool(enabled), matched=matched, mode=normalized_mode, blocked=blocked, would_block=would_block),
         "current_decision": current_decision,
-        "context": context or {},
-    }
+        "context": ctx,
+    }}
 
 
-def determine_htf_alignment(*, direction: object, higher_trend: object) -> str:
-    direction_text = str(direction or "").strip().lower()
-    trend_text = str(higher_trend or "").strip().lower()
-    if direction_text == "long" and trend_text == "bullish":
-        return "aligned"
-    if direction_text == "short" and trend_text == "bearish":
-        return "aligned"
-    if direction_text in {"long", "short"} and trend_text in {"bullish", "bearish"}:
-        return "against"
-    return "unknown"
-
-
-def apply_strategy_v2_1_htf_alignment_filter(
+def apply_{module_name}(
     *,
     evaluation: Any,
     signal: Any,
     status: str,
     enabled: bool,
     mode: str,
-    direction: object,
-    higher_trend: object,
+    context: dict[str, Any] | None = None,
 ) -> tuple[str, dict[str, Any]]:
-    htf_alignment = determine_htf_alignment(direction=direction, higher_trend=higher_trend)
-    result = evaluate_strategy_v2_1_htf_alignment_filter(
+    result = evaluate_{module_name}(
         enabled=enabled,
         mode=mode,
-        htf_alignment=htf_alignment,
+        context=context,
         current_decision=getattr(evaluation, "decision", None),
-        context={"direction": direction, "higher_trend": higher_trend},
     )
-    _append_trace(evaluation, f"strategy_v2_1_htf_alignment={result['htf_alignment']}")
-    _append_trace(evaluation, f"strategy_v2_1_would_block={str(result['would_block']).lower()}")
-    _append_trace(evaluation, f"strategy_v2_1_mode={result['mode']}")
+    _append_trace(evaluation, f"{module_name}_matched={{str(result['matched_conditions']).lower()}}")
+    _append_trace(evaluation, f"{module_name}_would_block={{str(result['would_block']).lower()}}")
+    _append_trace(evaluation, f"{module_name}_mode={{result['mode']}}")
     if not result["blocked"]:
         return status, result
     _append_unique(evaluation.rejection_reasons, BLOCK_REASON)
@@ -520,11 +610,11 @@ def apply_strategy_v2_1_htf_alignment_filter(
     return "rejected", result
 
 
-def _reason(*, enabled: bool, mode: str, htf_alignment: str, blocked: bool, would_block: bool) -> str:
+def _reason(*, enabled: bool, matched: bool, mode: str, blocked: bool, would_block: bool) -> str:
     if not enabled:
         return "disabled"
-    if htf_alignment != "against":
-        return "htf_alignment_not_against"
+    if not matched:
+        return "conditions_not_matched"
     if blocked:
         return BLOCK_REASON
     if would_block and mode == "shadow":
@@ -543,16 +633,22 @@ def _append_unique(values: list[str], token: str) -> None:
 '''
 
 
-def _filter_tests_source() -> str:
-    return '''from __future__ import annotations
+def _filter_tests_source(*, module_name: str, conditions: list[dict[str, str]]) -> str:
+    matching_pairs = ", ".join(
+        f"{json.dumps(item['feature'])}: {json.dumps(_matching_value(item['operator'], item['value']))}"
+        for item in conditions
+    )
+    first_feature = json.dumps(conditions[0]["feature"])
+    conditions_literal = json.dumps(conditions)
+    return f'''from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from trading_signals.application.use_cases.strategy_v2_1_htf_alignment_filter import (
+from trading_signals.application.use_cases.{module_name} import (
     BLOCK_REASON,
-    apply_strategy_v2_1_htf_alignment_filter,
-    determine_htf_alignment,
-    evaluate_strategy_v2_1_htf_alignment_filter,
+    CONDITIONS,
+    apply_{module_name},
+    evaluate_{module_name},
 )
 
 
@@ -570,8 +666,11 @@ class Signal:
     status: str = "valid"
 
 
+MATCHING_CONTEXT = {{{matching_pairs}}}
+
+
 def test_flag_false_no_block() -> None:
-    result = evaluate_strategy_v2_1_htf_alignment_filter(enabled=False, mode="hard_block", htf_alignment="against")
+    result = evaluate_{module_name}(enabled=False, mode="hard_block", context=MATCHING_CONTEXT)
 
     assert result["blocked"] is False
     assert result["would_block"] is False
@@ -579,63 +678,60 @@ def test_flag_false_no_block() -> None:
 
 
 def test_shadow_no_block_but_would_block() -> None:
-    result = evaluate_strategy_v2_1_htf_alignment_filter(enabled=True, mode="shadow", htf_alignment="against")
+    result = evaluate_{module_name}(enabled=True, mode="shadow", context=MATCHING_CONTEXT)
 
     assert result["blocked"] is False
     assert result["would_block"] is True
     assert result["reason"] == "shadow_would_block"
 
 
-def test_hard_block_blocks_against() -> None:
-    result = evaluate_strategy_v2_1_htf_alignment_filter(enabled=True, mode="hard_block", htf_alignment="against")
+def test_hard_block_blocks_when_all_conditions_match() -> None:
+    result = evaluate_{module_name}(enabled=True, mode="hard_block", context=MATCHING_CONTEXT)
 
     assert result["blocked"] is True
     assert result["would_block"] is True
     assert result["rejection_reason"] == BLOCK_REASON
 
 
-def test_hard_block_does_not_block_aligned() -> None:
-    result = evaluate_strategy_v2_1_htf_alignment_filter(enabled=True, mode="hard_block", htf_alignment="aligned")
+def test_hard_block_does_not_block_when_a_condition_differs() -> None:
+    context = dict(MATCHING_CONTEXT)
+    context[{first_feature}] = "__no_match__"
+    result = evaluate_{module_name}(enabled=True, mode="hard_block", context=context)
 
     assert result["blocked"] is False
     assert result["would_block"] is False
 
 
-def test_unknown_or_none_never_blocks() -> None:
-    for value in ("unknown", None):
-        result = evaluate_strategy_v2_1_htf_alignment_filter(enabled=True, mode="hard_block", htf_alignment=value)
-        assert result["blocked"] is False
-        assert result["would_block"] is False
+def test_empty_context_never_blocks() -> None:
+    result = evaluate_{module_name}(enabled=True, mode="hard_block", context={{}})
+
+    assert result["blocked"] is False
+    assert result["would_block"] is False
 
 
 def test_invalid_mode_fails_safe_as_shadow() -> None:
-    result = evaluate_strategy_v2_1_htf_alignment_filter(enabled=True, mode="invalid", htf_alignment="against")
+    result = evaluate_{module_name}(enabled=True, mode="invalid", context=MATCHING_CONTEXT)
 
     assert result["mode"] == "shadow"
     assert result["blocked"] is False
     assert result["would_block"] is True
 
 
-def test_determine_htf_alignment() -> None:
-    assert determine_htf_alignment(direction="long", higher_trend="bullish") == "aligned"
-    assert determine_htf_alignment(direction="short", higher_trend="bearish") == "aligned"
-    assert determine_htf_alignment(direction="long", higher_trend="bearish") == "against"
-    assert determine_htf_alignment(direction="short", higher_trend="bullish") == "against"
-    assert determine_htf_alignment(direction="long", higher_trend="sideways") == "unknown"
+def test_conditions_match_the_proposal() -> None:
+    assert CONDITIONS == {conditions_literal}
 
 
 def test_minimal_integration_blocks_when_enabled() -> None:
     evaluation = Evaluation()
     signal = Signal()
 
-    status, result = apply_strategy_v2_1_htf_alignment_filter(
+    status, result = apply_{module_name}(
         evaluation=evaluation,
         signal=signal,
         status="valid",
         enabled=True,
         mode="hard_block",
-        direction="long",
-        higher_trend="bearish",
+        context=MATCHING_CONTEXT,
     )
 
     assert status == "rejected"

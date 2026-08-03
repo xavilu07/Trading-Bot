@@ -17,20 +17,6 @@ def _csv_env_fallback(name: str, fallback_name: str) -> list[str]:
     return [item.strip() for item in raw.split(",") if item.strip()]
 
 
-def _qic_telegram_settings_explicit() -> bool:
-    names = (
-        "QIC_TELEGRAM_ENABLED",
-        "QIC_TELEGRAM_BOT_TOKEN",
-        "QIC_TELEGRAM_CHAT_ID",
-        "AGENT_TELEGRAM_APPROVAL_ENABLED",
-        "AGENT_TELEGRAM_BOT_TOKEN",
-        "AGENT_TELEGRAM_CHAT_ID",
-        "TELEGRAM_BOT_TOKEN",
-        "TELEGRAM_DEV_CHAT_ID",
-    )
-    return any(name in os.environ for name in names)
-
-
 def _publish_decisions_env(name: str, default: str) -> list[str]:
     values = [item.lower() for item in _csv_env(name, default)]
     if "both" in values:
@@ -277,10 +263,6 @@ class Settings:
     qic_telegram_enabled: bool = field(default_factory=lambda: _bool_env("QIC_TELEGRAM_ENABLED", "false"))
     qic_telegram_chat_id: str = field(default_factory=lambda: os.getenv("QIC_TELEGRAM_CHAT_ID", ""))
     qic_telegram_bot_token: str = field(default_factory=lambda: os.getenv("QIC_TELEGRAM_BOT_TOKEN", ""))
-    qic_telegram_settings_explicit: bool = field(
-        default_factory=_qic_telegram_settings_explicit,
-        repr=False,
-    )
     qic_telegram_send_no_actionable: bool = field(
         default_factory=lambda: _bool_env("QIC_TELEGRAM_SEND_NO_ACTIONABLE", "true")
     )
@@ -426,6 +408,46 @@ class Settings:
     paper_trading_summary_enabled: bool = field(default_factory=lambda: _bool_env("TELEGRAM_PAPER_DAILY_SUMMARY_ENABLED", "true"))
     paper_trading_summary_state_file: Path = field(
         default_factory=lambda: Path(os.getenv("PAPER_TRADING_SUMMARY_STATE_FILE", "./data/paper_trading/daily_summary_state.json"))
+    )
+    paper_trace_enabled: bool = field(
+        default_factory=lambda: _bool_env("PAPER_TRACE_ENABLED", "false")
+    )
+    paper_trace_store_path: Path | None = field(
+        default_factory=lambda: (
+            Path(value) if (value := os.getenv("PAPER_TRACE_STORE_PATH", "").strip()) else None
+        )
+    )
+    paper_trace_allowed_root: Path | None = field(
+        default_factory=lambda: (
+            Path(value) if (value := os.getenv("PAPER_TRACE_ALLOWED_ROOT", "").strip()) else None
+        )
+    )
+    paper_trace_max_bytes: str = field(
+        default_factory=lambda: os.getenv("PAPER_TRACE_MAX_BYTES", "").strip()
+    )
+    paper_fill_policy_id: str = field(
+        default_factory=lambda: os.getenv(
+            "PAPER_FILL_POLICY_ID",
+            "paper-closed-bar-touch-modeled-fill-v1",
+        )
+    )
+    paper_expiry_policy_id: str = field(
+        default_factory=lambda: os.getenv(
+            "PAPER_EXPIRY_POLICY_ID",
+            "position-expired-unresolved-v1",
+        )
+    )
+    paper_fee_model_id: str = field(
+        default_factory=lambda: os.getenv("PAPER_FEE_MODEL_ID", "NO_FEE_MODEL")
+    )
+    paper_slippage_model_id: str = field(
+        default_factory=lambda: os.getenv(
+            "PAPER_SLIPPAGE_MODEL_ID",
+            "NO_SLIPPAGE_MODEL",
+        )
+    )
+    paper_trace_strict_identity: bool = field(
+        default_factory=lambda: _bool_env("PAPER_TRACE_STRICT_IDENTITY", "true")
     )
     live_trade_tracking_enabled: bool = field(default_factory=lambda: _bool_env("LIVE_TRADE_TRACKING_ENABLED", "true"))
     live_breakeven_alert_enabled: bool = field(default_factory=lambda: _bool_env("LIVE_BREAKEVEN_ALERT_ENABLED", "true"))

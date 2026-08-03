@@ -1,0 +1,20 @@
+[Unit]
+Description=Trading Signals Market Scan Scheduler
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=600
+StartLimitBurst=5
+
+[Service]
+Type=simple
+WorkingDirectory=/root/bot
+Environment=PYTHONPATH=/root/bot/src
+EnvironmentFile=-/root/bot/.env
+ExecStart=/root/bot/scripts/run_trading_scheduler_service.sh
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

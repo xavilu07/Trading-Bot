@@ -139,17 +139,16 @@ def test_process_approval_update_handles_telegram_callback(tmp_path: Path) -> No
     assert load_proposals(path)[0]["reviewed_by"] == "123"
 
 
-def test_resolve_qic_telegram_config_prefers_qic_and_falls_back_to_dev(monkeypatch) -> None:
+def test_resolve_qic_telegram_config_uses_single_source_for_token_and_chat(monkeypatch) -> None:
+    # Regression test: the sender (this function) and the listener (run_qic_telegram_listener.py)
+    # must always resolve to the same bot/chat, since load_qic_telegram_config() is the one
+    # resolver both use for "who to talk to". `settings` only controls the enabled flag and
+    # cosmetic preferences (min_priority, send_no_actionable) — it must never override token/chat.
     class Settings:
         qic_telegram_enabled = "true"
-        qic_telegram_bot_token = ""
-        qic_telegram_chat_id = ""
         qic_telegram_send_no_actionable = "true"
         qic_telegram_min_priority = "HIGH"
-        agent_telegram_bot_token = ""
-        agent_telegram_chat_id = ""
-        telegram_bot_token = "bot-token"
-        telegram_dev_chat_id = "dev-chat"
+        agent_telegram_approval_enabled = "false"
 
     monkeypatch.setattr(
         "trading_signals.agents.telegram_approval.load_qic_telegram_config",
@@ -165,17 +164,20 @@ def test_resolve_qic_telegram_config_prefers_qic_and_falls_back_to_dev(monkeypat
     config = resolve_qic_telegram_config(Settings())
 
     assert config["enabled"] is True
-    assert config["bot_token"] == "bot-token"
-    assert config["chat_id"] == "dev-chat"
+    assert config["bot_token"] == "persistent-token"
+    assert config["chat_id"] == "persistent-chat"
+    assert config["chat_ids"] == ["persistent-chat"]
     assert config["configured"] is True
     assert config["min_priority"] == "HIGH"
-    assert config["source"] == "settings"
+    assert config["source"] == "json:test"
 
-    persistent_config = resolve_qic_telegram_config(object())
-    assert persistent_config["enabled"] is True
-    assert persistent_config["bot_token"] == "persistent-token"
-    assert persistent_config["chat_ids"] == ["persistent-chat"]
-    assert persistent_config["source"] == "json:test"
+    # Same token/chat resolution even when the caller's settings object has no telegram fields
+    # at all — only the enabled flag changes (defaults to False without an explicit opt-in).
+    disabled_config = resolve_qic_telegram_config(object())
+    assert disabled_config["enabled"] is False
+    assert disabled_config["bot_token"] == "persistent-token"
+    assert disabled_config["chat_id"] == "persistent-chat"
+    assert disabled_config["source"] == "json:test"
 
 
 def test_qic_proposal_send_supports_multiple_dev_chat_ids() -> None:

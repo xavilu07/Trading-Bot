@@ -91,7 +91,7 @@ def _build_read_model(root: Path, *, heartbeat_overrides: dict[str, object] | No
     _heartbeat(heartbeat, finished_at=datetime.now(timezone.utc), overrides=heartbeat_overrides)
     _cycle(root / "data/scan_runs/2026-07-28/run_fixture.json")
     config = _config(root)
-    assert migrate_read_model(config) == (1, 2, 3)
+    assert migrate_read_model(config) == (1, 2, 3, 4)
     summary = project_once(config)
     assert summary.totals["records_skipped"] == 0
     return config.sqlite_path

@@ -1,0 +1,22 @@
+{
+  "candle_rule": "unique_contiguous_closed_candles_only",
+  "collision_rule": "entry_with_barrier_or_stop_with_target_is_ambiguous",
+  "duplicate_rule": "same_candle_and_evidence_is_idempotent",
+  "entry_horizon_candles": 24,
+  "entry_rule": "range_must_contain_fixed_entry_after_decision",
+  "evaluation_start": "first_timeframe_boundary_at_or_after_decision",
+  "expiry_policy_id": "position-expired-unresolved-v1",
+  "fee_model_id": "NO_FEE_MODEL",
+  "fill_policy_id": "paper-closed-bar-touch-modeled-fill-v1",
+  "fill_price_rule": "fixed_entry_price_as_explicit_simulation_after_unambiguous_touch",
+  "gap_entry_rule": "gap_crossing_entry_without_range_touch_is_ambiguous_and_not_filled",
+  "gap_exit_rule": "existing_position_closes_simulated_at_observed_next_candle_open",
+  "model_version": "prospective-paper-trace-engine.v1",
+  "position_horizon_candles": 24,
+  "position_horizon_rule": "count_unique_closed_candles_after_fill_candle",
+  "position_horizon_terminal": "POSITION_EXPIRED_UNRESOLVED",
+  "slippage_model_id": "NO_SLIPPAGE_MODEL",
+  "stop_rule": "fixed_stop_from_signal_identity",
+  "target_rule": "fixed_final_target_from_signal_identity",
+  "timeframe": "1h"
+}
