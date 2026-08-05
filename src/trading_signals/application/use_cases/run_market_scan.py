@@ -1729,6 +1729,7 @@ def run_market_scan(
                 max_consecutive_losses=settings.max_consecutive_losses,
                 max_weekly_drawdown_r=settings.max_weekly_drawdown_r,
                 cooldown_hours=settings.kill_switch_cooldown_hours,
+                consecutive_loss_reset_hours=settings.consecutive_loss_reset_hours,
             )
             # Manual-latch pause (scripts/run_kill_switch_monitor.py + resume_trading.py):
             # unlike kill_switch_status above (which self-resumes once its rolling loss

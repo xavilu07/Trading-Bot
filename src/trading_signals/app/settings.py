@@ -116,6 +116,9 @@ class Settings:
     max_consecutive_losses: int = field(default_factory=lambda: int(os.getenv("MAX_CONSECUTIVE_LOSSES", "2")))
     max_weekly_drawdown_r: float = field(default_factory=lambda: float(os.getenv("MAX_WEEKLY_DRAWDOWN_R", "4.0")))
     kill_switch_cooldown_hours: int = field(default_factory=lambda: int(os.getenv("KILL_SWITCH_COOLDOWN_HOURS", "12")))
+    consecutive_loss_reset_hours: float = field(
+        default_factory=lambda: float(os.getenv("CONSECUTIVE_LOSS_RESET_HOURS", "12.0"))
+    )
     protection_engine_mode: str = field(default_factory=lambda: os.getenv("PROTECTION_ENGINE_MODE", "shadow_only"))
     protection_symbol_loss_cooldown_hours: float = field(
         default_factory=lambda: float(os.getenv("PROTECTION_SYMBOL_LOSS_COOLDOWN_HOURS", "6"))

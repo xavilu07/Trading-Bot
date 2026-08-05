@@ -29,6 +29,7 @@ def evaluate_kill_switch(
     max_consecutive_losses: int = 2,
     max_weekly_drawdown_r: float = 4.0,
     cooldown_hours: int = 12,
+    consecutive_loss_reset_hours: float = 12.0,
     now: datetime | None = None,
 ) -> dict[str, object]:
     now_dt = _aware(now or datetime.now(tz=UTC))
@@ -41,12 +42,23 @@ def evaluate_kill_switch(
     last_loss = _last_loss_time(trades)
     cooldown_until = last_loss + timedelta(hours=cooldown_hours) if last_loss is not None else None
     in_cooldown = cooldown_until is not None and now_dt < cooldown_until
+    # A consecutive-loss streak can never resolve itself through new trades while it is
+    # itself the thing blocking new trades from opening (see resolved incident 2026-08-02:
+    # trading stayed paused for days past the intended -4R weekly cap because 2 old losses
+    # kept "winning" the elif race forever). Past this window with no further losses, treat
+    # the streak as stale and let daily/weekly checks (which do decay with real time as old
+    # trades age out of their rolling windows) decide instead.
+    consecutive_losses_stale = (
+        last_loss is not None
+        and consecutive_loss_reset_hours > 0
+        and now_dt >= last_loss + timedelta(hours=consecutive_loss_reset_hours)
+    )
 
     reason = ""
     if enabled:
         if daily_realized_r <= -abs(max_daily_loss_r):
             reason = "daily_loss_limit"
-        elif consecutive_losses >= max_consecutive_losses:
+        elif consecutive_losses >= max_consecutive_losses and not consecutive_losses_stale:
             reason = "consecutive_losses_limit"
         elif weekly_realized_r <= -abs(max_weekly_drawdown_r):
             reason = "weekly_drawdown_limit"
@@ -58,6 +70,7 @@ def evaluate_kill_switch(
         "daily_realized_r": daily_realized_r,
         "weekly_realized_r": weekly_realized_r,
         "consecutive_losses": consecutive_losses,
+        "consecutive_losses_stale": consecutive_losses_stale,
         "last_loss_time": last_loss.isoformat() if last_loss is not None else None,
         "kill_switch_active": bool(enabled and reason),
         "kill_switch_reason": reason,
