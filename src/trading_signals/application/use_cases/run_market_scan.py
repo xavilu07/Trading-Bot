@@ -86,6 +86,9 @@ from trading_signals.application.use_cases.signal_update_v1 import (
 from trading_signals.application.use_cases.strategy_v2_1_htf_alignment_filter import (
     apply_strategy_v2_1_htf_alignment_filter,
 )
+from trading_signals.application.use_cases.strategy_v2_1_condition_filter_cio_805ad892d491 import (
+    apply_strategy_v2_1_condition_filter_cio_805ad892d491,
+)
 from trading_signals.data.market_data import market_data_status
 from trading_signals.data.canonical_trade_source import TradeUniverse
 from trading_signals.runtime.identity import build_runtime_identity, metadata_from_identity
@@ -146,6 +149,18 @@ def _reconcile_live_trade_snapshot(
         if public_message:
             send_public_signal(notifier, public_message, dry_run=dry_run)
     return updates
+
+
+def _liquidity_distance_bucket(value: float | None) -> str:
+    if value is None:
+        return "UNKNOWN"
+    if value < 1:
+        return "<1atr"
+    if value < 2:
+        return "1-2atr"
+    if value < 4:
+        return "2-4atr"
+    return "4atr+"
 
 
 def effective_config(settings: Settings, symbols: list[str] | None = None) -> dict[str, object]:
@@ -1559,6 +1574,49 @@ def run_market_scan(
                         score=evaluation.setup_score,
                         htf_alignment=strategy_v2_1_result.get("htf_alignment"),
                         reason=strategy_v2_1_result.get("reason"),
+                    )
+                    scan_repo.save_evaluation(evaluation)
+                    signal_repo.save_signal(signal)
+            strategy_v2_1_condition_filter_cio_805ad892d491 = None
+            if settings.strategy_v2_1_condition_filter_cio_805ad892d491_enabled:
+                liquidity_distance_bucket = _liquidity_distance_bucket(
+                    analysis.entry_snapshot.distance_to_liquidity_atr
+                    if analysis.entry_snapshot.distance_to_liquidity_atr is not None
+                    else analysis.entry_snapshot.metadata.get("nearest_distance_to_liquidity_atr")
+                )
+                status, strategy_v2_1_condition_result = apply_strategy_v2_1_condition_filter_cio_805ad892d491(
+                    evaluation=evaluation,
+                    signal=signal,
+                    status=status,
+                    enabled=settings.strategy_v2_1_condition_filter_cio_805ad892d491_enabled,
+                    mode=settings.strategy_v2_1_condition_filter_cio_805ad892d491_mode,
+                    context={"liquidity_distance_bucket": liquidity_distance_bucket},
+                )
+                strategy_v2_1_condition_filter_cio_805ad892d491 = strategy_v2_1_condition_result
+                should_publish_decision = signal.decision in settings.publish_signal_decisions
+                log_json(
+                    logger,
+                    "strategy_v2_1_condition_filter_cio_805ad892d491_evaluated",
+                    symbol=symbol,
+                    direction=candidate_direction,
+                    setup_type=candidate_setup_type,
+                    score=evaluation.setup_score,
+                    liquidity_distance_bucket=liquidity_distance_bucket,
+                    would_block=strategy_v2_1_condition_result.get("would_block"),
+                    blocked=strategy_v2_1_condition_result.get("blocked"),
+                    mode=strategy_v2_1_condition_result.get("mode"),
+                    reason=strategy_v2_1_condition_result.get("reason"),
+                )
+                if strategy_v2_1_condition_result.get("blocked"):
+                    log_json(
+                        logger,
+                        "strategy_v2_1_condition_filter_cio_805ad892d491_blocked",
+                        symbol=symbol,
+                        direction=candidate_direction,
+                        setup_type=candidate_setup_type,
+                        score=evaluation.setup_score,
+                        liquidity_distance_bucket=liquidity_distance_bucket,
+                        reason=strategy_v2_1_condition_result.get("reason"),
                     )
                     scan_repo.save_evaluation(evaluation)
                     signal_repo.save_signal(signal)

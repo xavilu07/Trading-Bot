@@ -156,6 +156,24 @@ def test_strategy_v2_1_htf_alignment_filter_settings_defaults_and_env(monkeypatc
     assert settings.strategy_v2_1_htf_alignment_filter_mode == "hard_block"
 
 
+def test_strategy_v2_1_condition_filter_cio_805ad892d491_settings_defaults_and_env(monkeypatch) -> None:
+    monkeypatch.delenv("STRATEGY_V2_1_CONDITION_FILTER_CIO_805AD892D491_ENABLED", raising=False)
+    monkeypatch.delenv("STRATEGY_V2_1_CONDITION_FILTER_CIO_805AD892D491_MODE", raising=False)
+
+    settings = Settings()
+
+    assert settings.strategy_v2_1_condition_filter_cio_805ad892d491_enabled is False
+    assert settings.strategy_v2_1_condition_filter_cio_805ad892d491_mode == "shadow"
+
+    monkeypatch.setenv("STRATEGY_V2_1_CONDITION_FILTER_CIO_805AD892D491_ENABLED", "true")
+    monkeypatch.setenv("STRATEGY_V2_1_CONDITION_FILTER_CIO_805AD892D491_MODE", "hard_block")
+
+    settings = Settings()
+
+    assert settings.strategy_v2_1_condition_filter_cio_805ad892d491_enabled is True
+    assert settings.strategy_v2_1_condition_filter_cio_805ad892d491_mode == "hard_block"
+
+
 def test_agent_committee_settings_defaults_and_env(monkeypatch) -> None:
     monkeypatch.delenv("AGENT_COMMITTEE_ENABLED", raising=False)
     monkeypatch.delenv("AGENT_COMMITTEE_MIN_CONFIDENCE", raising=False)
