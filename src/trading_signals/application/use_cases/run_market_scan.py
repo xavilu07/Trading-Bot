@@ -119,6 +119,35 @@ def _now_iso() -> str:
     return datetime.now(tz=UTC).isoformat()
 
 
+def _reconcile_live_trade_snapshot(
+    *,
+    live_trading_store,
+    snapshot,
+    settings: Settings,
+    notifier,
+    dry_run: bool,
+) -> list[dict[str, object]]:
+    updates = live_trading_store.update_open_trades_for_snapshot(
+        snapshot,
+        updated_at=_now_iso(),
+        breakeven_enabled=settings.live_breakeven_alert_enabled,
+        breakeven_trigger_r=settings.live_breakeven_trigger_r,
+        partial_tp_enabled=settings.live_partial_tp_alert_enabled,
+        partial_tp_trigger_r=settings.live_partial_tp_trigger_r,
+    )
+    for event in updates:
+        message = format_live_trade_event_for_telegram(
+            event,
+            partial_percentage=settings.live_partial_tp_percentage_suggestion,
+        )
+        if message:
+            notifier.publish(message, dry_run=dry_run)
+        public_message = format_public_live_trade_event_for_telegram(event)
+        if public_message:
+            send_public_signal(notifier, public_message, dry_run=dry_run)
+    return updates
+
+
 def effective_config(settings: Settings, symbols: list[str] | None = None) -> dict[str, object]:
     effective_symbols = symbols if symbols is not None else settings.scan_symbols
     return {
@@ -1251,24 +1280,13 @@ def run_market_scan(
                 )
             live_trade_updates = []
             if settings.live_trade_tracking_enabled and live_trading_store is not None:
-                live_trade_updates = live_trading_store.update_open_trades_for_snapshot(
-                    analysis.entry_snapshot,
-                    updated_at=_now_iso(),
-                    breakeven_enabled=settings.live_breakeven_alert_enabled,
-                    breakeven_trigger_r=settings.live_breakeven_trigger_r,
-                    partial_tp_enabled=settings.live_partial_tp_alert_enabled,
-                    partial_tp_trigger_r=settings.live_partial_tp_trigger_r,
+                live_trade_updates = _reconcile_live_trade_snapshot(
+                    live_trading_store=live_trading_store,
+                    snapshot=analysis.entry_snapshot,
+                    settings=settings,
+                    notifier=notifier,
+                    dry_run=dry_run,
                 )
-                for event in live_trade_updates:
-                    message = format_live_trade_event_for_telegram(
-                        event,
-                        partial_percentage=settings.live_partial_tp_percentage_suggestion,
-                    )
-                    if message:
-                        notifier.publish(message, dry_run=dry_run)
-                    public_message = format_public_live_trade_event_for_telegram(event)
-                    if public_message:
-                        send_public_signal(notifier, public_message, dry_run=dry_run)
             scan_repo.save_snapshot(analysis.entry_snapshot)
             scan_repo.save_snapshot(analysis.higher_snapshot)
             evaluation = strategy.evaluate(analysis, evaluation_id=f"eval_{uuid4().hex[:12]}", created_at=_now_iso())
@@ -2419,6 +2437,39 @@ def run_market_scan(
             )
             scan_repo.save_error(error)
             results.append({"symbol": symbol, "error": str(exc)})
+
+    if settings.live_trade_tracking_enabled and live_trading_store is not None:
+        watched_symbols = {str(symbol).strip().upper() for symbol in valid_symbols}
+        open_trade_symbols = {
+            str(trade.get("symbol", "")).strip().upper()
+            for trade in live_trading_store.list_trades()
+            if trade.get("status") == "open"
+        }
+        for orphaned_symbol in sorted(open_trade_symbols - watched_symbols):
+            if not orphaned_symbol:
+                continue
+            try:
+                orphan_analysis = analyze_symbol(
+                    market_data=market_data,
+                    settings=settings,
+                    scan_run_id=scan_run.id,
+                    symbol=orphaned_symbol,
+                )
+            except Exception as exc:
+                log_json(
+                    logger,
+                    "orphaned_live_trade_reconciliation_failed",
+                    symbol=orphaned_symbol,
+                    error=str(exc),
+                )
+                continue
+            _reconcile_live_trade_snapshot(
+                live_trading_store=live_trading_store,
+                snapshot=orphan_analysis.entry_snapshot,
+                settings=settings,
+                notifier=notifier,
+                dry_run=dry_run,
+            )
 
     scan_run.status = "completed"
     scan_run.finished_at = _now_iso()
