@@ -1964,7 +1964,22 @@ def run_market_scan(
                 setup_context=setup_context,
                 config=_public_short_canary_config(settings),
             )
-            if status == SignalStatus.VALID.value and should_publish_after_filters and not is_duplicate and lifecycle and lifecycle.should_publish:
+            signal_publishable = (
+                status == SignalStatus.VALID.value
+                and should_publish_after_filters
+                and not is_duplicate
+                and lifecycle
+                and lifecycle.should_publish
+            )
+            if signal_publishable and trading_paused_state.get("paused"):
+                increment_candidate_funnel(
+                    candidate_funnel,
+                    "rejected_by_trading_paused",
+                    reason="trading_paused",
+                    reason_stage="publishing",
+                )
+                evaluation.rejection_reasons.append("trading_paused_no_publish")
+            elif signal_publishable:
                 increment_candidate_funnel(candidate_funnel, "candidates_reaching_publish_signal")
                 deliveries = publish_signal(
                     signal_repo,

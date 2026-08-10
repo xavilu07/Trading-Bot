@@ -482,3 +482,45 @@ def test_kill_switch_blocks_public_but_keeps_dev_and_live_tracking(tmp_path: Pat
     assert str(trades[0]["public_published"]).lower() == "false"
     assert "kill_switch_blocked_public_signal" in caplog.text
     assert "daily_loss_limit" in caplog.text
+
+
+def test_manual_pause_blocks_publish_and_live_tracking_entirely(tmp_path: Path) -> None:
+    pause_file = tmp_path / "runtime" / "trading_paused.json"
+    pause_file.parent.mkdir(parents=True)
+    pause_file.write_text(
+        '{"paused": true, "reason": "manual_telegram", "resume_requires": "manual"}',
+        encoding="utf-8",
+    )
+    settings = Settings(
+        data_storage_path=tmp_path,
+        telegram_chat_ids=["dry"],
+        publish_signal_decisions=["long"],
+        live_trade_tracking_enabled=True,
+    )
+    dataset = generate_trend_dataset(direction="up")
+    market_data = FakeMarketDataClient({
+        ("BTCUSDT", "1h"): dataset,
+        ("BTCUSDT", "4h"): dataset,
+    })
+    store = FileStore(tmp_path)
+    live_store = LiveTradingStore(tmp_path)
+
+    result = run_market_scan(
+        settings=settings,
+        market_data=market_data,
+        scan_repo=FileScanRunRepository(store),
+        signal_repo=FileSignalRepository(store),
+        notifier=TelegramNotifier("", ["dry"], tmp_path / "telegram_users.json", tmp_path / "telegram_state.json"),
+        diagnostics_store=FileStore(tmp_path / "diagnostics"),
+        metrics=NoopMetrics(),
+        live_trading_store=live_store,
+        symbols=["BTCUSDT"],
+        dry_run=True,
+    )
+
+    item = result["results"][0]
+    assert item["signal"]["decision"] == "long"
+    assert item["deliveries"] == []
+    assert "trading_paused_no_publish" in item["evaluation"]["rejection_reasons"]
+    trades = live_store.list_trades()
+    assert len(trades) == 0

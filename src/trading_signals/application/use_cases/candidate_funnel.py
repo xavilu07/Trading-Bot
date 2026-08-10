@@ -18,6 +18,7 @@ FUNNEL_COUNT_KEYS = [
     "v1_skips_created",
     "candidates_reaching_publish_signal",
     "published_signals",
+    "rejected_by_trading_paused",
 ]
 
 REASON_STAGE_KEYS = [
