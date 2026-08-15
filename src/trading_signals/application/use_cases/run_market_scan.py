@@ -163,6 +163,24 @@ def _liquidity_distance_bucket(value: float | None) -> str:
     return "4atr+"
 
 
+# The shadow filters append their verdict to `evaluation`, but every persisted trade record
+# is built from `signal_decision`, which was snapshotted before those filters ran. Without
+# mirroring the tokens across, a shadow verdict only ever reached logs/scheduler.log, where
+# nothing can join it back to the trade's eventual outcome — so shadow mode produced opinions
+# nobody could ever score. Mirroring keeps shadow observation measurable while still changing
+# no decision: these tokens are recorded, never read back by the strategy.
+SHADOW_FILTER_TRACE_PREFIX = "strategy_v2_1_"
+
+
+def _mirror_shadow_filter_trace(evaluation, signal_decision) -> None:
+    trace = getattr(signal_decision, "decision_trace", None)
+    if trace is None:
+        return
+    for token in getattr(evaluation, "decision_trace", []) or []:
+        if str(token).startswith(SHADOW_FILTER_TRACE_PREFIX) and token not in trace:
+            trace.append(token)
+
+
 def effective_config(settings: Settings, symbols: list[str] | None = None) -> dict[str, object]:
     effective_symbols = symbols if symbols is not None else settings.scan_symbols
     return {
@@ -1620,6 +1638,7 @@ def run_market_scan(
                     )
                     scan_repo.save_evaluation(evaluation)
                     signal_repo.save_signal(signal)
+            _mirror_shadow_filter_trace(evaluation, signal_decision)
             elite_subprofile = apply_elite_subprofile_dev_tag(
                 evaluation,
                 setup_type=candidate_setup_type,
