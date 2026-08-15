@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresh the Strategy Simulator reports that QIC revalidation reads
+
+[Timer]
+OnCalendar=*-*-* 01:30:00 Europe/Madrid
+Persistent=true
+RandomizedDelaySec=120
+Unit=qic-strategy-simulator.service
+
+[Install]
+WantedBy=timers.target

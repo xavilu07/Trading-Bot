@@ -59,6 +59,38 @@ def test_revalidation_classifies_improved_degraded_invalidated() -> None:
     assert invalidated["result"] == "edge_invalidated"
 
 
+def test_revalidation_reads_the_simulations_key_the_simulator_actually_writes(tmp_path: Path) -> None:
+    """run_strategy_simulator writes {"simulations": [...]}, not {"results": [...]}.
+
+    The neighbouring tests hand-roll the "results" shape, which the real simulator never
+    emits, so a loader that ignored "simulations" still passed them while silently dropping
+    every single-condition row in production.
+    """
+    kb_path = tmp_path / "data" / "qic" / "strategy_knowledge_base.json"
+    memory_path = tmp_path / "data" / "qic" / "research_memory.json"
+    reports_root = tmp_path / "reports"
+    upsert_knowledge_from_proposal(_proposal(evidence=100), path=kb_path)
+    update_research_memory_from_proposal(_proposal(evidence=100), path=memory_path)
+    simulator_path = reports_root / "strategy_simulator"
+    simulator_path.mkdir(parents=True)
+    (simulator_path / "single_filters.json").write_text(
+        json.dumps({"simulations": [_sim_row(pf=0.92, total_r=-4, evidence=900)]}), encoding="utf-8"
+    )
+
+    report = run_revalidation_engine(
+        knowledge_base_path=kb_path,
+        research_memory_path=memory_path,
+        reports_root=reports_root,
+        output_path=reports_root / "qic",
+        min_new_trades=50,
+    )
+
+    result = report["results"][0]
+    assert result["reason"] != "current_metrics_not_found"
+    assert result["result"] == "edge_invalidated"
+    assert result["current_pf"] == 0.92
+
+
 def test_run_revalidation_engine_writes_reports(tmp_path: Path) -> None:
     kb_path = tmp_path / "data" / "qic" / "strategy_knowledge_base.json"
     memory_path = tmp_path / "data" / "qic" / "research_memory.json"

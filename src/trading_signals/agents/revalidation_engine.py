@@ -126,7 +126,11 @@ def _extract_rows(raw: Any) -> list[dict[str, Any]]:
         return [item for item in raw if isinstance(item, dict)]
     if not isinstance(raw, dict):
         return []
-    for key in ("results", "recommendations", "best_configs", "single_filters", "double_filters", "triple_filters", "configs"):
+    # "simulations" is the key run_strategy_simulator actually writes for single_filters.json,
+    # double_filters.json and triple_filters.json. It was missing here, so those three files —
+    # the only place single-condition edges are reported — were silently parsed as empty and
+    # every KB edge fell back to whatever happened to appear in best_configs/recommendations.
+    for key in ("results", "simulations", "recommendations", "best_configs", "single_filters", "double_filters", "triple_filters", "configs"):
         value = raw.get(key)
         if isinstance(value, list):
             return [item for item in value if isinstance(item, dict)]
