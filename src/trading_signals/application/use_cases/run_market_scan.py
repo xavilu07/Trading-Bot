@@ -2515,16 +2515,32 @@ def run_market_scan(
             scan_repo.save_error(error)
             results.append({"symbol": symbol, "error": str(exc)})
 
+    # Any store holding trades that only advance when their symbol is scanned can orphan a
+    # trade the moment that symbol leaves the watchlist. This pass was originally added for
+    # live_trading only; paper_trading has exactly the same exposure and had six trades stuck
+    # since 2026-05-04 to prove it, so both stores are reconciled here.
+    orphan_reconcilable_stores: list[tuple[str, object]] = []
     if settings.live_trade_tracking_enabled and live_trading_store is not None:
+        orphan_reconcilable_stores.append(("live", live_trading_store))
+    if settings.paper_trading_enabled and paper_trading_store is not None:
+        orphan_reconcilable_stores.append(("paper", paper_trading_store))
+    if orphan_reconcilable_stores:
         watched_symbols = {str(symbol).strip().upper() for symbol in valid_symbols}
-        open_trade_symbols = {
-            str(trade.get("symbol", "")).strip().upper()
-            for trade in live_trading_store.list_trades()
-            if trade.get("status") == "open"
-        }
-        for orphaned_symbol in sorted(open_trade_symbols - watched_symbols):
-            if not orphaned_symbol:
-                continue
+        orphaned_by_symbol: dict[str, list[tuple[str, object]]] = {}
+        for label, store in orphan_reconcilable_stores:
+            for trade in store.list_trades():
+                # Openness is the absence of closed_at, not status == "open": a paper trade
+                # sitting at tp1_hit has taken partial profit but is still running, and the
+                # narrower status check silently skipped it.
+                if str(trade.get("closed_at") or "").strip():
+                    continue
+                symbol_key = str(trade.get("symbol", "")).strip().upper()
+                if not symbol_key or symbol_key in watched_symbols:
+                    continue
+                pending = orphaned_by_symbol.setdefault(symbol_key, [])
+                if not any(existing_label == label for existing_label, _ in pending):
+                    pending.append((label, store))
+        for orphaned_symbol in sorted(orphaned_by_symbol):
             try:
                 orphan_analysis = analyze_symbol(
                     market_data=market_data,
@@ -2535,18 +2551,26 @@ def run_market_scan(
             except Exception as exc:
                 log_json(
                     logger,
-                    "orphaned_live_trade_reconciliation_failed",
+                    "orphaned_trade_reconciliation_failed",
                     symbol=orphaned_symbol,
+                    stores=[label for label, _ in orphaned_by_symbol[orphaned_symbol]],
                     error=str(exc),
                 )
                 continue
-            _reconcile_live_trade_snapshot(
-                live_trading_store=live_trading_store,
-                snapshot=orphan_analysis.entry_snapshot,
-                settings=settings,
-                notifier=notifier,
-                dry_run=dry_run,
-            )
+            for label, store in orphaned_by_symbol[orphaned_symbol]:
+                if label == "live":
+                    _reconcile_live_trade_snapshot(
+                        live_trading_store=store,
+                        snapshot=orphan_analysis.entry_snapshot,
+                        settings=settings,
+                        notifier=notifier,
+                        dry_run=dry_run,
+                    )
+                else:
+                    store.update_open_trades_for_snapshot(
+                        orphan_analysis.entry_snapshot,
+                        updated_at=_now_iso(),
+                    )
 
     scan_run.status = "completed"
     scan_run.finished_at = _now_iso()

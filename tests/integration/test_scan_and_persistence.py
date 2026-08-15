@@ -526,6 +526,72 @@ def test_manual_pause_blocks_publish_and_live_tracking_entirely(tmp_path: Path) 
     assert len(trades) == 0
 
 
+def test_scan_reconciles_open_paper_trade_for_symbol_no_longer_in_watchlist(tmp_path: Path) -> None:
+    """paper_trading had the same orphaning exposure live_trading was fixed for.
+
+    Six real trades sat stuck at status=open since 2026-05-04 because their symbols had
+    left SCAN_SYMBOLS and update_open_trades_for_snapshot only ever ran for scanned symbols.
+    """
+    watched_dataset = generate_trend_dataset(direction="up")
+    orphan_dataset = generate_trend_dataset(direction="up")
+    final_low = float(orphan_dataset[-1]["low"])
+    settings = Settings(
+        data_storage_path=tmp_path,
+        telegram_chat_ids=["dry"],
+        publish_signal_decisions=["long"],
+        paper_trading_enabled=True,
+    )
+    market_data = FakeMarketDataClient({
+        ("BTCUSDT", "1h"): watched_dataset,
+        ("BTCUSDT", "4h"): watched_dataset,
+        ("ADAUSDT", "1h"): orphan_dataset,
+        ("ADAUSDT", "4h"): orphan_dataset,
+    })
+    store = FileStore(tmp_path)
+    paper_store = PaperTradingStore(tmp_path)
+    paper_store.save_trades([
+        {
+            "trade_id": "paper_orphan_ada",
+            "dedupe_key": "orphan_ada",
+            "symbol": "ADAUSDT",
+            "direction": "long",
+            "setup_type": "MAIN_SIGNAL",
+            "paper_level": "HIGH",
+            "score": 100.0,
+            "entry_price": final_low + 5.0,
+            "stop_loss": final_low + 1.0,
+            "take_profit_1": final_low + 25.0,
+            "take_profit_2": final_low + 50.0,
+            "risk_reward_tp1": 1.0,
+            "risk_reward_tp2": 2.0,
+            "opened_at": "2026-01-01T00:00:00+00:00",
+            "updated_at": "2026-01-01T00:00:00+00:00",
+            "closed_at": "",
+            "expires_after_candles": 24,
+            "candles_held": 0,
+            "status": "open",
+            "result_r": "",
+        }
+    ])
+
+    run_market_scan(
+        settings=settings,
+        market_data=market_data,
+        scan_repo=FileScanRunRepository(store),
+        signal_repo=FileSignalRepository(store),
+        notifier=TelegramNotifier("", ["dry"], tmp_path / "telegram_users.json", tmp_path / "telegram_state.json"),
+        diagnostics_store=FileStore(tmp_path / "diagnostics"),
+        metrics=NoopMetrics(),
+        paper_trading_store=paper_store,
+        symbols=["BTCUSDT"],
+        dry_run=True,
+    )
+
+    trades = {trade["trade_id"]: trade for trade in paper_store.list_trades()}
+    assert trades["paper_orphan_ada"]["status"] != "open"
+    assert trades["paper_orphan_ada"]["closed_at"]
+
+
 def test_scan_reconciles_open_live_trade_for_symbol_no_longer_in_watchlist(tmp_path: Path) -> None:
     watched_dataset = generate_trend_dataset(direction="up")
     orphan_dataset = generate_trend_dataset(direction="up")
