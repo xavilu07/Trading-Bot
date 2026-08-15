@@ -2,7 +2,10 @@
 Description=Refresh the Strategy Simulator reports that QIC revalidation reads
 
 [Timer]
-OnCalendar=*-*-* 01:30:00 Europe/Madrid
+# 30 minutes ahead of the 06:00 Madrid qic-autonomous cycle, which is what actually
+# runs the revalidation phase. Note qic-revalidation.timer looks like the natural
+# anchor but is disabled and has not fired since 2026-07-23 — do not schedule against it.
+OnCalendar=*-*-* 05:30:00 Europe/Madrid
 Persistent=true
 RandomizedDelaySec=120
 Unit=qic-strategy-simulator.service
