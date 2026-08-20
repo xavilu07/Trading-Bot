@@ -2,8 +2,7 @@
 Description=Run QIC health check every five minutes
 
 [Timer]
-OnBootSec=2min
-OnUnitActiveSec=5min
+OnCalendar=*-*-* *:0/5:00
 Persistent=true
 Unit=qic-health.service
 
