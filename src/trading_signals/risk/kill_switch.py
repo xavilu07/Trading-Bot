@@ -7,6 +7,10 @@ from pathlib import Path
 
 
 CLOSED_STATUSES = {"tp2_hit", "tp_hit", "sl_hit", "expired", "breakeven", "closed"}
+#: Universes the strategy declined. Their trades are tracked as counterfactuals —
+#: "what would have happened had we taken this" — and must not drive the risk
+#: brake, which exists to stop trading when the trades we *did* take go badly.
+DECLINED_UNIVERSES = {"rejected", "shadow"}
 LOSS_STATUSES = {"sl_hit", "loss"}
 WIN_OUTCOMES = {"win", "tp_hit", "tp2_hit"}
 LOSS_OUTCOMES = {"loss", "sl_hit"}
@@ -103,6 +107,14 @@ def _read_closed_trade_rows(path: Path) -> list[dict[str, object]]:
 
 
 def _normalize_trade_row(row: dict[str, str]) -> dict[str, object] | None:
+    if str(row.get("universe") or "").strip().lower() in DECLINED_UNIVERSES:
+        # Paper trades whose signal failed the quality gate are still recorded,
+        # with a full lifecycle and a result_r, as `universe=rejected`. They used
+        # to count here, so the bot disabled itself over trades it had refused to
+        # take: in the five days to 2026-08-20, 8 of the 15 losses the kill
+        # switch saw were rejected-universe, and 4 of the 5 pauses were triggered
+        # by one — including a pause opened on a day whose realized R was +1.0.
+        return None
     closed_at = _closed_time(row)
     if closed_at is None:
         return None
