@@ -73,7 +73,17 @@ def test_edge_classification_rejects_negative_total_r() -> None:
     assert classification["implementation_priority"] == "REJECT"
 
 
-def test_enrich_repeated_consistent_edge_promotes_to_confirmed(tmp_path: Path) -> None:
+def _revalidated(kb: dict, item_id: str, result: str, **extra: object) -> None:
+    kb["items"][item_id]["last_revalidation_result"] = {"result": result, **extra}
+
+
+def test_enrich_repeated_in_sample_edge_is_not_promoted(tmp_path: Path) -> None:
+    """Being ranked highly twice by the simulator is not evidence.
+
+    The simulator refreshes daily against a dataset it has already been fitted
+    to, so `times_seen >= 2` is satisfied roughly 48 hours after discovery. That
+    alone used to be enough to call an edge confirmed.
+    """
     path = tmp_path / "strategy_knowledge_base.json"
     proposal = _proposal()
     upsert_knowledge_from_proposal(proposal, path=path)
@@ -82,8 +92,80 @@ def test_enrich_repeated_consistent_edge_promotes_to_confirmed(tmp_path: Path) -
 
     enriched = enrich_proposal_with_knowledge(proposal, kb)
 
+    assert enriched["action"] != "PROMOTE_TO_CONFIRMED_EDGE"
+    assert "never_revalidated" in enriched["context"]["promotion_withheld"]
+
+
+def test_enrich_promotes_edge_backed_by_positive_revalidation(tmp_path: Path) -> None:
+    path = tmp_path / "strategy_knowledge_base.json"
+    proposal = _proposal()
+    item = upsert_knowledge_from_proposal(proposal, path=path)
+    upsert_knowledge_from_proposal(proposal, path=path)
+    kb = load_strategy_knowledge_base(path)
+    _revalidated(kb, item["id"], "edge_still_valid", new_trades=203.0)
+
+    enriched = enrich_proposal_with_knowledge(proposal, kb)
+
     assert enriched["action"] == "PROMOTE_TO_CONFIRMED_EDGE"
     assert enriched["known_edge_status"] == "candidate"
+    assert enriched["context"]["promotion_withheld"] == []
+
+
+def test_enrich_withholds_promotion_when_revalidation_invalidated(tmp_path: Path) -> None:
+    path = tmp_path / "strategy_knowledge_base.json"
+    proposal = _proposal()
+    item = upsert_knowledge_from_proposal(proposal, path=path)
+    upsert_knowledge_from_proposal(proposal, path=path)
+    kb = load_strategy_knowledge_base(path)
+    _revalidated(kb, item["id"], "edge_invalidated", current_pf=0.919)
+
+    enriched = enrich_proposal_with_knowledge(proposal, kb)
+
+    assert enriched["action"] != "PROMOTE_TO_CONFIRMED_EDGE"
+    assert "revalidation_edge_invalidated" in enriched["context"]["promotion_withheld"]
+
+
+def test_enrich_withholds_promotion_for_an_edge_classified_overfit(tmp_path: Path) -> None:
+    path = tmp_path / "strategy_knowledge_base.json"
+    proposal = _proposal(trade_reduction_pct=75, complexity=2, evidence=90, expected_pf=2.0, expected_total_r=20)
+    item = upsert_knowledge_from_proposal(proposal, path=path)
+    upsert_knowledge_from_proposal(proposal, path=path)
+    kb = load_strategy_knowledge_base(path)
+    _revalidated(kb, item["id"], "edge_still_valid", new_trades=203.0)
+
+    enriched = enrich_proposal_with_knowledge(proposal, kb)
+
+    assert enriched["action"] != "PROMOTE_TO_CONFIRMED_EDGE"
+    assert "classified_overfit_risk" in enriched["context"]["promotion_withheld"]
+
+
+def test_retired_edge_is_not_resurrected_by_a_fresh_in_sample_proposal(tmp_path: Path) -> None:
+    path = tmp_path / "strategy_knowledge_base.json"
+    proposal = _proposal()
+    item = upsert_knowledge_from_proposal(proposal, path=path)
+    kb = load_strategy_knowledge_base(path)
+    kb["items"][item["id"]]["status"] = "retired"
+    (path).write_text(__import__("json").dumps(kb), encoding="utf-8")
+
+    refreshed = upsert_knowledge_from_proposal(proposal, path=path)
+
+    assert refreshed["status"] == "retired"
+
+
+def test_upsert_preserves_revalidation_evidence(tmp_path: Path) -> None:
+    """The item dict is rebuilt per proposal; measured evidence must survive."""
+    path = tmp_path / "strategy_knowledge_base.json"
+    proposal = _proposal()
+    item = upsert_knowledge_from_proposal(proposal, path=path)
+    kb = load_strategy_knowledge_base(path)
+    kb["items"][item["id"]]["last_revalidation_result"] = {"result": "edge_invalidated"}
+    kb["items"][item["id"]]["last_revalidated_pf"] = 0.919
+    (path).write_text(__import__("json").dumps(kb), encoding="utf-8")
+
+    refreshed = upsert_knowledge_from_proposal(proposal, path=path)
+
+    assert refreshed["last_revalidation_result"] == {"result": "edge_invalidated"}
+    assert refreshed["last_revalidated_pf"] == 0.919
 
 
 def test_proposal_store_deduplicates_pending_same_day_by_conditions(tmp_path: Path) -> None:

@@ -127,10 +127,13 @@ def enrich_proposal_with_knowledge(
     known_status = str((known or {}).get("status") or "new")
     action = str(enriched.get("action") or "")
 
+    promotion_withheld: list[str] = []
     if classification["edge_type"] == "REJECTED_EDGE":
         action = "REQUIRES_MANUAL_RESEARCH"
-    elif known_status in {"candidate", "needs_revalidation", "confirmed"} and _is_consistently_positive(enriched, known):
-        action = "PROMOTE_TO_CONFIRMED_EDGE"
+    elif known_status in {"candidate", "needs_revalidation", "confirmed"}:
+        promotion_withheld = promotion_blockers(enriched, known)
+        if not promotion_withheld:
+            action = "PROMOTE_TO_CONFIRMED_EDGE"
     elif known_status == "rejected":
         previous_evidence = _int((known or {}).get("last_evidence"))
         current_evidence = _int(enriched.get("evidence"))
@@ -145,6 +148,7 @@ def enrich_proposal_with_knowledge(
             "normalized_conditions": normalized,
             "knowledge_item_id": item_id,
             "known_edge_status": known_status,
+            "promotion_withheld": promotion_withheld,
             **classification,
         }
     )
@@ -185,7 +189,12 @@ def upsert_knowledge_from_proposal(
     previous_status = str(existing.get("status") or "candidate")
     status = previous_status
     if status == "retired":
-        status = "needs_revalidation"
+        # A retired edge used to be resurrected to `needs_revalidation` by the
+        # next in-sample proposal, and `needs_revalidation` is promotion-eligible
+        # — so an edge measured at PF 0.919 could climb back to `confirmed`
+        # without a single new trade. Only the revalidation engine, which works
+        # off measured outcomes, may take an edge back out of `retired`.
+        pass
     elif classification["edge_type"] == "REJECTED_EDGE":
         status = "rejected"
     elif str(proposal.get("action")) == "PROMOTE_TO_CONFIRMED_EDGE":
@@ -238,6 +247,18 @@ def upsert_knowledge_from_proposal(
         "qic_proposal_ids": proposal_ids[-50:],
         "revalidation_history": history[-50:],
     }
+    # This dict is rebuilt from scratch on every proposal, so anything the
+    # revalidation engine measured has to be carried over explicitly or the
+    # in-sample proposal silently erases the out-of-sample evidence.
+    for field in (
+        "last_revalidation_result",
+        "last_revalidated_at",
+        "last_revalidated_pf",
+        "last_revalidated_total_r",
+        "last_revalidated_evidence",
+    ):
+        if field in existing:
+            item[field] = existing[field]
     items[item_id] = item
     save_strategy_knowledge_base(kb, path)
     return item
@@ -337,12 +358,49 @@ def _condition_strings(conditions: Any) -> list[str]:
     return []
 
 
-def _is_consistently_positive(proposal: dict[str, Any], item: dict[str, Any] | None) -> bool:
+#: Revalidation verdicts that count as out-of-sample support for an edge.
+POSITIVE_REVALIDATION_RESULTS = frozenset({"edge_improved", "edge_still_valid"})
+
+
+def promotion_blockers(proposal: dict[str, Any], item: dict[str, Any] | None) -> list[str]:
+    """Reasons this edge must not be promoted to a confirmed edge.
+
+    The old test was `expected_pf >= 1.05 and times_seen >= 2`, all of it read
+    off the in-sample simulator. Against a dataset that only refreshes daily,
+    `times_seen >= 2` just means "the simulator ran twice", so an edge could be
+    declared confirmed roughly 48 hours after discovery having never been tested
+    on a single trade it had not already been fitted to. That is how
+    edge_1fe1c5280a3b reached `confirmed` on 2026-08-19 while its own
+    revalidation said `insufficient_new_data` with new_trades = 0, and it is the
+    same in-sample best-of-N selection that produced edge_fc1437682982's
+    illusory PF 2.6415 before it was measured at 0.919.
+    """
+    blockers: list[str] = []
     if not item:
-        return False
-    if _float(proposal.get("expected_pf")) < 1.05 or _float(proposal.get("expected_total_r")) <= 0:
-        return False
-    return int(item.get("times_seen", 0)) >= 2 or str(item.get("status")) == "confirmed"
+        return ["unknown_edge"]
+    if _float(proposal.get("expected_pf")) < 1.05:
+        blockers.append("expected_pf_below_1_05")
+    if _float(proposal.get("expected_total_r")) <= 0:
+        blockers.append("expected_total_r_not_positive")
+    if int(item.get("times_seen", 0)) < 2 and str(item.get("status")) != "confirmed":
+        blockers.append("not_seen_enough_times")
+    edge_type = str(proposal.get("edge_type") or classify_edge(proposal)["edge_type"])
+    if edge_type == "OVERFIT_RISK":
+        # edge_fc1437682982 is still sitting at status `confirmed` while carrying
+        # its own `edge_type: OVERFIT_RISK` label. Whatever else is true of an
+        # edge the classifier itself flags as probable overfit, it is not a
+        # confirmed edge.
+        blockers.append("classified_overfit_risk")
+    revalidation = item.get("last_revalidation_result")
+    if not isinstance(revalidation, dict):
+        blockers.append("never_revalidated")
+    elif str(revalidation.get("result")) not in POSITIVE_REVALIDATION_RESULTS:
+        blockers.append(f"revalidation_{revalidation.get('result') or 'unknown'}")
+    return blockers
+
+
+def _is_consistently_positive(proposal: dict[str, Any], item: dict[str, Any] | None) -> bool:
+    return not promotion_blockers(proposal, item)
 
 
 def _float(value: Any) -> float:
