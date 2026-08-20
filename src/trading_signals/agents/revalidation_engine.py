@@ -1,11 +1,16 @@
 from __future__ import annotations
 
 import json
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from trading_signals.agents.research_memory import load_research_memory, save_research_memory
-from trading_signals.agents.strategy_knowledge_base import load_strategy_knowledge_base, normalize_conditions
+from trading_signals.agents.strategy_knowledge_base import (
+    load_strategy_knowledge_base,
+    normalize_conditions,
+    save_strategy_knowledge_base,
+)
 from trading_signals.agents.qic_runtime import atomic_write_json, atomic_write_text
 
 
@@ -33,7 +38,9 @@ def run_revalidation_engine(
         )
         results.append(result)
         _update_memory_revalidation(memory, item, result)
+        _update_knowledge_item(item, result)
     save_research_memory(memory, research_memory_path)
+    save_strategy_knowledge_base(kb, knowledge_base_path)
     report = {
         "status": "ok",
         "results": results,
@@ -54,7 +61,11 @@ def revalidate_edge(
     current = _find_current_metrics(conditions, simulator_rows)
     previous_pf = _float(item.get("last_expected_pf"))
     previous_total_r = _float(item.get("last_expected_total_r"))
-    previous_evidence = _float(item.get("last_evidence"))
+    previous_evidence = _float(
+        item.get("last_revalidated_evidence")
+        if item.get("last_revalidated_evidence") is not None
+        else item.get("last_evidence")
+    )
     if current is None:
         return {
             "knowledge_item_id": item.get("id"),
@@ -146,6 +157,40 @@ def _find_current_metrics(conditions: Any, rows: list[dict[str, Any]]) -> dict[s
     return None
 
 
+def _update_knowledge_item(item: dict[str, Any], result: dict[str, Any]) -> None:
+    """Write the revalidation verdict back onto the knowledge base item.
+
+    The verdict used to reach only reports/qic/revalidation.*, which nothing
+    downstream reads. The proposal pipeline reads the KB item, so it kept quoting
+    `last_expected_pf` from the day the edge was discovered: on 2026-08-20 it
+    proposed implementing edge_fc1437682982 at its original in-sample PF 2.6415
+    over 20 trades, in the same cycle that revalidation scored it PF 0.919 over
+    1003 trades and returned `edge_invalidated`.
+
+    The measured numbers are kept in their own `last_revalidated_*` fields rather
+    than overwriting `last_expected_pf`, which the proposal pipeline owns and
+    means something different (a simulator projection, not a measurement).
+    """
+    item["last_revalidation_result"] = result
+    item["last_revalidated_at"] = _now()
+    verdict = str(result.get("result") or "")
+    if verdict == "insufficient_new_data":
+        # No fresh measurement; leave the stored measurement as it stands.
+        return
+    for field, key in (
+        ("last_revalidated_pf", "current_pf"),
+        ("last_revalidated_total_r", "current_total_r"),
+        ("last_revalidated_evidence", "current_evidence"),
+    ):
+        value = result.get(key)
+        if value is not None:
+            item[field] = value
+    if verdict == "edge_invalidated":
+        item["status"] = "retired"
+    elif verdict == "edge_degraded":
+        item["status"] = "needs_revalidation"
+
+
 def _update_memory_revalidation(memory: dict[str, Any], item: dict[str, Any], result: dict[str, Any]) -> None:
     target_conditions = normalize_conditions(item.get("rule_conditions") or [])
     experiments = memory.setdefault("experiments", {})
@@ -199,3 +244,7 @@ def _md(value: Any) -> str:
     if isinstance(value, (dict, list)):
         value = json.dumps(value, sort_keys=True)
     return str(value).replace("|", "\\|")
+
+
+def _now() -> str:
+    return datetime.now(tz=UTC).isoformat()
