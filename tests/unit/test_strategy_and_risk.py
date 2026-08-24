@@ -232,7 +232,7 @@ def test_short_contradiction_behavior_is_unchanged(tmp_path) -> None:
 
 
 def test_secondary_setup_can_generate_long_without_sweep(tmp_path) -> None:
-    settings = build_settings(tmp_path)
+    settings = build_settings(tmp_path, secondary_signal_enabled=True)
     entry = build_snapshot(
         scan_run_id="run_test",
         symbol="XRPUSDT",
@@ -266,8 +266,90 @@ def test_secondary_setup_can_generate_long_without_sweep(tmp_path) -> None:
     assert "setup_type=SECONDARY_SIGNAL" in evaluation.decision_trace
 
 
-def test_secondary_setup_requires_higher_score_than_primary_threshold(tmp_path) -> None:
+def _secondary_long_analysis() -> AnalysisResult:
+    entry = build_snapshot(
+        scan_run_id="run_test",
+        symbol="XRPUSDT",
+        timeframe="1h",
+        trend="bullish",
+        structure="bullish",
+        sweep="none",
+        score=70.0,
+        distance=1.0,
+        rsi=58.0,
+        volume_ratio=1.8,
+        break_of_structure="bullish_bos",
+    )
+    higher = build_snapshot(
+        scan_run_id="run_test",
+        symbol="XRPUSDT",
+        timeframe="4h",
+        trend="bullish",
+        structure="bullish",
+        sweep="none",
+        score=60.0,
+        distance=1.0,
+    )
+    return AnalysisResult("XRPUSDT", "1h", "4h", entry, higher)
+
+
+def test_secondary_setup_is_disabled_by_default(tmp_path) -> None:
     settings = build_settings(tmp_path)
+
+    assert settings.secondary_signal_enabled is False
+
+    evaluation = LiquiditySweepMTFV1(settings).evaluate(
+        _secondary_long_analysis(), "eval_test", "2026-01-01T08:00:00+00:00"
+    )
+
+    assert evaluation.decision == "no_trade"
+    assert "secondary_setup" not in evaluation.passed_filters
+    assert "setup_type=SECONDARY_SIGNAL" not in evaluation.decision_trace
+
+
+def test_disabled_secondary_setup_is_reported_as_suppressed(tmp_path) -> None:
+    """El setup suprimido queda registrado para poder medir el contrafactual."""
+    settings = build_settings(tmp_path)
+
+    evaluation = LiquiditySweepMTFV1(settings).evaluate(
+        _secondary_long_analysis(), "eval_test", "2026-01-01T08:00:00+00:00"
+    )
+
+    assert "secondary_setup_disabled" in evaluation.failed_filters
+    assert "secondary_signal_enabled=false" in evaluation.decision_trace
+
+
+def test_suppression_marker_absent_when_secondary_is_enabled(tmp_path) -> None:
+    settings = build_settings(tmp_path, secondary_signal_enabled=True)
+
+    evaluation = LiquiditySweepMTFV1(settings).evaluate(
+        _secondary_long_analysis(), "eval_test", "2026-01-01T08:00:00+00:00"
+    )
+
+    assert "secondary_setup_disabled" not in evaluation.failed_filters
+    assert "secondary_signal_enabled=true" in evaluation.decision_trace
+
+
+def test_disabling_secondary_does_not_touch_primary_sweep_setups(tmp_path) -> None:
+    """La rama primaria (liquidity sweep) debe seguir intacta con el flag apagado."""
+    settings = build_settings(tmp_path)
+    dataset = generate_trend_dataset(direction="up")
+    market_data = FakeMarketDataClient({
+        ("BTCUSDT", "1h"): dataset,
+        ("BTCUSDT", "4h"): dataset,
+    })
+    analysis = analyze_symbol(
+        market_data=market_data, settings=settings, scan_run_id="run_test", symbol="BTCUSDT"
+    )
+
+    evaluation = LiquiditySweepMTFV1(settings).evaluate(analysis, "eval_test", analysis.entry_snapshot.created_at)
+
+    assert evaluation.decision == "long"
+    assert "secondary_setup_disabled" not in evaluation.failed_filters
+
+
+def test_secondary_setup_requires_higher_score_than_primary_threshold(tmp_path) -> None:
+    settings = build_settings(tmp_path, secondary_signal_enabled=True)
     entry = build_snapshot(
         scan_run_id="run_test",
         symbol="XRPUSDT",
@@ -335,7 +417,7 @@ def test_main_signal_keeps_directional_distance_extreme_as_hard_block(tmp_path) 
 
 
 def test_secondary_setup_uses_nearest_liquidity_when_directional_distance_is_extreme(tmp_path) -> None:
-    settings = build_settings(tmp_path)
+    settings = build_settings(tmp_path, secondary_signal_enabled=True)
     entry = build_snapshot(
         scan_run_id="run_test",
         symbol="SOLUSDT",
@@ -379,7 +461,7 @@ def test_secondary_setup_uses_nearest_liquidity_when_directional_distance_is_ext
 
 
 def test_secondary_setup_blocks_when_nearest_liquidity_is_extreme(tmp_path) -> None:
-    settings = build_settings(tmp_path)
+    settings = build_settings(tmp_path, secondary_signal_enabled=True)
     entry = build_snapshot(
         scan_run_id="run_test",
         symbol="SOLUSDT",
@@ -415,7 +497,7 @@ def test_secondary_setup_blocks_when_nearest_liquidity_is_extreme(tmp_path) -> N
 
 
 def test_secondary_setup_allows_range_only_when_bos_confirms_structure(tmp_path) -> None:
-    settings = build_settings(tmp_path)
+    settings = build_settings(tmp_path, secondary_signal_enabled=True)
     entry = build_snapshot(
         scan_run_id="run_test",
         symbol="SOLUSDT",
@@ -450,7 +532,7 @@ def test_secondary_setup_allows_range_only_when_bos_confirms_structure(tmp_path)
 
 
 def test_secondary_setup_blocks_range_without_bos(tmp_path) -> None:
-    settings = build_settings(tmp_path)
+    settings = build_settings(tmp_path, secondary_signal_enabled=True)
     entry = build_snapshot(
         scan_run_id="run_test",
         symbol="SOLUSDT",

@@ -29,6 +29,7 @@ CONFIG_HASH_FIELDS = (
     "protection_engine_mode",
     "public_short_canary_enabled",
     "relaxed_strategy_gates_enabled",
+    "secondary_signal_enabled",
     "selected_engine",
     "short_shadow_mode",
     "strategy_version",

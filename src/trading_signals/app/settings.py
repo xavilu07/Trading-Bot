@@ -65,6 +65,7 @@ class Settings:
     )
     use_modular_decision_engine: bool = field(default_factory=lambda: _bool_env("USE_MODULAR_DECISION_ENGINE", "false"))
     relaxed_strategy_gates_enabled: bool = field(default_factory=lambda: _bool_env("RELAXED_STRATEGY_GATES_ENABLED", "false"))
+    secondary_signal_enabled: bool = field(default_factory=lambda: _bool_env("SECONDARY_SIGNAL_ENABLED", "false"))
     meta_decision_filter_enabled: bool = field(default_factory=lambda: _bool_env("META_DECISION_FILTER_ENABLED", "false"))
     strategy_v2_1_condition_filter_cio_805ad892d491_enabled: bool = field(
         default_factory=lambda: _bool_env("STRATEGY_V2_1_CONDITION_FILTER_CIO_805AD892D491_ENABLED", "false")
