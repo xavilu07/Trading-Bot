@@ -147,6 +147,10 @@ CONFIGS = [
     ("D. C minus BTCUSDT", lambda r: _no_secondary(r) and _score(r) >= 90 and r["symbol"] != "BTCUSDT", False),
     ("E. score>=85, no TP cap", lambda r: _no_secondary(r) and _score(r) >= 85, False),
     ("F. score>=95, no TP cap", lambda r: _no_secondary(r) and _score(r) >= 95, False),
+    # The shadow threshold filter keeps the TP cap, so these are the rows that
+    # actually decide 85 vs 90 vs 95 - E and F above change two things at once.
+    ("G. score>=85 (TP cap kept)", lambda r: _no_secondary(r) and _score(r) >= 85, True),
+    ("H. score>=95 (TP cap kept)", lambda r: _no_secondary(r) and _score(r) >= 95, True),
 ]
 
 

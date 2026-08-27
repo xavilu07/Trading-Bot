@@ -6,6 +6,9 @@ from trading_signals.application.use_cases.run_market_scan import _mirror_shadow
 from trading_signals.application.use_cases.strategy_v2_1_condition_filter_cio_805ad892d491 import (
     apply_strategy_v2_1_condition_filter_cio_805ad892d491,
 )
+from trading_signals.application.use_cases.setup_score_threshold_filter import (
+    apply_setup_score_threshold_filter,
+)
 from trading_signals.application.use_cases.strategy_v2_1_htf_alignment_filter import (
     apply_strategy_v2_1_htf_alignment_filter,
 )
@@ -14,6 +17,7 @@ from trading_signals.application.use_cases.strategy_v2_1_htf_alignment_filter im
 @dataclass
 class _Evaluation:
     decision: str = "long"
+    setup_score: float = 72.0
     decision_trace: list[str] = field(default_factory=list)
     rejection_reasons: list[str] = field(default_factory=list)
     failed_filters: list[str] = field(default_factory=list)
@@ -68,6 +72,26 @@ def test_shadow_htf_filter_verdict_reaches_the_persisted_decision_trace() -> Non
     _mirror_shadow_filter_trace(evaluation, signal_decision)
 
     assert "strategy_v2_1_would_block=true" in signal_decision.decision_trace
+
+
+def test_shadow_score_threshold_verdict_reaches_the_persisted_decision_trace() -> None:
+    evaluation = _Evaluation()
+    evaluation.setup_score = 72.0
+    signal_decision = _SignalDecision()
+
+    apply_setup_score_threshold_filter(
+        evaluation=evaluation,
+        signal=_Signal(),
+        status="accepted",
+        enabled=True,
+        mode="shadow",
+        min_score=90,
+    )
+    _mirror_shadow_filter_trace(evaluation, signal_decision)
+
+    assert "setup_score_threshold_filter_would_block=true" in signal_decision.decision_trace
+    assert "setup_score_threshold_filter_min_score=90" in signal_decision.decision_trace
+    assert signal_decision.decision_trace[0] == "trend_1h=bullish"
 
 
 def test_mirror_is_idempotent_and_ignores_unrelated_tokens() -> None:

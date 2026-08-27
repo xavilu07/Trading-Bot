@@ -77,6 +77,10 @@ from trading_signals.application.use_cases.publish_signal import meta_decision_p
 from trading_signals.application.use_cases.publish_signal import public_routing_rejection_reason
 from trading_signals.application.use_cases.setup_context import build_setup_context
 from trading_signals.application.use_cases.signal_lifecycle import classify_signal_lifecycle
+from trading_signals.application.use_cases.setup_score_threshold_filter import (
+    TRACE_PREFIX as SETUP_SCORE_THRESHOLD_FILTER_TRACE_PREFIX,
+    apply_setup_score_threshold_filter,
+)
 from trading_signals.application.use_cases.signal_update_v1 import (
     diagnose_signal_update_v1_skip,
     evaluate_signal_update_v1,
@@ -169,7 +173,7 @@ def _liquidity_distance_bucket(value: float | None) -> str:
 # nothing can join it back to the trade's eventual outcome — so shadow mode produced opinions
 # nobody could ever score. Mirroring keeps shadow observation measurable while still changing
 # no decision: these tokens are recorded, never read back by the strategy.
-SHADOW_FILTER_TRACE_PREFIX = "strategy_v2_1_"
+SHADOW_FILTER_TRACE_PREFIX = ("strategy_v2_1_", SETUP_SCORE_THRESHOLD_FILTER_TRACE_PREFIX)
 
 
 def _mirror_shadow_filter_trace(evaluation, signal_decision) -> None:
@@ -1635,6 +1639,55 @@ def run_market_scan(
                         score=evaluation.setup_score,
                         liquidity_distance_bucket=liquidity_distance_bucket,
                         reason=strategy_v2_1_condition_result.get("reason"),
+                    )
+                    scan_repo.save_evaluation(evaluation)
+                    signal_repo.save_signal(signal)
+            setup_score_threshold_filter = None
+            if settings.setup_score_threshold_filter_enabled:
+                status, setup_score_threshold_result = apply_setup_score_threshold_filter(
+                    evaluation=evaluation,
+                    signal=signal,
+                    status=status,
+                    enabled=settings.setup_score_threshold_filter_enabled,
+                    mode=settings.setup_score_threshold_filter_mode,
+                    min_score=settings.setup_score_threshold_filter_min_score,
+                )
+                setup_score_threshold_filter = setup_score_threshold_result
+                should_publish_decision = signal.decision in settings.publish_signal_decisions
+                log_json(
+                    logger,
+                    "setup_score_threshold_filter_evaluated",
+                    symbol=symbol,
+                    direction=candidate_direction,
+                    setup_type=candidate_setup_type,
+                    score=evaluation.setup_score,
+                    min_score=setup_score_threshold_result.get("min_score"),
+                    would_block=setup_score_threshold_result.get("would_block"),
+                    blocked=setup_score_threshold_result.get("blocked"),
+                    mode=setup_score_threshold_result.get("mode"),
+                    reason=setup_score_threshold_result.get("reason"),
+                )
+                if setup_score_threshold_result.get("would_block") and not setup_score_threshold_result.get("blocked"):
+                    log_json(
+                        logger,
+                        "setup_score_threshold_filter_shadow",
+                        symbol=symbol,
+                        direction=candidate_direction,
+                        setup_type=candidate_setup_type,
+                        score=evaluation.setup_score,
+                        min_score=setup_score_threshold_result.get("min_score"),
+                        reason=setup_score_threshold_result.get("reason"),
+                    )
+                if setup_score_threshold_result.get("blocked"):
+                    log_json(
+                        logger,
+                        "setup_score_threshold_filter_blocked",
+                        symbol=symbol,
+                        direction=candidate_direction,
+                        setup_type=candidate_setup_type,
+                        score=evaluation.setup_score,
+                        min_score=setup_score_threshold_result.get("min_score"),
+                        reason=setup_score_threshold_result.get("reason"),
                     )
                     scan_repo.save_evaluation(evaluation)
                     signal_repo.save_signal(signal)

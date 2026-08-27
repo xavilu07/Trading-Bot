@@ -73,6 +73,15 @@ class Settings:
     strategy_v2_1_condition_filter_cio_805ad892d491_mode: str = field(
         default_factory=lambda: os.getenv("STRATEGY_V2_1_CONDITION_FILTER_CIO_805AD892D491_MODE", "shadow")
     )
+    setup_score_threshold_filter_enabled: bool = field(
+        default_factory=lambda: _bool_env("SETUP_SCORE_THRESHOLD_FILTER_ENABLED", "false")
+    )
+    setup_score_threshold_filter_mode: str = field(
+        default_factory=lambda: os.getenv("SETUP_SCORE_THRESHOLD_FILTER_MODE", "shadow")
+    )
+    setup_score_threshold_filter_min_score: float = field(
+        default_factory=lambda: float(os.getenv("SETUP_SCORE_THRESHOLD_FILTER_MIN_SCORE", "90"))
+    )
     edge_activation_mode: bool = field(default_factory=lambda: _bool_env("EDGE_ACTIVATION_MODE", "true"))
     short_shadow_mode: bool = field(default_factory=lambda: _bool_env("SHORT_SHADOW_MODE", "true"))
     bullish_sweep_block_enabled: bool = field(default_factory=lambda: _bool_env("BULLISH_SWEEP_BLOCK_ENABLED", "false"))
