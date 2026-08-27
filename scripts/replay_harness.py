@@ -140,6 +140,28 @@ def _no_secondary(row: dict) -> bool:
     return row.get("setup_type") != "SECONDARY_SIGNAL"
 
 
+def _confluent(row: dict) -> bool:
+    """Did the strategy actually emit this as a signal?
+
+    `directional_confluence_failed` means it declined: the sweep pointed one way
+    and the trend and structure the other, so no branch matched and the decision
+    was no_trade. Those setups are still written to the record with a full
+    lifecycle, which means rows A-H below are scored partly on setups the bot
+    cannot trade - 289 of 1064. Measured 2026-08-27, that matters: score>=90
+    reads PF 1.3284 over the mixed population and PF 1.8457 over the tradeable
+    one, and its walk-forward goes from 1.0100/1.6869 to 1.8422/1.8489.
+    """
+    return "directional_confluence_failed" not in _tokens(row.get("conditions_failed"))
+
+
+def _tokens(value: str | None) -> list[str]:
+    try:
+        parsed = json.loads(value or "[]")
+    except ValueError:
+        return []
+    return [str(item) for item in parsed] if isinstance(parsed, list) else []
+
+
 CONFIGS = [
     ("A. today (SECONDARY off)", lambda r: _no_secondary(r), True),
     ("B. + score>=90", lambda r: _no_secondary(r) and _score(r) >= 90, True),
@@ -151,6 +173,13 @@ CONFIGS = [
     # actually decide 85 vs 90 vs 95 - E and F above change two things at once.
     ("G. score>=85 (TP cap kept)", lambda r: _no_secondary(r) and _score(r) >= 85, True),
     ("H. score>=95 (TP cap kept)", lambda r: _no_secondary(r) and _score(r) >= 95, True),
+    # Only the setups the strategy would actually have signalled. These are the
+    # rows to reason from; A-H keep the old, wider population for comparison.
+    ("I.  tradeable, no score floor", lambda r: _no_secondary(r) and _confluent(r), True),
+    ("J.  tradeable + score>=85", lambda r: _no_secondary(r) and _confluent(r) and _score(r) >= 85, True),
+    ("K.  tradeable + score>=90", lambda r: _no_secondary(r) and _confluent(r) and _score(r) >= 90, True),
+    ("L.  tradeable + score>=95", lambda r: _no_secondary(r) and _confluent(r) and _score(r) >= 95, True),
+    ("M.  tradeable, band 85-90 only", lambda r: _no_secondary(r) and _confluent(r) and 85 <= _score(r) < 90, True),
 ]
 
 
