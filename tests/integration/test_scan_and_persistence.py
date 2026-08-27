@@ -164,6 +164,64 @@ def test_scan_creates_paper_trade_for_real_signal(tmp_path: Path) -> None:
     assert signal["policy_version"] != "unknown"
 
 
+def test_trace_store_failure_does_not_change_operational_scan(tmp_path: Path) -> None:
+    class ExplodingTraceService:
+        def __init__(self) -> None:
+            self.isolated = None
+
+        def advance_snapshot(self, snapshot) -> None:
+            raise RuntimeError("private-store-detail-must-not-escape")
+
+        def observe_signal(self, **kwargs) -> None:
+            if self.isolated is None:
+                raise AssertionError("circuit breaker did not isolate trace")
+
+        def isolate(self, error_code: str) -> None:
+            if self.isolated is None:
+                self.isolated = error_code
+
+    settings = Settings(
+        data_storage_path=tmp_path,
+        telegram_chat_ids=["dry"],
+        publish_signal_decisions=["long"],
+    )
+    dataset = generate_trend_dataset(direction="up")
+    market_data = FakeMarketDataClient(
+        {
+            ("BTCUSDT", "1h"): dataset,
+            ("BTCUSDT", "4h"): dataset,
+        }
+    )
+    store = FileStore(tmp_path)
+    paper_store = PaperTradingStore(tmp_path)
+    trace_service = ExplodingTraceService()
+
+    result = run_market_scan(
+        settings=settings,
+        market_data=market_data,
+        scan_repo=FileScanRunRepository(store),
+        signal_repo=FileSignalRepository(store),
+        notifier=TelegramNotifier(
+            "",
+            ["dry"],
+            tmp_path / "telegram_users.json",
+            tmp_path / "telegram_state.json",
+        ),
+        diagnostics_store=FileStore(tmp_path / "diagnostics"),
+        metrics=NoopMetrics(),
+        paper_trading_store=paper_store,
+        paper_trace_service=trace_service,
+        symbols=["BTCUSDT"],
+        dry_run=True,
+    )
+
+    assert result["scan_run"]["symbols_processed"] == 1
+    assert result["scan_run"]["errors_count"] == 0
+    assert result["results"][0]["paper_trade_created"] is True
+    assert len(paper_store.list_trades()) == 1
+    assert trace_service.isolated == "PAPER_TRACE_RUNTIMEERROR"
+
+
 def test_scan_creates_live_trade_for_real_published_signal(tmp_path: Path) -> None:
     settings = Settings(
         data_storage_path=tmp_path,
@@ -424,3 +482,168 @@ def test_kill_switch_blocks_public_but_keeps_dev_and_live_tracking(tmp_path: Pat
     assert str(trades[0]["public_published"]).lower() == "false"
     assert "kill_switch_blocked_public_signal" in caplog.text
     assert "daily_loss_limit" in caplog.text
+
+
+def test_manual_pause_blocks_publish_and_live_tracking_entirely(tmp_path: Path) -> None:
+    pause_file = tmp_path / "runtime" / "trading_paused.json"
+    pause_file.parent.mkdir(parents=True)
+    pause_file.write_text(
+        '{"paused": true, "reason": "manual_telegram", "resume_requires": "manual"}',
+        encoding="utf-8",
+    )
+    settings = Settings(
+        data_storage_path=tmp_path,
+        telegram_chat_ids=["dry"],
+        publish_signal_decisions=["long"],
+        live_trade_tracking_enabled=True,
+    )
+    dataset = generate_trend_dataset(direction="up")
+    market_data = FakeMarketDataClient({
+        ("BTCUSDT", "1h"): dataset,
+        ("BTCUSDT", "4h"): dataset,
+    })
+    store = FileStore(tmp_path)
+    live_store = LiveTradingStore(tmp_path)
+
+    result = run_market_scan(
+        settings=settings,
+        market_data=market_data,
+        scan_repo=FileScanRunRepository(store),
+        signal_repo=FileSignalRepository(store),
+        notifier=TelegramNotifier("", ["dry"], tmp_path / "telegram_users.json", tmp_path / "telegram_state.json"),
+        diagnostics_store=FileStore(tmp_path / "diagnostics"),
+        metrics=NoopMetrics(),
+        live_trading_store=live_store,
+        symbols=["BTCUSDT"],
+        dry_run=True,
+    )
+
+    item = result["results"][0]
+    assert item["signal"]["decision"] == "long"
+    assert item["deliveries"] == []
+    assert "trading_paused_no_publish" in item["evaluation"]["rejection_reasons"]
+    trades = live_store.list_trades()
+    assert len(trades) == 0
+
+
+def test_scan_reconciles_open_paper_trade_for_symbol_no_longer_in_watchlist(tmp_path: Path) -> None:
+    """paper_trading had the same orphaning exposure live_trading was fixed for.
+
+    Six real trades sat stuck at status=open since 2026-05-04 because their symbols had
+    left SCAN_SYMBOLS and update_open_trades_for_snapshot only ever ran for scanned symbols.
+    """
+    watched_dataset = generate_trend_dataset(direction="up")
+    orphan_dataset = generate_trend_dataset(direction="up")
+    final_low = float(orphan_dataset[-1]["low"])
+    settings = Settings(
+        data_storage_path=tmp_path,
+        telegram_chat_ids=["dry"],
+        publish_signal_decisions=["long"],
+        paper_trading_enabled=True,
+    )
+    market_data = FakeMarketDataClient({
+        ("BTCUSDT", "1h"): watched_dataset,
+        ("BTCUSDT", "4h"): watched_dataset,
+        ("ADAUSDT", "1h"): orphan_dataset,
+        ("ADAUSDT", "4h"): orphan_dataset,
+    })
+    store = FileStore(tmp_path)
+    paper_store = PaperTradingStore(tmp_path)
+    paper_store.save_trades([
+        {
+            "trade_id": "paper_orphan_ada",
+            "dedupe_key": "orphan_ada",
+            "symbol": "ADAUSDT",
+            "direction": "long",
+            "setup_type": "MAIN_SIGNAL",
+            "paper_level": "HIGH",
+            "score": 100.0,
+            "entry_price": final_low + 5.0,
+            "stop_loss": final_low + 1.0,
+            "take_profit_1": final_low + 25.0,
+            "take_profit_2": final_low + 50.0,
+            "risk_reward_tp1": 1.0,
+            "risk_reward_tp2": 2.0,
+            "opened_at": "2026-01-01T00:00:00+00:00",
+            "updated_at": "2026-01-01T00:00:00+00:00",
+            "closed_at": "",
+            "expires_after_candles": 24,
+            "candles_held": 0,
+            "status": "open",
+            "result_r": "",
+        }
+    ])
+
+    run_market_scan(
+        settings=settings,
+        market_data=market_data,
+        scan_repo=FileScanRunRepository(store),
+        signal_repo=FileSignalRepository(store),
+        notifier=TelegramNotifier("", ["dry"], tmp_path / "telegram_users.json", tmp_path / "telegram_state.json"),
+        diagnostics_store=FileStore(tmp_path / "diagnostics"),
+        metrics=NoopMetrics(),
+        paper_trading_store=paper_store,
+        symbols=["BTCUSDT"],
+        dry_run=True,
+    )
+
+    trades = {trade["trade_id"]: trade for trade in paper_store.list_trades()}
+    assert trades["paper_orphan_ada"]["status"] != "open"
+    assert trades["paper_orphan_ada"]["closed_at"]
+
+
+def test_scan_reconciles_open_live_trade_for_symbol_no_longer_in_watchlist(tmp_path: Path) -> None:
+    watched_dataset = generate_trend_dataset(direction="up")
+    orphan_dataset = generate_trend_dataset(direction="up")
+    final_low = float(orphan_dataset[-1]["low"])
+    settings = Settings(
+        data_storage_path=tmp_path,
+        telegram_chat_ids=["dry"],
+        publish_signal_decisions=["long"],
+        live_trade_tracking_enabled=True,
+    )
+    market_data = FakeMarketDataClient({
+        ("BTCUSDT", "1h"): watched_dataset,
+        ("BTCUSDT", "4h"): watched_dataset,
+        ("ADAUSDT", "1h"): orphan_dataset,
+        ("ADAUSDT", "4h"): orphan_dataset,
+    })
+    store = FileStore(tmp_path)
+    live_store = LiveTradingStore(tmp_path)
+    live_store.save_trades([
+        {
+            "trade_id": "live_orphan_ada",
+            "dedupe_key": "orphan_ada",
+            "created_at": "2026-01-01T00:00:00+00:00",
+            "symbol": "ADAUSDT",
+            "direction": "long",
+            "setup_type": "MAIN_SIGNAL",
+            "signal_type": "NEW",
+            "score": 100.0,
+            "entry": final_low + 5.0,
+            "stop_loss": final_low + 1.0,
+            "take_profit": final_low + 50.0,
+            "risk_reward": 2.0,
+            "status": "open",
+            "result_r": "",
+            "closed_at": "",
+        }
+    ])
+
+    result = run_market_scan(
+        settings=settings,
+        market_data=market_data,
+        scan_repo=FileScanRunRepository(store),
+        signal_repo=FileSignalRepository(store),
+        notifier=TelegramNotifier("", ["dry"], tmp_path / "telegram_users.json", tmp_path / "telegram_state.json"),
+        diagnostics_store=FileStore(tmp_path / "diagnostics"),
+        metrics=NoopMetrics(),
+        live_trading_store=live_store,
+        symbols=["BTCUSDT"],
+        dry_run=True,
+    )
+
+    assert result["results"][0]["symbol"] == "BTCUSDT"
+    trades = {trade["trade_id"]: trade for trade in live_store.list_trades()}
+    assert trades["live_orphan_ada"]["status"] == "sl_hit"
+    assert float(trades["live_orphan_ada"]["result_r"]) == -1.0

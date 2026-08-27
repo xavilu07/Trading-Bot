@@ -156,6 +156,46 @@ def test_strategy_v2_1_htf_alignment_filter_settings_defaults_and_env(monkeypatc
     assert settings.strategy_v2_1_htf_alignment_filter_mode == "hard_block"
 
 
+def test_strategy_v2_1_condition_filter_cio_805ad892d491_settings_defaults_and_env(monkeypatch) -> None:
+    monkeypatch.delenv("STRATEGY_V2_1_CONDITION_FILTER_CIO_805AD892D491_ENABLED", raising=False)
+    monkeypatch.delenv("STRATEGY_V2_1_CONDITION_FILTER_CIO_805AD892D491_MODE", raising=False)
+
+    settings = Settings()
+
+    assert settings.strategy_v2_1_condition_filter_cio_805ad892d491_enabled is False
+    assert settings.strategy_v2_1_condition_filter_cio_805ad892d491_mode == "shadow"
+
+    monkeypatch.setenv("STRATEGY_V2_1_CONDITION_FILTER_CIO_805AD892D491_ENABLED", "true")
+    monkeypatch.setenv("STRATEGY_V2_1_CONDITION_FILTER_CIO_805AD892D491_MODE", "hard_block")
+
+    settings = Settings()
+
+    assert settings.strategy_v2_1_condition_filter_cio_805ad892d491_enabled is True
+    assert settings.strategy_v2_1_condition_filter_cio_805ad892d491_mode == "hard_block"
+
+
+def test_setup_score_threshold_filter_settings_defaults_and_env(monkeypatch) -> None:
+    monkeypatch.delenv("SETUP_SCORE_THRESHOLD_FILTER_ENABLED", raising=False)
+    monkeypatch.delenv("SETUP_SCORE_THRESHOLD_FILTER_MODE", raising=False)
+    monkeypatch.delenv("SETUP_SCORE_THRESHOLD_FILTER_MIN_SCORE", raising=False)
+
+    settings = Settings()
+
+    assert settings.setup_score_threshold_filter_enabled is False
+    assert settings.setup_score_threshold_filter_mode == "shadow"
+    assert settings.setup_score_threshold_filter_min_score == 90.0
+
+    monkeypatch.setenv("SETUP_SCORE_THRESHOLD_FILTER_ENABLED", "true")
+    monkeypatch.setenv("SETUP_SCORE_THRESHOLD_FILTER_MODE", "hard_block")
+    monkeypatch.setenv("SETUP_SCORE_THRESHOLD_FILTER_MIN_SCORE", "85")
+
+    settings = Settings()
+
+    assert settings.setup_score_threshold_filter_enabled is True
+    assert settings.setup_score_threshold_filter_mode == "hard_block"
+    assert settings.setup_score_threshold_filter_min_score == 85.0
+
+
 def test_agent_committee_settings_defaults_and_env(monkeypatch) -> None:
     monkeypatch.delenv("AGENT_COMMITTEE_ENABLED", raising=False)
     monkeypatch.delenv("AGENT_COMMITTEE_MIN_CONFIDENCE", raising=False)

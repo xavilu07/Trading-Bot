@@ -5,6 +5,7 @@ from pathlib import Path
 
 from trading_signals.agents.proposal_store import save_proposals
 from trading_signals.agents.telegram_approval import build_qic_command_response, process_telegram_update
+from trading_signals.risk.trading_pause import is_trading_paused, pause_trading
 
 
 def test_unauthorized_chat_is_rejected(tmp_path: Path) -> None:
@@ -49,3 +50,71 @@ def test_callback_is_idempotent_and_records_actor(tmp_path: Path) -> None:
     assert first["actor"] == "123"
     assert second["idempotent"] is True
     assert second["reason"] == "duplicate_callback_ignored"
+
+
+def test_trading_status_reports_not_paused_by_default(tmp_path: Path) -> None:
+    pause_path = tmp_path / "trading_paused.json"
+
+    text = build_qic_command_response("/trading_status", qic_output_path=tmp_path / "reports", pause_path=pause_path)
+
+    assert "no pausado" in text.lower() or "activo" in text.lower()
+
+
+def test_pause_trading_command_pauses_and_records_actor(tmp_path: Path) -> None:
+    pause_path = tmp_path / "trading_paused.json"
+
+    text = build_qic_command_response("/pause_trading", qic_output_path=tmp_path / "reports", actor="42", pause_path=pause_path)
+
+    assert "pausado" in text.lower()
+    state = is_trading_paused(pause_path)
+    assert state["paused"] is True
+    assert state["details"]["actor"] == "42"
+    assert state["resume_requires"] == "manual"
+
+
+def test_pause_trading_command_is_idempotent(tmp_path: Path) -> None:
+    pause_path = tmp_path / "trading_paused.json"
+    pause_trading(reason="kill_switch", details={}, path=pause_path)
+
+    text = build_qic_command_response("/pause_trading", qic_output_path=tmp_path / "reports", actor="42", pause_path=pause_path)
+
+    assert "ya estaba pausado" in text.lower()
+    state = is_trading_paused(pause_path)
+    assert state["reason"] == "kill_switch"
+
+
+def test_resume_trading_command_clears_pause_and_records_actor(tmp_path: Path) -> None:
+    pause_path = tmp_path / "trading_paused.json"
+    pause_trading(reason="kill_switch", details={}, path=pause_path)
+
+    text = build_qic_command_response("/resume_trading", qic_output_path=tmp_path / "reports", actor="42", pause_path=pause_path)
+
+    assert "reanudado" in text.lower()
+    state = is_trading_paused(pause_path)
+    assert state["paused"] is False
+
+
+def test_resume_trading_command_when_not_paused_is_a_noop(tmp_path: Path) -> None:
+    pause_path = tmp_path / "trading_paused.json"
+
+    text = build_qic_command_response("/resume_trading", qic_output_path=tmp_path / "reports", actor="42", pause_path=pause_path)
+
+    assert "ya estaba activo" in text.lower()
+    assert not pause_path.exists()
+
+
+def test_resume_trading_via_process_telegram_update_uses_chat_id_as_actor(tmp_path: Path) -> None:
+    pause_path = tmp_path / "trading_paused.json"
+    pause_trading(reason="kill_switch", details={}, path=pause_path)
+    update = {"update_id": 5, "message": {"chat": {"id": 123}, "text": "/resume_trading"}}
+
+    result = process_telegram_update(
+        update,
+        authorized_chat_ids=["123"],
+        qic_output_path=tmp_path / "reports",
+        pause_path=pause_path,
+    )
+
+    assert result["handled"] is True
+    assert "123" in result["response_text"]
+    assert is_trading_paused(pause_path)["paused"] is False

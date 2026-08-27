@@ -50,8 +50,10 @@ def test_implementation_council_allows_valid_structural_htf_filter(tmp_path: Pat
     assert review["decision"] == "IMPLEMENTATION_ALLOWED"
     assert review["allowed_to_generate_patch"] is True
     assert review["blockers"] == []
-    assert review["required_feature_flags"][0]["name"] == "STRATEGY_V2_1_HTF_ALIGNMENT_FILTER_ENABLED"
-    assert "strategy_v2_1_htf_alignment_against" in review["implementation_plan"]["required_rejection_reasons"]
+    # Flag/rejection-reason names are now derived from the proposal id (generalized
+    # generator, no longer hardcoded to the single htf_alignment filter).
+    assert review["required_feature_flags"][0]["name"] == "STRATEGY_V2_1_CONDITION_FILTER_CIO_HTF_AGAINST_ENABLED"
+    assert "strategy_v2_1_condition_filter_cio_htf_against" in review["implementation_plan"]["required_rejection_reasons"]
     assert (tmp_path / "reports" / "qic" / "implementation_review.json").exists()
     assert (tmp_path / "reports" / "qic" / "rollback_plan.json").exists()
 
@@ -141,8 +143,11 @@ def test_code_engineer_dry_run_generates_plan_without_modifying_files(tmp_path: 
 
     assert report["status"] == "dry_run_generated"
     assert report["files_modified"] == []
-    assert "src/trading_signals/application/use_cases/strategy_v2_1_htf_alignment_filter.py" in report["files_planned"]
-    assert not (project_root / "src/trading_signals/application/use_cases/strategy_v2_1_htf_alignment_filter.py").exists()
+    # Filenames are now derived from the proposal id (generalized generator, no longer
+    # hardcoded to the single htf_alignment filter it originally shipped with).
+    generated_module = "src/trading_signals/application/use_cases/strategy_v2_1_condition_filter_cio_htf_against.py"
+    assert generated_module in report["files_planned"]
+    assert not (project_root / generated_module).exists()
 
 
 def test_code_engineer_blocks_missing_preconditions(tmp_path: Path) -> None:

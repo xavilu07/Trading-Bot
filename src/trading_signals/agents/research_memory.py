@@ -104,6 +104,11 @@ def update_research_memory_from_proposal(
     return experiment
 
 
+#: Statuses that describe whether an edge is still real. Only the revalidation
+#: engine, which measures outcomes, may move an experiment out of these.
+TERMINAL_VALIDITY_STATUSES = frozenset({"retired", "degraded", "invalidated"})
+
+
 def record_research_memory_decision(
     proposal: dict[str, Any],
     decision: str,
@@ -128,7 +133,16 @@ def record_research_memory_decision(
             reasons.append(reason)
             stored["rejection_reasons"] = reasons[-50:]
     elif decision_lower:
-        stored["current_status"] = decision_lower
+        stored["implementation_status"] = decision_lower
+        # `current_status` carries the edge's validity, which only the
+        # revalidation engine measures. The code engineer runs later in the same
+        # QIC cycle and used to overwrite it with its own pipeline state, so the
+        # `retired` that revalidation had just written for edge_fc1437682982 was
+        # replaced by `code_generated` before anything could read it — which is
+        # why `confirmed_edge_invalidated` stopped being emitted after 2026-08-15
+        # even though the edge was still being scored PF 0.919 every cycle.
+        if str(stored.get("current_status") or "") not in TERMINAL_VALIDITY_STATUSES:
+            stored["current_status"] = decision_lower
     save_research_memory(memory, path)
     return stored
 

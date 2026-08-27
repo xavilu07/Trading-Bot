@@ -17,20 +17,6 @@ def _csv_env_fallback(name: str, fallback_name: str) -> list[str]:
     return [item.strip() for item in raw.split(",") if item.strip()]
 
 
-def _qic_telegram_settings_explicit() -> bool:
-    names = (
-        "QIC_TELEGRAM_ENABLED",
-        "QIC_TELEGRAM_BOT_TOKEN",
-        "QIC_TELEGRAM_CHAT_ID",
-        "AGENT_TELEGRAM_APPROVAL_ENABLED",
-        "AGENT_TELEGRAM_BOT_TOKEN",
-        "AGENT_TELEGRAM_CHAT_ID",
-        "TELEGRAM_BOT_TOKEN",
-        "TELEGRAM_DEV_CHAT_ID",
-    )
-    return any(name in os.environ for name in names)
-
-
 def _publish_decisions_env(name: str, default: str) -> list[str]:
     values = [item.lower() for item in _csv_env(name, default)]
     if "both" in values:
@@ -79,7 +65,23 @@ class Settings:
     )
     use_modular_decision_engine: bool = field(default_factory=lambda: _bool_env("USE_MODULAR_DECISION_ENGINE", "false"))
     relaxed_strategy_gates_enabled: bool = field(default_factory=lambda: _bool_env("RELAXED_STRATEGY_GATES_ENABLED", "false"))
+    secondary_signal_enabled: bool = field(default_factory=lambda: _bool_env("SECONDARY_SIGNAL_ENABLED", "false"))
     meta_decision_filter_enabled: bool = field(default_factory=lambda: _bool_env("META_DECISION_FILTER_ENABLED", "false"))
+    strategy_v2_1_condition_filter_cio_805ad892d491_enabled: bool = field(
+        default_factory=lambda: _bool_env("STRATEGY_V2_1_CONDITION_FILTER_CIO_805AD892D491_ENABLED", "false")
+    )
+    strategy_v2_1_condition_filter_cio_805ad892d491_mode: str = field(
+        default_factory=lambda: os.getenv("STRATEGY_V2_1_CONDITION_FILTER_CIO_805AD892D491_MODE", "shadow")
+    )
+    setup_score_threshold_filter_enabled: bool = field(
+        default_factory=lambda: _bool_env("SETUP_SCORE_THRESHOLD_FILTER_ENABLED", "false")
+    )
+    setup_score_threshold_filter_mode: str = field(
+        default_factory=lambda: os.getenv("SETUP_SCORE_THRESHOLD_FILTER_MODE", "shadow")
+    )
+    setup_score_threshold_filter_min_score: float = field(
+        default_factory=lambda: float(os.getenv("SETUP_SCORE_THRESHOLD_FILTER_MIN_SCORE", "90"))
+    )
     edge_activation_mode: bool = field(default_factory=lambda: _bool_env("EDGE_ACTIVATION_MODE", "true"))
     short_shadow_mode: bool = field(default_factory=lambda: _bool_env("SHORT_SHADOW_MODE", "true"))
     bullish_sweep_block_enabled: bool = field(default_factory=lambda: _bool_env("BULLISH_SWEEP_BLOCK_ENABLED", "false"))
@@ -130,6 +132,9 @@ class Settings:
     max_consecutive_losses: int = field(default_factory=lambda: int(os.getenv("MAX_CONSECUTIVE_LOSSES", "2")))
     max_weekly_drawdown_r: float = field(default_factory=lambda: float(os.getenv("MAX_WEEKLY_DRAWDOWN_R", "4.0")))
     kill_switch_cooldown_hours: int = field(default_factory=lambda: int(os.getenv("KILL_SWITCH_COOLDOWN_HOURS", "12")))
+    consecutive_loss_reset_hours: float = field(
+        default_factory=lambda: float(os.getenv("CONSECUTIVE_LOSS_RESET_HOURS", "12.0"))
+    )
     protection_engine_mode: str = field(default_factory=lambda: os.getenv("PROTECTION_ENGINE_MODE", "shadow_only"))
     protection_symbol_loss_cooldown_hours: float = field(
         default_factory=lambda: float(os.getenv("PROTECTION_SYMBOL_LOSS_COOLDOWN_HOURS", "6"))
@@ -277,10 +282,6 @@ class Settings:
     qic_telegram_enabled: bool = field(default_factory=lambda: _bool_env("QIC_TELEGRAM_ENABLED", "false"))
     qic_telegram_chat_id: str = field(default_factory=lambda: os.getenv("QIC_TELEGRAM_CHAT_ID", ""))
     qic_telegram_bot_token: str = field(default_factory=lambda: os.getenv("QIC_TELEGRAM_BOT_TOKEN", ""))
-    qic_telegram_settings_explicit: bool = field(
-        default_factory=_qic_telegram_settings_explicit,
-        repr=False,
-    )
     qic_telegram_send_no_actionable: bool = field(
         default_factory=lambda: _bool_env("QIC_TELEGRAM_SEND_NO_ACTIONABLE", "true")
     )
@@ -426,6 +427,46 @@ class Settings:
     paper_trading_summary_enabled: bool = field(default_factory=lambda: _bool_env("TELEGRAM_PAPER_DAILY_SUMMARY_ENABLED", "true"))
     paper_trading_summary_state_file: Path = field(
         default_factory=lambda: Path(os.getenv("PAPER_TRADING_SUMMARY_STATE_FILE", "./data/paper_trading/daily_summary_state.json"))
+    )
+    paper_trace_enabled: bool = field(
+        default_factory=lambda: _bool_env("PAPER_TRACE_ENABLED", "false")
+    )
+    paper_trace_store_path: Path | None = field(
+        default_factory=lambda: (
+            Path(value) if (value := os.getenv("PAPER_TRACE_STORE_PATH", "").strip()) else None
+        )
+    )
+    paper_trace_allowed_root: Path | None = field(
+        default_factory=lambda: (
+            Path(value) if (value := os.getenv("PAPER_TRACE_ALLOWED_ROOT", "").strip()) else None
+        )
+    )
+    paper_trace_max_bytes: str = field(
+        default_factory=lambda: os.getenv("PAPER_TRACE_MAX_BYTES", "").strip()
+    )
+    paper_fill_policy_id: str = field(
+        default_factory=lambda: os.getenv(
+            "PAPER_FILL_POLICY_ID",
+            "paper-closed-bar-touch-modeled-fill-v1",
+        )
+    )
+    paper_expiry_policy_id: str = field(
+        default_factory=lambda: os.getenv(
+            "PAPER_EXPIRY_POLICY_ID",
+            "position-expired-unresolved-v1",
+        )
+    )
+    paper_fee_model_id: str = field(
+        default_factory=lambda: os.getenv("PAPER_FEE_MODEL_ID", "NO_FEE_MODEL")
+    )
+    paper_slippage_model_id: str = field(
+        default_factory=lambda: os.getenv(
+            "PAPER_SLIPPAGE_MODEL_ID",
+            "NO_SLIPPAGE_MODEL",
+        )
+    )
+    paper_trace_strict_identity: bool = field(
+        default_factory=lambda: _bool_env("PAPER_TRACE_STRICT_IDENTITY", "true")
     )
     live_trade_tracking_enabled: bool = field(default_factory=lambda: _bool_env("LIVE_TRADE_TRACKING_ENABLED", "true"))
     live_breakeven_alert_enabled: bool = field(default_factory=lambda: _bool_env("LIVE_BREAKEVEN_ALERT_ENABLED", "true"))

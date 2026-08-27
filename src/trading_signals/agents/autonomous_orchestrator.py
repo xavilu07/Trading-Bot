@@ -14,6 +14,7 @@ from trading_signals.agents.committee import run_agent_committee
 from trading_signals.agents.implementation.code_engineer import run_code_engineer
 from trading_signals.agents.implementation.code_changes import CodeChangeManager
 from trading_signals.agents.implementation.implementation_review_council import run_implementation_review_for_proposal_id
+from trading_signals.agents.implementation.patch_generator import generate_patch_report
 from trading_signals.agents.notification_center import QICNotificationCenter
 from trading_signals.agents.proposal_store import load_proposals
 from trading_signals.agents.qic_autonomous_reports import write_autonomous_qic_reports
@@ -276,6 +277,7 @@ class AutonomousQICOrchestrator:
             output["reviewed"].append({"proposal_id": proposal_id, "decision": review.get("decision"), "allowed": review.get("allowed_to_generate_patch")})
             if not review.get("allowed_to_generate_patch") or not bool(getattr(self.settings, "qic_code_engineer_enabled", False)):
                 continue
+            generate_patch_report(review, output_path=self.output_path, apply_patch=False)
             code = run_code_engineer(
                 proposal_id=proposal_id,
                 proposal_store_path=self.data_path / "agent_proposals" / "proposals.jsonl",

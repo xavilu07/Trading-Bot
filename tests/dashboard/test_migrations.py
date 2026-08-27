@@ -34,6 +34,8 @@ EXPECTED_TABLES = {
     "metric_cohorts",
     "metric_values",
     "metric_exclusions",
+    "paper_trace_receipts",
+    "paper_trace_states",
 }
 
 
@@ -41,7 +43,7 @@ def test_empty_database_migrates_once_and_repeats_without_changes(tmp_path: Path
     database = tmp_path / "runtime/read-model.sqlite"
     connection = connect_writer(database, data_root=tmp_path / "data")
     try:
-        assert apply_migrations(connection) == (1, 2, 3)
+        assert apply_migrations(connection) == (1, 2, 3, 4)
         before = tuple(connection.execute("SELECT * FROM schema_migrations"))
         assert apply_migrations(connection) == ()
         assert tuple(connection.execute("SELECT * FROM schema_migrations")) == before
@@ -93,6 +95,12 @@ def test_schema_contains_only_declared_tables_and_required_indexes(tmp_path: Pat
             "idx_metric_cohorts_sample",
             "idx_metric_values_definition",
             "idx_metric_exclusions_reason",
+            "idx_paper_trace_receipts_trace",
+            "idx_paper_trace_receipts_event",
+            "idx_paper_trace_receipts_signal",
+            "idx_paper_trace_receipts_symbol",
+            "idx_paper_trace_receipts_policy",
+            "idx_paper_trace_states_status",
         } <= indexes
         assert integrity_check(connection) == ("ok",)
         assert int(connection.execute("PRAGMA foreign_keys").fetchone()[0]) == 1
@@ -113,7 +121,7 @@ def test_applied_migration_checksum_mismatch_fails_safely(tmp_path: Path) -> Non
     database = tmp_path / "runtime/model.sqlite"
     connection = connect_writer(database, data_root=tmp_path / "data")
     try:
-        assert apply_migrations(connection, migrations_dir=migrations_dir) == (1, 2, 3)
+        assert apply_migrations(connection, migrations_dir=migrations_dir) == (1, 2, 3, 4)
         migration = migrations_dir / "0001_initial.sql"
         migration.write_text(migration.read_text(encoding="utf-8") + "\n-- incompatible\n", encoding="utf-8")
         with pytest.raises(MigrationChecksumError):
@@ -182,6 +190,36 @@ def test_existing_0002_database_migrates_forward_to_metrics(
             "entry_activation_candle_open",
             "eligibility_status",
         } <= columns
+        assert integrity_check(connection) == ("ok",)
+    finally:
+        connection.close()
+
+
+def test_existing_0003_database_migrates_forward_to_paper_trace(
+    tmp_path: Path,
+) -> None:
+    migrations_dir = tmp_path / "migrations"
+    migrations_dir.mkdir()
+    source = default_migrations_dir()
+    for name in (
+        "0001_initial.sql",
+        "0002_canonical_outcomes.sql",
+        "0003_canonical_metrics.sql",
+    ):
+        shutil.copy2(source / name, migrations_dir / name)
+    database = tmp_path / "runtime/model.sqlite"
+    connection = connect_writer(database, data_root=tmp_path / "data")
+    try:
+        assert apply_migrations(connection, migrations_dir=migrations_dir) == (1, 2, 3)
+        shutil.copy2(
+            source / "0004_prospective_paper_trace.sql",
+            migrations_dir / "0004_prospective_paper_trace.sql",
+        )
+        assert apply_migrations(connection, migrations_dir=migrations_dir) == (4,)
+        assert connection.execute(
+            "SELECT COUNT(*) FROM sqlite_master "
+            "WHERE type='table' AND name='paper_trace_receipts'"
+        ).fetchone()[0] == 1
         assert integrity_check(connection) == ("ok",)
     finally:
         connection.close()

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from trading_signals.application.use_cases.paper_trading import (
     PaperTradingStore,
     build_paper_candidate_from_decision,
@@ -313,7 +315,8 @@ def test_paper_trade_status_hits_tp1_then_tp2(tmp_path) -> None:
     updates = store.update_open_trades_for_snapshot(tp1_snapshot, "2026-01-01T01:00:00+00:00")
 
     assert updates[0]["status"] == "tp1_hit"
-    assert updates[0]["result_r"] == "1.0000"
+    # marked to market, not to TP1: the position is still fully open here
+    assert updates[0]["result_r"] == "0.2000"
     assert updates[0]["mfe_r"] == "1.2000"
     assert updates[0]["mae_r"] == "-0.2000"
 
@@ -357,6 +360,104 @@ def test_paper_trade_status_hits_sl() -> None:
     snapshot.high = 106.0
 
     assert evaluate_trade_status(trade, snapshot) == ("sl_hit", -1.0, 0.4, -1.2)
+
+
+def _tp1_trade(direction: str = "long") -> dict[str, str]:
+    if direction == "long":
+        return {
+            "direction": "long",
+            "entry_price": "100",
+            "stop_loss": "95",
+            "take_profit_1": "105",
+            "take_profit_2": "110",
+            "status": "tp1_hit",
+        }
+    return {
+        "direction": "short",
+        "entry_price": "100",
+        "stop_loss": "105",
+        "take_profit_1": "95",
+        "take_profit_2": "90",
+        "status": "tp1_hit",
+    }
+
+
+def _snapshot_at(close: float, high: float, low: float):
+    snapshot = build_snapshot(
+        scan_run_id="run_test",
+        symbol="BTCUSDT",
+        timeframe="1h",
+        trend="bullish",
+        structure="bullish",
+        sweep="none",
+        score=70.0,
+        distance=1.0,
+    )
+    snapshot.close = close
+    snapshot.high = high
+    snapshot.low = low
+    return snapshot
+
+
+def test_a_trade_sitting_at_tp1_is_marked_to_market_not_to_tp1() -> None:
+    """Nothing is sold at TP1, so its R is what the market pays now."""
+    status, result_r, _, _ = evaluate_trade_status(_tp1_trade(), _snapshot_at(close=101.0, high=104.0, low=100.0))
+
+    assert status == "tp1_hit"
+    assert result_r == pytest.approx(0.2)
+
+
+def test_a_trade_that_fell_back_below_entry_after_tp1_records_a_loss() -> None:
+    """The case that fabricated 40 winners: recorded +1R, actually negative."""
+    status, result_r, _, _ = evaluate_trade_status(_tp1_trade(), _snapshot_at(close=98.0, high=99.0, low=97.0))
+
+    assert status == "tp1_hit"
+    assert result_r == pytest.approx(-0.4)
+
+
+def test_a_short_sitting_at_tp1_is_marked_to_market_too() -> None:
+    status, result_r, _, _ = evaluate_trade_status(_tp1_trade("short"), _snapshot_at(close=102.0, high=103.0, low=96.0))
+
+    assert status == "tp1_hit"
+    assert result_r == pytest.approx(-0.4)
+
+
+def test_tp1_then_sl_still_records_a_full_loss() -> None:
+    status, result_r, _, _ = evaluate_trade_status(_tp1_trade(), _snapshot_at(close=94.0, high=96.0, low=94.0))
+
+    assert status == "sl_hit"
+    assert result_r == -1.0
+
+
+def test_tp1_then_tp2_still_records_the_full_target() -> None:
+    status, result_r, _, _ = evaluate_trade_status(_tp1_trade(), _snapshot_at(close=110.5, high=111.0, low=104.0))
+
+    assert status == "tp2_hit"
+    assert result_r == pytest.approx(2.0)
+
+
+def test_expiring_at_tp1_no_longer_books_a_profit_never_taken(tmp_path) -> None:
+    store = PaperTradingStore(tmp_path)
+    trade = _tp1_trade()
+    trade.update({
+        "trade_id": "t1",
+        "symbol": "BTCUSDT",
+        "candles_held": "23",
+        "expires_after_candles": "24",
+        "mfe_r": "1.0",
+        "mae_r": "0.0",
+    })
+    store.save_trades([trade])
+
+    updates = store.update_open_trades_for_snapshot(
+        _snapshot_at(close=99.0, high=100.0, low=98.5), "2026-01-01T02:00:00+00:00"
+    )
+
+    assert updates[0]["status"] == "expired"
+    assert updates[0]["result_r"] == "-0.2000"
+    assert updates[0]["closed_at"] == "2026-01-01T02:00:00+00:00"
+    # touching TP1 is still on the record, it just no longer sets the price
+    assert float(updates[0]["mfe_r"]) >= 1.0
 
 
 def test_paper_daily_summary(tmp_path) -> None:

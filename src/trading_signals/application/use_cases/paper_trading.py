@@ -529,6 +529,19 @@ def build_paper_rejection_diagnostic(
 
 
 def evaluate_trade_status(trade: dict[str, object], snapshot: MarketSnapshot) -> tuple[str, float, float, float]:
+    """Return (status, R, MFE, MAE) for a trade against one candle.
+
+    `tp1_hit` records that price *touched* TP1, not that anything was sold
+    there: this engine has no partial close, so the position is still fully
+    open and its R is whatever the market is paying right now. It used to
+    return the TP1 distance instead - a flat +1R - and because the status is
+    sticky, a trade that touched TP1 and then drifted for its remaining
+    candles closed as `expired` booking exactly +1.0000R it never took. That
+    was 299 of 1738 closed trades, 40 of which actually finished negative.
+
+    Touching TP1 is not lost by this: the status still says so, and `mfe_r`
+    still carries the best price the trade ever saw.
+    """
     direction = str(trade.get("direction"))
     entry = float(trade.get("entry_price") or 0.0)
     stop_loss = float(trade.get("stop_loss") or 0.0)
@@ -546,7 +559,7 @@ def evaluate_trade_status(trade: dict[str, object], snapshot: MarketSnapshot) ->
         if snapshot.high >= take_profit_2:
             return "tp2_hit", abs(take_profit_2 - entry) / risk, mfe_r, mae_r
         if snapshot.high >= take_profit_1 or previous_status == "tp1_hit":
-            return "tp1_hit", abs(take_profit_1 - entry) / risk, mfe_r, mae_r
+            return "tp1_hit", (snapshot.close - entry) / risk, mfe_r, mae_r
         return "open", (snapshot.close - entry) / risk, mfe_r, mae_r
     if direction == "short":
         mfe_r = (entry - snapshot.low) / risk
@@ -556,7 +569,7 @@ def evaluate_trade_status(trade: dict[str, object], snapshot: MarketSnapshot) ->
         if snapshot.low <= take_profit_2:
             return "tp2_hit", abs(entry - take_profit_2) / risk, mfe_r, mae_r
         if snapshot.low <= take_profit_1 or previous_status == "tp1_hit":
-            return "tp1_hit", abs(entry - take_profit_1) / risk, mfe_r, mae_r
+            return "tp1_hit", (entry - snapshot.close) / risk, mfe_r, mae_r
         return "open", (entry - snapshot.close) / risk, mfe_r, mae_r
     return "open", 0.0, 0.0, 0.0
 

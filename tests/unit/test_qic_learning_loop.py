@@ -59,6 +59,107 @@ def test_revalidation_classifies_improved_degraded_invalidated() -> None:
     assert invalidated["result"] == "edge_invalidated"
 
 
+def test_revalidation_reads_the_simulations_key_the_simulator_actually_writes(tmp_path: Path) -> None:
+    """run_strategy_simulator writes {"simulations": [...]}, not {"results": [...]}.
+
+    The neighbouring tests hand-roll the "results" shape, which the real simulator never
+    emits, so a loader that ignored "simulations" still passed them while silently dropping
+    every single-condition row in production.
+    """
+    kb_path = tmp_path / "data" / "qic" / "strategy_knowledge_base.json"
+    memory_path = tmp_path / "data" / "qic" / "research_memory.json"
+    reports_root = tmp_path / "reports"
+    upsert_knowledge_from_proposal(_proposal(evidence=100), path=kb_path)
+    update_research_memory_from_proposal(_proposal(evidence=100), path=memory_path)
+    simulator_path = reports_root / "strategy_simulator"
+    simulator_path.mkdir(parents=True)
+    (simulator_path / "single_filters.json").write_text(
+        json.dumps({"simulations": [_sim_row(pf=0.92, total_r=-4, evidence=900)]}), encoding="utf-8"
+    )
+
+    report = run_revalidation_engine(
+        knowledge_base_path=kb_path,
+        research_memory_path=memory_path,
+        reports_root=reports_root,
+        output_path=reports_root / "qic",
+        min_new_trades=50,
+    )
+
+    result = report["results"][0]
+    assert result["reason"] != "current_metrics_not_found"
+    assert result["result"] == "edge_invalidated"
+    assert result["current_pf"] == 0.92
+
+
+def test_revalidation_verdict_reaches_the_knowledge_base(tmp_path: Path) -> None:
+    """The verdict has to land on the KB item, not only in the report.
+
+    The proposal pipeline reads the KB item. While the verdict stayed in
+    reports/qic/revalidation.* only, QIC proposed implementing an edge at its
+    original in-sample PF in the same cycle that measured it below 1.0.
+    """
+    kb_path = tmp_path / "data" / "qic" / "strategy_knowledge_base.json"
+    memory_path = tmp_path / "data" / "qic" / "research_memory.json"
+    reports_root = tmp_path / "reports"
+    item = upsert_knowledge_from_proposal(_proposal(evidence=100), path=kb_path)
+    update_research_memory_from_proposal(_proposal(evidence=100), path=memory_path)
+    simulator_path = reports_root / "strategy_simulator"
+    simulator_path.mkdir(parents=True)
+    (simulator_path / "single_filters.json").write_text(
+        json.dumps({"simulations": [_sim_row(pf=0.92, total_r=-4, evidence=900)]}), encoding="utf-8"
+    )
+
+    run_revalidation_engine(
+        knowledge_base_path=kb_path,
+        research_memory_path=memory_path,
+        reports_root=reports_root,
+        output_path=reports_root / "qic",
+        min_new_trades=50,
+    )
+
+    stored = json.loads(kb_path.read_text(encoding="utf-8"))["items"][item["id"]]
+    assert stored["status"] == "retired"
+    assert stored["last_revalidation_result"]["result"] == "edge_invalidated"
+    assert stored["last_revalidated_pf"] == 0.92
+    assert stored["last_revalidated_evidence"] == 900
+    # The proposal pipeline still owns the in-sample projection.
+    assert stored["last_expected_pf"] == _proposal(evidence=100)["expected_pf"]
+
+
+def test_revalidation_counts_new_trades_since_the_last_revalidation(tmp_path: Path) -> None:
+    """Otherwise the same backlog is reported as new evidence every cycle."""
+    item = {
+        "id": "edge_1",
+        "rule_conditions": ["exclude htf_alignment=against"],
+        "last_expected_pf": 1.2,
+        "last_expected_total_r": 10,
+        "last_evidence": 20,
+        "last_revalidated_evidence": 900,
+    }
+
+    result = revalidate_edge(item, simulator_rows=[_sim_row(pf=1.3, total_r=12, evidence=910)], min_new_trades=50)
+
+    assert result["new_trades"] == 10
+    assert result["result"] == "insufficient_new_data"
+
+
+def test_implementation_status_does_not_erase_a_retired_verdict(tmp_path: Path) -> None:
+    """The code engineer runs after revalidation in the same QIC cycle."""
+    path = tmp_path / "data" / "qic" / "research_memory.json"
+    proposal = _proposal(evidence=100)
+    update_research_memory_from_proposal(proposal, path=path)
+    memory = load_research_memory(path)
+    experiment_id = next(iter(memory["experiments"]))
+    memory["experiments"][experiment_id]["current_status"] = "retired"
+    path.write_text(json.dumps(memory), encoding="utf-8")
+
+    stored = record_research_memory_decision(proposal, "code_generated", path=path)
+
+    assert stored is not None
+    assert stored["current_status"] == "retired"
+    assert stored["implementation_status"] == "code_generated"
+
+
 def test_run_revalidation_engine_writes_reports(tmp_path: Path) -> None:
     kb_path = tmp_path / "data" / "qic" / "strategy_knowledge_base.json"
     memory_path = tmp_path / "data" / "qic" / "research_memory.json"

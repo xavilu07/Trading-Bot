@@ -1,0 +1,10 @@
+[Unit]
+Description=Run kill-switch monitor every five minutes
+
+[Timer]
+OnCalendar=*-*-* *:0/5:00
+Persistent=true
+Unit=qic-kill-switch-monitor.service
+
+[Install]
+WantedBy=timers.target

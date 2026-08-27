@@ -77,6 +77,10 @@ from trading_signals.application.use_cases.publish_signal import meta_decision_p
 from trading_signals.application.use_cases.publish_signal import public_routing_rejection_reason
 from trading_signals.application.use_cases.setup_context import build_setup_context
 from trading_signals.application.use_cases.signal_lifecycle import classify_signal_lifecycle
+from trading_signals.application.use_cases.setup_score_threshold_filter import (
+    TRACE_PREFIX as SETUP_SCORE_THRESHOLD_FILTER_TRACE_PREFIX,
+    apply_setup_score_threshold_filter,
+)
 from trading_signals.application.use_cases.signal_update_v1 import (
     diagnose_signal_update_v1_skip,
     evaluate_signal_update_v1,
@@ -85,6 +89,9 @@ from trading_signals.application.use_cases.signal_update_v1 import (
 )
 from trading_signals.application.use_cases.strategy_v2_1_htf_alignment_filter import (
     apply_strategy_v2_1_htf_alignment_filter,
+)
+from trading_signals.application.use_cases.strategy_v2_1_condition_filter_cio_805ad892d491 import (
+    apply_strategy_v2_1_condition_filter_cio_805ad892d491,
 )
 from trading_signals.data.market_data import market_data_status
 from trading_signals.data.canonical_trade_source import TradeUniverse
@@ -103,6 +110,7 @@ from trading_signals.memory.signal_activity_log import append_signal_log
 from trading_signals.notifications.telegram import telegram_status
 from trading_signals.risk.kill_switch import evaluate_kill_switch
 from trading_signals.risk.protection_engine import ProtectionEngineConfig, evaluate_protection_engine
+from trading_signals.risk.trading_pause import is_trading_paused
 from trading_signals.strategy.decision_engine import (
     build_signal_decision_from_modules,
     build_signal_decision_from_strategy_evaluation,
@@ -116,6 +124,65 @@ from trading_signals.strategy.strategy_gate import analyze_strategy_gate
 
 def _now_iso() -> str:
     return datetime.now(tz=UTC).isoformat()
+
+
+def _reconcile_live_trade_snapshot(
+    *,
+    live_trading_store,
+    snapshot,
+    settings: Settings,
+    notifier,
+    dry_run: bool,
+) -> list[dict[str, object]]:
+    updates = live_trading_store.update_open_trades_for_snapshot(
+        snapshot,
+        updated_at=_now_iso(),
+        breakeven_enabled=settings.live_breakeven_alert_enabled,
+        breakeven_trigger_r=settings.live_breakeven_trigger_r,
+        partial_tp_enabled=settings.live_partial_tp_alert_enabled,
+        partial_tp_trigger_r=settings.live_partial_tp_trigger_r,
+    )
+    for event in updates:
+        message = format_live_trade_event_for_telegram(
+            event,
+            partial_percentage=settings.live_partial_tp_percentage_suggestion,
+        )
+        if message:
+            notifier.publish(message, dry_run=dry_run)
+        public_message = format_public_live_trade_event_for_telegram(event)
+        if public_message:
+            send_public_signal(notifier, public_message, dry_run=dry_run)
+    return updates
+
+
+def _liquidity_distance_bucket(value: float | None) -> str:
+    if value is None:
+        return "UNKNOWN"
+    if value < 1:
+        return "<1atr"
+    if value < 2:
+        return "1-2atr"
+    if value < 4:
+        return "2-4atr"
+    return "4atr+"
+
+
+# The shadow filters append their verdict to `evaluation`, but every persisted trade record
+# is built from `signal_decision`, which was snapshotted before those filters ran. Without
+# mirroring the tokens across, a shadow verdict only ever reached logs/scheduler.log, where
+# nothing can join it back to the trade's eventual outcome — so shadow mode produced opinions
+# nobody could ever score. Mirroring keeps shadow observation measurable while still changing
+# no decision: these tokens are recorded, never read back by the strategy.
+SHADOW_FILTER_TRACE_PREFIX = ("strategy_v2_1_", SETUP_SCORE_THRESHOLD_FILTER_TRACE_PREFIX)
+
+
+def _mirror_shadow_filter_trace(evaluation, signal_decision) -> None:
+    trace = getattr(signal_decision, "decision_trace", None)
+    if trace is None:
+        return
+    for token in getattr(evaluation, "decision_trace", []) or []:
+        if str(token).startswith(SHADOW_FILTER_TRACE_PREFIX) and token not in trace:
+            trace.append(token)
 
 
 def effective_config(settings: Settings, symbols: list[str] | None = None) -> dict[str, object]:
@@ -1126,6 +1193,28 @@ def build_parallel_module_diagnostics(
     return modules
 
 
+def _paper_trace_shadow_call(service, operation: str, logger, *args, **kwargs):
+    """Run optional shadow telemetry without changing the operational flow."""
+
+    try:
+        method = getattr(service, operation)
+        return method(*args, **kwargs)
+    except Exception as exc:
+        error_code = str(
+            getattr(exc, "code", f"PAPER_TRACE_{type(exc).__name__.upper()}")
+        )[:100]
+        isolate = getattr(service, "isolate", None)
+        if callable(isolate):
+            isolate(error_code)
+        log_json(
+            logger,
+            "paper_trace_shadow_isolated",
+            operation=operation,
+            error_code=error_code,
+        )
+        return None
+
+
 def run_market_scan(
     *,
     settings: Settings,
@@ -1136,6 +1225,7 @@ def run_market_scan(
     diagnostics_store,
     metrics,
     paper_trading_store=None,
+    paper_trace_service=None,
     relaxation_shadow_store=None,
     experimental_signal_store=None,
     shadow_signal_store=None,
@@ -1206,6 +1296,13 @@ def run_market_scan(
     for symbol in valid_symbols:
         try:
             analysis = analyze_symbol(market_data=market_data, settings=settings, scan_run_id=scan_run.id, symbol=symbol)
+            if paper_trace_service is not None:
+                _paper_trace_shadow_call(
+                    paper_trace_service,
+                    "advance_snapshot",
+                    logger,
+                    analysis.entry_snapshot,
+                )
             paper_updates = []
             if settings.paper_trading_enabled and paper_trading_store is not None:
                 paper_updates = paper_trading_store.update_open_trades_for_snapshot(
@@ -1220,24 +1317,13 @@ def run_market_scan(
                 )
             live_trade_updates = []
             if settings.live_trade_tracking_enabled and live_trading_store is not None:
-                live_trade_updates = live_trading_store.update_open_trades_for_snapshot(
-                    analysis.entry_snapshot,
-                    updated_at=_now_iso(),
-                    breakeven_enabled=settings.live_breakeven_alert_enabled,
-                    breakeven_trigger_r=settings.live_breakeven_trigger_r,
-                    partial_tp_enabled=settings.live_partial_tp_alert_enabled,
-                    partial_tp_trigger_r=settings.live_partial_tp_trigger_r,
+                live_trade_updates = _reconcile_live_trade_snapshot(
+                    live_trading_store=live_trading_store,
+                    snapshot=analysis.entry_snapshot,
+                    settings=settings,
+                    notifier=notifier,
+                    dry_run=dry_run,
                 )
-                for event in live_trade_updates:
-                    message = format_live_trade_event_for_telegram(
-                        event,
-                        partial_percentage=settings.live_partial_tp_percentage_suggestion,
-                    )
-                    if message:
-                        notifier.publish(message, dry_run=dry_run)
-                    public_message = format_public_live_trade_event_for_telegram(event)
-                    if public_message:
-                        send_public_signal(notifier, public_message, dry_run=dry_run)
             scan_repo.save_snapshot(analysis.entry_snapshot)
             scan_repo.save_snapshot(analysis.higher_snapshot)
             evaluation = strategy.evaluate(analysis, evaluation_id=f"eval_{uuid4().hex[:12]}", created_at=_now_iso())
@@ -1513,6 +1599,99 @@ def run_market_scan(
                     )
                     scan_repo.save_evaluation(evaluation)
                     signal_repo.save_signal(signal)
+            strategy_v2_1_condition_filter_cio_805ad892d491 = None
+            if settings.strategy_v2_1_condition_filter_cio_805ad892d491_enabled:
+                liquidity_distance_bucket = _liquidity_distance_bucket(
+                    analysis.entry_snapshot.distance_to_liquidity_atr
+                    if analysis.entry_snapshot.distance_to_liquidity_atr is not None
+                    else analysis.entry_snapshot.metadata.get("nearest_distance_to_liquidity_atr")
+                )
+                status, strategy_v2_1_condition_result = apply_strategy_v2_1_condition_filter_cio_805ad892d491(
+                    evaluation=evaluation,
+                    signal=signal,
+                    status=status,
+                    enabled=settings.strategy_v2_1_condition_filter_cio_805ad892d491_enabled,
+                    mode=settings.strategy_v2_1_condition_filter_cio_805ad892d491_mode,
+                    context={"liquidity_distance_bucket": liquidity_distance_bucket},
+                )
+                strategy_v2_1_condition_filter_cio_805ad892d491 = strategy_v2_1_condition_result
+                should_publish_decision = signal.decision in settings.publish_signal_decisions
+                log_json(
+                    logger,
+                    "strategy_v2_1_condition_filter_cio_805ad892d491_evaluated",
+                    symbol=symbol,
+                    direction=candidate_direction,
+                    setup_type=candidate_setup_type,
+                    score=evaluation.setup_score,
+                    liquidity_distance_bucket=liquidity_distance_bucket,
+                    would_block=strategy_v2_1_condition_result.get("would_block"),
+                    blocked=strategy_v2_1_condition_result.get("blocked"),
+                    mode=strategy_v2_1_condition_result.get("mode"),
+                    reason=strategy_v2_1_condition_result.get("reason"),
+                )
+                if strategy_v2_1_condition_result.get("blocked"):
+                    log_json(
+                        logger,
+                        "strategy_v2_1_condition_filter_cio_805ad892d491_blocked",
+                        symbol=symbol,
+                        direction=candidate_direction,
+                        setup_type=candidate_setup_type,
+                        score=evaluation.setup_score,
+                        liquidity_distance_bucket=liquidity_distance_bucket,
+                        reason=strategy_v2_1_condition_result.get("reason"),
+                    )
+                    scan_repo.save_evaluation(evaluation)
+                    signal_repo.save_signal(signal)
+            setup_score_threshold_filter = None
+            if settings.setup_score_threshold_filter_enabled:
+                status, setup_score_threshold_result = apply_setup_score_threshold_filter(
+                    evaluation=evaluation,
+                    signal=signal,
+                    status=status,
+                    enabled=settings.setup_score_threshold_filter_enabled,
+                    mode=settings.setup_score_threshold_filter_mode,
+                    min_score=settings.setup_score_threshold_filter_min_score,
+                )
+                setup_score_threshold_filter = setup_score_threshold_result
+                should_publish_decision = signal.decision in settings.publish_signal_decisions
+                log_json(
+                    logger,
+                    "setup_score_threshold_filter_evaluated",
+                    symbol=symbol,
+                    direction=candidate_direction,
+                    setup_type=candidate_setup_type,
+                    score=evaluation.setup_score,
+                    min_score=setup_score_threshold_result.get("min_score"),
+                    would_block=setup_score_threshold_result.get("would_block"),
+                    blocked=setup_score_threshold_result.get("blocked"),
+                    mode=setup_score_threshold_result.get("mode"),
+                    reason=setup_score_threshold_result.get("reason"),
+                )
+                if setup_score_threshold_result.get("would_block") and not setup_score_threshold_result.get("blocked"):
+                    log_json(
+                        logger,
+                        "setup_score_threshold_filter_shadow",
+                        symbol=symbol,
+                        direction=candidate_direction,
+                        setup_type=candidate_setup_type,
+                        score=evaluation.setup_score,
+                        min_score=setup_score_threshold_result.get("min_score"),
+                        reason=setup_score_threshold_result.get("reason"),
+                    )
+                if setup_score_threshold_result.get("blocked"):
+                    log_json(
+                        logger,
+                        "setup_score_threshold_filter_blocked",
+                        symbol=symbol,
+                        direction=candidate_direction,
+                        setup_type=candidate_setup_type,
+                        score=evaluation.setup_score,
+                        min_score=setup_score_threshold_result.get("min_score"),
+                        reason=setup_score_threshold_result.get("reason"),
+                    )
+                    scan_repo.save_evaluation(evaluation)
+                    signal_repo.save_signal(signal)
+            _mirror_shadow_filter_trace(evaluation, signal_decision)
             elite_subprofile = apply_elite_subprofile_dev_tag(
                 evaluation,
                 setup_type=candidate_setup_type,
@@ -1698,7 +1877,12 @@ def run_market_scan(
                 max_consecutive_losses=settings.max_consecutive_losses,
                 max_weekly_drawdown_r=settings.max_weekly_drawdown_r,
                 cooldown_hours=settings.kill_switch_cooldown_hours,
+                consecutive_loss_reset_hours=settings.consecutive_loss_reset_hours,
             )
+            # Manual-latch pause (scripts/run_kill_switch_monitor.py + resume_trading.py):
+            # unlike kill_switch_status above (which self-resumes once its rolling loss
+            # window ages out), this only clears when a human runs resume_trading.py.
+            trading_paused_state = is_trading_paused(settings.data_storage_path / "runtime" / "trading_paused.json")
             pattern_memory = None
             performance_gate = None
             pattern_record = None
@@ -1928,7 +2112,22 @@ def run_market_scan(
                 setup_context=setup_context,
                 config=_public_short_canary_config(settings),
             )
-            if status == SignalStatus.VALID.value and should_publish_after_filters and not is_duplicate and lifecycle and lifecycle.should_publish:
+            signal_publishable = (
+                status == SignalStatus.VALID.value
+                and should_publish_after_filters
+                and not is_duplicate
+                and lifecycle
+                and lifecycle.should_publish
+            )
+            if signal_publishable and trading_paused_state.get("paused"):
+                increment_candidate_funnel(
+                    candidate_funnel,
+                    "rejected_by_trading_paused",
+                    reason="trading_paused",
+                    reason_stage="publishing",
+                )
+                evaluation.rejection_reasons.append("trading_paused_no_publish")
+            elif signal_publishable:
                 increment_candidate_funnel(candidate_funnel, "candidates_reaching_publish_signal")
                 deliveries = publish_signal(
                     signal_repo,
@@ -2029,7 +2228,7 @@ def run_market_scan(
             paper_trade_created = False
             paper_candidate_detected = False
             paper_rejection = None
-            if settings.paper_trading_enabled and paper_trading_store is not None:
+            if settings.paper_trading_enabled and paper_trading_store is not None and not trading_paused_state.get("paused"):
                 paper_tradeable, paper_tradeable_reason = paper_market_is_tradeable(
                     analysis.entry_snapshot,
                     atr_min_threshold=settings.paper_trading_atr_min_threshold,
@@ -2064,6 +2263,21 @@ def run_market_scan(
                     )
                     if paper_tradeable and paper_candidate is not None and paper_candidate.risk_reward_tp2 >= settings.paper_trading_min_rr:
                         paper_trade_created = paper_trading_store.upsert_candidate(paper_candidate)
+                        if paper_trade_created and paper_trace_service is not None:
+                            _paper_trace_shadow_call(
+                                paper_trace_service,
+                                "observe_signal",
+                                logger,
+                                signal=signal,
+                                risk_plan=risk_plan,
+                                evaluation=evaluation,
+                                entry_snapshot=analysis.entry_snapshot,
+                                higher_snapshot=analysis.higher_snapshot,
+                                setup_type=_signal_setup_type(evaluation),
+                                settings=settings,
+                                runtime_identity=scan_runtime_identity,
+                                accepted=True,
+                            )
                     if not paper_trade_created:
                         if paper_level_label(evaluation.setup_score) == "BELOW_LOW":
                             reason = "paper_rejected_below_low"
@@ -2353,6 +2567,63 @@ def run_market_scan(
             )
             scan_repo.save_error(error)
             results.append({"symbol": symbol, "error": str(exc)})
+
+    # Any store holding trades that only advance when their symbol is scanned can orphan a
+    # trade the moment that symbol leaves the watchlist. This pass was originally added for
+    # live_trading only; paper_trading has exactly the same exposure and had six trades stuck
+    # since 2026-05-04 to prove it, so both stores are reconciled here.
+    orphan_reconcilable_stores: list[tuple[str, object]] = []
+    if settings.live_trade_tracking_enabled and live_trading_store is not None:
+        orphan_reconcilable_stores.append(("live", live_trading_store))
+    if settings.paper_trading_enabled and paper_trading_store is not None:
+        orphan_reconcilable_stores.append(("paper", paper_trading_store))
+    if orphan_reconcilable_stores:
+        watched_symbols = {str(symbol).strip().upper() for symbol in valid_symbols}
+        orphaned_by_symbol: dict[str, list[tuple[str, object]]] = {}
+        for label, store in orphan_reconcilable_stores:
+            for trade in store.list_trades():
+                # Openness is the absence of closed_at, not status == "open": a paper trade
+                # sitting at tp1_hit has taken partial profit but is still running, and the
+                # narrower status check silently skipped it.
+                if str(trade.get("closed_at") or "").strip():
+                    continue
+                symbol_key = str(trade.get("symbol", "")).strip().upper()
+                if not symbol_key or symbol_key in watched_symbols:
+                    continue
+                pending = orphaned_by_symbol.setdefault(symbol_key, [])
+                if not any(existing_label == label for existing_label, _ in pending):
+                    pending.append((label, store))
+        for orphaned_symbol in sorted(orphaned_by_symbol):
+            try:
+                orphan_analysis = analyze_symbol(
+                    market_data=market_data,
+                    settings=settings,
+                    scan_run_id=scan_run.id,
+                    symbol=orphaned_symbol,
+                )
+            except Exception as exc:
+                log_json(
+                    logger,
+                    "orphaned_trade_reconciliation_failed",
+                    symbol=orphaned_symbol,
+                    stores=[label for label, _ in orphaned_by_symbol[orphaned_symbol]],
+                    error=str(exc),
+                )
+                continue
+            for label, store in orphaned_by_symbol[orphaned_symbol]:
+                if label == "live":
+                    _reconcile_live_trade_snapshot(
+                        live_trading_store=store,
+                        snapshot=orphan_analysis.entry_snapshot,
+                        settings=settings,
+                        notifier=notifier,
+                        dry_run=dry_run,
+                    )
+                else:
+                    store.update_open_trades_for_snapshot(
+                        orphan_analysis.entry_snapshot,
+                        updated_at=_now_iso(),
+                    )
 
     scan_run.status = "completed"
     scan_run.finished_at = _now_iso()

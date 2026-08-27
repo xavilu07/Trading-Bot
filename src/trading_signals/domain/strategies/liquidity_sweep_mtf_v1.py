@@ -34,6 +34,7 @@ class LiquiditySweepMTFV1:
         directional_distance_check = "passed"
         nearest_liquidity_check = "passed" if nearest_distance <= self.settings.max_distance_to_liquidity_atr else "extreme"
         relaxed_gates_enabled = bool(getattr(self.settings, "relaxed_strategy_gates_enabled", False))
+        secondary_signal_enabled = bool(getattr(self.settings, "secondary_signal_enabled", False))
         secondary_direction = "none"
         if break_of_structure == "bullish_bos":
             secondary_direction = SignalDecision.LONG.value
@@ -47,6 +48,7 @@ class LiquiditySweepMTFV1:
             f"break_of_structure={break_of_structure}",
             f"session={session}",
             f"relaxed_strategy_gates_enabled={str(relaxed_gates_enabled).lower()}",
+            f"secondary_signal_enabled={str(secondary_signal_enabled).lower()}",
             f"base_setup_score={entry.setup_score}",
             f"min_setup_score_required={effective_setup_score_threshold}",
             f"secondary_setup_score_required={effective_secondary_score_threshold}",
@@ -242,7 +244,8 @@ class LiquiditySweepMTFV1:
                 passed.append("primary_sweep_setup")
                 passed.append("directional_confluence")
             elif (
-                session != "ASIA"
+                secondary_signal_enabled
+                and session != "ASIA"
                 and
                 entry.trend == higher.trend == "bullish"
                 and entry.liquidity_sweep == "none"
@@ -263,7 +266,8 @@ class LiquiditySweepMTFV1:
                     "secondary_nearest_liquidity",
                 ])
             elif (
-                session != "ASIA"
+                secondary_signal_enabled
+                and session != "ASIA"
                 and
                 entry.trend == higher.trend == "bearish"
                 and entry.liquidity_sweep == "none"
@@ -284,6 +288,21 @@ class LiquiditySweepMTFV1:
                     "secondary_nearest_liquidity",
                 ])
             else:
+                secondary_suppressed = (
+                    not secondary_signal_enabled
+                    and session != "ASIA"
+                    and entry.trend == higher.trend
+                    and entry.trend in {"bullish", "bearish"}
+                    and entry.liquidity_sweep == "none"
+                    and break_of_structure == f"{entry.trend}_bos"
+                    and secondary_volume_favorable
+                    and secondary_rsi_aligned
+                    and secondary_nearest_liquidity_valid
+                    and secondary_has_structure
+                    and score >= effective_secondary_score_threshold
+                )
+                if secondary_suppressed:
+                    failed.append("secondary_setup_disabled")
                 fallback_direction = SignalDecision.NO_TRADE.value
                 if entry.liquidity_sweep == "bullish_sweep" or secondary_direction == SignalDecision.LONG.value:
                     fallback_direction = SignalDecision.LONG.value

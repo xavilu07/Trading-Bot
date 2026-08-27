@@ -150,3 +150,53 @@ def test_disabled_agent_is_skipped_without_execution(tmp_path: Path) -> None:
     risk = next(item for item in report["interventions"] if item["agent"] == "risk_director")
     assert risk["stage"] == "disabled"
     assert risk["data"]["disabled"] is True
+
+
+def test_lock_held_by_a_living_process_is_not_stale(tmp_path: Path) -> None:
+    """Age alone said nothing about whether a lock was abandoned.
+
+    A long-lived singleton holds its lock for as long as it runs, so the health
+    report sat at DEGRADED/stale_locks purely because the telegram listener had
+    been up for more than two hours.
+    """
+    import json as _json
+    import os as _os
+    import time as _time
+
+    from trading_signals.agents.system_health import _lock_status
+
+    locks = tmp_path / "locks"
+    locks.mkdir()
+    alive = locks / "telegram_listener.lock"
+    alive.write_text(_json.dumps({"pid": _os.getpid(), "created_at": "2026-08-19T06:56:26+00:00"}), encoding="utf-8")
+    dead = locks / "abandoned.lock"
+    dead.write_text(_json.dumps({"pid": 2 ** 22, "created_at": "2026-08-19T06:56:26+00:00"}), encoding="utf-8")
+    old = _time.time() - 86400
+    for item in (alive, dead):
+        _os.utime(item, (old, old))
+
+    status = _lock_status(locks)
+
+    assert status["active"] == 2
+    assert status["stale"] == 1
+    assert status["status"] == "DEGRADED"
+
+
+def test_lock_status_is_healthy_when_every_holder_is_alive(tmp_path: Path) -> None:
+    import json as _json
+    import os as _os
+    import time as _time
+
+    from trading_signals.agents.system_health import _lock_status
+
+    locks = tmp_path / "locks"
+    locks.mkdir()
+    item = locks / "telegram_listener.lock"
+    item.write_text(_json.dumps({"pid": _os.getpid()}), encoding="utf-8")
+    old = _time.time() - 86400
+    _os.utime(item, (old, old))
+
+    status = _lock_status(locks)
+
+    assert status["stale"] == 0
+    assert status["reason"] == "ok"

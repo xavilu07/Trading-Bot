@@ -142,8 +142,33 @@ def _freshness_status(path: Path, max_age_hours: float) -> dict[str, Any]:
 
 def _lock_status(path: Path) -> dict[str, Any]:
     locks = list(path.glob("*.lock")) if path.exists() else []
-    stale = [item for item in locks if (file_age_seconds(item) or 0) > 7200]
+    stale = [item for item in locks if (file_age_seconds(item) or 0) > 7200 and not _lock_holder_alive(item)]
     return {"status": DEGRADED if stale else HEALTHY, "reason": "stale_locks" if stale else "ok", "active": len(locks), "stale": len(stale)}
+
+
+def _lock_holder_alive(path: Path) -> bool:
+    """Is the process that took this lock still running?
+
+    Age alone said nothing: a long-lived singleton holds its lock for as long as
+    it runs, so the health report sat at DEGRADED/stale_locks purely because the
+    telegram listener had been up for more than two hours. Acting on that reading
+    by deleting the lock would have allowed a second listener to start.
+    """
+    try:
+        pid = int((json.loads(path.read_text(encoding="utf-8")) or {}).get("pid") or 0)
+    except (OSError, ValueError, json.JSONDecodeError, AttributeError):
+        return False
+    if pid <= 0:
+        return False
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    except OSError:
+        return False
+    return True
 
 
 def _dashboard_status(data_path: Path, reports_path: Path) -> dict[str, Any]:

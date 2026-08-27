@@ -1,0 +1,19 @@
+[Unit]
+Description=Quantum Investment Council Strategy Simulator dataset refresh
+Documentation=file:/root/bot/deploy/systemd/README.md
+
+[Service]
+Type=oneshot
+WorkingDirectory=/root/bot
+Environment=PYTHONPATH=/root/bot/src
+EnvironmentFile=-/root/bot/.env
+# --max-conditions 2 is deliberate, not a default. Depth 3 did not finish in 25 minutes
+# against the current 1502-trade dataset (combinatorial blow-up) and would only grow;
+# depth 2 completes in ~3 minutes and still rewrites every report file, including an
+# empty triple_filters.json, so no stale snapshot survives for revalidation to read.
+# Both edges currently in the knowledge base carry a single condition, so single_filters
+# alone already covers what run_revalidation_engine matches against.
+ExecStart=/root/bot/.venv/bin/python /root/bot/scripts/run_strategy_simulator.py --max-conditions 2
+TimeoutStartSec=3600
+StandardOutput=journal
+StandardError=journal

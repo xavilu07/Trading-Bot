@@ -11,6 +11,7 @@ from trading_signals.agents.proposal_store import DEFAULT_PROPOSALS_PATH, update
 from trading_signals.agents.qic_telegram_config import load_qic_telegram_config
 from trading_signals.agents.qic_runtime import append_jsonl, atomic_write_json, read_json_safe, utc_now
 from trading_signals.agents.strategy_knowledge_base import DEFAULT_KNOWLEDGE_BASE_PATH, record_proposal_review
+from trading_signals.risk.trading_pause import DEFAULT_PAUSE_PATH, is_trading_paused, pause_trading, resume_trading
 
 DEFAULT_QIC_TELEGRAM_OFFSET_PATH = Path("data") / "qic" / "telegram_update_offset.json"
 DEFAULT_QIC_CALLBACK_HISTORY_PATH = Path("data") / "qic" / "telegram_callbacks.jsonl"
@@ -64,29 +65,20 @@ def build_approval_payload(proposal: dict[str, Any], *, chat_id: str) -> dict[st
 
 
 def resolve_qic_telegram_config(settings: object) -> dict[str, Any]:
-    if _has_explicit_telegram_settings(settings):
-        token = (
-            str(getattr(settings, "qic_telegram_bot_token", "") or "")
-            or str(getattr(settings, "agent_telegram_bot_token", "") or "")
-            or str(getattr(settings, "telegram_bot_token", "") or "")
-        )
-        chat_id = (
-            str(getattr(settings, "qic_telegram_chat_id", "") or "")
-            or str(getattr(settings, "agent_telegram_chat_id", "") or "")
-            or str(getattr(settings, "telegram_dev_chat_id", "") or "")
-        )
-        enabled = _as_bool(getattr(settings, "qic_telegram_enabled", False))
-        if not enabled:
-            enabled = _as_bool(getattr(settings, "agent_telegram_approval_enabled", False))
-        chat_ids = _chat_ids(chat_id)
-        source = "settings"
-    else:
-        config = load_qic_telegram_config()
-        token = str(config.get("bot_token") or "")
-        chat_id = str(config.get("chat_id") or "")
-        enabled = _as_bool(config.get("enabled", False))
-        chat_ids = config.get("chat_ids") or _chat_ids(chat_id)
-        source = str(config.get("source") or "persistent_config")
+    # Single source of truth for WHO to talk to (bot token + chat id): load_qic_telegram_config(),
+    # the same resolver the listener and approval worker use. `settings` only controls WHETHER
+    # QIC is allowed to send (an explicit opt-in flag) and cosmetic delivery preferences — it must
+    # never diverge from the listener on which chat/bot is actually being used.
+    config = load_qic_telegram_config()
+    token = str(config.get("bot_token") or "")
+    chat_id = str(config.get("chat_id") or "")
+    chat_ids = config.get("chat_ids") or _chat_ids(chat_id)
+    source = str(config.get("source") or "missing")
+
+    enabled = _as_bool(getattr(settings, "qic_telegram_enabled", False))
+    if not enabled:
+        enabled = _as_bool(getattr(settings, "agent_telegram_approval_enabled", False))
+
     return {
         "enabled": enabled,
         "bot_token": token,
@@ -97,23 +89,6 @@ def resolve_qic_telegram_config(settings: object) -> dict[str, Any]:
         "configured": bool(token and chat_id),
         "source": source,
     }
-
-
-def _has_explicit_telegram_settings(settings: object) -> bool:
-    marker = getattr(settings, "qic_telegram_settings_explicit", None)
-    if marker is not None:
-        return _as_bool(marker)
-    names = (
-        "qic_telegram_enabled",
-        "qic_telegram_bot_token",
-        "qic_telegram_chat_id",
-        "agent_telegram_approval_enabled",
-        "agent_telegram_bot_token",
-        "agent_telegram_chat_id",
-        "telegram_bot_token",
-        "telegram_dev_chat_id",
-    )
-    return any(hasattr(settings, name) for name in names)
 
 
 def build_qic_test_payload(*, chat_id: str) -> dict[str, Any]:
@@ -761,6 +736,7 @@ def process_telegram_update(
     qic_output_path: Path = Path("reports") / "qic",
     authorized_chat_ids: list[str] | None = None,
     callback_history_path: Path = DEFAULT_QIC_CALLBACK_HISTORY_PATH,
+    pause_path: Path = DEFAULT_PAUSE_PATH,
 ) -> dict[str, Any]:
     if isinstance(update.get("callback_query"), dict):
         return process_approval_update(
@@ -783,6 +759,8 @@ def process_telegram_update(
         command,
         proposal_store_path=proposal_store_path,
         qic_output_path=qic_output_path,
+        actor=chat_id,
+        pause_path=pause_path,
     )
     return {
         "handled": True,
@@ -960,14 +938,34 @@ def build_qic_command_response(
     *,
     proposal_store_path: Path = DEFAULT_PROPOSALS_PATH,
     qic_output_path: Path = Path("reports") / "qic",
+    actor: str = "telegram",
+    pause_path: Path = DEFAULT_PAUSE_PATH,
 ) -> str:
     proposals = _load_proposals_for_command(proposal_store_path)
     if command in {"/start", "/help"}:
         return (
             "🤖 QIC DEV commands\n"
             "/status /health /qic /research /proposals /pending /history\n"
-            "/performance /agents /memory /edges /errors /help"
+            "/performance /agents /memory /edges /errors /help\n"
+            "/trading_status /pause_trading /resume_trading"
         )
+    if command == "/trading_status":
+        state = is_trading_paused(pause_path)
+        if not state.get("paused"):
+            return "🟢 Trading activo (no pausado)."
+        return _compact("🔴 Trading pausado", {"reason": state.get("reason"), "paused_at": state.get("paused_at"), "resume_requires": state.get("resume_requires")})
+    if command == "/pause_trading":
+        already_paused = is_trading_paused(pause_path).get("paused")
+        pause_trading(reason="manual_telegram", details={"actor": actor}, path=pause_path)
+        if already_paused:
+            return "🔴 Trading ya estaba pausado. Usa /resume_trading para reanudar."
+        return f"🔴 Trading pausado manualmente por {actor}. Usa /resume_trading para reanudar."
+    if command == "/resume_trading":
+        before = is_trading_paused(pause_path)
+        if not before.get("paused"):
+            return "🟢 Trading ya estaba activo, no había ninguna pausa que levantar."
+        resume_trading(actor=actor, path=pause_path)
+        return f"🟢 Trading reanudado por {actor}."
     if command == "/status":
         run = read_json_safe(qic_output_path / "autonomous_run.json", {})
         state = read_json_safe(qic_output_path / "state_of_council.json", {})

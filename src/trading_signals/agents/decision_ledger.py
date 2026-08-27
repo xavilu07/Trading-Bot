@@ -19,6 +19,7 @@ def append_decision_ledger_entry(
     human_action: str = "",
     implementation_status: str = "",
     notes: str = "",
+    later_outcome: str = "",
 ) -> dict[str, Any]:
     proposal = proposal or {}
     entry = {
@@ -37,7 +38,10 @@ def append_decision_ledger_entry(
         "final_decision": final_decision or proposal.get("action") or "NO_ACTIONABLE_PROPOSAL",
         "human_action": human_action,
         "implementation_status": implementation_status or proposal.get("status") or "",
-        "later_outcome": "",
+        # Populated by scripts/run_qic_reconciliation.py once real closed trades exist to
+        # verify this proposal's claim against — empty until then, never mutated in place
+        # (JSONL is append-only; reconciliation appends a *new* entry with this filled in).
+        "later_outcome": later_outcome,
         "notes": notes,
     }
     path.parent.mkdir(parents=True, exist_ok=True)
