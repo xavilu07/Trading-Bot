@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from trading_signals.app.settings import Settings
+from trading_signals.application.use_cases.analyze_symbol import analyze_symbol
+from trading_signals.domain.strategies.liquidity_sweep_mtf_v1 import LiquiditySweepMTFV1
 from trading_signals.application.use_cases.setup_score_threshold_filter import (
     BLOCK_REASON,
     DEFAULT_MIN_SCORE,
@@ -9,6 +12,7 @@ from trading_signals.application.use_cases.setup_score_threshold_filter import (
     apply_setup_score_threshold_filter,
     evaluate_setup_score_threshold_filter,
 )
+from tests.fixtures.market_data import FakeMarketDataClient, generate_trend_dataset
 
 
 @dataclass
@@ -178,3 +182,68 @@ def test_applying_twice_does_not_duplicate_the_marker() -> None:
 
     assert evaluation.failed_filters.count(SHADOW_MARKER) == 1
     assert evaluation.decision_trace.count("setup_score_threshold_filter_mode=shadow") == 1
+
+
+def _real_long_evaluation(tmp_path):
+    """A genuine strategy evaluation, not a stand-in - the apply path mutates it."""
+    settings = Settings(data_storage_path=tmp_path)
+    dataset = generate_trend_dataset(direction="up")
+    market_data = FakeMarketDataClient({
+        ("BTCUSDT", "1h"): dataset,
+        ("BTCUSDT", "4h"): dataset,
+    })
+    analysis = analyze_symbol(
+        market_data=market_data, settings=settings, scan_run_id="run_test", symbol="BTCUSDT"
+    )
+    return LiquiditySweepMTFV1(settings).evaluate(analysis, "eval_test", analysis.entry_snapshot.created_at)
+
+
+def test_a_real_signal_above_the_floor_passes_through_untouched(tmp_path) -> None:
+    """The fixture setup scores 100, so the 90 floor must leave it exactly as it was."""
+    evaluation = _real_long_evaluation(tmp_path)
+    signal = Signal()
+    assert evaluation.decision == "long"
+    assert evaluation.setup_score >= 90.0
+    failed_before = list(evaluation.failed_filters)
+
+    status, result = apply_setup_score_threshold_filter(
+        evaluation=evaluation, signal=signal, status="valid", enabled=True, mode="hard_block", min_score=90
+    )
+
+    assert status == "valid"
+    assert evaluation.decision == "long"
+    assert signal.decision == "long"
+    assert result["reason"] == "score_above_threshold"
+    assert evaluation.failed_filters == failed_before
+
+
+def test_shadow_marks_a_real_signal_below_the_floor_without_changing_it(tmp_path) -> None:
+    evaluation = _real_long_evaluation(tmp_path)
+    evaluation.setup_score = 72.0
+    signal = Signal()
+
+    status, result = apply_setup_score_threshold_filter(
+        evaluation=evaluation, signal=signal, status="valid", enabled=True, mode="shadow", min_score=90
+    )
+
+    assert status == "valid"
+    assert evaluation.decision == "long"
+    assert signal.decision == "long"
+    assert result["reason"] == "shadow_would_block"
+    assert SHADOW_MARKER in evaluation.failed_filters
+    assert "setup_score_threshold_filter_would_block=true" in evaluation.decision_trace
+
+
+def test_hard_block_would_have_refused_that_same_real_signal(tmp_path) -> None:
+    evaluation = _real_long_evaluation(tmp_path)
+    evaluation.setup_score = 72.0
+    signal = Signal()
+
+    status, _ = apply_setup_score_threshold_filter(
+        evaluation=evaluation, signal=signal, status="valid", enabled=True, mode="hard_block", min_score=90
+    )
+
+    assert status == "rejected"
+    assert evaluation.decision == "no_trade"
+    assert signal.status == "rejected"
+    assert BLOCK_REASON in evaluation.rejection_reasons
