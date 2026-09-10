@@ -126,6 +126,14 @@ def _now_iso() -> str:
     return datetime.now(tz=UTC).isoformat()
 
 
+_TIMEFRAME_HOURS = {"1m": 1 / 60, "5m": 1 / 12, "15m": 0.25, "30m": 0.5, "1h": 1.0, "2h": 2.0, "4h": 4.0, "1d": 24.0}
+
+
+def timeframe_hours(timeframe: str) -> float:
+    """Hours per candle for a timeframe label; 1h for anything unrecognised."""
+    return _TIMEFRAME_HOURS.get(str(timeframe).strip().lower(), 1.0)
+
+
 def _reconcile_live_trade_snapshot(
     *,
     live_trading_store,
@@ -141,6 +149,7 @@ def _reconcile_live_trade_snapshot(
         breakeven_trigger_r=settings.live_breakeven_trigger_r,
         partial_tp_enabled=settings.live_partial_tp_alert_enabled,
         partial_tp_trigger_r=settings.live_partial_tp_trigger_r,
+        expiry_hours=timeframe_hours(settings.entry_timeframe) * settings.live_trade_expiry_candles,
     )
     for event in updates:
         message = format_live_trade_event_for_telegram(

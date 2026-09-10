@@ -130,6 +130,7 @@ class LiveTradingStore:
         breakeven_trigger_r: float,
         partial_tp_enabled: bool,
         partial_tp_trigger_r: float,
+        expiry_hours: float = 0.0,
     ) -> list[dict[str, object]]:
         trades: list[dict[str, object]] = list(self.list_trades())
         events: list[dict[str, object]] = []
@@ -144,6 +145,16 @@ class LiveTradingStore:
                 trade["result_r"] = f"{result_r:.4f}"
                 trade["closed_at"] = updated_at
                 events.append({"event_type": status, "trade": dict(trade), "current_price": snapshot.close})
+                changed = True
+                continue
+            if expiry_hours > 0 and live_trade_age_hours(trade, updated_at) >= expiry_hours:
+                # Marked to market rather than booked flat, the same convention the paper
+                # side uses. Neither Telegram formatter renders "expired", so this closes
+                # the row without publishing anything.
+                trade["status"] = "expired"
+                trade["result_r"] = f"{current_r:.4f}"
+                trade["closed_at"] = updated_at
+                events.append({"event_type": "expired", "trade": dict(trade), "current_price": snapshot.close})
                 changed = True
                 continue
             if breakeven_enabled and current_r >= breakeven_trigger_r and str(trade.get("breakeven_triggered", "false")).lower() != "true":
@@ -263,6 +274,20 @@ def build_live_candidate_from_signal(
         reasons=reasons,
         public_published=public_published,
     )
+
+
+def live_trade_age_hours(trade: dict[str, object], now_iso: str) -> float:
+    """Hours between the trade's creation and `now_iso`; 0.0 when either stamp is unusable."""
+    try:
+        start = datetime.fromisoformat(str(trade.get("created_at") or "").replace("Z", "+00:00"))
+        now = datetime.fromisoformat(str(now_iso).replace("Z", "+00:00"))
+    except ValueError:
+        return 0.0
+    if start.tzinfo is None:
+        start = start.replace(tzinfo=UTC)
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=UTC)
+    return max(0.0, (now - start).total_seconds() / 3600.0)
 
 
 def evaluate_live_trade(trade: dict[str, object], snapshot: MarketSnapshot) -> tuple[str, float, float]:

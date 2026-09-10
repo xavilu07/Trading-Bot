@@ -7,6 +7,7 @@ from trading_signals.application.use_cases.live_trading import (
     format_live_daily_summary_for_telegram,
     format_public_live_trade_event_for_telegram,
     format_live_trade_event_for_telegram,
+    live_trade_age_hours,
 )
 from trading_signals.domain.entities.signal_decision import SignalDecision
 from trading_signals.domain.entities.strategy_evaluation import StrategyEvaluation
@@ -400,3 +401,118 @@ def test_live_daily_summary(tmp_path) -> None:
     assert summary["avg_r"] == 2.0
     assert summary["best_setup"] == "MAIN_SIGNAL"
     assert "Resumen live trading diario" in format_live_daily_summary_for_telegram(summary)
+
+
+def _expire_snapshot(close: float, high: float = 103.0, low: float = 99.0):
+    snapshot = build_snapshot(
+        scan_run_id="run_test", symbol="BTCUSDT", timeframe="1h",
+        trend="bullish", structure="bullish", sweep="none", score=80.0, distance=1.0,
+    )
+    snapshot.high = high
+    snapshot.low = low
+    snapshot.close = close
+    return snapshot
+
+
+def test_live_trade_expires_marked_to_market(tmp_path) -> None:
+    """A signal that never touches SL or TP used to stay open forever."""
+    store = LiveTradingStore(tmp_path)
+    create_live_trade(store)
+
+    events = store.update_open_trades_for_snapshot(
+        _expire_snapshot(close=102.0),
+        updated_at="2026-01-02T00:00:00+00:00",
+        breakeven_enabled=True,
+        breakeven_trigger_r=1.0,
+        partial_tp_enabled=True,
+        partial_tp_trigger_r=1.5,
+        expiry_hours=24.0,
+    )
+
+    assert events[0]["event_type"] == "expired"
+    trade = store.list_trades()[0]
+    assert trade["status"] == "expired"
+    # entry 100, stop 95 -> risk 5, so a close of 102 is +0.4R, not a flat 0.
+    assert trade["result_r"] == "0.4000"
+    assert trade["closed_at"] == "2026-01-02T00:00:00+00:00"
+
+
+def test_live_trade_stays_open_before_expiry(tmp_path) -> None:
+    store = LiveTradingStore(tmp_path)
+    create_live_trade(store)
+
+    events = store.update_open_trades_for_snapshot(
+        _expire_snapshot(close=102.0),
+        updated_at="2026-01-01T01:00:00+00:00",
+        breakeven_enabled=True,
+        breakeven_trigger_r=1.0,
+        partial_tp_enabled=True,
+        partial_tp_trigger_r=1.5,
+        expiry_hours=24.0,
+    )
+
+    assert events == []
+    assert store.list_trades()[0]["status"] == "open"
+
+
+def test_live_trade_without_expiry_configured_stays_open(tmp_path) -> None:
+    """expiry_hours=0 keeps the previous behaviour, so the feature is opt-out."""
+    store = LiveTradingStore(tmp_path)
+    create_live_trade(store)
+
+    events = store.update_open_trades_for_snapshot(
+        _expire_snapshot(close=102.0),
+        updated_at="2026-03-01T00:00:00+00:00",
+        breakeven_enabled=False,
+        breakeven_trigger_r=1.0,
+        partial_tp_enabled=False,
+        partial_tp_trigger_r=1.5,
+    )
+
+    assert events == []
+    assert store.list_trades()[0]["status"] == "open"
+
+
+def test_stop_loss_beats_expiry_on_the_same_candle(tmp_path) -> None:
+    store = LiveTradingStore(tmp_path)
+    create_live_trade(store)
+
+    events = store.update_open_trades_for_snapshot(
+        _expire_snapshot(close=95.0, high=101.0, low=94.0),
+        updated_at="2026-01-05T00:00:00+00:00",
+        breakeven_enabled=True,
+        breakeven_trigger_r=1.0,
+        partial_tp_enabled=True,
+        partial_tp_trigger_r=1.5,
+        expiry_hours=24.0,
+    )
+
+    assert events[0]["event_type"] == "sl_hit"
+    assert store.list_trades()[0]["result_r"] == "-1.0000"
+
+
+def test_expired_live_trade_notifies_nobody(tmp_path) -> None:
+    """Expiry is bookkeeping, not news: neither channel should get a message."""
+    store = LiveTradingStore(tmp_path)
+    create_live_trade(store, public_published=True)
+
+    events = store.update_open_trades_for_snapshot(
+        _expire_snapshot(close=102.0),
+        updated_at="2026-01-02T00:00:00+00:00",
+        breakeven_enabled=False,
+        breakeven_trigger_r=1.0,
+        partial_tp_enabled=False,
+        partial_tp_trigger_r=1.5,
+        expiry_hours=24.0,
+    )
+
+    assert format_live_trade_event_for_telegram(events[0]) == ""
+    assert format_public_live_trade_event_for_telegram(events[0]) == ""
+
+
+def test_live_trade_age_hours_handles_unusable_stamps() -> None:
+    assert live_trade_age_hours({"created_at": "2026-01-01T00:00:00+00:00"}, "2026-01-02T00:00:00+00:00") == 24.0
+    assert live_trade_age_hours({"created_at": ""}, "2026-01-02T00:00:00+00:00") == 0.0
+    assert live_trade_age_hours({"created_at": "not-a-date"}, "2026-01-02T00:00:00+00:00") == 0.0
+    # A clock that runs backwards must not produce a negative age.
+    assert live_trade_age_hours({"created_at": "2026-01-02T00:00:00+00:00"}, "2026-01-01T00:00:00+00:00") == 0.0
