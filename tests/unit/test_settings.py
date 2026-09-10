@@ -50,6 +50,28 @@ def test_private_runtime_report_settings_defaults_and_env(monkeypatch) -> None:
     assert str(settings.private_runtime_report_state_file) == "data/runtime/custom_private_report.json"
 
 
+def test_scan_symbols_default_universe(monkeypatch) -> None:
+    monkeypatch.delenv("SCAN_SYMBOLS", raising=False)
+
+    symbols = Settings().scan_symbols
+
+    assert len(symbols) == 12
+    assert symbols[:7] == ["BTCUSDT", "ETHUSDT", "SOLUSDT", "XRPUSDT", "BNBUSDT", "DOGEUSDT", "AVAXUSDT"]
+    assert {"LINKUSDT", "UNIUSDT", "SUIUSDT", "LTCUSDT", "AAVEUSDT"}.issubset(set(symbols))
+    assert len(set(symbols)) == len(symbols)
+
+    monkeypatch.setenv("SCAN_SYMBOLS", "BTCUSDT,ETHUSDT")
+    assert Settings().scan_symbols == ["BTCUSDT", "ETHUSDT"]
+
+
+def test_live_trade_expiry_candles_default_matches_paper(monkeypatch) -> None:
+    monkeypatch.delenv("LIVE_TRADE_EXPIRY_CANDLES", raising=False)
+    assert Settings().live_trade_expiry_candles == 24
+
+    monkeypatch.setenv("LIVE_TRADE_EXPIRY_CANDLES", "48")
+    assert Settings().live_trade_expiry_candles == 48
+
+
 def test_active_signal_cleanup_settings_defaults_and_env(monkeypatch) -> None:
     monkeypatch.delenv("ACTIVE_SIGNAL_CLEANUP_ENABLED", raising=False)
     monkeypatch.delenv("ACTIVE_SIGNAL_CLEANUP_DRY_RUN", raising=False)
@@ -59,19 +81,20 @@ def test_active_signal_cleanup_settings_defaults_and_env(monkeypatch) -> None:
     settings = Settings()
 
     assert settings.active_signal_cleanup_enabled is False
-    assert settings.active_signal_cleanup_dry_run is True
+    # Enforcing by default since 2026-09-10: a zombie signal is a bug to close, not to warn about.
+    assert settings.active_signal_cleanup_dry_run is False
     assert settings.active_signal_cleanup_zombie_hours == 48
     assert settings.active_signal_cleanup_dev_note_enabled is False
 
     monkeypatch.setenv("ACTIVE_SIGNAL_CLEANUP_ENABLED", "true")
-    monkeypatch.setenv("ACTIVE_SIGNAL_CLEANUP_DRY_RUN", "false")
+    monkeypatch.setenv("ACTIVE_SIGNAL_CLEANUP_DRY_RUN", "true")
     monkeypatch.setenv("ACTIVE_SIGNAL_CLEANUP_ZOMBIE_HOURS", "72")
     monkeypatch.setenv("ACTIVE_SIGNAL_CLEANUP_DEV_NOTE_ENABLED", "true")
 
     settings = Settings()
 
     assert settings.active_signal_cleanup_enabled is True
-    assert settings.active_signal_cleanup_dry_run is False
+    assert settings.active_signal_cleanup_dry_run is True
     assert settings.active_signal_cleanup_zombie_hours == 72
     assert settings.active_signal_cleanup_dev_note_enabled is True
 
@@ -94,26 +117,26 @@ def test_active_signal_expiration_settings_defaults_and_env(monkeypatch) -> None
     assert settings.active_signal_default_expiration_hours == 72
 
 
-def test_active_signal_cleanup_scheduler_dry_run_settings_defaults_and_env(monkeypatch) -> None:
-    monkeypatch.delenv("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_DRY_RUN_ENABLED", raising=False)
-    monkeypatch.delenv("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_DRY_RUN_INTERVAL_CYCLES", raising=False)
-    monkeypatch.delenv("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_DRY_RUN_DEV_NOTE_ENABLED", raising=False)
+def test_active_signal_cleanup_scheduler_settings_defaults_and_env(monkeypatch) -> None:
+    monkeypatch.delenv("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_ENABLED", raising=False)
+    monkeypatch.delenv("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_INTERVAL_CYCLES", raising=False)
+    monkeypatch.delenv("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_DEV_NOTE_ENABLED", raising=False)
 
     settings = Settings()
 
-    assert settings.active_signal_cleanup_scheduler_dry_run_enabled is True
-    assert settings.active_signal_cleanup_scheduler_dry_run_interval_cycles == 1
-    assert settings.active_signal_cleanup_scheduler_dry_run_dev_note_enabled is False
+    assert settings.active_signal_cleanup_scheduler_enabled is True
+    assert settings.active_signal_cleanup_scheduler_interval_cycles == 1
+    assert settings.active_signal_cleanup_scheduler_dev_note_enabled is False
 
-    monkeypatch.setenv("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_DRY_RUN_ENABLED", "false")
-    monkeypatch.setenv("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_DRY_RUN_INTERVAL_CYCLES", "3")
-    monkeypatch.setenv("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_DRY_RUN_DEV_NOTE_ENABLED", "true")
+    monkeypatch.setenv("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_ENABLED", "false")
+    monkeypatch.setenv("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_INTERVAL_CYCLES", "3")
+    monkeypatch.setenv("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_DEV_NOTE_ENABLED", "true")
 
     settings = Settings()
 
-    assert settings.active_signal_cleanup_scheduler_dry_run_enabled is False
-    assert settings.active_signal_cleanup_scheduler_dry_run_interval_cycles == 3
-    assert settings.active_signal_cleanup_scheduler_dry_run_dev_note_enabled is True
+    assert settings.active_signal_cleanup_scheduler_enabled is False
+    assert settings.active_signal_cleanup_scheduler_interval_cycles == 3
+    assert settings.active_signal_cleanup_scheduler_dev_note_enabled is True
 
 
 def test_edge_optimizer_active_settings_defaults_and_env(monkeypatch) -> None:

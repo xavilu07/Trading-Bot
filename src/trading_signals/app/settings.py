@@ -37,10 +37,17 @@ class Settings:
     binance_market_type: str = os.getenv("BINANCE_MARKET_TYPE", "spot")
     bybit_base_url: str = os.getenv("BYBIT_BASE_URL", "https://api.bybit.com")
     bybit_category: str = os.getenv("BYBIT_CATEGORY", "spot")
+    # Widened from seven on 2026-09-10, because throughput — not selectivity — is what
+    # starves the score>=90 floor of evidence: 4 directional decisions in the first ten
+    # days of September against 172 in August. The five additions were picked on measured
+    # spread (8 samples each, all <=0.019%), which is what the cost model assumes:
+    # spread_r=0.01R is ~0.012% of price at the ~1.2% stop distances this strategy takes.
+    # Anything wider silently under-books its own costs, so volume alone is not enough.
     scan_symbols: list[str] = field(
         default_factory=lambda: _csv_env(
             "SCAN_SYMBOLS",
-            "BTCUSDT,ETHUSDT,SOLUSDT,XRPUSDT,BNBUSDT,DOGEUSDT,AVAXUSDT",
+            "BTCUSDT,ETHUSDT,SOLUSDT,XRPUSDT,BNBUSDT,DOGEUSDT,AVAXUSDT,"
+            "LINKUSDT,UNIUSDT,SUIUSDT,LTCUSDT,AAVEUSDT",
         )
     )
     entry_timeframe: str = os.getenv("ENTRY_TIMEFRAME", "1h")
@@ -232,8 +239,12 @@ class Settings:
     active_signal_cleanup_enabled: bool = field(
         default_factory=lambda: _bool_env("ACTIVE_SIGNAL_CLEANUP_ENABLED", "false")
     )
+    # Defaulted to enforcing on 2026-09-10. A signal still active 1674 hours after
+    # publication is a bug, not something to keep warning about: the scheduler had been
+    # reporting the same three since 2026-08-21 without ever closing one. Each close is
+    # backed up per file first, and a signal already carrying a close reason is skipped.
     active_signal_cleanup_dry_run: bool = field(
-        default_factory=lambda: _bool_env("ACTIVE_SIGNAL_CLEANUP_DRY_RUN", "true")
+        default_factory=lambda: _bool_env("ACTIVE_SIGNAL_CLEANUP_DRY_RUN", "false")
     )
     active_signal_cleanup_zombie_hours: float = field(
         default_factory=lambda: float(os.getenv("ACTIVE_SIGNAL_CLEANUP_ZOMBIE_HOURS", "48"))
@@ -247,14 +258,14 @@ class Settings:
     active_signal_default_expiration_hours: float = field(
         default_factory=lambda: float(os.getenv("ACTIVE_SIGNAL_DEFAULT_EXPIRATION_HOURS", "48"))
     )
-    active_signal_cleanup_scheduler_dry_run_enabled: bool = field(
-        default_factory=lambda: _bool_env("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_DRY_RUN_ENABLED", "true")
+    active_signal_cleanup_scheduler_enabled: bool = field(
+        default_factory=lambda: _bool_env("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_ENABLED", "true")
     )
-    active_signal_cleanup_scheduler_dry_run_interval_cycles: int = field(
-        default_factory=lambda: int(os.getenv("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_DRY_RUN_INTERVAL_CYCLES", "1"))
+    active_signal_cleanup_scheduler_interval_cycles: int = field(
+        default_factory=lambda: int(os.getenv("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_INTERVAL_CYCLES", "1"))
     )
-    active_signal_cleanup_scheduler_dry_run_dev_note_enabled: bool = field(
-        default_factory=lambda: _bool_env("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_DRY_RUN_DEV_NOTE_ENABLED", "false")
+    active_signal_cleanup_scheduler_dev_note_enabled: bool = field(
+        default_factory=lambda: _bool_env("ACTIVE_SIGNAL_CLEANUP_SCHEDULER_DEV_NOTE_ENABLED", "false")
     )
     edge_knowledge_shadow_dev_note_enabled: bool = field(
         default_factory=lambda: _bool_env("EDGE_KNOWLEDGE_SHADOW_DEV_NOTE_ENABLED", "false")
@@ -474,6 +485,12 @@ class Settings:
     live_partial_tp_alert_enabled: bool = field(default_factory=lambda: _bool_env("LIVE_PARTIAL_TP_ALERT_ENABLED", "true"))
     live_partial_tp_trigger_r: float = float(os.getenv("LIVE_PARTIAL_TP_TRIGGER_R", "1.5"))
     live_partial_tp_percentage_suggestion: str = os.getenv("LIVE_PARTIAL_TP_PERCENTAGE_SUGGESTION", "30-50")
+    # Mirrors the paper side's 24-candle expiry. Without it a published signal that never
+    # touches SL or TP stays "open" forever: three from 2026-08-21/23 were still open on
+    # 2026-09-10, sitting in the published book as unresolved.
+    live_trade_expiry_candles: int = field(
+        default_factory=lambda: int(os.getenv("LIVE_TRADE_EXPIRY_CANDLES", "24"))
+    )
     live_trading_summary_enabled: bool = field(default_factory=lambda: _bool_env("TELEGRAM_LIVE_DAILY_SUMMARY_ENABLED", "true"))
     live_trading_summary_state_file: Path = field(
         default_factory=lambda: Path(os.getenv("LIVE_TRADING_SUMMARY_STATE_FILE", "./data/live_trading/daily_summary_state.json"))
