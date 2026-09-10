@@ -93,40 +93,41 @@ def scheduler_heartbeat_cycle_number(heartbeat: dict[str, object]) -> int:
         return 0
 
 
-def should_run_active_signal_cleanup_scheduler_dry_run(*, enabled: bool, cycle_number: int, interval_cycles: int) -> bool:
+def should_run_active_signal_cleanup_scheduler(*, enabled: bool, cycle_number: int, interval_cycles: int) -> bool:
     if not enabled:
         return False
     interval = max(1, int(interval_cycles or 1))
     return cycle_number % interval == 0
 
 
-def run_active_signal_cleanup_scheduler_dry_run(
+def run_active_signal_cleanup_scheduler(
     *,
     logger,
     data_path: Path,
     cycle_number: int,
     zombie_hours: float,
+    dry_run: bool = True,
 ) -> dict[str, object]:
     log_json(
         logger,
-        "active_signal_cleanup_scheduler_dry_run_started",
+        "active_signal_cleanup_scheduler_started",
         cycle_number=cycle_number,
-        dry_run=True,
+        dry_run=dry_run,
         zombie_hours=zombie_hours,
         data_path=str(data_path),
     )
     result = run_active_signal_cleanup_v1(
         data_path=data_path,
-        config=ActiveSignalCleanupConfig(enabled=True, dry_run=True, zombie_hours=zombie_hours),
+        config=ActiveSignalCleanupConfig(enabled=True, dry_run=dry_run, zombie_hours=zombie_hours),
     )
-    summary = build_active_signal_cleanup_scheduler_dry_run_summary(result.to_dict(), cycle_number=cycle_number)
-    log_json(logger, "active_signal_cleanup_scheduler_dry_run_summary", **summary)
+    summary = build_active_signal_cleanup_scheduler_summary(result.to_dict(), cycle_number=cycle_number)
+    log_json(logger, "active_signal_cleanup_scheduler_summary", **summary)
     if int(summary.get("candidates", 0)) > 0:
-        log_json(logger, "active_signal_cleanup_scheduler_dry_run_warning", **summary)
+        log_json(logger, "active_signal_cleanup_scheduler_warning", **summary)
     return summary
 
 
-def build_active_signal_cleanup_scheduler_dry_run_summary(
+def build_active_signal_cleanup_scheduler_summary(
     result: dict[str, object],
     *,
     cycle_number: int,
@@ -1067,22 +1068,23 @@ def main(argv: list[str] | None = None) -> int:
                             error_type=type(exc).__name__,
                             error_message=str(exc),
                         )
-                if should_run_active_signal_cleanup_scheduler_dry_run(
-                    enabled=settings.active_signal_cleanup_scheduler_dry_run_enabled,
+                if should_run_active_signal_cleanup_scheduler(
+                    enabled=settings.active_signal_cleanup_scheduler_enabled,
                     cycle_number=cycle_number,
-                    interval_cycles=settings.active_signal_cleanup_scheduler_dry_run_interval_cycles,
+                    interval_cycles=settings.active_signal_cleanup_scheduler_interval_cycles,
                 ):
                     try:
-                        run_active_signal_cleanup_scheduler_dry_run(
+                        run_active_signal_cleanup_scheduler(
                             logger=logger,
                             data_path=settings.data_storage_path,
                             cycle_number=cycle_number,
                             zombie_hours=settings.active_signal_cleanup_zombie_hours,
+                            dry_run=settings.active_signal_cleanup_dry_run,
                         )
                     except Exception as exc:  # pragma: no cover - defensive scheduler path
                         log_json(
                             logger,
-                            "active_signal_cleanup_scheduler_dry_run_error",
+                            "active_signal_cleanup_scheduler_error",
                             cycle_number=cycle_number,
                             error_type=type(exc).__name__,
                             error_message=str(exc),

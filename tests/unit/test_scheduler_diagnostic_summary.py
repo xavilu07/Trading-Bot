@@ -1,16 +1,16 @@
 from __future__ import annotations
 
 from trading_signals.app.cli import (
-    build_active_signal_cleanup_scheduler_dry_run_summary,
+    build_active_signal_cleanup_scheduler_summary,
     build_scheduler_diagnostic_summary,
     format_scheduler_diagnostic_summary_for_telegram,
     load_scheduler_heartbeat,
     load_scheduler_results_window,
-    run_active_signal_cleanup_scheduler_dry_run,
+    run_active_signal_cleanup_scheduler,
     save_scheduler_heartbeat,
     save_scheduler_results_window,
     scheduler_heartbeat_cycle_number,
-    should_run_active_signal_cleanup_scheduler_dry_run,
+    should_run_active_signal_cleanup_scheduler,
 )
 import json
 from pathlib import Path
@@ -458,15 +458,15 @@ def _write_trade_signal(path: Path, payload: dict[str, object]) -> None:
     path.write_text(json.dumps(payload), encoding="utf-8")
 
 
-def test_active_signal_cleanup_scheduler_dry_run_respects_interval() -> None:
-    assert should_run_active_signal_cleanup_scheduler_dry_run(enabled=True, cycle_number=5, interval_cycles=5) is True
-    assert should_run_active_signal_cleanup_scheduler_dry_run(enabled=True, cycle_number=6, interval_cycles=5) is False
-    assert should_run_active_signal_cleanup_scheduler_dry_run(enabled=False, cycle_number=5, interval_cycles=5) is False
-    assert should_run_active_signal_cleanup_scheduler_dry_run(enabled=True, cycle_number=1, interval_cycles=0) is True
+def test_active_signal_cleanup_scheduler_respects_interval() -> None:
+    assert should_run_active_signal_cleanup_scheduler(enabled=True, cycle_number=5, interval_cycles=5) is True
+    assert should_run_active_signal_cleanup_scheduler(enabled=True, cycle_number=6, interval_cycles=5) is False
+    assert should_run_active_signal_cleanup_scheduler(enabled=False, cycle_number=5, interval_cycles=5) is False
+    assert should_run_active_signal_cleanup_scheduler(enabled=True, cycle_number=1, interval_cycles=0) is True
 
 
 def test_active_signal_cleanup_scheduler_summary_with_no_candidates() -> None:
-    summary = build_active_signal_cleanup_scheduler_dry_run_summary(
+    summary = build_active_signal_cleanup_scheduler_summary(
         {"scanned": 2, "zombie_hours": 48, "candidates": []},
         cycle_number=3,
     )
@@ -478,7 +478,7 @@ def test_active_signal_cleanup_scheduler_summary_with_no_candidates() -> None:
     assert summary["top_symbols"] == []
 
 
-def test_active_signal_cleanup_scheduler_dry_run_no_candidates_logs_summary(tmp_path: Path) -> None:
+def test_active_signal_cleanup_scheduler_no_candidates_logs_summary(tmp_path: Path) -> None:
     signal_path = tmp_path / "data" / "trade_signals" / "2026-01-01" / "sig.json"
     _write_trade_signal(
         signal_path,
@@ -494,7 +494,7 @@ def test_active_signal_cleanup_scheduler_dry_run_no_candidates_logs_summary(tmp_
     original = signal_path.read_text(encoding="utf-8")
     logger = _ListLogger()
 
-    summary = run_active_signal_cleanup_scheduler_dry_run(
+    summary = run_active_signal_cleanup_scheduler(
         logger=logger,
         data_path=tmp_path / "data",
         cycle_number=1,
@@ -502,14 +502,14 @@ def test_active_signal_cleanup_scheduler_dry_run_no_candidates_logs_summary(tmp_
     )
 
     events = [json.loads(message)["event"] for message in logger.messages]
-    assert "active_signal_cleanup_scheduler_dry_run_started" in events
-    assert "active_signal_cleanup_scheduler_dry_run_summary" in events
-    assert "active_signal_cleanup_scheduler_dry_run_warning" not in events
+    assert "active_signal_cleanup_scheduler_started" in events
+    assert "active_signal_cleanup_scheduler_summary" in events
+    assert "active_signal_cleanup_scheduler_warning" not in events
     assert summary["candidates"] == 0
     assert signal_path.read_text(encoding="utf-8") == original
 
 
-def test_active_signal_cleanup_scheduler_dry_run_candidates_logs_warning_and_does_not_modify(tmp_path: Path) -> None:
+def test_active_signal_cleanup_scheduler_candidates_logs_warning_and_does_not_modify(tmp_path: Path) -> None:
     signal_path = tmp_path / "data" / "trade_signals" / "2026-01-01" / "sig.json"
     _write_trade_signal(
         signal_path,
@@ -524,7 +524,7 @@ def test_active_signal_cleanup_scheduler_dry_run_candidates_logs_warning_and_doe
     original = signal_path.read_text(encoding="utf-8")
     logger = _ListLogger()
 
-    summary = run_active_signal_cleanup_scheduler_dry_run(
+    summary = run_active_signal_cleanup_scheduler(
         logger=logger,
         data_path=tmp_path / "data",
         cycle_number=1,
@@ -533,8 +533,40 @@ def test_active_signal_cleanup_scheduler_dry_run_candidates_logs_warning_and_doe
 
     parsed = [json.loads(message) for message in logger.messages]
     events = [message["event"] for message in parsed]
-    assert "active_signal_cleanup_scheduler_dry_run_warning" in events
+    assert "active_signal_cleanup_scheduler_warning" in events
     assert summary["candidates"] == 1
     assert summary["top_symbols"] == [{"symbol": "BTCUSDT", "count": 1}]
     assert summary["top_symbol_directions"] == [{"symbol_direction": "BTCUSDT|long", "count": 1}]
     assert signal_path.read_text(encoding="utf-8") == original
+
+
+def test_active_signal_cleanup_scheduler_closes_zombies_when_not_dry_run(tmp_path: Path) -> None:
+    """The scheduler used to hardcode dry_run, so it warned about the same zombie forever."""
+    signal_path = tmp_path / "data" / "trade_signals" / "2026-01-01" / "sig.json"
+    _write_trade_signal(
+        signal_path,
+        {
+            "id": "sig",
+            "symbol": "BTCUSDT",
+            "decision": "long",
+            "status": "published",
+            "published_at": "2026-01-01T00:00:00+00:00",
+        },
+    )
+    logger = _ListLogger()
+
+    summary = run_active_signal_cleanup_scheduler(
+        logger=logger,
+        data_path=tmp_path / "data",
+        cycle_number=1,
+        zombie_hours=1,
+        dry_run=False,
+    )
+
+    assert summary["candidates"] == 1
+    payload = json.loads(signal_path.read_text(encoding="utf-8"))
+    assert payload["status"] == "closed"
+    assert payload["lifecycle_status"] == "expired_zombie"
+    assert payload["close_reason"] == "cleanup_zombie_expired"
+    started = [json.loads(message) for message in logger.messages if json.loads(message)["event"] == "active_signal_cleanup_scheduler_started"]
+    assert started[0]["dry_run"] is False
